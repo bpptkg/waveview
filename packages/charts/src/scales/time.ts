@@ -1,6 +1,5 @@
 import * as PIXI from "pixi.js";
 import { DateAdapter, DefaultDateAdapter, TimeUnit } from "../adapters/date";
-import { Axis } from "../model/axis";
 import { Scale, ScaleOptions, Tick } from "../model/scale";
 import { Range } from "../types/range";
 import { isFinite, isNullOrUndef } from "../util/common";
@@ -152,34 +151,31 @@ function ticksFromTimestamps(
 
 export class TimeScale extends Scale {
   static id = "time";
-  readonly adapter: DateAdapter;
-
-  constructor(axis: Axis, options: ScaleOptions) {
-    super(axis, options);
-    this.adapter = new DefaultDateAdapter({});
-  }
+  readonly adapter: DateAdapter = new DefaultDateAdapter({});
 
   override determineDataLimits(options: ScaleOptions): Range {
     const { dataMin, dataMax, userMin, userMax } = options;
-    const today = new Date().getTime();
-    const yesterday = today - 1e3 * 60 * 60 * 10;
 
     let min = dataMin;
     if (!isNullOrUndef(userMin)) {
       min = userMin;
-    } else {
-      min = isFinite(min) ? min : yesterday;
     }
 
     let max = dataMax;
     if (!isNullOrUndef(userMax)) {
       max = userMax;
-    } else {
-      max = isFinite(max) ? max : today;
     }
 
-    min = Math.min(min, max);
-    max = Math.max(min, max);
+    const adapter = new DefaultDateAdapter({});
+    const unit = "day";
+
+    min =
+      isFinite(min) && !isNaN(min) ? min : +adapter.startOf(Date.now(), unit);
+    max =
+      isFinite(max) && !isNaN(max) ? max : +adapter.endOf(Date.now(), unit) + 1;
+
+    min = Math.min(min, max - 1);
+    max = Math.max(min + 1, max);
 
     return { min, max };
   }

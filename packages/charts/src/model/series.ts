@@ -36,16 +36,23 @@ export class Series {
     this._data = [];
   }
 
+  /**
+   * Get the range of x values.
+   *
+   * Note that the data must be sorted by x values.
+   */
   getXRange(): [number, number] {
     let min = Infinity;
     let max = -Infinity;
-    for (const point of this._data) {
-      min = Math.min(min, point.x);
-      max = Math.max(max, point.x);
+    if (this._data.length > 1) {
+      return [this._data[0].x, this._data[this._data.length - 1].x];
     }
     return [min, max];
   }
 
+  /**
+   * Get the range of y values.
+   */
   getYRange(): [number, number] {
     let min = Infinity;
     let max = -Infinity;
@@ -61,9 +68,17 @@ export class Series {
     const { xAxis, yAxis } = ctx;
     const data = this.getData();
     const graphics = new PIXI.Graphics();
+    const box = xAxis.getParentLayout().getContentArea();
+
     data.forEach((point, index) => {
       const x = xAxis.getScale().getPixelForValue(point.x);
       const y = yAxis.getScale().getPixelForValue(point.y);
+
+      // Exclude points that are out of the axis range.
+      if (x < box.x1 || x > box.x2 || y < box.y1 || y > box.y2) {
+        return;
+      }
+
       if (index === 0) {
         graphics.moveTo(x, y);
       } else {

@@ -1,7 +1,8 @@
 import * as PIXI from "pixi.js";
+import { isFinite } from "../util/common";
+import { Axis } from "./axis";
 import { Chart } from "./chart";
 import { Layout } from "./layout";
-import { Axis } from "./axis";
 import { Series } from "./series";
 
 export interface TrackOptions {
@@ -196,12 +197,17 @@ export class TrackManager {
   render(): void {
     const [xmin, xmax] = this.getXRange();
     const xAxis = this.chart.getPrimaryAxis();
-    xAxis.getScale().setExtent(xmin, xmax);
-    xAxis.render();
+    if (isFinite(xmin) && isFinite(xmax)) {
+      xAxis.getScale().setExtent(xmin, xmax);
+    }
 
     this.getTracks().forEach((track, index) => {
-      const layout = this.getLayoutForTrack(index);
       const [ymin, ymax] = track.getYRange();
+      if (!isFinite(ymin) || !isFinite(ymax)) {
+        return;
+      }
+
+      const layout = this.getLayoutForTrack(index);
       const delta = Math.abs(0.1 * (ymax - ymin));
       const yAxis = new Axis(layout, {
         position: "left",

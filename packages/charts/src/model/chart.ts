@@ -76,6 +76,7 @@ export class Chart {
       this.dom.width,
       this.dom.height
     );
+    this.group.sortableChildren = true;
   }
 
   get options(): Readonly<ChartOptions> {
@@ -140,6 +141,8 @@ export class Chart {
     this._drawTracks();
     this._drawPrimaryAxis();
 
+    this.group.addChild(this.xAxis.group);
+    this.group.addChild(this.track.group);
     this.app.stage.addChild(this.crosshair.group);
     this.app.renderer.render(this.app.stage);
   }
@@ -155,7 +158,6 @@ export class Chart {
   private _drawPrimaryAxis(): void {
     const xAxis = this.xAxis;
     xAxis.render();
-    this.group.addChild(xAxis.group);
   }
 
   private _drawBorder(): void {
@@ -171,6 +173,5 @@ export class Chart {
 
   private _drawTracks(): void {
     this.track.render();
-    this.group.addChild(this.track.group);
   }
 }

@@ -1,4 +1,5 @@
 import { Range } from "../types/range";
+import { isFinite } from "../util/common";
 import { Axis } from "./axis";
 
 export interface Tick {
@@ -80,13 +81,11 @@ export class Scale {
   }
 
   setExtent(min: number, max: number) {
+    if (!isFinite(min) || !isFinite(max)) {
+      throw new Error("Min and max must be finite numbers");
+    }
     this._min = min;
     this._max = max;
-  }
-
-  reset(): void {
-    this._min = Infinity;
-    this._max = -Infinity;
   }
 
   protected maxDigits(): number {
@@ -99,10 +98,6 @@ export class Scale {
   buildTicks(): Tick[] {
     return [];
   }
-
-  // buildMinorTicks(): Tick[] {
-  //   return [];
-  // }
 
   getLabelForValue(tick: Tick): string {
     return tick.value.toString();

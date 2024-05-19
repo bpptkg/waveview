@@ -302,20 +302,6 @@ export class LinearScale extends Scale {
     return ticks;
   }
 
-  // override buildMinorTicks(): Tick[] {
-  //   const ticks = this.buildTicks();
-  //   const minorTicks: Tick[] = [];
-  //   const count = 5;
-  //   const step = (ticks[1].value - ticks[0].value) / count;
-  //   for (let i = 0; i < ticks.length - 1; i++) {
-  //     const start = ticks[i].value;
-  //     for (let j = 1; j < count; j++) {
-  //       minorTicks.push({ value: start + step * j });
-  //     }
-  //   }
-  //   return minorTicks;
-  // }
-
   override getLabelForValue(tick: Tick): string {
     const formatter = this.options.formatter;
     if (formatter) {
