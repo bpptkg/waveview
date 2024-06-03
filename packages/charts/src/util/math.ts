@@ -1,4 +1,4 @@
-import type { Point } from "../types/geometric";
+import type { Point } from "./types";
 
 export const PI = Math.PI;
 export const TAU = 2 * PI;
