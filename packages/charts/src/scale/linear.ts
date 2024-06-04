@@ -1,8 +1,14 @@
 import { niceNum } from "../util/math";
 import { ScaleTick } from "../util/types";
-import { Scale } from "./scale";
+import { Scale, ScaleOptions } from "./scale";
 
-export class LinearScale extends Scale {
+export interface LinearScaleOptions extends ScaleOptions {}
+
+export class LinearScale extends Scale<LinearScaleOptions> {
+  constructor(options?: LinearScaleOptions) {
+    super(options);
+  }
+
   override getLabel(tick: ScaleTick): string {
     return tick.value.toString();
   }

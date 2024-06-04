@@ -52,13 +52,6 @@ export class Track extends View<TrackModel> {
     let min = Infinity;
     let max = -Infinity;
     for (const series of this._series) {
-      const { yRange } = series.getOptions();
-      if (yRange) {
-        min = Math.min(min, yRange[0]);
-        max = Math.max(max, yRange[1]);
-        continue;
-      }
-
       const [seriesMin, seriesMax] = series.getYRange();
       min = Math.min(min, seriesMin);
       max = Math.max(max, seriesMax);
@@ -102,6 +95,24 @@ export class Track extends View<TrackModel> {
   fitContent(): void {
     this.fitX();
     this.fitY();
+  }
+
+  setXExtent(extent: [number, number]): void {
+    this.xAxis.setExtent(extent);
+  }
+
+  setYExtent(extent: [number, number]): void {
+    this.yAxis.setExtent(extent);
+  }
+
+  increaseAmplitude(by: number): void {
+    const [ymin, ymax] = this.yAxis.getExtent();
+    const dy = -(ymax - ymin) * by;
+    this.yAxis.setExtent([ymin - dy, ymax + dy]);
+  }
+
+  decreaseAmplitude(by: number): void {
+    this.increaseAmplitude(-by);
   }
 
   private renderGrid(): void {

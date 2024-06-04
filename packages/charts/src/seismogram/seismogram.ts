@@ -13,6 +13,8 @@ import { LayoutRect, SeriesData } from "../util/types";
 import { ChartType, ChartView } from "../view/chartView";
 
 export interface SeismogramChartOptions extends ChartOptions {
+  startTime?: number;
+  endTime?: number;
   interval: number;
   forceCenter: boolean;
   useUTC: boolean;
@@ -21,6 +23,8 @@ export interface SeismogramChartOptions extends ChartOptions {
 
 function getDefaultOptions(): SeismogramChartOptions {
   return {
+    startTime: undefined,
+    endTime: undefined,
     interval: 30,
     forceCenter: true,
     useUTC: false,
@@ -32,6 +36,14 @@ export interface SeismogramChartType extends ChartType<SeismogramChartOptions> {
   update(): void;
   addChannel(channel: Channel): void;
   removeChannel(index: number): void;
+  increaseAmplitude(by: number): void;
+  decreaseAmplitude(by: number): void;
+  scrollLeft(by: number): void;
+  scrollRight(by: number): void;
+  scrollTo(timestamp: number): void;
+  zoomIn(center: number, by: number): void;
+  zoomOut(center: number, by: number): void;
+  getTrackCount(): number;
 }
 
 export class Seismogram
@@ -75,9 +87,14 @@ export class Seismogram
       position: "top",
     });
     this.xAxis = new Axis(axisModel, this.grid.getRect());
-    const end = Date.now();
-    const start = end - opts.interval * 60;
-    this.xAxis.setExtent([start, end]);
+    const { startTime, endTime } = opts;
+    if (startTime && endTime) {
+      this.xAxis.setExtent([startTime, endTime]);
+    } else {
+      const end = Date.now();
+      const start = end - opts.interval * 60;
+      this.xAxis.setExtent([start, end]);
+    }
     this.addComponent(this.xAxis);
   }
 
@@ -108,6 +125,8 @@ export class Seismogram
 
   removeChannel(index: number): void {
     this.channels.splice(index, 1);
+    const track = this.tracks.splice(index, 1)[0];
+    this.removeComponent(track);
     this.updateTracksRect();
   }
 
@@ -141,12 +160,11 @@ export class Seismogram
 
       const series = new LineSeries(this, {
         data: normalizedData,
-        yRange: [-1, 1],
       });
       const track = this.tracks[i];
       if (track) {
         track.setSingleSeries(series);
-        track.fitY();
+        track.setYExtent([-1, 1]);
       }
     }
 
@@ -155,6 +173,45 @@ export class Seismogram
 
   override getGrid(): Grid {
     return this.grid;
+  }
+
+  increaseAmplitude(by: number): void {
+    this.tracks.forEach((track) => {
+      track.increaseAmplitude(by);
+    });
+    this.render();
+  }
+
+  decreaseAmplitude(by: number): void {
+    this.tracks.forEach((track) => {
+      track.decreaseAmplitude(by);
+    });
+    this.render();
+  }
+
+  scrollLeft(by: number): void {
+    this.xAxis.scrollLeft(by);
+    this.render();
+  }
+
+  scrollRight(by: number): void {
+    this.xAxis.scrollRight(by);
+    this.render();
+  }
+
+  scrollTo(timestamp: number): void {
+    this.xAxis.scrollTo(timestamp);
+    this.render();
+  }
+
+  zoomIn(at: number, by: number): void {
+    this.xAxis.zoomIn(at, by);
+    this.render();
+  }
+
+  zoomOut(at: number, by: number): void {
+    this.xAxis.zoomOut(at, by);
+    this.render();
   }
 
   private getRectForTrack(index: number, count: number): LayoutRect {

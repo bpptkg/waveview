@@ -40,6 +40,8 @@ export interface AxisOptions {
   minorTick: MinorTickOptions;
   axisLabel: AxisLabelOptions;
   splitLine: SplitLineOptions;
+  min?: number;
+  max?: number;
 }
 
 export class AxisModel extends Model<AxisOptions> {

@@ -16,7 +16,13 @@ export class SeriesModel<
   }
 
   appendData(data: SeriesData): void {
-    this._data.push(...data);
+    for (const point of data) {
+      this._data.push(point);
+    }
+  }
+
+  isEmpty(): boolean {
+    return this._data.length === 0;
   }
 
   getData(): SeriesData {

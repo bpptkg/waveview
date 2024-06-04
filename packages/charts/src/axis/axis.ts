@@ -119,6 +119,40 @@ export class Axis extends View<AxisModel> {
     return scale.percentageToValue(percent);
   }
 
+  scrollLeft(by: number): void {
+    const { scale } = this.model;
+    const [min, max] = scale.getExtent();
+    const range = max - min;
+    const newMin = min - range * by;
+    const newMax = max - range * by;
+    scale.setExtent([newMin, newMax]);
+  }
+
+  scrollRight(by: number): void {
+    this.scrollLeft(-by);
+  }
+
+  scrollTo(value: number): void {
+    const { scale } = this.model;
+    const [min, max] = scale.getExtent();
+    const range = max - min;
+    const newMin = value;
+    const newMax = value + range;
+    scale.setExtent([newMin, newMax]);
+  }
+
+  zoomIn(center: number, factor: number): void {
+    const { scale } = this.model;
+    const [min, max] = scale.getExtent();
+    const newMin = center - (center - min) * factor;
+    const newMax = center + (max - center) * factor;
+    scale.setExtent([newMin, newMax]);
+  }
+
+  zoomOut(center: number, factor: number): void {
+    this.zoomIn(center, 1 / factor);
+  }
+
   override getRect() {
     return this._rect;
   }
@@ -133,6 +167,7 @@ export class Axis extends View<AxisModel> {
       return;
     }
 
+    this.group.removeChildren();
     this._builder.drawAxisLine();
     this._builder.drawMajorTick();
     this._builder.drawMinorTick();

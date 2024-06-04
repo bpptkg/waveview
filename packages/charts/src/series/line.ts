@@ -1,6 +1,7 @@
 import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
 import { SeriesModel } from "../model/series";
+import { merge } from "../util/merge";
 import { LayoutRect, SeriesOptions } from "../util/types";
 import { ChartView } from "../view/chartView";
 import { View } from "../view/view";
@@ -11,8 +12,9 @@ export class LineSeries extends SeriesModel<LineSeriesOptions> {
   override type = "line";
   readonly chart: ChartView;
 
-  constructor(chart: ChartView, options: LineSeriesOptions) {
-    super(options);
+  constructor(chart: ChartView, options?: Partial<LineSeriesOptions>) {
+    const opts = merge({}, options) as LineSeriesOptions;
+    super(opts);
 
     this.chart = chart;
   }
