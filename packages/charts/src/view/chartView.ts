@@ -1,4 +1,5 @@
 import * as PIXI from "pixi.js";
+import { Grid } from "../grid/grid";
 import { ChartModel, ChartOptions } from "../model/chartModel";
 import { LayoutRect } from "../util/types";
 import { View } from "./view";
@@ -20,14 +21,15 @@ export interface ChartType<T extends ChartOptions> {
   dispose(): void;
 }
 
-export class ChartView<T extends ChartOptions = ChartOptions>
+export abstract class ChartView<T extends ChartOptions = ChartOptions>
   extends View<ChartModel<T>>
   implements ChartType<T>
 {
   override type = "chart";
 
   private _rect: LayoutRect;
-  private _views: View[] = [];
+  _views: View[] = [];
+
   readonly dom: HTMLCanvasElement;
   readonly app: PIXI.Application = new PIXI.Application();
 
@@ -82,11 +84,17 @@ export class ChartView<T extends ChartOptions = ChartOptions>
     this.app.stage.addChild(this.group);
   }
 
-  override getRect(): LayoutRect {
+  getRect(): LayoutRect {
     return this._rect;
   }
 
-  override render(): void {
+  setRect(rect: LayoutRect): void {
+    this._rect = rect;
+  }
+
+  abstract getGrid(): Grid;
+
+  render(): void {
     for (const view of this._views) {
       view.render();
     }

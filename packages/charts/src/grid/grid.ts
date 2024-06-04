@@ -5,7 +5,7 @@ import { GridModel } from "./gridModel";
 
 export class Grid extends View<GridModel> {
   override type = "grid";
-  readonly _rect: LayoutRect;
+  private _rect: LayoutRect;
 
   constructor(model: GridModel, rect: LayoutRect) {
     super(model);
@@ -21,6 +21,10 @@ export class Grid extends View<GridModel> {
       width - left - right,
       height - top - bottom
     );
+  }
+
+  override setRect(rect: LayoutRect): void {
+    this._rect = rect;
   }
 
   override render(): void {

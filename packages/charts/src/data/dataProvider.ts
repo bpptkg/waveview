@@ -1,3 +1,12 @@
+import { Channel } from "./channel";
+
+export type DataProviderOptions = Record<string, unknown>;
+
 export interface DataProvider {
-  getData(options?: Record<string, unknown>): number[][];
+  getData(
+    channel: Channel,
+    start: number,
+    end: number,
+    options?: DataProviderOptions
+  ): number[][];
 }

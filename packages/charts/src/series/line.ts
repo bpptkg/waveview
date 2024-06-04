@@ -1,30 +1,43 @@
 import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
-import { Grid } from "../grid/grid";
 import { SeriesModel } from "../model/series";
 import { LayoutRect, SeriesOptions } from "../util/types";
+import { ChartView } from "../view/chartView";
 import { View } from "../view/view";
 
 export interface LineSeriesOptions extends SeriesOptions {}
 
 export class LineSeries extends SeriesModel<LineSeriesOptions> {
   override type = "line";
+  readonly chart: ChartView;
+
+  constructor(chart: ChartView, options: LineSeriesOptions) {
+    super(options);
+
+    this.chart = chart;
+  }
 }
 
 export class LineSeriesView extends View<LineSeries> {
   override type = "line";
-  private readonly _rect: LayoutRect;
-  readonly grid: Grid;
+  private _rect: LayoutRect;
   readonly xAxis: Axis;
   readonly yAxis: Axis;
 
-  constructor(model: LineSeries, grid: Grid, xAxis: Axis, yAxis: Axis) {
+  constructor(model: LineSeries, rect: LayoutRect, xAxis: Axis, yAxis: Axis) {
     super(model);
 
-    this._rect = grid.getRect();
-    this.grid = grid;
+    this._rect = rect;
     this.xAxis = xAxis;
     this.yAxis = yAxis;
+  }
+
+  override getRect(): LayoutRect {
+    return this._rect;
+  }
+
+  override setRect(rect: LayoutRect): void {
+    this._rect = rect;
   }
 
   override render(): void {
@@ -50,9 +63,14 @@ export class LineSeriesView extends View<LineSeries> {
       width: 1,
     });
     this.group.addChild(graphics);
-  }
 
-  override getRect(): LayoutRect {
-    return this._rect;
+    const chart = this.model.chart;
+    const rect = chart.getGrid().getRect();
+    const mask = new PIXI.Graphics();
+    mask.rect(rect.x, rect.y, rect.width, rect.height).fill({
+      color: 0xffffff,
+    });
+    chart.app.stage.addChild(mask);
+    this.group.mask = mask;
   }
 }

@@ -1,5 +1,4 @@
-import { Grid } from "../grid/grid";
-import { ScaleTick } from "../util/types";
+import { LayoutRect, ScaleTick } from "../util/types";
 import { View } from "../view/view";
 import { AxisBuilder } from "./axisBuilder";
 import { AxisModel, AxisOptions } from "./axisModel";
@@ -11,12 +10,12 @@ export interface TickPixel {
 
 export class Axis extends View<AxisModel> {
   override type = "axis";
-  readonly grid: Grid;
+  private _rect: LayoutRect;
   private readonly _builder: AxisBuilder;
 
-  constructor(model: AxisModel, grid: Grid) {
+  constructor(model: AxisModel, rect: LayoutRect) {
     super(model);
-    this.grid = grid;
+    this._rect = rect;
 
     this._builder = new AxisBuilder(model, this);
   }
@@ -45,7 +44,7 @@ export class Axis extends View<AxisModel> {
 
   getOrigin(): [number, number] {
     const { position } = this.model.getOptions();
-    const { x, y, width, height } = this.grid.getRect();
+    const { x, y, width, height } = this.getRect();
     if (position === "top") {
       return [x, y];
     } else if (position === "right") {
@@ -55,10 +54,6 @@ export class Axis extends View<AxisModel> {
     } else {
       return [x, y];
     }
-  }
-
-  override getRect() {
-    return this.grid.getRect();
   }
 
   getTicksPixels(): TickPixel[] {
@@ -122,6 +117,14 @@ export class Axis extends View<AxisModel> {
       ? (pixel - x) / width
       : (pixel - y) / height;
     return scale.percentageToValue(percent);
+  }
+
+  override getRect() {
+    return this._rect;
+  }
+
+  override setRect(rect: LayoutRect) {
+    this._rect = rect;
   }
 
   override render(): void {

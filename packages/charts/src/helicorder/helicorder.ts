@@ -1,11 +1,12 @@
 import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
 import { AxisModel } from "../axis/axisModel";
+import { Channel, EMPTY_CHANNEL } from "../data/channel";
 import { DataProvider } from "../data/dataProvider";
 import { Grid } from "../grid/grid";
 import { GridModel } from "../grid/gridModel";
 import { ChartOptions } from "../model/chartModel";
-import { LineSeries, LineSeriesOptions } from "../series/line";
+import { LineSeries } from "../series/line";
 import { Track } from "../track/track";
 import { TrackModel } from "../track/trackModel";
 import { merge } from "../util/merge";
@@ -29,18 +30,20 @@ export interface HelicorderChartOptions extends ChartOptions {
 
 function getDefaultOptions(): HelicorderChartOptions {
   return {
-    interval: 60,
+    interval: 30,
     duration: 12,
     offsetDate: new Date(),
-    forceCenter: false,
+    forceCenter: true,
     useUTC: false,
-    verticalScaling: "local",
+    verticalScaling: "global",
   };
 }
 
 export interface HelicorderChartType extends ChartType<HelicorderChartOptions> {
   update(): void;
   getTrackCount(): number;
+  setChannel(channel: Channel): void;
+  getChannel(): Channel;
 }
 
 export class Helicorder
@@ -48,9 +51,12 @@ export class Helicorder
   implements HelicorderChartType
 {
   override readonly type = "helicorder";
+
   private readonly tracks: Track[] = [];
   private readonly xAxis: Axis;
   private readonly dataProvider: DataProvider;
+  private _channel: Channel;
+  private readonly grid: Grid;
 
   constructor(
     dom: HTMLCanvasElement,
@@ -66,6 +72,7 @@ export class Helicorder
     super(dom, opts);
 
     this.dataProvider = dataProvider;
+    this._channel = EMPTY_CHANNEL;
 
     const gridModel = new GridModel(this, {
       top: 50,
@@ -76,33 +83,38 @@ export class Helicorder
     const grid = new Grid(gridModel, this.getRect());
     this.addComponent(grid);
 
+    this.grid = grid;
+
     const axisModel = new AxisModel(this, {
       position: "top",
     });
-    this.xAxis = new Axis(axisModel, grid);
+    this.xAxis = new Axis(axisModel, this.grid.getRect());
     this.xAxis.setExtent([0, opts.interval]);
     this.addComponent(this.xAxis);
 
     const trackCount = this.getTrackCount();
     for (let i = 0; i < trackCount; i++) {
-      const rect = this.getRectForTrack(i, trackCount, grid.getRect());
+      const rect = this.getRectForTrack(i, trackCount, this.grid.getRect());
       const model = new TrackModel(this, {
         leftLabel: `${i}`,
         rightLabel: "",
       });
-      const localGridModel = new GridModel(this);
-      const localGrid = new Grid(localGridModel, rect);
+      const localGrid = new Grid(new GridModel(this), rect);
       const yAxis = new Axis(
         new AxisModel(this, {
           position: "left",
           show: true,
         }),
-        localGrid
+        localGrid.getRect()
       );
-      const track = new Track(model, localGrid, this.xAxis, yAxis);
+      const track = new Track(model, localGrid.getRect(), this.xAxis, yAxis);
       this.tracks.push(track);
       this.addComponent(track);
     }
+  }
+
+  override getGrid(): Grid {
+    return this.grid
   }
 
   getTrackCount() {
@@ -110,28 +122,13 @@ export class Helicorder
     return Math.ceil((duration * 60) / interval);
   }
 
-  private getRectForTrack(
-    index: number,
-    count: number,
-    rect: LayoutRect
-  ): LayoutRect {
-    if (count === 0) {
-      return rect;
-    }
-
-    const { x, y, width, height } = rect;
-    const trackHeight = height / count;
-    const trackY = y + index * trackHeight;
-
-    return new PIXI.Rectangle(x, trackY, width, trackHeight);
+  setChannel(channel: Channel): void {
+    this._channel = channel;
+    this.update();
   }
 
-  addSeries(index: number, options: LineSeriesOptions): void {
-    const series = new LineSeries(options);
-    const track = this.tracks[index];
-    if (track) {
-      track.addSeries(series);
-    }
+  getChannel(): Channel {
+    return this._channel;
   }
 
   update(): void {
@@ -139,7 +136,8 @@ export class Helicorder
     const seriesData: SeriesData[] = [];
 
     for (let i = 0; i < this.tracks.length; i++) {
-      const data = this.dataProvider.getData({ index: i });
+      const [start, end] = this.getTrackExtentAt(i);
+      const data = this.dataProvider.getData(this._channel, start, end);
       seriesData.push(data);
 
       let min = Infinity;
@@ -161,7 +159,7 @@ export class Helicorder
         d[1] / normalizationFactor,
       ]);
 
-      const series = new LineSeries({ data: normalizedData, yRange: [-1, 1] });
+      const series = new LineSeries(this, { data: normalizedData, yRange: [-1, 1] });
       const track = this.tracks[i];
       if (track) {
         track.setSingleSeries(series);
@@ -170,5 +168,29 @@ export class Helicorder
     }
 
     this.render();
+  }
+
+  private getRectForTrack(
+    index: number,
+    count: number,
+    rect: LayoutRect
+  ): LayoutRect {
+    if (count === 0) {
+      return rect;
+    }
+
+    const { x, y, width, height } = rect;
+    const trackHeight = height / count;
+    const trackY = y + index * trackHeight;
+
+    return new PIXI.Rectangle(x, trackY, width, trackHeight);
+  }
+
+  private getTrackExtentAt(index: number): [number, number] {
+    const { interval, offsetDate } = this.model.getOptions();
+    const duration = interval * 60;
+    const start = offsetDate.getTime() / 1000;
+    const end = start + duration;
+    return [start, end];
   }
 }

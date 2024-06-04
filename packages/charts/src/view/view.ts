@@ -17,5 +17,7 @@ export abstract class View<T extends Model = Model> {
 
   abstract getRect(): LayoutRect;
 
+  abstract setRect(rect: LayoutRect): void;
+
   abstract render(): void;
 }

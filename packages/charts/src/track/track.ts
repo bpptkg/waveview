@@ -1,6 +1,5 @@
 import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
-import { Grid } from "../grid/grid";
 import { SeriesModel } from "../model/series";
 import { LineSeries, LineSeriesView } from "../series/line";
 import { LayoutRect } from "../util/types";
@@ -9,21 +8,27 @@ import { TrackModel } from "./trackModel";
 
 export class Track extends View<TrackModel> {
   override type = "track";
-  private readonly _rect: LayoutRect;
+  private _rect: LayoutRect;
   private _series: SeriesModel[] = [];
+
   readonly xAxis: Axis;
   readonly yAxis: Axis;
 
-  constructor(model: TrackModel, grid: Grid, xAxis: Axis, yAxis: Axis) {
+  constructor(model: TrackModel, rect: LayoutRect, xAxis: Axis, yAxis: Axis) {
     super(model);
 
-    this._rect = grid.getRect();
+    this._rect = rect;
     this.xAxis = xAxis;
     this.yAxis = yAxis;
   }
 
   override getRect(): LayoutRect {
     return this._rect;
+  }
+
+  override setRect(rect: LayoutRect): void {
+    this._rect = rect;
+    this.yAxis.setRect(rect);
   }
 
   override render(): void {
@@ -147,7 +152,7 @@ export class Track extends View<TrackModel> {
         const lineSeries = series as LineSeries;
         const view = new LineSeriesView(
           lineSeries,
-          this.grid,
+          this._rect,
           this.xAxis,
           this.yAxis
         );
