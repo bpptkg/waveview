@@ -19,6 +19,7 @@ export interface ChartType<T extends ChartOptions> {
   resize(): void;
   clear(): void;
   dispose(): void;
+  toDataURL(type?: string, quality?: number): string;
 }
 
 export abstract class ChartView<T extends ChartOptions = ChartOptions>
@@ -127,5 +128,9 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
 
   dispose(): void {
     this.app.destroy(true);
+  }
+
+  toDataURL(type?: string, quality?: number): string {
+    return this.dom.toDataURL(type, quality);
   }
 }
