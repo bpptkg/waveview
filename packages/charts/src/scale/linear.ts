@@ -18,17 +18,20 @@ export class LinearScale extends Scale {
   }
 
   override getTicks(): ScaleTick[] {
+    const { reverse } = this.getOptions();
     const [min, max] = this.getExtent();
     const maxTicks = 11;
 
     const range = niceNum(max - min);
     const spacing = niceNum(range / (maxTicks - 1));
-    const niceMin = Math.floor(min / spacing) * spacing;
-    const niceMax = Math.ceil(max / spacing) * spacing;
 
     const ticks: ScaleTick[] = [];
-    for (let value = niceMin; value <= niceMax; value += spacing) {
+    for (let value = min; value <= max; value += spacing) {
       ticks.push({ value });
+    }
+
+    if (reverse) {
+      return ticks.reverse();
     }
     return ticks;
   }
