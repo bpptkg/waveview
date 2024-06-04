@@ -43,8 +43,13 @@ export class LineSeriesView extends View<LineSeries> {
   }
 
   override render(): void {
+    const model = this.getModel();
+    if (model.isEmpty()) {
+      return;
+    }
+
     const { xAxis, yAxis } = this;
-    const data = this.getModel().getData();
+    const data = model.getData();
     const graphics = new PIXI.Graphics();
     let first = false;
     for (let index = 0; index < data.length; index++) {
