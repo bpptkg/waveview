@@ -16,7 +16,7 @@ export class Model<T extends ModelOptions = ModelOptions> {
     return this._options;
   }
 
-  mergeOptions(options: T): void {
+  mergeOptions(options: Partial<T>): void {
     this._options = { ...this._options, ...options };
   }
 }

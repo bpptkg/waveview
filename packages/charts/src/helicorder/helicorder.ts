@@ -10,6 +10,7 @@ import { LineSeries } from "../series/line";
 import { Track } from "../track/track";
 import { TrackModel } from "../track/trackModel";
 import { merge } from "../util/merge";
+import { formatDate } from "../util/time";
 import { LayoutRect, SeriesData } from "../util/types";
 import { ChartType, ChartView } from "../view/chartView";
 
@@ -44,6 +45,9 @@ export interface HelicorderChartType extends ChartType<HelicorderChartOptions> {
   getTrackCount(): number;
   setChannel(channel: Channel): void;
   getChannel(): Channel;
+  getTrackExtentAt(index: number): [number, number];
+  increaseAmplitude(by: number): void;
+  decreaseAmplitude(by: number): void;
 }
 
 export class Helicorder
@@ -87,6 +91,7 @@ export class Helicorder
 
     const axisModel = new AxisModel(this, {
       position: "top",
+      type: "linear",
     });
     this.xAxis = new Axis(axisModel, this.grid.getRect());
     this.xAxis.setExtent([0, opts.interval]);
@@ -95,9 +100,12 @@ export class Helicorder
     const trackCount = this.getTrackCount();
     for (let i = 0; i < trackCount; i++) {
       const rect = this.getRectForTrack(i, trackCount, this.grid.getRect());
+      const [start, end] = this.getTrackExtentAt(trackCount - i - 1);
+      const leftLabel = formatDate(start, "{HH}:{mm}", false);
+      const rightLabel = formatDate(end, "{HH}:{mm}", true);
       const model = new TrackModel(this, {
-        leftLabel: `${i}`,
-        rightLabel: "",
+        leftLabel,
+        rightLabel,
       });
       const localGrid = new Grid(new GridModel(this), rect);
       const yAxis = new Axis(
@@ -114,12 +122,12 @@ export class Helicorder
   }
 
   override getGrid(): Grid {
-    return this.grid
+    return this.grid;
   }
 
   getTrackCount() {
     const { interval, duration } = this.model.getOptions();
-    return Math.ceil((duration * 60) / interval);
+    return Math.ceil((duration * 60) / interval) + 1;
   }
 
   setChannel(channel: Channel): void {
@@ -129,6 +137,20 @@ export class Helicorder
 
   getChannel(): Channel {
     return this._channel;
+  }
+
+  increaseAmplitude(by: number): void {
+    for (const track of this.tracks) {
+      track.increaseAmplitude(by);
+    }
+    this.render();
+  }
+
+  decreaseAmplitude(by: number): void {
+    for (const track of this.tracks) {
+      track.decreaseAmplitude(by);
+    }
+    this.render();
   }
 
   update(): void {
@@ -155,19 +177,34 @@ export class Helicorder
 
     for (let i = 0; i < this.tracks.length; i++) {
       const normalizedData = seriesData[i].map((d) => [
-        d[0],
+        this.timeToOffset(i, d[0]),
         d[1] / normalizationFactor,
       ]);
 
-      const series = new LineSeries(this, { data: normalizedData, yRange: [-1, 1] });
+      const series = new LineSeries(this, {
+        data: normalizedData,
+      });
       const track = this.tracks[i];
       if (track) {
         track.setSingleSeries(series);
-        track.fitY();
+        track.setYExtent([-1, 1]);
       }
     }
 
     this.render();
+  }
+
+  getTrackExtentAt(index: number): [number, number] {
+    const { interval, offsetDate } = this.model.getOptions();
+
+    const segment = interval * 60000;
+    const startOf = (value: number) => value - (value % segment);
+    const endOf = (value: number) => value + segment - (value % segment);
+
+    return [
+      startOf(offsetDate.getTime() - index * interval * 60000),
+      endOf(offsetDate.getTime() - index * interval * 60000),
+    ];
   }
 
   private getRectForTrack(
@@ -186,11 +223,9 @@ export class Helicorder
     return new PIXI.Rectangle(x, trackY, width, trackHeight);
   }
 
-  private getTrackExtentAt(index: number): [number, number] {
-    const { interval, offsetDate } = this.model.getOptions();
-    const duration = interval * 60;
-    const start = offsetDate.getTime() / 1000;
-    const end = start + duration;
-    return [start, end];
+  private timeToOffset(trackIndex: number, time: number): number {
+    const { interval } = this.model.getOptions();
+    const [start, end] = this.getTrackExtentAt(trackIndex);
+    return ((time - start) / (end - start)) * interval;
   }
 }

@@ -37,6 +37,16 @@ export class Track extends View<TrackModel> {
     this.renderSeries();
   }
 
+  setLeftLabel(label: string): void {
+    this.model.mergeOptions({ leftLabel: label });
+    this.render();
+  }
+
+  setRightLabel(label: string): void {
+    this.model.mergeOptions({ rightLabel: label });
+    this.render();
+  }
+
   getXRange(): [number, number] {
     let min = Infinity;
     let max = -Infinity;
