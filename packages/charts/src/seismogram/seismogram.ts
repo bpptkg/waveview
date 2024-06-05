@@ -85,6 +85,7 @@ export class Seismogram
 
     const axisModel = new AxisModel(this, {
       position: "top",
+      type: "time",
     });
     this.xAxis = new Axis(axisModel, this.grid.getRect());
     const { startTime, endTime } = opts;
@@ -92,7 +93,7 @@ export class Seismogram
       this.xAxis.setExtent([startTime, endTime]);
     } else {
       const end = Date.now();
-      const start = end - opts.interval * 60;
+      const start = end - opts.interval * 1000 * 60;
       this.xAxis.setExtent([start, end]);
     }
     this.addComponent(this.xAxis);

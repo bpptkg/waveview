@@ -1,9 +1,9 @@
 import { ScaleTick } from "../util/types";
 
 export interface ScaleOptions {
-  reverse: boolean;
-  min: number;
-  max: number;
+  reverse?: boolean;
+  min?: number;
+  max?: number;
 }
 
 export abstract class Scale<T extends ScaleOptions = ScaleOptions> {

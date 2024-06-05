@@ -17,9 +17,6 @@ importers:
 
   packages/charts:
     dependencies:
-      date-fns:
-        specifier: ^3.6.0
-        version: 3.6.0
       pixi.js:
         specifier: ^8.1.1
         version: 8.1.1
@@ -307,9 +304,6 @@ packages:
 
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
-
-  date-fns@3.6.0:
-    resolution: {integrity: sha512-fRHTG8g/Gif+kSh50gaGEdToemgfj74aRX3swtiouboip5JDLAyDE9F11nHMIcvOaXeOC6D7SpNhi7uFyB7Uww==}
 
   diff@2.2.3:
     resolution: {integrity: sha512-9wfm3RLzMp/PyTFWuw9liEzdlxsdGixCW0ZTU1XDmtlAkvpVXTPGF8KnfSs0hm3BPbg19OrUPPsRkHXoREpP1g==}
@@ -629,8 +623,6 @@ snapshots:
       supports-color: 2.0.0
 
   concat-map@0.0.1: {}
-
-  date-fns@3.6.0: {}
 
   diff@2.2.3: {}
 

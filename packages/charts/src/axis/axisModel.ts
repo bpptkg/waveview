@@ -90,7 +90,6 @@ export class AxisModel extends Model<AxisOptions> {
     this.chart = chart;
     if (opts.type === "linear") {
       this.scale = new LinearScale();
-      this.scale.setExtent([0, 1]);
     } else if (opts.type === "time") {
       this.scale = new TimeScale();
     } else {
