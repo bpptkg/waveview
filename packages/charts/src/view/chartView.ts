@@ -126,7 +126,7 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
     this.app.stage.removeChildren();
   }
 
-  dispose(): void {
+  override dispose(): void {
     this.app.destroy(true);
   }
 

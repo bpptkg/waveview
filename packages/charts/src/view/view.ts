@@ -20,4 +20,8 @@ export abstract class View<T extends Model = Model> {
   abstract setRect(rect: LayoutRect): void;
 
   abstract render(): void;
+
+  dispose(): void {
+    this.group.destroy({ children: true });
+  }
 }
