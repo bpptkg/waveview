@@ -23,9 +23,22 @@ export interface HelicorderChartOptions extends ChartOptions {
    * Duration of the helicorder chart in hours.
    */
   duration: number;
+  /**
+   * Offset date of the helicorder chart.
+   */
   offsetDate: Date;
+  /**
+   * Force center the signal in the helicorder chart.
+   */
   forceCenter: boolean;
+  /**
+   * Use UTC time for the helicorder chart.
+   */
   useUTC: boolean;
+  /**
+   * Vertical scaling of the helicorder chart. ``local`` scales each track
+   * independently, while ``global`` scales all tracks together.
+   */
   verticalScaling: "local" | "global";
 }
 
