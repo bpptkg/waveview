@@ -63,6 +63,7 @@ export interface HelicorderChartType extends ChartType<HelicorderChartOptions> {
   decreaseAmplitude(by: number): void;
   shiftViewUp(): void;
   shiftViewDown(): void;
+  shiftViewToNow(): void;
   setOffsetDate(date: Date): void;
 }
 
@@ -167,6 +168,12 @@ export class Helicorder
     const offsetDate = new Date(
       this.model.getOptions().offsetDate.getTime() + interval * 60000
     );
+    this.model.mergeOptions({ offsetDate });
+    this.update();
+  }
+
+  shiftViewToNow(): void {
+    const offsetDate = new Date();
     this.model.mergeOptions({ offsetDate });
     this.update();
   }
