@@ -1,3 +1,5 @@
+import { AreaMarker, AreaMarkerOptions } from "../marker/area";
+import { LineMarker, LineMarkerOptions } from "../marker/line";
 import { LayoutRect, ScaleTick } from "../util/types";
 import { View } from "../view/view";
 import { AxisBuilder } from "./axisBuilder";
@@ -8,10 +10,13 @@ export interface TickPixel {
   tick: ScaleTick;
 }
 
+export type MarkerView = LineMarker | AreaMarker;
+
 export class Axis extends View<AxisModel> {
   override type = "axis";
   private _rect: LayoutRect;
   private readonly _builder: AxisBuilder;
+  private readonly _markers: MarkerView[] = [];
 
   constructor(model: AxisModel, rect: LayoutRect) {
     super(model);
@@ -153,6 +158,92 @@ export class Axis extends View<AxisModel> {
     this.zoomIn(center, 1 / factor);
   }
 
+  contains(value: number): boolean {
+    return this.model.getScale().contains(value);
+  }
+
+  addLineMarker(
+    value: number,
+    options: Partial<LineMarkerOptions>
+  ): LineMarker {
+    const marker = new LineMarker(this, this.getModel().getChart(), {
+      value,
+      ...options,
+    });
+    this._markers.push(marker);
+    return marker;
+  }
+
+  removeLineMarker(value: number): void {
+    const index = this._markers.findIndex(
+      (marker) =>
+        marker.type === "lineMarker" &&
+        (marker as LineMarker).getValue() === value
+    );
+    if (index >= 0) {
+      this._markers.splice(index, 1);
+    }
+  }
+
+  addAreaMarker(
+    start: number,
+    end: number,
+    options: Partial<AreaMarkerOptions>
+  ): AreaMarker {
+    const marker = new AreaMarker(this, this.getModel().getChart(), {
+      start,
+      end,
+      ...options,
+    });
+    this._markers.push(marker);
+    return marker;
+  }
+
+  removeAreaMarker(start: number, end: number): void {
+    const index = this._markers.findIndex(
+      (marker) =>
+        marker.type === "areaMarker" &&
+        (marker as AreaMarker).getStart() === start &&
+        (marker as AreaMarker).getEnd() === end
+    );
+    if (index >= 0) {
+      this._markers.splice(index, 1);
+    }
+  }
+
+  getVisibleMarkers(type?: "line" | "area"): MarkerView[] {
+    const markers: MarkerView[] = [];
+    const targetMarkers = type
+      ? this._markers.filter((marker) => marker.type === `${type}Marker`)
+      : this._markers;
+    for (const marker of targetMarkers) {
+      if (marker.type === "lineMarker") {
+        const { value } = (marker as LineMarker).getModel().getOptions();
+        if (this.contains(value)) {
+          markers.push(marker);
+        }
+      } else if (marker.type === "areaMarker") {
+        const { start, end } = (marker as AreaMarker).getModel().getOptions();
+        if (this.contains(start) || this.contains(end)) {
+          markers.push(marker);
+        }
+      }
+    }
+    return markers;
+  }
+
+  showVisibleMarkers(): void {
+    for (const marker of this.getVisibleMarkers()) {
+      marker.show();
+    }
+  }
+
+  hideVisibleMarkers(): void {
+    for (const marker of this.getVisibleMarkers()) {
+      marker.hide();
+    }
+  }
+
   override getRect() {
     return this._rect;
   }
@@ -171,5 +262,12 @@ export class Axis extends View<AxisModel> {
     this._builder.drawAxisLine();
     this._builder.drawMajorTick();
     this._builder.drawMinorTick();
+    this.renderMarkers();
+  }
+
+  private renderMarkers(): void {
+    for (const marker of this._markers) {
+      marker.render();
+    }
   }
 }

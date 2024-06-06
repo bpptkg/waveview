@@ -63,6 +63,10 @@ export abstract class Scale<T extends ScaleOptions = ScaleOptions> {
     return min + (max - min) * percentage;
   }
 
+  contains(value: number): boolean {
+    return value >= this._extent[0] && value <= this._extent[1];
+  }
+
   abstract calcNiceExtent(): void;
 
   abstract getLabel(tick: ScaleTick): string;

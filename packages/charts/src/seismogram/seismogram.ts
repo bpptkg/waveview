@@ -5,6 +5,8 @@ import { Channel } from "../data/channel";
 import { DataProvider } from "../data/dataProvider";
 import { Grid } from "../grid/grid";
 import { GridModel } from "../grid/gridModel";
+import { AreaMarkerOptions } from "../marker/area";
+import { LineMarkerOptions } from "../marker/line";
 import { ChartOptions } from "../model/chartModel";
 import { LineSeries } from "../series/line";
 import { Track } from "../track/track";
@@ -44,6 +46,19 @@ export interface SeismogramChartType extends ChartType<SeismogramChartOptions> {
   zoomIn(center: number, by: number): void;
   zoomOut(center: number, by: number): void;
   getTrackCount(): number;
+  addLineMarker(value: Date, options?: Partial<LineMarkerOptions>): void;
+  removeLineMarker(value: Date): void;
+  addAreaMarker(
+    start: Date,
+    end: Date,
+    options?: Partial<AreaMarkerOptions>
+  ): void;
+  removeAreaMarker(start: Date, end: Date): void;
+  showVisibleMarkers(): void;
+  hideVisibleMarkers(): void;
+  hightlightTrack(index: number): void;
+  unhighlightTrack(): void;
+  getTrackIndexAtPosition(y: number): number;
 }
 
 export class Seismogram
@@ -129,6 +144,59 @@ export class Seismogram
     const track = this.tracks.splice(index, 1)[0];
     this.removeComponent(track);
     this.updateTracksRect();
+  }
+
+  addLineMarker(
+    value: Date,
+    options?: Partial<Omit<LineMarkerOptions, "value">>
+  ): void {
+    this.xAxis.addLineMarker(value.getTime(), options || {});
+  }
+
+  removeLineMarker(value: Date): void {
+    this.xAxis.removeLineMarker(value.getTime());
+  }
+
+  addAreaMarker(
+    start: Date,
+    end: Date,
+    options?: Partial<Omit<AreaMarkerOptions, "start" | "end">>
+  ): void {
+    this.xAxis.addAreaMarker(start.getTime(), end.getTime(), options || {});
+  }
+
+  removeAreaMarker(start: Date, end: Date): void {
+    this.xAxis.removeAreaMarker(start.getTime(), end.getTime());
+  }
+
+  showVisibleMarkers(): void {
+    this.xAxis.showVisibleMarkers();
+  }
+
+  hideVisibleMarkers(): void {
+    this.xAxis.hideVisibleMarkers();
+  }
+
+  hightlightTrack(index: number): void {
+    this.tracks.forEach((track, i) => {
+      if (i === index) {
+        track.highlight();
+      } else {
+        track.unhighlight();
+      }
+    });
+  }
+
+  unhighlightTrack(): void {
+    this.tracks.forEach((track) => {
+      track.unhighlight();
+    });
+  }
+
+  getTrackIndexAtPosition(y: number): number {
+    const trackCount = this.getTrackCount();
+    const trackHeight = this.grid.getRect().height / trackCount;
+    return Math.floor(y / trackHeight);
   }
 
   update(): void {

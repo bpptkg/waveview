@@ -10,6 +10,7 @@ export class Track extends View<TrackModel> {
   override type = "track";
   private _rect: LayoutRect;
   private _series: SeriesModel[] = [];
+  private _highlighted: boolean = false;
 
   readonly xAxis: Axis;
   readonly yAxis: Axis;
@@ -35,6 +36,7 @@ export class Track extends View<TrackModel> {
     this.group.removeChildren();
     this.renderGrid();
     this.renderSeries();
+    this.renderHighlight();
   }
 
   getXRange(): [number, number] {
@@ -113,6 +115,40 @@ export class Track extends View<TrackModel> {
 
   decreaseAmplitude(by: number): void {
     this.increaseAmplitude(-by);
+  }
+
+  highlight(): void {
+    this._highlighted = true;
+  }
+
+  unhighlight(): void {
+    this._highlighted = false;
+  }
+
+  isHighlighted(): boolean {
+    return this._highlighted;
+  }
+
+  private renderHighlight(): void {
+    if (!this._highlighted) {
+      return;
+    }
+
+    const { x, y, width, height } = this.getRect();
+    const { color, opacity, borderWidth } = this.model.getOptions().highlight;
+
+    const graphics = new PIXI.Graphics();
+    graphics
+      .rect(x, y, width, height)
+      .stroke({
+        color: color,
+        width: borderWidth,
+      })
+      .fill({
+        color: color,
+        alpha: opacity,
+      });
+    this.group.addChild(graphics);
   }
 
   private renderGrid(): void {
