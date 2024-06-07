@@ -18,7 +18,7 @@ export const defaultFormatterTemplte: DateFormatterTemplate = {
   hour: "{HH}:{mm}",
   minute: "{HH}:{mm}",
   second: "{HH}:{mm}:{ss}",
-  millisecond: "{HH}:{mm}:{ss} {SSS}",
+  millisecond: "{ss}.{SSS}",
   week: "{yyyy}-{MM}-{dd}",
   quarter: "{yyyy}-{MM}-{dd}",
 };
