@@ -150,7 +150,6 @@ export class Helicorder
 
   setChannel(channel: Channel): void {
     this._channel = channel;
-    this.updateData();
   }
 
   getChannel(): Channel {
@@ -161,14 +160,12 @@ export class Helicorder
     for (const track of this.tracks) {
       track.increaseAmplitude(by);
     }
-    this.render();
   }
 
   decreaseAmplitude(by: number): void {
     for (const track of this.tracks) {
       track.decreaseAmplitude(by);
     }
-    this.render();
   }
 
   shiftViewUp(): void {
@@ -177,7 +174,6 @@ export class Helicorder
       this.model.getOptions().offsetDate.getTime() - interval * 60000
     );
     this.model.mergeOptions({ offsetDate });
-    this.updateData();
   }
 
   shiftViewDown(): void {
@@ -186,18 +182,15 @@ export class Helicorder
       this.model.getOptions().offsetDate.getTime() + interval * 60000
     );
     this.model.mergeOptions({ offsetDate });
-    this.updateData();
   }
 
   shiftViewToNow(): void {
     const offsetDate = new Date();
     this.model.mergeOptions({ offsetDate });
-    this.updateData();
   }
 
   setOffsetDate(date: Date): void {
     this.model.mergeOptions({ offsetDate: date });
-    this.updateData();
   }
 
   addEventMarker(value: Date, options?: Partial<EventMarkerOptions>): void {
@@ -229,12 +222,10 @@ export class Helicorder
 
   showVisibleMarkers(): void {
     this.getVisibleMarkers().forEach((marker) => marker.show());
-    this.render();
   }
 
   hideVisibleMarkers(): void {
     this.getVisibleMarkers().forEach((marker) => marker.hide());
-    this.render();
   }
 
   selectTrack(index: number): void {
@@ -242,22 +233,18 @@ export class Helicorder
       this.getTrackCount() - index - 1
     );
     this._selection.setValue((start + end) / 2);
-    this.render();
   }
 
   unselectTrack(): void {
     this._selection.clear();
-    this.render();
   }
 
   moveSelectionUp(): void {
     this._selection.moveUp();
-    this.render();
   }
 
   moveSelectionDown(): void {
     this._selection.moveDown();
-    this.render();
   }
 
   updateData(): void {
@@ -312,8 +299,6 @@ export class Helicorder
         track.setYExtent([-1, 1]);
       }
     }
-
-    this.render();
   }
 
   getTrackCount() {

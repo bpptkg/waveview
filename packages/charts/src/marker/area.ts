@@ -55,7 +55,7 @@ export class AreaMarkerModel extends Model<AreaMarkerOptions> {
 }
 
 export class AreaMarker extends View<AreaMarkerModel> {
-  override type = "areaMarker";
+  override readonly type = "areaMarker";
   readonly axis: Axis;
   readonly chart: ChartView;
   private _rect: LayoutRect;

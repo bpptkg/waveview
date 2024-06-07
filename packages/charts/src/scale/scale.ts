@@ -21,6 +21,10 @@ export abstract class Scale<T extends ScaleOptions = ScaleOptions> {
     return this._options;
   }
 
+  mergeOptions(options: Partial<T>): void {
+    this._options = { ...this._options, ...options };
+  }
+
   unionExtent(other: [number, number]): void {
     const extent = this._extent;
     extent[0] = Math.min(extent[0], other[0]);

@@ -93,7 +93,6 @@ export class TimeScale extends Scale<TimeScaleOptions> {
   override getLabel(tick: TimeScaleTick): string {
     const { isUTC = false } = this.getOptions();
     return this.adapter.format(tick.value, tick.unit, isUTC);
-    // return ''
   }
 
   override calcNiceExtent(): void {
@@ -113,19 +112,26 @@ export class TimeScale extends Scale<TimeScaleOptions> {
     const minUnit: TimeUnit = "millisecond";
     const unit = determineUnit(this, numTicks, minUnit, min, max);
     const majorUnit = determineMajorUnit(unit);
-    const ticks: TimeScaleTick[] = [];
-    let tick: number;
+    let ticks: TimeScaleTick[] = [];
     const map: Record<number, number> = {};
+    const first = this.adapter.startOf(min, unit);
+    const last = this.adapter.endOf(max, unit);
+    const count = +this.adapter.diff(last, first, unit);
+    const interval = Math.ceil(count / (numTicks - 1));
 
-    const totalRange = this.adapter.diff(max, min, unit);
-    const interval = Math.floor(totalRange / (numTicks - 1));
-
-    for (let i = 0; i < numTicks; i++) {
-      tick = +this.adapter.add(min, interval * i, unit);
-
+    let i = 0;
+    let tick = first;
+    do {
       ticks.push({ value: tick, unit, major: false });
-      map[tick] = i;
+      map[tick] = i++;
+      tick = +this.adapter.add(tick, interval, unit);
+    } while (tick <= last);
+
+    if (ticks[ticks.length - 1].value !== last) {
+      ticks.push({ value: last, unit, major: false });
     }
+
+    ticks = ticks.filter((tick) => tick.value >= min && tick.value <= max);
 
     if (reverse) {
       ticks.reverse();
@@ -133,18 +139,22 @@ export class TimeScale extends Scale<TimeScaleOptions> {
     return majorUnit ? setMajorTicks(this, ticks, map, majorUnit) : ticks;
   }
 
-  override getMinorTicks(splitNumber: number): ScaleTick[] {
-    let ticks = this.getTicks();
+  override getMinorTicks(): ScaleTick[] {
     const minorTicks: ScaleTick[] = [];
-    if (ticks.length > 2) {
-      const step = (ticks[1].value - ticks[0].value) / splitNumber;
-      for (let i = 0; i < ticks.length - 1; i++) {
-        const start = ticks[i].value;
-        for (let j = 1; j < splitNumber; j++) {
-          minorTicks.push({ value: start + step * j });
-        }
-      }
-    }
+    const [min, max] = this.getExtent();
+    const numTicks = 11;
+    const minUnit: TimeUnit = "millisecond";
+    const unit = determineUnit(this, numTicks, minUnit, min, max);
+    const interval = 1;
+
+    let fist = this.adapter.endOf(min, unit);
+    let last = this.adapter.startOf(max, unit);
+    let tick = fist;
+    do {
+      minorTicks.push({ value: tick });
+      tick = +this.adapter.add(tick, interval, unit);
+    } while (tick <= last);
+
     return minorTicks;
   }
 }

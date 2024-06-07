@@ -122,7 +122,7 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
     this.render();
   }
 
-  clear(): void {
+  override clear(): void {
     this.app.stage.removeChildren();
   }
 

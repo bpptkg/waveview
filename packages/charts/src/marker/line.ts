@@ -18,7 +18,7 @@ export class LineMarkerModel extends Model<LineMarkerOptions> {
   static defaultOptions: LineMarkerOptions = {
     show: true,
     color: "red",
-    width: 2,
+    width: 1,
     value: 0,
   };
 
@@ -28,6 +28,7 @@ export class LineMarkerModel extends Model<LineMarkerOptions> {
 }
 
 export class LineMarker extends View<LineMarkerModel> {
+  override readonly type = "lineMarker";
   readonly axis: Axis;
   readonly chart: ChartView;
   private _rect: LayoutRect;
@@ -80,6 +81,12 @@ export class LineMarker extends View<LineMarkerModel> {
       this.group.removeChildren();
       return;
     }
+
+    if (!this.axis.contains(value)) {
+      this.group.removeChildren();
+      return;
+    }
+
     const pos = this.axis.getPixelForValue(value);
     const { x, y, width, height } = this.getRect();
     if (this.axis.isVertical()) {
@@ -97,10 +104,16 @@ export class LineMarker extends View<LineMarkerModel> {
     color: string,
     width: number
   ) {
-    const graphics = new PIXI.Graphics();
-    graphics.rect(x, y, width, height).fill({ color });
+    const line = new PIXI.Graphics();
+    line
+      .moveTo(x, y)
+      .lineTo(x, y + height)
+      .stroke({
+        color: color,
+        width,
+      });
     this.group.removeChildren();
-    this.group.addChild(graphics);
+    this.group.addChild(line);
   }
 
   private _renderHorizontalLine(
@@ -110,9 +123,15 @@ export class LineMarker extends View<LineMarkerModel> {
     color: string,
     borderWidth: number
   ) {
-    const graphics = new PIXI.Graphics();
-    graphics.rect(x, y, width, borderWidth).fill({ color });
+    const line = new PIXI.Graphics();
+    line
+      .moveTo(x, y)
+      .lineTo(x + width, y)
+      .stroke({
+        color: color,
+        width: borderWidth,
+      });
     this.group.removeChildren();
-    this.group.addChild(graphics);
+    this.group.addChild(line);
   }
 }

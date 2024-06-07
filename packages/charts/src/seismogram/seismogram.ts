@@ -13,6 +13,7 @@ import { Track } from "../track/track";
 import { TrackModel } from "../track/trackModel";
 import { LayoutRect, SeriesData } from "../util/types";
 import { ChartType, ChartView } from "../view/chartView";
+import { AxisPointer } from "./axisPointer";
 
 export interface SeismogramChartOptions extends ChartOptions {
   startTime?: number;
@@ -35,9 +36,11 @@ function getDefaultOptions(): SeismogramChartOptions {
 }
 
 export interface SeismogramChartType extends ChartType<SeismogramChartOptions> {
-  update(): void;
+  updateData(): void;
   addChannel(channel: Channel): void;
+  addChannels(channels: Channel[]): void;
   removeChannel(index: number): void;
+  removeChannels(indexes: number[]): void;
   increaseAmplitude(by: number): void;
   decreaseAmplitude(by: number): void;
   scrollLeft(by: number): void;
@@ -56,9 +59,13 @@ export interface SeismogramChartType extends ChartType<SeismogramChartOptions> {
   removeAreaMarker(start: Date, end: Date): void;
   showVisibleMarkers(): void;
   hideVisibleMarkers(): void;
-  hightlightTrack(index: number): void;
-  unhighlightTrack(): void;
+  selectTrack(index: number): void;
+  unselectTrack(): void;
+  moveSelectionUp(): void;
+  moveSelectionDown(): void;
   getTrackIndexAtPosition(y: number): number;
+  getTrackAt(index: number): Track | undefined;
+  getChartExtent(): [number, number];
 }
 
 export class Seismogram
@@ -72,6 +79,8 @@ export class Seismogram
   private readonly dataProvider: DataProvider;
   private readonly grid: Grid;
   private readonly channels: Channel[] = [];
+  private _selectedTrackIndex: number = -1;
+  private readonly _axisPointer: AxisPointer;
 
   constructor(
     dom: HTMLCanvasElement,
@@ -98,12 +107,13 @@ export class Seismogram
 
     this.grid = grid;
 
+    const { startTime, endTime, useUTC } = opts;
     const axisModel = new AxisModel(this, {
       position: "top",
       type: "time",
+      useUTC,
     });
     this.xAxis = new Axis(axisModel, this.grid.getRect());
-    const { startTime, endTime } = opts;
     if (startTime && endTime) {
       this.xAxis.setExtent([startTime, endTime]);
     } else {
@@ -112,38 +122,29 @@ export class Seismogram
       this.xAxis.setExtent([start, end]);
     }
     this.addComponent(this.xAxis);
-  }
 
-  getTrackCount(): number {
-    return this.tracks.length;
+    this._axisPointer = new AxisPointer(this.xAxis, this);
+    this.addComponent(this._axisPointer);
   }
 
   addChannel(channel: Channel): void {
-    this.channels.push(channel);
-
-    const length = this.channels.length;
-    const rect = this.getRectForTrack(length - 1, length);
-    const model = new TrackModel(this, {
-      leftLabel: channel.id,
-    });
-    const yAxis = new Axis(
-      new AxisModel(this, {
-        position: "left",
-        show: false,
-      }),
-      rect
-    );
-    const track = new Track(model, rect, this.xAxis, yAxis);
-    this.tracks.push(track);
-    this.addComponent(track);
-    this.updateTracksRect();
+    this.addChannelInternal(channel);
   }
 
   removeChannel(index: number): void {
-    this.channels.splice(index, 1);
-    const track = this.tracks.splice(index, 1)[0];
-    this.removeComponent(track);
-    this.updateTracksRect();
+    this.removeChannelInternal(index);
+  }
+
+  addChannels(channels: Channel[]): void {
+    channels.forEach((channel) => {
+      this.addChannelInternal(channel);
+    });
+  }
+
+  removeChannels(indexes: number[]): void {
+    indexes.forEach((index) => {
+      this.removeChannelInternal(index);
+    });
   }
 
   addLineMarker(
@@ -177,29 +178,96 @@ export class Seismogram
     this.xAxis.hideVisibleMarkers();
   }
 
-  hightlightTrack(index: number): void {
-    this.tracks.forEach((track, i) => {
-      if (i === index) {
-        track.highlight();
-      } else {
-        track.unhighlight();
-      }
+  selectTrack(index: number): void {
+    this._selectedTrackIndex = index;
+    this.tracks.forEach((track) => {
+      track.unhighlight();
     });
+    const track = this.tracks[index];
+    if (track) {
+      track.highlight();
+    }
   }
 
-  unhighlightTrack(): void {
+  unselectTrack(): void {
     this.tracks.forEach((track) => {
       track.unhighlight();
     });
   }
 
-  getTrackIndexAtPosition(y: number): number {
-    const trackCount = this.getTrackCount();
-    const trackHeight = this.grid.getRect().height / trackCount;
-    return Math.floor(y / trackHeight);
+  moveSelectionUp(): void {
+    if (this._selectedTrackIndex === -1) {
+      return;
+    }
+    const index = this._selectedTrackIndex - 1;
+    if (index < 0 || index > this.tracks.length - 1) {
+      return;
+    }
+    const track = this.tracks[index];
+    if (track) {
+      this._selectedTrackIndex = index;
+      this.tracks.forEach((track) => {
+        track.unhighlight();
+      });
+      track.highlight();
+    }
   }
 
-  update(): void {
+  moveSelectionDown(): void {
+    if (this._selectedTrackIndex === -1) {
+      return;
+    }
+    const index = this._selectedTrackIndex + 1;
+    if (index < 0 || index > this.tracks.length - 1) {
+      return;
+    }
+    const track = this.tracks[index];
+    if (track) {
+      this._selectedTrackIndex = index;
+      this.tracks.forEach((track) => {
+        track.unhighlight();
+      });
+      track.highlight();
+    }
+  }
+
+  increaseAmplitude(by: number): void {
+    this.tracks.forEach((track) => {
+      track.increaseAmplitude(by);
+    });
+  }
+
+  decreaseAmplitude(by: number): void {
+    this.tracks.forEach((track) => {
+      track.decreaseAmplitude(by);
+    });
+  }
+
+  scrollLeft(by: number): void {
+    this.xAxis.scrollLeft(by);
+  }
+
+  scrollRight(by: number): void {
+    this.xAxis.scrollRight(by);
+  }
+
+  scrollTo(timestamp: number): void {
+    this.xAxis.scrollTo(timestamp);
+  }
+
+  zoomIn(at: number, by: number): void {
+    this.xAxis.zoomIn(at, by);
+  }
+
+  zoomOut(at: number, by: number): void {
+    this.xAxis.zoomOut(at, by);
+  }
+
+  updateData(): void {
+    const { verticalScaling } = this.model.options;
+    if (verticalScaling === "local") {
+      throw new Error("Local scaling is not supported yet.");
+    }
     const extremes: number[] = [];
     const seriesData: SeriesData[] = [];
     const [start, end] = this.xAxis.getExtent();
@@ -236,51 +304,28 @@ export class Seismogram
         track.setYExtent([-1, 1]);
       }
     }
+  }
 
-    this.render();
+  getTrackCount(): number {
+    return this.tracks.length;
+  }
+
+  getTrackIndexAtPosition(y: number): number {
+    const trackCount = this.getTrackCount();
+    const trackHeight = this.grid.getRect().height / trackCount;
+    return Math.floor(y / trackHeight);
+  }
+
+  getTrackAt(index: number): Track | undefined {
+    return this.tracks[index];
+  }
+
+  getChartExtent(): [number, number] {
+    return this.xAxis.getExtent();
   }
 
   override getGrid(): Grid {
     return this.grid;
-  }
-
-  increaseAmplitude(by: number): void {
-    this.tracks.forEach((track) => {
-      track.increaseAmplitude(by);
-    });
-    this.render();
-  }
-
-  decreaseAmplitude(by: number): void {
-    this.tracks.forEach((track) => {
-      track.decreaseAmplitude(by);
-    });
-    this.render();
-  }
-
-  scrollLeft(by: number): void {
-    this.xAxis.scrollLeft(by);
-    this.render();
-  }
-
-  scrollRight(by: number): void {
-    this.xAxis.scrollRight(by);
-    this.render();
-  }
-
-  scrollTo(timestamp: number): void {
-    this.xAxis.scrollTo(timestamp);
-    this.render();
-  }
-
-  zoomIn(at: number, by: number): void {
-    this.xAxis.zoomIn(at, by);
-    this.render();
-  }
-
-  zoomOut(at: number, by: number): void {
-    this.xAxis.zoomOut(at, by);
-    this.render();
   }
 
   private getRectForTrack(index: number, count: number): LayoutRect {
@@ -294,6 +339,35 @@ export class Seismogram
     const trackY = y + index * trackHeight;
 
     return new PIXI.Rectangle(x, trackY, width, trackHeight);
+  }
+
+  private addChannelInternal(channel: Channel): Channel {
+    this.channels.push(channel);
+
+    const length = this.channels.length;
+    const rect = this.getRectForTrack(length - 1, length);
+    const model = new TrackModel(this, {
+      leftLabel: channel.id,
+    });
+    const yAxis = new Axis(
+      new AxisModel(this, {
+        position: "left",
+        show: false,
+      }),
+      rect
+    );
+    const track = new Track(model, rect, this.xAxis, yAxis);
+    this.tracks.push(track);
+    this.addComponent(track);
+    this.updateTracksRect();
+    return channel;
+  }
+
+  private removeChannelInternal(index: number): void {
+    this.channels.splice(index, 1);
+    const track = this.tracks.splice(index, 1)[0];
+    this.removeComponent(track);
+    this.updateTracksRect();
   }
 
   private updateTracksRect(): void {

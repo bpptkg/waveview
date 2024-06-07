@@ -30,6 +30,8 @@ export interface MinorTickOptions {
   splitNumber: number;
 }
 
+export type ScaleType = LinearScale | TimeScale;
+
 export interface AxisOptions {
   show: boolean;
   position: "top" | "right" | "bottom" | "left";
@@ -42,6 +44,7 @@ export interface AxisOptions {
   splitLine: SplitLineOptions;
   min?: number;
   max?: number;
+  useUTC: boolean;
 }
 
 export class AxisModel extends Model<AxisOptions> {
@@ -73,6 +76,7 @@ export class AxisModel extends Model<AxisOptions> {
       color: "#ccc",
       width: 1,
     },
+    useUTC: false,
   };
 
   readonly scale: Scale;
@@ -91,7 +95,9 @@ export class AxisModel extends Model<AxisOptions> {
     if (opts.type === "linear") {
       this.scale = new LinearScale();
     } else if (opts.type === "time") {
-      this.scale = new TimeScale();
+      this.scale = new TimeScale({
+        isUTC: opts.useUTC,
+      });
     } else {
       throw new Error("Unsupported scale type");
     }
@@ -101,7 +107,7 @@ export class AxisModel extends Model<AxisOptions> {
     return this.chart;
   }
 
-  getScale(): Scale {
+  getScale(): ScaleType {
     return this.scale;
   }
 }
