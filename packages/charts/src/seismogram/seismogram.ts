@@ -14,6 +14,7 @@ import { TrackModel } from "../track/trackModel";
 import { LayoutRect, SeriesData } from "../util/types";
 import { ChartType, ChartView } from "../view/chartView";
 import { AxisPointer } from "./axisPointer";
+import { SeismogramEventManager } from "./eventManager";
 
 export interface SeismogramChartOptions extends ChartOptions {
   startTime?: number;
@@ -75,12 +76,13 @@ export class Seismogram
   override readonly type = "seismogram";
 
   private readonly tracks: Track[] = [];
-  private readonly xAxis: Axis;
+  readonly xAxis: Axis;
   private readonly dataProvider: DataProvider;
   private readonly grid: Grid;
   private readonly channels: Channel[] = [];
   private _selectedTrackIndex: number = -1;
   private readonly _axisPointer: AxisPointer;
+  private readonly _eventManager: SeismogramEventManager;
 
   constructor(
     dom: HTMLCanvasElement,
@@ -125,6 +127,9 @@ export class Seismogram
 
     this._axisPointer = new AxisPointer(this.xAxis, this);
     this.addComponent(this._axisPointer);
+
+    this._eventManager = new SeismogramEventManager(this);
+    this._eventManager.enable();
   }
 
   addChannel(channel: Channel): void {

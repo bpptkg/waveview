@@ -149,13 +149,13 @@ export class Axis extends View<AxisModel> {
   zoomIn(center: number, factor: number): void {
     const { scale } = this.model;
     const [min, max] = scale.getExtent();
-    const newMin = center - (center - min) * factor;
-    const newMax = center + (max - center) * factor;
+    const newMin = center - (center - min) * (1 + factor);
+    const newMax = center + (max - center) * (1 + factor);
     scale.setExtent([newMin, newMax]);
   }
 
   zoomOut(center: number, factor: number): void {
-    this.zoomIn(center, 1 / factor);
+    this.zoomIn(center, -factor);
   }
 
   contains(value: number): boolean {
