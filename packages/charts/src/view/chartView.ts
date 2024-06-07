@@ -20,6 +20,9 @@ export interface ChartType<T extends ChartOptions> {
   clear(): void;
   dispose(): void;
   toDataURL(type?: string, quality?: number): string;
+  focus(): void;
+  blur(): void;
+  isFocused(): boolean;
 }
 
 export abstract class ChartView<T extends ChartOptions = ChartOptions>
@@ -29,7 +32,8 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
   override type = "chart";
 
   private _rect: LayoutRect;
-  _views: View[] = [];
+  protected _views: View[] = [];
+  protected _isFocused = false;
 
   readonly dom: HTMLCanvasElement;
   readonly app: PIXI.Application = new PIXI.Application();
@@ -119,7 +123,6 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
     this._rect.width = this.dom.width;
     this._rect.height = this.dom.height;
     this.app.renderer.resize(this.dom.width, this.dom.height);
-    this.render();
   }
 
   override clear(): void {
@@ -132,5 +135,17 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
 
   toDataURL(type?: string, quality?: number): string {
     return this.dom.toDataURL(type, quality);
+  }
+
+  focus(): void {
+    this._isFocused = true;
+  }
+
+  blur(): void {
+    this._isFocused = false;
+  }
+
+  isFocused(): boolean {
+    return this._isFocused;
   }
 }
