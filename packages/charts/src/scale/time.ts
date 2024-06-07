@@ -7,13 +7,13 @@ export interface TimeScaleTick extends ScaleTick {
   major?: boolean;
 }
 
-interface Interval {
+export interface Interval {
   common: boolean;
   size: number;
   steps: number;
 }
 
-const INTERVALS: Record<TimeUnit, Interval> = {
+export const INTERVALS: Record<TimeUnit, Interval> = {
   millisecond: { common: true, size: 1, steps: 1000 },
   second: { common: true, size: 1000, steps: 60 },
   minute: { common: true, size: 60000, steps: 60 },
@@ -25,9 +25,9 @@ const INTERVALS: Record<TimeUnit, Interval> = {
   year: { common: true, size: 3.154e10, steps: 1 },
 };
 
-const UNITS: TimeUnit[] = Object.keys(INTERVALS) as TimeUnit[];
+export const UNITS: TimeUnit[] = Object.keys(INTERVALS) as TimeUnit[];
 
-function determineUnit(
+export function determineUnit(
   scale: TimeScale,
   numTicks: number,
   minUnit: TimeUnit,
@@ -46,7 +46,7 @@ function determineUnit(
   return UNITS[minUnit ? UNITS.indexOf(minUnit) : 0];
 }
 
-function determineMajorUnit(unit: TimeUnit): TimeUnit | undefined {
+export function determineMajorUnit(unit: TimeUnit): TimeUnit | undefined {
   for (let i = UNITS.indexOf(unit) + 1, ilen = UNITS.length; i < ilen; ++i) {
     if (INTERVALS[UNITS[i]].common) {
       return UNITS[i];
@@ -54,7 +54,7 @@ function determineMajorUnit(unit: TimeUnit): TimeUnit | undefined {
   }
 }
 
-function setMajorTicks(
+export function setMajorTicks(
   scale: TimeScale,
   ticks: TimeScaleTick[],
   map: Record<number, number>,
@@ -71,7 +71,7 @@ function setMajorTicks(
     major = +adapter.add(major, 1, majorUnit)
   ) {
     index = map[major];
-    if (index >= 0) {
+    if (index >= 0 && ticks[index]) {
       ticks[index].major = true;
       ticks[index].unit = majorUnit;
     }
@@ -106,54 +106,51 @@ export class TimeScale extends Scale<TimeScaleOptions> {
   }
 
   override getTicks(): TimeScaleTick[] {
-    const { reverse } = this.getOptions();
     const [min, max] = this.getExtent();
     const numTicks = 11;
     const minUnit: TimeUnit = "millisecond";
     const unit = determineUnit(this, numTicks, minUnit, min, max);
-    const majorUnit = determineMajorUnit(unit);
     let ticks: TimeScaleTick[] = [];
-    const map: Record<number, number> = {};
     const first = this.adapter.startOf(min, unit);
     const last = this.adapter.endOf(max, unit);
     const count = +this.adapter.diff(last, first, unit);
-    const interval = Math.ceil(count / (numTicks - 1));
+    const rawInterval = Math.ceil(count / (numTicks - 1));
+    const interval = rawInterval % 2 === 0 ? rawInterval : rawInterval + 1;
 
-    let i = 0;
     let tick = first;
     do {
       ticks.push({ value: tick, unit, major: false });
-      map[tick] = i++;
-      tick = +this.adapter.add(tick, interval, unit);
+      tick = this.adapter.add(tick, interval, unit);
     } while (tick <= last);
-
-    if (ticks[ticks.length - 1].value !== last) {
-      ticks.push({ value: last, unit, major: false });
-    }
 
     ticks = ticks.filter((tick) => tick.value >= min && tick.value <= max);
 
-    if (reverse) {
-      ticks.reverse();
-    }
-    return majorUnit ? setMajorTicks(this, ticks, map, majorUnit) : ticks;
+    return ticks;
   }
 
-  override getMinorTicks(): ScaleTick[] {
-    const minorTicks: ScaleTick[] = [];
+  override getMinorTicks(splitNumber: number): ScaleTick[] {
+    let minorTicks: ScaleTick[] = [];
+
     const [min, max] = this.getExtent();
     const numTicks = 11;
     const minUnit: TimeUnit = "millisecond";
     const unit = determineUnit(this, numTicks, minUnit, min, max);
-    const interval = 1;
+    const first = this.adapter.startOf(min, unit);
+    const last = this.adapter.endOf(max, unit);
+    const count = +this.adapter.diff(last, first, unit);
+    const rawInterval = Math.ceil(count / (numTicks - 1));
+    const interval = rawInterval % 2 === 0 ? rawInterval : rawInterval + 1;
+    const minorInterval = interval / splitNumber;
 
-    let fist = this.adapter.endOf(min, unit);
-    let last = this.adapter.startOf(max, unit);
-    let tick = fist;
+    let tick = first;
     do {
       minorTicks.push({ value: tick });
-      tick = +this.adapter.add(tick, interval, unit);
+      tick = this.adapter.add(tick, minorInterval, unit);
     } while (tick <= last);
+
+    minorTicks = minorTicks.filter(
+      (tick) => tick.value >= min && tick.value <= max
+    );
 
     return minorTicks;
   }

@@ -491,14 +491,14 @@ export class DefaultDateAdapter implements DateAdapter {
       case "millisecond":
         return value;
       case "second":
-        return value + (999 - (value % 1000));
+        return value + (1000 - (value % 1000));
       case "minute":
-        return value + (59999 - (value % 60000));
+        return value + (60000 - (value % 60000));
       case "hour":
-        return value + (3599999 - (value % 3600000));
+        return value + (3600000 - (value % 3600000));
       case "day":
       case "week":
-        return value + (86399999 - (value % 86400000));
+        return value + (86400000 - (value % 86400000));
       case "month":
         const date = new Date(value);
         const year = date.getFullYear();
