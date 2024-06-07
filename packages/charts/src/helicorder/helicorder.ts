@@ -56,7 +56,7 @@ function getDefaultOptions(): HelicorderChartOptions {
 }
 
 export interface HelicorderChartType extends ChartType<HelicorderChartOptions> {
-  update(): void;
+  updateData(): void;
   getTrackCount(): number;
   setChannel(channel: Channel): void;
   getChannel(): Channel;
@@ -145,7 +145,7 @@ export class Helicorder
 
   setChannel(channel: Channel): void {
     this._channel = channel;
-    this.update();
+    this.updateData();
   }
 
   getChannel(): Channel {
@@ -172,7 +172,7 @@ export class Helicorder
       this.model.getOptions().offsetDate.getTime() - interval * 60000
     );
     this.model.mergeOptions({ offsetDate });
-    this.update();
+    this.updateData();
   }
 
   shiftViewDown(): void {
@@ -181,18 +181,18 @@ export class Helicorder
       this.model.getOptions().offsetDate.getTime() + interval * 60000
     );
     this.model.mergeOptions({ offsetDate });
-    this.update();
+    this.updateData();
   }
 
   shiftViewToNow(): void {
     const offsetDate = new Date();
     this.model.mergeOptions({ offsetDate });
-    this.update();
+    this.updateData();
   }
 
   setOffsetDate(date: Date): void {
     this.model.mergeOptions({ offsetDate: date });
-    this.update();
+    this.updateData();
   }
 
   addEventMarker(value: Date, options?: Partial<EventMarkerOptions>): void {
@@ -224,10 +224,12 @@ export class Helicorder
 
   showVisibleMarkers(): void {
     this.getVisibleMarkers().forEach((marker) => marker.show());
+    this.render();
   }
 
   hideVisibleMarkers(): void {
     this.getVisibleMarkers().forEach((marker) => marker.hide());
+    this.render();
   }
 
   selectTrack(index: number): void {
@@ -253,7 +255,7 @@ export class Helicorder
     this.render();
   }
 
-  update(): void {
+  updateData(): void {
     const extremes: number[] = [];
     const seriesData: SeriesData[] = [];
 
