@@ -261,6 +261,11 @@ export class Helicorder
   }
 
   updateData(): void {
+    const { verticalScaling } = this.model.getOptions();
+    if (verticalScaling === "local") {
+      throw new Error("Local scaling is not supported yet");
+    }
+
     const extremes: number[] = [];
     const seriesData: SeriesData[] = [];
 
