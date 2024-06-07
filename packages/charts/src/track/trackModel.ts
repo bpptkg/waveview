@@ -23,7 +23,7 @@ export class TrackModel extends Model<TrackOptions> {
     show: true,
     leftLabel: "",
     rightLabel: "",
-    margin: 10,
+    margin: 8,
     highlight: {
       color: "#9747FF",
       opacity: 0.25,
