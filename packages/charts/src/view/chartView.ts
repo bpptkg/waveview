@@ -75,6 +75,7 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
       height: this.dom.height,
     });
 
+    this.app.stage.addChild(this.group);
     this.app.stage.interactive = true;
     this.app.stage.hitArea = new PIXI.Rectangle(
       0,
@@ -82,7 +83,6 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
       this.dom.width,
       this.dom.height
     );
-    this.app.stage.addChild(this.group);
   }
 
   getRect(): LayoutRect {

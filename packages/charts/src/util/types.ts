@@ -31,3 +31,8 @@ export type TimeUnit =
   | "month"
   | "quarter"
   | "year";
+
+export interface EventManager {
+  enable(): void;
+  disable(): void;
+}
