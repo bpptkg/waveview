@@ -12,8 +12,8 @@ export interface EventMarkerOptions extends ModelOptions {
   value: number;
 }
 
-export class LineMarkerModel extends Model<EventMarkerOptions> {
-  override readonly type = "lineMarker";
+export class EventMarkerModel extends Model<EventMarkerOptions> {
+  override readonly type = "eventMarker";
 
   static defaultOptions: EventMarkerOptions = {
     show: true,
@@ -23,11 +23,11 @@ export class LineMarkerModel extends Model<EventMarkerOptions> {
   };
 
   constructor(options?: Partial<EventMarkerOptions>) {
-    super({ ...LineMarkerModel.defaultOptions, ...options });
+    super({ ...EventMarkerModel.defaultOptions, ...options });
   }
 }
 
-export class EventMarker extends View<LineMarkerModel> {
+export class EventMarker extends View<EventMarkerModel> {
   readonly axis: Axis;
   readonly chart: Helicorder;
   private _rect: LayoutRect;
@@ -37,7 +37,7 @@ export class EventMarker extends View<LineMarkerModel> {
     chart: Helicorder,
     options?: Partial<EventMarkerOptions>
   ) {
-    const model = new LineMarkerModel(options);
+    const model = new EventMarkerModel(options);
     super(model);
 
     this.axis = axis;
