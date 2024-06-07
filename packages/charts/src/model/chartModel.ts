@@ -4,6 +4,7 @@ import { Model } from "./model";
 export interface ChartOptions extends ModelOptions {
   backgroundColor?: string;
   devicePixelRatio?: number;
+  darkMode?: boolean;
 }
 
 export class ChartModel<T extends ChartOptions> extends Model<T> {
@@ -12,6 +13,7 @@ export class ChartModel<T extends ChartOptions> extends Model<T> {
   static defaultOptions: ChartOptions = {
     backgroundColor: "#ffffff",
     devicePixelRatio: window.devicePixelRatio,
+    darkMode: false,
   };
 
   constructor(options?: T) {
