@@ -23,6 +23,11 @@ export interface ChartType<T extends ChartOptions> {
   focus(): void;
   blur(): void;
   isFocused(): boolean;
+  getRect(): LayoutRect;
+  setRect(rect: LayoutRect): void;
+  addComponent(component: View): void;
+  removeComponent(component: View): void;
+  getGrid(): Grid;
 }
 
 export abstract class ChartView<T extends ChartOptions = ChartOptions>
@@ -106,12 +111,12 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
     this.app.renderer.render(this.app.stage);
   }
 
-  protected addComponent(component: View): void {
+  addComponent(component: View): void {
     this._views.push(component);
     this.group.addChild(component.group);
   }
 
-  protected removeComponent(component: View): void {
+  removeComponent(component: View): void {
     const index = this._views.indexOf(component);
     if (index >= 0) {
       this._views.splice(index, 1);
