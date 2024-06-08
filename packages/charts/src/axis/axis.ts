@@ -1,6 +1,6 @@
 import { AreaMarker, AreaMarkerOptions } from "../marker/area";
 import { LineMarker, LineMarkerOptions } from "../marker/line";
-import { LayoutRect, ScaleTick } from "../util/types";
+import { EventMap, LayoutRect, ScaleTick } from "../util/types";
 import { View } from "../view/view";
 import { AxisBuilder } from "./axisBuilder";
 import { AxisModel, AxisOptions } from "./axisModel";
@@ -11,6 +11,10 @@ export interface TickPixel {
 }
 
 export type MarkerView = LineMarker | AreaMarker;
+
+export interface AxisEventMap extends EventMap {
+  extentChanged: (extent: [number, number]) => void;
+}
 
 export class Axis extends View<AxisModel> {
   override type = "axis";
@@ -27,6 +31,7 @@ export class Axis extends View<AxisModel> {
 
   setExtent(extent: [number, number]) {
     this.model.scale.setExtent(extent);
+    this.emit("extentChanged", extent);
   }
 
   getExtent(): [number, number] {
@@ -125,12 +130,11 @@ export class Axis extends View<AxisModel> {
   }
 
   scrollLeft(by: number): void {
-    const { scale } = this.model;
-    const [min, max] = scale.getExtent();
+    const [min, max] = this.getExtent();
     const range = max - min;
     const newMin = min - range * by;
     const newMax = max - range * by;
-    scale.setExtent([newMin, newMax]);
+    this.setExtent([newMin, newMax]);
   }
 
   scrollRight(by: number): void {
@@ -138,20 +142,18 @@ export class Axis extends View<AxisModel> {
   }
 
   scrollTo(value: number): void {
-    const { scale } = this.model;
-    const [min, max] = scale.getExtent();
+    const [min, max] = this.getExtent();
     const offset = (max - min) / 2;
     const newMin = value - offset;
     const newMax = value + offset;
-    scale.setExtent([newMin, newMax]);
+    this.setExtent([newMin, newMax]);
   }
 
   zoomIn(center: number, factor: number): void {
-    const { scale } = this.model;
-    const [min, max] = scale.getExtent();
+    const [min, max] = this.getExtent();
     const newMin = center - (center - min) * (1 + factor);
     const newMax = center + (max - center) * (1 + factor);
-    scale.setExtent([newMin, newMax]);
+    this.setExtent([newMin, newMax]);
   }
 
   zoomOut(center: number, factor: number): void {

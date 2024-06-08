@@ -38,3 +38,7 @@ export interface EventManager {
 }
 
 export interface EventManagerConfig {}
+
+export interface EventMap {
+  [event: string]: (...args: any[]) => void;
+}
