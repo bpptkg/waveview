@@ -49,6 +49,8 @@ export class Picker extends View<PickerModel> {
   private _start: PIXI.Point = new PIXI.Point();
   private _end: PIXI.Point = new PIXI.Point();
   private _clickCount: number = 0;
+  private _startValue: number = 0;
+  private _endValue: number = 0;
 
   constructor(chart: Seismogram, options?: Partial<PickerOptions>) {
     const model = new PickerModel(options);
@@ -60,16 +62,16 @@ export class Picker extends View<PickerModel> {
 
   attachEventListeners(): void {
     window.addEventListener("keydown", this.handleKeyDown.bind(this));
-    this.chart.app.stage.on("mousedown", this.handleMouseDown.bind(this));
-    this.chart.app.stage.on("mouseup", this.handleMouseUp.bind(this));
-    this.chart.app.stage.on("mousemove", this.handleMouseMove.bind(this));
+    this.chart.app.stage.on("pointerdown", this.handlePointerDown.bind(this));
+    this.chart.app.stage.on("pointerup", this.handlePointerUp.bind(this));
+    this.chart.app.stage.on("pointermove", this.handlePointerMove.bind(this));
   }
 
   detachEventListeners(): void {
     window.removeEventListener("keydown", this.handleKeyDown.bind(this));
-    this.chart.app.stage.off("mousedown", this.handleMouseDown.bind(this));
-    this.chart.app.stage.off("mouseup", this.handleMouseUp.bind(this));
-    this.chart.app.stage.off("mousemove", this.handleMouseMove.bind(this));
+    this.chart.app.stage.off("pointerdown", this.handlePointerDown.bind(this));
+    this.chart.app.stage.off("pointerup", this.handlePointerUp.bind(this));
+    this.chart.app.stage.off("pointermove", this.handlePointerMove.bind(this));
   }
 
   enable(): void {
@@ -85,6 +87,8 @@ export class Picker extends View<PickerModel> {
     this._isDragging = false;
     this._start = new PIXI.Point();
     this._end = new PIXI.Point();
+    this._startValue = 0;
+    this._endValue = 0;
     this.clear();
   }
 
@@ -94,40 +98,45 @@ export class Picker extends View<PickerModel> {
     }
   }
 
-  handleMouseDown(event: InteractionEvent): void {
+  handlePointerDown(event: InteractionEvent): void {
     if (!this._isActive) {
       return;
     }
+    const { xAxis } = this.chart;
 
     if (this._clickCount === 0) {
       this._isDragging = true;
       this._start = event.data.getLocalPosition(this.chart.app.stage);
+      this._startValue = xAxis.getValueForPixel(this._start.x);
     } else if (this._clickCount === 1) {
       this._end = event.data.getLocalPosition(this.chart.app.stage);
+      this._endValue = xAxis.getValueForPixel(this._end.x);
       this._clickCount = 0;
       this._isDragging = false;
       this.render();
     }
   }
 
-  handleMouseMove(event: InteractionEvent): void {
+  handlePointerMove(event: InteractionEvent): void {
     if (!this._isActive) {
       return;
     }
 
     if (this._isDragging) {
       this._end = event.data.getLocalPosition(this.chart.app.stage);
+      this._endValue = this.chart.xAxis.getValueForPixel(this._end.x);
       this.render({ drawLabel: true });
     }
   }
 
-  handleMouseUp(event: InteractionEvent): void {
+  handlePointerUp(event: InteractionEvent): void {
     if (!this._isActive) {
       return;
     }
 
     if (this._isDragging) {
       this._end = event.data.getLocalPosition(this.chart.app.stage);
+      this._endValue = this.chart.xAxis.getValueForPixel(this._end.x);
       if (Math.abs(this._end.x - this._start.x) > 0) {
         this._isDragging = false;
         this.render();
@@ -150,8 +159,13 @@ export class Picker extends View<PickerModel> {
 
     const { color, opacity, borderWidth } = this.model.getOptions();
 
-    let x1 = Math.min(this._start.x, this._end.x);
-    let x2 = Math.max(this._start.x, this._end.x);
+    const { xAxis } = this.chart;
+    const min = Math.min(this._startValue, this._endValue);
+    const max = Math.max(this._startValue, this._endValue);
+    const duration = (max - min) / 1000; // in seconds
+
+    let x1 = xAxis.getPixelForValue(min);
+    let x2 = xAxis.getPixelForValue(max);
     const length = x2 - x1;
 
     const { x, y, height, width } = this._rect;
@@ -159,10 +173,6 @@ export class Picker extends View<PickerModel> {
       this.reset();
       return;
     }
-
-    const startValue = this.chart.xAxis.getValueForPixel(x1);
-    const endValue = this.chart.xAxis.getValueForPixel(x2);
-    const duration = (endValue - startValue) / 1000; // in seconds
 
     const graphics = new PIXI.Graphics();
     graphics
