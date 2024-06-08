@@ -73,7 +73,7 @@ export class Selection extends View<SelectionModel> {
     this.model.mergeOptions({ value });
   }
 
-  clear(): void {
+  reset(): void {
     this.model.mergeOptions({ value: 0 });
   }
 
@@ -86,12 +86,13 @@ export class Selection extends View<SelectionModel> {
   }
 
   override render() {
+    this.clear();
+
     const { value, color, opacity, borderWidth } = this.model.getOptions();
 
     const trackIndex = this.chart.getTrackIndexAtTime(value);
     const track = this.chart.getTrackAt(trackIndex);
     if (!track) {
-      this.group.removeChildren();
       return;
     }
 
@@ -107,7 +108,6 @@ export class Selection extends View<SelectionModel> {
         color: color,
         alpha: opacity,
       });
-    this.group.removeChildren();
     this.group.addChild(graphics);
   }
 }

@@ -236,7 +236,7 @@ export class Helicorder
   }
 
   unselectTrack(): void {
-    this._selection.clear();
+    this._selection.reset();
   }
 
   moveSelectionUp(): void {
