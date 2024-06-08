@@ -155,7 +155,8 @@ export class Picker extends View<PickerModel> {
     const length = x2 - x1;
 
     const { x, y, height, width } = this._rect;
-    if (x1 < 1 || x2 > x + width) {
+    if (x1 < x || x2 > x + width) {
+      this.reset();
       return;
     }
 
