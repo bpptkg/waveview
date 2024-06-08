@@ -140,9 +140,9 @@ export class Axis extends View<AxisModel> {
   scrollTo(value: number): void {
     const { scale } = this.model;
     const [min, max] = scale.getExtent();
-    const range = max - min;
-    const newMin = value;
-    const newMax = value + range;
+    const offset = (max - min) / 2;
+    const newMin = value - offset;
+    const newMax = value + offset;
     scale.setExtent([newMin, newMax]);
   }
 
