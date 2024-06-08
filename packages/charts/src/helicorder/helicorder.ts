@@ -13,7 +13,6 @@ import { merge } from "../util/merge";
 import { formatDate } from "../util/time";
 import { LayoutRect, SeriesData } from "../util/types";
 import { ChartType, ChartView } from "../view/chartView";
-import { HelicorderEventManager } from "./eventManager";
 import { EventMarker, EventMarkerOptions } from "./eventMarker";
 import { Selection } from "./selection";
 
@@ -97,7 +96,6 @@ export class Helicorder
   private _channel: Channel;
   private _markers: EventMarker[] = [];
   private readonly _selection: Selection;
-  private readonly _eventManager: HelicorderEventManager;
 
   constructor(
     dom: HTMLCanvasElement,
@@ -143,9 +141,6 @@ export class Helicorder
 
     this._selection = new Selection(this.xAxis, this);
     this.addComponent(this._selection);
-
-    this._eventManager = new HelicorderEventManager(this);
-    this._eventManager.enable();
   }
 
   setChannel(channel: Channel): void {
