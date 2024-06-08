@@ -80,6 +80,14 @@ export class Picker extends View<PickerModel> {
     this._isActive = false;
   }
 
+  reset(): void {
+    this._clickCount = 0;
+    this._isDragging = false;
+    this._start = new PIXI.Point();
+    this._end = new PIXI.Point();
+    this.clear();
+  }
+
   handleKeyDown(event: KeyboardEvent): void {
     if (event.key === "P" || event.key === "p") {
       this._isActive = !this._isActive;
