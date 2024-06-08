@@ -36,3 +36,5 @@ export interface EventManager {
   enable(): void;
   disable(): void;
 }
+
+export interface EventManagerConfig {}
