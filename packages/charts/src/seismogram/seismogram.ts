@@ -46,7 +46,8 @@ export interface SeismogramChartType extends ChartType<SeismogramChartOptions> {
   decreaseAmplitude(by: number): void;
   scrollLeft(by: number): void;
   scrollRight(by: number): void;
-  scrollTo(timestamp: number): void;
+  scrollTo(date: Date): void;
+  scrollToNow(): void;
   zoomIn(center: number, by: number): void;
   zoomOut(center: number, by: number): void;
   getTrackCount(): number;
@@ -256,8 +257,13 @@ export class Seismogram
     this.xAxis.scrollRight(by);
   }
 
-  scrollTo(timestamp: number): void {
-    this.xAxis.scrollTo(timestamp);
+  scrollTo(date: Date): void {
+    this.xAxis.scrollTo(date.getTime());
+  }
+
+  scrollToNow(): void {
+    const now = Date.now();
+    this.xAxis.scrollTo(now);
   }
 
   zoomIn(at: number, by: number): void {
