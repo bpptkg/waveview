@@ -282,24 +282,15 @@ export class Seismogram
       const data = this.dataProvider.getData(this.channels[i], start, end);
       seriesData.push(data);
 
-      let min = Infinity;
-      let max = -Infinity;
-
-      for (let j = 0; j < data.length; j++) {
-        const value = data[j][1];
-        min = Math.min(min, value);
-        max = Math.max(max, value);
-      }
+      const min = data.min();
+      const max = data.max();
       extremes.push(max - min);
     }
 
     const normalizationFactor = Math.min(...extremes);
 
     for (let i = 0; i < this.tracks.length; i++) {
-      const normalizedData = seriesData[i].map((d) => [
-        d[0],
-        d[1] / normalizationFactor,
-      ]);
+      const normalizedData = seriesData[i].scalarDivide(normalizationFactor);
 
       const series = new LineSeries(this, {
         data: normalizedData,

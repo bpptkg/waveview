@@ -1,4 +1,5 @@
 import * as PIXI from "pixi.js";
+import { Series } from "../ndarray/series";
 
 export type ModelOptions = Record<string, any>;
 
@@ -13,7 +14,7 @@ export interface Point {
   y: number;
 }
 
-export type SeriesData = number[][];
+export type SeriesData = Series<Float64Array, Float64Array>;
 
 export interface SeriesOptions {
   data: SeriesData;

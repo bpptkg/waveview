@@ -1,3 +1,4 @@
+import { SeriesData } from "../util/types";
 import { Channel } from "./channel";
 
 export type DataProviderOptions = Record<string, unknown>;
@@ -8,5 +9,5 @@ export interface DataProvider {
     start: number,
     end: number,
     options?: DataProviderOptions
-  ): number[][];
+  ): SeriesData;
 }

@@ -1,3 +1,4 @@
+import { Series } from "../ndarray/series";
 import { SeriesData, SeriesOptions } from "../util/types";
 import { Model } from "./model";
 
@@ -5,24 +6,17 @@ export class SeriesModel<
   T extends SeriesOptions = SeriesOptions
 > extends Model<T> {
   override type: string = "series";
-  private _data: SeriesData = [];
-  private _ymin: number = -Infinity;
-  private _ymax: number = Infinity;
+
+  private _data: SeriesData;
 
   constructor(options: T) {
     super(options);
 
-    this._data = options.data || [];
-  }
-
-  appendData(data: SeriesData): void {
-    for (const point of data) {
-      this._data.push(point);
-    }
+    this._data = options.data || Series.empty();
   }
 
   isEmpty(): boolean {
-    return this._data.length === 0;
+    return this._data.isEmpty();
   }
 
   getData(): SeriesData {
@@ -34,29 +28,14 @@ export class SeriesModel<
   }
 
   clearData(): void {
-    this._data = [];
+    this._data = Series.empty();
   }
 
   getXRange(): [number, number] {
-    let min = Infinity;
-    let max = -Infinity;
-    if (this._data.length > 1) {
-      return [this._data[0][0], this._data[this._data.length - 1][0]];
-    }
-    return [min, max];
+    return [this._data.index.first(), this._data.index.last()];
   }
 
   getYRange(): [number, number] {
-    if (!isFinite(this._ymin) || !isFinite(this._ymax)) {
-      let min = Infinity;
-      let max = -Infinity;
-      for (const point of this._data) {
-        min = Math.min(min, point[1]);
-        max = Math.max(max, point[1]);
-      }
-      this._ymin = min;
-      this._ymax = max;
-    }
-    return [this._ymin, this._ymax];
+    return [this._data.min(), this._data.max()];
   }
 }

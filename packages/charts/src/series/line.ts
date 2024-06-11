@@ -52,8 +52,7 @@ export class LineSeriesView extends View<LineSeries> {
     const data = model.getData();
     const graphics = new PIXI.Graphics();
     let first = false;
-    for (let index = 0; index < data.length; index++) {
-      const [px, py] = data[index];
+    for (const [px, py] of data.items()) {
       const cx = xAxis.getPixelForValue(px);
       const cy = yAxis.getPixelForValue(py);
 

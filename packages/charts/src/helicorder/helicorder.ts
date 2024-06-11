@@ -11,7 +11,7 @@ import { Track } from "../track/track";
 import { TrackModel } from "../track/trackModel";
 import { merge } from "../util/merge";
 import { formatDate } from "../util/time";
-import { LayoutRect, SeriesData } from "../util/types";
+import { EventMap, LayoutRect, SeriesData } from "../util/types";
 import { ChartType, ChartView } from "../view/chartView";
 import { EventMarker, EventMarkerOptions } from "./eventMarker";
 import { Selection } from "./selection";
@@ -83,6 +83,10 @@ export interface HelicorderChartType extends ChartType<HelicorderChartOptions> {
   getChartExtent(): [number, number];
 }
 
+export interface HelicorderEventMap extends EventMap {
+  offsetChanged: (offset: Date) => void;
+}
+
 export class Helicorder
   extends ChartView<HelicorderChartOptions>
   implements HelicorderChartType
@@ -90,7 +94,7 @@ export class Helicorder
   override readonly type = "helicorder";
 
   private readonly tracks: Track[] = [];
-  private readonly xAxis: Axis;
+  readonly xAxis: Axis;
   private readonly grid: Grid;
   private readonly dataProvider: DataProvider;
   private _channel: Channel;
@@ -169,6 +173,7 @@ export class Helicorder
       this.model.getOptions().offsetDate.getTime() - interval * 60000
     );
     this.model.mergeOptions({ offsetDate });
+    this.emit("offsetChanged", offsetDate);
   }
 
   shiftViewDown(): void {
@@ -177,6 +182,7 @@ export class Helicorder
       this.model.getOptions().offsetDate.getTime() + interval * 60000
     );
     this.model.mergeOptions({ offsetDate });
+    this.emit("offsetChanged", offsetDate);
   }
 
   shiftViewToNow(): void {
@@ -256,24 +262,18 @@ export class Helicorder
       const data = this.dataProvider.getData(this._channel, start, end);
       seriesData.push(data);
 
-      let min = Infinity;
-      let max = -Infinity;
-
-      for (let j = 0; j < data.length; j++) {
-        const value = data[j][1];
-        min = Math.min(min, value);
-        max = Math.max(max, value);
-      }
+      const min = data.min();
+      const max = data.max();
       extremes.push(max - min);
     }
 
     const normalizationFactor = Math.min(...extremes);
 
     for (let i = 0; i < this.tracks.length; i++) {
-      const normalizedData = seriesData[i].map((d) => [
-        this.timeToOffset(i, d[0]),
-        d[1] / normalizationFactor,
-      ]);
+      const normalizedData = seriesData[i].scalarDivide(normalizationFactor);
+      normalizedData.setIndex(
+        normalizedData.index.map((value) => this.timeToOffset(i, value))
+      );
 
       const series = new LineSeries(this, {
         data: normalizedData,

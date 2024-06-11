@@ -1,28 +1,9 @@
-import { Helicorder } from "./chart/helicorder";
-
-
-export function generateSinusoidalSignal(
-  min: number,
-  max: number,
-  num_points: number
-): number[][] {
-  const data = [];
-  const step = (max - min) / num_points;
-  for (let i = 0; i < num_points; i++) {
-    data.push([
-      min + i * step,
-      Math.sin(i) + Math.random() - 0.5,
-    ]);
-  }
-  return data;
-}
-
-
-const dom = document.getElementById("chart") as HTMLCanvasElement;
-
-const helicorder = new Helicorder(dom);
-await helicorder.init();
-
-const data = generateSinusoidalSignal(0, 60, 100);
-helicorder.update();
-
+export { HelicorderEventManager } from "./helicorder/eventManager";
+export { Helicorder } from "./helicorder/helicorder";
+export { Seismogram } from "./seismogram/seismogram";
+export { SeismogramEventManager } from "./seismogram/eventManager";
+export { Picker } from "./seismogram/picker";
+export type { DataProvider } from "./data/dataProvider";
+export type { Channel } from "./data/channel";
+export type { SeriesData } from "./util/types";
+export { Series } from "./ndarray/series";
