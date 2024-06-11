@@ -4,7 +4,7 @@ import { AxisModel } from "../axis/axisModel";
 import { Channel, EMPTY_CHANNEL } from "../data/channel";
 import { DataProvider } from "../data/dataProvider";
 import { Grid } from "../grid/grid";
-import { GridModel } from "../grid/gridModel";
+import { GridModel, GridOptions } from "../grid/gridModel";
 import { ChartOptions } from "../model/chartModel";
 import { LineSeries } from "../series/line";
 import { Track } from "../track/track";
@@ -42,6 +42,10 @@ export interface HelicorderChartOptions extends ChartOptions {
    * independently, while ``global`` scales all tracks together.
    */
   verticalScaling: "local" | "global";
+  /**
+   * Grid options for the helicorder chart.
+   */
+  grid: Partial<GridOptions>;
 }
 
 function getDefaultOptions(): HelicorderChartOptions {
@@ -52,11 +56,18 @@ function getDefaultOptions(): HelicorderChartOptions {
     forceCenter: true,
     useUTC: false,
     verticalScaling: "global",
+    grid: {
+      top: 50,
+      right: 50,
+      bottom: 50,
+      left: 50,
+    },
   };
 }
 
 export interface HelicorderChartType extends ChartType<HelicorderChartOptions> {
   updateData(): void;
+  setData(data: SeriesData): void;
   getTrackCount(): number;
   setChannel(channel: Channel): void;
   getChannel(): Channel;
@@ -117,12 +128,7 @@ export class Helicorder
     this.dataProvider = dataProvider;
     this._channel = EMPTY_CHANNEL;
 
-    const gridModel = new GridModel(this, {
-      top: 50,
-      right: 50,
-      bottom: 50,
-      left: 80,
-    });
+    const gridModel = new GridModel(this, options?.grid);
     const grid = new Grid(gridModel, this.getRect());
     this.addComponent(grid);
 
@@ -188,6 +194,7 @@ export class Helicorder
   shiftViewToNow(): void {
     const offsetDate = new Date();
     this.model.mergeOptions({ offsetDate });
+    this.emit("offsetChanged", offsetDate);
   }
 
   setOffsetDate(date: Date): void {
@@ -277,6 +284,41 @@ export class Helicorder
 
       const series = new LineSeries(this, {
         data: normalizedData,
+      });
+      const track = this.tracks[i];
+      if (track) {
+        const [start, end] = this.getTrackExtentAt(
+          this.getTrackCount() - i - 1
+        );
+        const leftLabel = formatDate(
+          start,
+          i === 0 ? "{MM}-{dd} {HH}:{mm}" : "{HH}:{mm}",
+          false
+        );
+        const rightLabel = formatDate(end, "{HH}:{mm}", true);
+        track.getModel().mergeOptions({ leftLabel, rightLabel });
+        track.setSingleSeries(series);
+        track.setYExtent([-1, 1]);
+      }
+    }
+  }
+
+  setData(data: SeriesData): void {
+    const normFactor = Array.from({ length: this.tracks.length }, (_, i) => i)
+      .map((i) => {
+        const [start, end] = this.getTrackExtentAt(i);
+        const series = data.slice(start, end);
+        return series.max() - series.min();
+      })
+      .reduce((a, b) => Math.min(a, b), Infinity);
+
+    for (let i = 0; i < this.tracks.length; i++) {
+      const [start, end] = this.getTrackExtentAt(i);
+      const slice = data.slice(start, end).scalarDivide(normFactor);
+      slice.setIndex(slice.index.map((value) => this.timeToOffset(i, value)));
+
+      const series = new LineSeries(this, {
+        data: slice,
       });
       const track = this.tracks[i];
       if (track) {
