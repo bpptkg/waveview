@@ -17,8 +17,6 @@ export type SeriesData = number[][];
 
 export interface SeriesOptions {
   data: SeriesData;
-  xRange?: [number, number];
-  yRange?: [number, number];
 }
 
 export type TimeUnit =
