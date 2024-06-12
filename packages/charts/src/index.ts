@@ -3,7 +3,6 @@ export type { DataProvider } from "./data/dataProvider";
 export { HelicorderEventManager } from "./helicorder/eventManager";
 export { Helicorder } from "./helicorder/helicorder";
 export { HelicorderWebWorker } from "./helicorder/webWorker";
-export { Series } from "./ndarray/series";
 export { SeismogramEventManager } from "./seismogram/eventManager";
 export { Picker } from "./seismogram/picker";
 export { Seismogram } from "./seismogram/seismogram";

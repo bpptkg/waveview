@@ -1,4 +1,4 @@
-import { Series } from "../ndarray/series";
+import { Series } from "@waveview/ndarray";
 import { SeriesData, SeriesOptions } from "../util/types";
 import { Model } from "./model";
 
