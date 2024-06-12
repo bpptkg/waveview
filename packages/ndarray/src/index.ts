@@ -36,11 +36,35 @@ export class Index<T extends NDFrameArray> {
   }
 
   at(value: number): number {
-    return this._values.findIndex((v) => v === value);
+    let left = 0;
+    let right = this.values.length - 1;
+
+    while (left <= right) {
+      const mid = Math.floor((left + right) / 2);
+      if (this.values[mid] === value) {
+        return mid;
+      } else if (this.values[mid] < value) {
+        left = mid + 1;
+      } else {
+        right = mid - 1;
+      }
+    }
+
+    // If exact match is not found, find the nearest index
+    if (left >= this.values.length) {
+      return right;
+    } else if (right < 0) {
+      return left;
+    } else {
+      // Return the index of the nearest value
+      return this.values[left] - value < value - this.values[right]
+        ? left
+        : right;
+    }
   }
 
   iat(index: number): number {
-    return Number(this._values[index]);
+    return Number(this.values[index]);
   }
 
   first(): number {
