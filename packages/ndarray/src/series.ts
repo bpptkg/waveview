@@ -1,4 +1,4 @@
-import { Index, parseIndex } from ".";
+import { Index, parseIndex } from "./index";
 import { NDFrame, NDFrameArray } from "./generic";
 
 interface SeriesOptions<I extends NDFrameArray> {
@@ -10,13 +10,11 @@ export class Series<
   D extends NDFrameArray,
   I extends NDFrameArray
 > extends NDFrame<D, I> {
-  private _values: D;
   private _name: string = "";
 
   constructor(data: D, options: Partial<SeriesOptions<I>> = {}) {
     super(data);
 
-    this._values = data;
     this._name = options.name || "";
     const index = parseIndex(options.index, this._values) as Index<I>;
     this.setAxis(0, index);

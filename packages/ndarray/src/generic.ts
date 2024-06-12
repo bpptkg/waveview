@@ -19,11 +19,11 @@ export type TypedArrayConstructor<T> = {
 export type NDFrameArray = TypedArray;
 
 export class NDFrame<D extends NDFrameArray, I extends NDFrameArray = D> {
-  readonly _data: D;
+  readonly _values: D;
   private _axes: Map<number, Index<I>> = new Map();
 
   constructor(data: D) {
-    this._data = data;
+    this._values = data;
   }
 
   get shape(): number[] {
