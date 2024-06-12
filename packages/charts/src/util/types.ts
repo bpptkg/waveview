@@ -1,5 +1,5 @@
 import * as PIXI from "pixi.js";
-import { Series } from "../ndarray/series";
+import { Series } from "@waveview/ndarray";
 
 export type ModelOptions = Record<string, any>;
 
