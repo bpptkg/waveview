@@ -1,6 +1,6 @@
 import { NDFrameArray } from "./generic";
 
-export class Index<T extends NDFrameArray> {
+export class Index<T extends NDFrameArray = NDFrameArray> {
   readonly _values: T;
 
   constructor(data: T) {
@@ -36,6 +36,7 @@ export class Index<T extends NDFrameArray> {
   }
 
   at(value: number): number {
+    // Binary search
     let left = 0;
     let right = this.values.length - 1;
 
@@ -113,10 +114,10 @@ export class Index<T extends NDFrameArray> {
   }
 }
 
-export function parseIndex<D extends NDFrameArray, I extends NDFrameArray = D>(
-  index: I | Index<I> | undefined,
-  values: D
-): Index<I> {
+export function parseIndex<
+  D extends NDFrameArray = NDFrameArray,
+  I extends NDFrameArray = NDFrameArray
+>(index: I | Index<I> | undefined, values: D): Index<I> {
   if (index === undefined) {
     return Index.defaults(values.length);
   }
