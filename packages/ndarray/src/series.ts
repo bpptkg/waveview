@@ -7,8 +7,8 @@ interface SeriesOptions<I extends NDFrameArray> {
 }
 
 export class Series<
-  D extends NDFrameArray,
-  I extends NDFrameArray
+  D extends NDFrameArray = NDFrameArray,
+  I extends NDFrameArray = NDFrameArray
 > extends NDFrame<D, I> {
   private _name: string = "";
 
@@ -20,10 +20,7 @@ export class Series<
     this.setAxis(0, index);
   }
 
-  static empty<D extends NDFrameArray, I extends NDFrameArray = D>(): Series<
-    D,
-    I
-  > {
+  static empty<D extends NDFrameArray, I extends NDFrameArray>(): Series<D, I> {
     return new Series(new Float32Array(), { index: Index.empty() }) as Series<
       D,
       I
@@ -34,24 +31,20 @@ export class Series<
     return this.getAxis(0);
   }
 
-  get values(): D {
-    return this._values;
-  }
-
   get name(): string {
     return this._name;
   }
 
   get length(): number {
-    return this._values.length;
+    return this.values.length;
   }
 
   get dtype(): string {
-    return this._values.constructor.name;
+    return this.values.constructor.name;
   }
 
   get nbytes(): number {
-    return this._values.length * this._values.BYTES_PER_ELEMENT;
+    return this.values.length * this.values.BYTES_PER_ELEMENT;
   }
 
   isEmpty(): boolean {
