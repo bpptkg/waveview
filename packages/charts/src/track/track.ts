@@ -33,7 +33,7 @@ export class Track extends View<TrackModel> {
   }
 
   override render(): void {
-    this.group.removeChildren();
+    this.clear();
     this.renderGrid();
     this.renderSeries();
     this.renderHighlight();

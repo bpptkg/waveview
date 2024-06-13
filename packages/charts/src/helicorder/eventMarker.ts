@@ -70,6 +70,8 @@ export class EventMarker extends View<EventMarkerModel> {
   }
 
   override render() {
+    this.clear();
+
     const {
       show,
       color: borderColor,
@@ -77,9 +79,9 @@ export class EventMarker extends View<EventMarkerModel> {
       value,
     } = this.model.getOptions();
     if (!show) {
-      this.group.removeChildren();
       return;
     }
+
     const trackIndex = this.chart.getTrackIndexAtTime(value);
     const offset = this.chart.timeToOffset(trackIndex, value);
     const track = this.chart.getTrackAt(trackIndex);
@@ -105,7 +107,6 @@ export class EventMarker extends View<EventMarkerModel> {
   ) {
     const graphics = new PIXI.Graphics();
     graphics.rect(x, y, width, height).fill({ color });
-    this.group.removeChildren();
     this.group.addChild(graphics);
   }
 
@@ -118,7 +119,6 @@ export class EventMarker extends View<EventMarkerModel> {
   ) {
     const graphics = new PIXI.Graphics();
     graphics.rect(x, y, width, borderWidth).fill({ color });
-    this.group.removeChildren();
     this.group.addChild(graphics);
   }
 }

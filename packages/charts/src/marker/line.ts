@@ -71,6 +71,8 @@ export class LineMarker extends View<LineMarkerModel> {
   }
 
   override render() {
+    this.clear();
+
     const {
       show,
       color: borderColor,
@@ -78,12 +80,10 @@ export class LineMarker extends View<LineMarkerModel> {
       value,
     } = this.model.getOptions();
     if (!show) {
-      this.group.removeChildren();
       return;
     }
 
     if (!this.axis.contains(value)) {
-      this.group.removeChildren();
       return;
     }
 
@@ -112,7 +112,6 @@ export class LineMarker extends View<LineMarkerModel> {
         color: color,
         width,
       });
-    this.group.removeChildren();
     this.group.addChild(line);
   }
 
@@ -131,7 +130,6 @@ export class LineMarker extends View<LineMarkerModel> {
         color: color,
         width: borderWidth,
       });
-    this.group.removeChildren();
     this.group.addChild(line);
   }
 }

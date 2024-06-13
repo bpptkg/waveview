@@ -28,6 +28,8 @@ export class Grid extends View<GridModel> {
   }
 
   override render(): void {
+    this.clear();
+
     const { show, backgroundColor, borderColor, borderWidth } =
       this.model.getOptions();
 
@@ -46,7 +48,6 @@ export class Grid extends View<GridModel> {
       .fill({
         color: backgroundColor,
       });
-    this.group.removeChildren();
     this.group.addChild(graphics);
   }
 }

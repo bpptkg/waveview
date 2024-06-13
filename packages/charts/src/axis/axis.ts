@@ -255,12 +255,13 @@ export class Axis extends View<AxisModel> {
   }
 
   override render(): void {
+    this.clear();
+
     const { show } = this.model.getOptions();
     if (!show) {
       return;
     }
 
-    this.group.removeChildren();
     this._builder.drawAxisLine();
     this._builder.drawMajorTick();
     this._builder.drawMinorTick();

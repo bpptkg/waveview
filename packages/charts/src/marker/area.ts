@@ -110,10 +110,11 @@ export class AreaMarker extends View<AreaMarkerModel> {
   }
 
   override render(): void {
+    this.clear();
+
     const { show, color, opacity, pill, length } = this.model.getOptions();
 
     if (!show) {
-      this.group.removeChildren();
       return;
     }
 
@@ -164,7 +165,6 @@ export class AreaMarker extends View<AreaMarkerModel> {
       color,
       alpha: opacity,
     });
-    this.group.removeChildren();
     if (pill) {
       this.group.addChild(head);
     }
