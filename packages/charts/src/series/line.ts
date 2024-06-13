@@ -43,6 +43,8 @@ export class LineSeriesView extends View<LineSeries> {
   }
 
   override render(): void {
+    this.clear();
+
     const model = this.getModel();
     if (model.isEmpty()) {
       return;
@@ -68,7 +70,23 @@ export class LineSeriesView extends View<LineSeries> {
       color: "#000",
       width: 1,
     });
-    this.group.addChild(graphics);
+
+    const w = this.model.chart.getWidth();
+    const h = this.model.chart.getHeight();
+
+    const renderTexture = PIXI.RenderTexture.create({
+      width: w,
+      height: h,
+    });
+
+    this.model.chart.app.renderer.render({
+      container: graphics,
+      target: renderTexture,
+    });
+
+    const sprite = new PIXI.Sprite(renderTexture);
+    sprite.position.set(0, 0);
+    this.group.addChild(sprite);
 
     const chart = this.model.chart;
     const rect = chart.getGrid().getRect();
