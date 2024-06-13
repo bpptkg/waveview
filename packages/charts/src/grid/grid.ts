@@ -1,14 +1,16 @@
 import * as PIXI from "pixi.js";
 import { LayoutRect } from "../util/types";
 import { View } from "../view/view";
-import { GridModel } from "./gridModel";
+import { GridModel, GridOptions } from "./gridModel";
 
 export class Grid extends View<GridModel> {
   override type = "grid";
   private _rect: LayoutRect;
 
-  constructor(model: GridModel, rect: LayoutRect) {
+  constructor(rect: LayoutRect, options?: Partial<GridOptions>) {
+    const model = new GridModel(options);
     super(model);
+
     this._rect = rect;
   }
 

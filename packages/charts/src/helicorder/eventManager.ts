@@ -1,4 +1,4 @@
-import { EventManager, EventManagerConfig } from "../util/types";
+import { EventManager, EventManagerConfig, Extension } from "../util/types";
 import { Helicorder } from "./helicorder";
 // @ts-ignore
 import { InteractionEvent, Point } from "pixi.js";
@@ -94,5 +94,25 @@ export class HelicorderEventManager implements EventManager {
 
   disable(): void {
     this.enabled = false;
+  }
+}
+
+export class HelicorderEventManagerExtension implements Extension<Helicorder> {
+  private config: HelicorderEventManagerConfig;
+  private eventManager?: HelicorderEventManager;
+
+  constructor(config: HelicorderEventManagerConfig = {}) {
+    this.config = config;
+  }
+
+  install(chart: Helicorder): void {
+    this.eventManager = new HelicorderEventManager(chart, this.config);
+    this.eventManager.attachEventListeners();
+  }
+
+  uninstall(): void {
+    if (this.eventManager) {
+      this.eventManager.removeEventListeners();
+    }
   }
 }

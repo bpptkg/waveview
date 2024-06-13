@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { Grid } from "../grid/grid";
 import { ChartModel, ChartOptions } from "../model/chartModel";
-import { LayoutRect } from "../util/types";
+import { LayoutRect, Extension } from "../util/types";
 import { View } from "./view";
 
 export interface ChartType<T extends ChartOptions> {
@@ -28,6 +28,7 @@ export interface ChartType<T extends ChartOptions> {
   addComponent(component: View): void;
   removeComponent(component: View): void;
   getGrid(): Grid;
+  use(extension: Extension<ChartType<T>>): void;
 }
 
 export abstract class ChartView<T extends ChartOptions = ChartOptions>
@@ -152,5 +153,9 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
 
   isFocused(): boolean {
     return this._isFocused;
+  }
+
+  use(extension: Extension<ChartView<T>>): void {
+    extension.install(this);
   }
 }

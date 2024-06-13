@@ -1,7 +1,6 @@
 import { Model } from "../model/model";
 import { merge } from "../util/merge";
 import { ModelOptions } from "../util/types";
-import { ChartView } from "../view/chartView";
 
 export interface GridOptions extends ModelOptions {
   show: boolean;
@@ -28,20 +27,12 @@ export class GridModel extends Model<GridOptions> {
     borderWidth: 1,
   };
 
-  readonly chart: ChartView;
-
-  constructor(chart: ChartView, options?: Partial<GridOptions>) {
+  constructor(options?: Partial<GridOptions>) {
     const opts = merge(
       { ...GridModel.defaultOptions },
       options || {},
       true
     ) as GridOptions;
     super(opts);
-
-    this.chart = chart;
-  }
-
-  getChart(): ChartView {
-    return this.chart;
   }
 }

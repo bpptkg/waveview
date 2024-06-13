@@ -3,7 +3,6 @@ import { LinearScale } from "../scale/linear";
 import { Scale } from "../scale/scale";
 import { TimeScale } from "../scale/time";
 import { merge } from "../util/merge";
-import { ChartView } from "../view/chartView";
 
 export interface AxisTickOptions {
   show: boolean;
@@ -81,9 +80,7 @@ export class AxisModel extends Model<AxisOptions> {
 
   readonly scale: Scale;
 
-  readonly chart: ChartView;
-
-  constructor(chart: ChartView, options?: Partial<AxisOptions>) {
+  constructor(options?: Partial<AxisOptions>) {
     const opts = merge(
       Object.assign({}, AxisModel.defaultOptions),
       options || {},
@@ -91,7 +88,6 @@ export class AxisModel extends Model<AxisOptions> {
     ) as AxisOptions;
     super(opts);
 
-    this.chart = chart;
     if (opts.type === "linear") {
       this.scale = new LinearScale();
     } else if (opts.type === "time") {
@@ -101,10 +97,6 @@ export class AxisModel extends Model<AxisOptions> {
     } else {
       throw new Error("Unsupported scale type");
     }
-  }
-
-  getChart(): ChartView {
-    return this.chart;
   }
 
   getScale(): ScaleType {

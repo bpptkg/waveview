@@ -1,6 +1,5 @@
 import { Model } from "../model/model";
 import { merge } from "../util/merge";
-import { ChartView } from "../view/chartView";
 
 export interface HightlightOptions {
   color: string;
@@ -31,20 +30,12 @@ export class TrackModel extends Model<TrackOptions> {
     },
   };
 
-  readonly chart: ChartView;
-
-  constructor(chart: ChartView, options?: Partial<TrackOptions>) {
+  constructor(options?: Partial<TrackOptions>) {
     const opts = merge(
       { ...TrackModel.defaultOptions },
       options || {},
       true
     ) as TrackOptions;
     super(opts);
-
-    this.chart = chart;
-  }
-
-  getChart(): ChartView {
-    return this.chart;
   }
 }

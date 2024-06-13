@@ -1,15 +1,12 @@
 import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
-import { AxisModel } from "../axis/axisModel";
 import { Channel, EMPTY_CHANNEL } from "../data/channel";
 import { Grid } from "../grid/grid";
-import { GridModel, GridOptions } from "../grid/gridModel";
+import { GridOptions } from "../grid/gridModel";
 import { ChartOptions } from "../model/chartModel";
-import { LineSeries } from "../series/line";
 import { Track } from "../track/track";
-import { TrackModel } from "../track/trackModel";
 import { merge } from "../util/merge";
-import { formatDate } from "../util/time";
+import { ONE_HOUR, ONE_MINUTE, formatDate } from "../util/time";
 import { EventMap, LayoutRect, SeriesData } from "../util/types";
 import { ChartType, ChartView } from "../view/chartView";
 import { EventMarker, EventMarkerOptions } from "./eventMarker";
@@ -65,18 +62,14 @@ function getDefaultOptions(): HelicorderChartOptions {
 }
 
 export interface HelicorderChartType extends ChartType<HelicorderChartOptions> {
-  setTrackData(data: SeriesData, start: number, end: number): void;
-  getTrackData(start: number, end: number): SeriesData | undefined;
-  getTrackExtents(): [number, number][];
-  update(): void;
   getTrackCount(): number;
   setChannel(channel: Channel): void;
   getChannel(): Channel;
-  getTrackExtentAt(index: number): [number, number];
   increaseAmplitude(by: number): void;
   decreaseAmplitude(by: number): void;
-  shiftViewUp(): void;
-  shiftViewDown(): void;
+  resetAmplitude(): void;
+  shiftViewUp(): [number, number];
+  shiftViewDown(): [number, number];
   shiftViewToNow(): void;
   setOffsetDate(date: Date): void;
   addEventMarker(value: Date, options?: Partial<EventMarkerOptions>): void;
@@ -90,8 +83,15 @@ export interface HelicorderChartType extends ChartType<HelicorderChartOptions> {
   getTrackIndexAtPosition(y: number): number;
   getTrackIndexAtTime(time: number): number;
   timeToOffset(trackIndex: number, time: number): number;
+  getTracks(): Track[];
   getTrackAt(index: number): Track | undefined;
   getTrackExtentAt(index: number): [number, number];
+  getTrackExtents(): [number, number][];
+  getTrackData(start: number, end: number): SeriesData | undefined;
+  setTrackData(data: SeriesData, start: number, end: number): void;
+  updateTracks(): void;
+  getXAxis(): Axis;
+  getYExtent(): [number, number];
   getChartExtent(): [number, number];
 }
 
@@ -109,14 +109,15 @@ export class Helicorder
 {
   override readonly type = "helicorder";
 
-  private readonly tracks: Track[] = [];
-  readonly xAxis: Axis;
-  private readonly grid: Grid;
+  private readonly _xAxis: Axis;
+  private readonly _grid: Grid;
+  private readonly _selection: Selection;
+  private _tracks: Track[] = [];
   private _channel: Channel;
   private _markers: EventMarker[] = [];
-  private readonly _selection: Selection;
   private _dataMap: Map<string, SeriesData> = new Map();
   private _normFactor: number = Infinity;
+  private _yExtent: [number, number] = [-1, 1];
 
   constructor(
     dom: HTMLCanvasElement,
@@ -132,28 +133,24 @@ export class Helicorder
 
     this._channel = EMPTY_CHANNEL;
 
-    const gridModel = new GridModel(this, opts.grid);
-    const grid = new Grid(gridModel, this.getRect());
-    this.addComponent(grid);
+    this._grid = new Grid(this.getRect(), opts.grid);
+    this.addComponent(this._grid);
 
-    this.grid = grid;
-
-    const axisModel = new AxisModel(this, {
+    this._xAxis = new Axis(this._grid.getRect(), {
       position: "top",
       type: "linear",
     });
-    this.xAxis = new Axis(axisModel, this.grid.getRect());
-    this.xAxis.setExtent([0, opts.interval]);
-    this.addComponent(this.xAxis);
+    this._xAxis.setExtent([0, opts.interval]);
+    this.addComponent(this._xAxis);
 
     const trackCount = this.getTrackCount();
     for (let i = 0; i < trackCount; i++) {
       const track = this.createTrack(i);
-      this.tracks.push(track);
+      this._tracks.push(track);
       this.addComponent(track);
     }
 
-    this._selection = new Selection(this.xAxis, this);
+    this._selection = new Selection(this._xAxis, this);
     this.addComponent(this._selection);
   }
 
@@ -166,39 +163,51 @@ export class Helicorder
   }
 
   increaseAmplitude(by: number): void {
-    for (const track of this.tracks) {
-      track.increaseAmplitude(by);
+    const [ymin, ymax] = this.getYExtent();
+    const dy = -(ymax - ymin) * by;
+    this._yExtent = [ymin + dy, ymax + dy];
+
+    for (const track of this._tracks) {
+      track.setYExtent(this._yExtent);
     }
   }
 
   decreaseAmplitude(by: number): void {
-    for (const track of this.tracks) {
-      track.decreaseAmplitude(by);
+    this.increaseAmplitude(-by);
+  }
+
+  resetAmplitude(): void {
+    this._yExtent = [-1, 1];
+    for (const track of this._tracks) {
+      track.setYExtent(this._yExtent);
     }
   }
 
-  shiftViewUp(): void {
+  shiftViewUp(): [number, number] {
     const { interval } = this.model.getOptions();
     const offsetDate = new Date(
-      this.model.getOptions().offsetDate.getTime() - interval * 60000
+      this.model.getOptions().offsetDate.getTime() - interval * ONE_MINUTE
     );
-    this.model.mergeOptions({ offsetDate });
-    this.emit("offsetChanged", offsetDate);
+    this.setOffsetDate(offsetDate);
+
+    const trackIndex = this.getTrackIndexAtTime(offsetDate.getTime());
+    return this.getTrackExtentAt(trackIndex);
   }
 
-  shiftViewDown(): void {
+  shiftViewDown(): [number, number] {
     const { interval } = this.model.getOptions();
     const offsetDate = new Date(
-      this.model.getOptions().offsetDate.getTime() + interval * 60000
+      this.model.getOptions().offsetDate.getTime() + interval * ONE_MINUTE
     );
-    this.model.mergeOptions({ offsetDate });
-    this.emit("offsetChanged", offsetDate);
+    this.setOffsetDate(offsetDate);
+
+    const trackIndex = this.getTrackIndexAtTime(offsetDate.getTime());
+    return this.getTrackExtentAt(trackIndex);
   }
 
   shiftViewToNow(): void {
     const offsetDate = new Date();
-    this.model.mergeOptions({ offsetDate });
-    this.emit("offsetChanged", offsetDate);
+    this.setOffsetDate(offsetDate);
   }
 
   setOffsetDate(date: Date): void {
@@ -206,7 +215,7 @@ export class Helicorder
   }
 
   addEventMarker(value: Date, options?: Partial<EventMarkerOptions>): void {
-    const marker = new EventMarker(this.xAxis, this, {
+    const marker = new EventMarker(this._xAxis, this, {
       value: value.getTime(),
       ...options,
     });
@@ -263,7 +272,7 @@ export class Helicorder
     const key = createTrackId(start, end);
     this._dataMap.set(key, data);
 
-    for (const [_, data] of this._dataMap) {
+    for (const data of this._dataMap.values()) {
       const range = data.max() - data.min();
       this._normFactor = Math.min(this._normFactor, range);
     }
@@ -277,15 +286,15 @@ export class Helicorder
 
   getTrackExtents(): [number, number][] {
     const extents: [number, number][] = [];
-    for (let i = 0; i < this.tracks.length; i++) {
+    for (let i = 0; i < this._tracks.length; i++) {
       const [start, end] = this.getTrackExtentAt(i);
       extents.push([start, end]);
     }
     return extents;
   }
 
-  update(): void {
-    for (let i = 0; i < this.tracks.length; i++) {
+  updateTracks(): void {
+    for (let i = 0; i < this._tracks.length; i++) {
       const trackIndex = this.getTrackCount() - i - 1;
       const [start, end] = this.getTrackExtentAt(trackIndex);
       const data = this.getTrackData(start, end);
@@ -297,12 +306,8 @@ export class Helicorder
         slice.index.map((value: number) => this.timeToOffset(trackIndex, value))
       );
 
-      const series = new LineSeries(this, {
-        data: slice,
-      });
-      const track = this.tracks[i];
+      const track = this._tracks[i];
       if (track) {
-        track.clearSeries();
         const leftLabel = formatDate(
           start,
           i === 0 ? "{MM}-{dd} {HH}:{mm}" : "{HH}:{mm}",
@@ -310,10 +315,21 @@ export class Helicorder
         );
         const rightLabel = formatDate(end, "{HH}:{mm}", true);
         track.getModel().mergeOptions({ leftLabel, rightLabel });
-        track.setSingleSeries(series);
-        track.setYExtent([-1, 1]);
+        track.getSeries().setData(slice);
       }
     }
+  }
+
+  getXAxis(): Axis {
+    return this._xAxis;
+  }
+
+  getYExtent(): [number, number] {
+    return this._yExtent;
+  }
+
+  getTracks(): Track[] {
+    return this._tracks;
   }
 
   getTrackCount() {
@@ -324,32 +340,32 @@ export class Helicorder
   getTrackExtentAt(index: number): [number, number] {
     const { interval, offsetDate } = this.model.getOptions();
 
-    const segment = interval * 60000;
+    const segment = interval * ONE_MINUTE;
     const startOf = (value: number) => value - (value % segment);
     const endOf = (value: number) => value + segment - (value % segment);
 
     return [
-      startOf(offsetDate.getTime() - index * interval * 60000),
-      endOf(offsetDate.getTime() - index * interval * 60000),
+      startOf(offsetDate.getTime() - index * interval * ONE_MINUTE),
+      endOf(offsetDate.getTime() - index * interval * ONE_MINUTE),
     ];
   }
 
   getChartExtent(): [number, number] {
     const { duration, offsetDate } = this.model.getOptions();
-    const start = offsetDate.getTime() - duration * 3600000;
+    const start = offsetDate.getTime() - duration * ONE_HOUR;
     const end = offsetDate.getTime();
     return [start, end];
   }
 
   getTrackIndexAtPosition(y: number): number {
-    const { y: gridY, height } = this.grid.getRect();
+    const { y: gridY, height } = this.getGrid().getRect();
     const trackHeight = height / this.getTrackCount();
     return Math.floor((y - gridY) / trackHeight);
   }
 
   getTrackIndexAtTime(time: number): number {
     const { interval, offsetDate } = this.model.getOptions();
-    const segment = interval * 60000;
+    const segment = interval * ONE_MINUTE;
     const endOf = (value: number) => value + segment - (value % segment);
     const end = endOf(offsetDate.getTime());
     const diff = end - time;
@@ -363,31 +379,23 @@ export class Helicorder
   }
 
   getTrackAt(index: number): Track | undefined {
-    return this.tracks[this.getTrackCount() - index - 1];
+    return this._tracks[this.getTrackCount() - index - 1];
   }
 
   override getGrid(): Grid {
-    return this.grid;
+    return this._grid;
   }
 
   private createTrack(index: number): Track {
     const trackCount = this.getTrackCount();
     const rect = this.getRectForTrack(index, trackCount);
-    const model = new TrackModel(this);
-    const grid = new Grid(new GridModel(this), rect);
-    const yAxis = new Axis(
-      new AxisModel(this, {
-        position: "left",
-        show: true,
-      }),
-      grid.getRect()
-    );
-    const track = new Track(model, grid.getRect(), this.xAxis, yAxis);
+    const yAxis = new Axis(rect, { position: "left" });
+    const track = new Track(rect, this.getXAxis(), yAxis);
     return track;
   }
 
   private getRectForTrack(index: number, count: number): LayoutRect {
-    const rect = this.grid.getRect();
+    const rect = this.getGrid().getRect();
     if (count === 0) {
       return rect;
     }

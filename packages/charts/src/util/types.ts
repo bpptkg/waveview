@@ -16,9 +16,7 @@ export interface Point {
 
 export type SeriesData = Series<Float64Array, Float64Array>;
 
-export interface SeriesOptions {
-  data: SeriesData;
-}
+export interface SeriesOptions {}
 
 export type TimeUnit =
   | "millisecond"
@@ -40,4 +38,9 @@ export interface EventManagerConfig {}
 
 export interface EventMap {
   [event: string]: (...args: any[]) => void;
+}
+
+export interface Extension<T> {
+  install(target: T): void;
+  uninstall(target: T): void;
 }

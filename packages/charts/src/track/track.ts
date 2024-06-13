@@ -4,80 +4,46 @@ import { SeriesModel } from "../model/series";
 import { LineSeries, LineSeriesView } from "../series/line";
 import { LayoutRect } from "../util/types";
 import { View } from "../view/view";
-import { TrackModel } from "./trackModel";
+import { TrackModel, TrackOptions } from "./trackModel";
 
 export class Track extends View<TrackModel> {
   override type = "track";
   private _rect: LayoutRect;
-  private _series: SeriesModel[] = [];
+  private _series: SeriesModel;
   private _highlighted: boolean = false;
 
   readonly xAxis: Axis;
   readonly yAxis: Axis;
 
-  constructor(model: TrackModel, rect: LayoutRect, xAxis: Axis, yAxis: Axis) {
+  constructor(
+    rect: LayoutRect,
+    xAxis: Axis,
+    yAxis: Axis,
+    options?: Partial<TrackOptions>
+  ) {
+    const model = new TrackModel(options);
     super(model);
 
     this._rect = rect;
+    this._series = new SeriesModel();
     this.xAxis = xAxis;
     this.yAxis = yAxis;
   }
 
-  override getRect(): LayoutRect {
-    return this._rect;
-  }
-
-  override setRect(rect: LayoutRect): void {
-    this._rect = rect;
-    this.yAxis.setRect(rect);
-  }
-
-  override render(): void {
-    this.clear();
-    this.renderGrid();
-    this.renderSeries();
-    this.renderHighlight();
-  }
-
   getXRange(): [number, number] {
-    let min = Infinity;
-    let max = -Infinity;
-    for (const series of this._series) {
-      const [seriesMin, seriesMax] = series.getXRange();
-      min = Math.min(min, seriesMin);
-      max = Math.max(max, seriesMax);
-    }
-    return [min, max];
+    return this._series.getXRange();
   }
 
   getYRange(): [number, number] {
-    let min = Infinity;
-    let max = -Infinity;
-    for (const series of this._series) {
-      const [seriesMin, seriesMax] = series.getYRange();
-      min = Math.min(min, seriesMin);
-      max = Math.max(max, seriesMax);
-    }
-    return [min, max];
+    return this._series.getYRange();
   }
 
-  addSeries(series: SeriesModel): void {
-    this._series.push(series);
+  getSeries(): SeriesModel {
+    return this._series;
   }
 
-  removeSeries(series: SeriesModel): void {
-    const index = this._series.indexOf(series);
-    if (index !== -1) {
-      this._series.splice(index, 1);
-    }
-  }
-
-  setSingleSeries(series: SeriesModel): void {
-    this._series = [series];
-  }
-
-  clearSeries(): void {
-    this._series = [];
+  setSeries(series: SeriesModel): void {
+    this._series = series;
   }
 
   fitY(): void {
@@ -107,16 +73,6 @@ export class Track extends View<TrackModel> {
     this.yAxis.setExtent(extent);
   }
 
-  increaseAmplitude(by: number): void {
-    const [ymin, ymax] = this.yAxis.getExtent();
-    const dy = -(ymax - ymin) * by;
-    this.yAxis.setExtent([ymin - dy, ymax + dy]);
-  }
-
-  decreaseAmplitude(by: number): void {
-    this.increaseAmplitude(-by);
-  }
-
   highlight(): void {
     this._highlighted = true;
   }
@@ -127,6 +83,22 @@ export class Track extends View<TrackModel> {
 
   isHighlighted(): boolean {
     return this._highlighted;
+  }
+
+  override getRect(): LayoutRect {
+    return this._rect;
+  }
+
+  override setRect(rect: LayoutRect): void {
+    this._rect = rect;
+    this.yAxis.setRect(rect);
+  }
+
+  override render(): void {
+    this.clear();
+    this.renderGrid();
+    this.renderSeries();
+    this.renderHighlight();
   }
 
   private renderHighlight(): void {
@@ -194,18 +166,14 @@ export class Track extends View<TrackModel> {
   }
 
   private renderSeries(): void {
-    for (const series of this._series) {
-      if (series.type === "line") {
-        const lineSeries = series as LineSeries;
-        const view = new LineSeriesView(
-          lineSeries,
-          this._rect,
-          this.xAxis,
-          this.yAxis
-        );
-        view.render();
-        this.group.addChild(view.group);
-      }
-    }
+    const lineSeries = this._series as LineSeries;
+    const view = new LineSeriesView(
+      lineSeries,
+      this.getRect(),
+      this.xAxis,
+      this.yAxis
+    );
+    view.render();
+    this.group.addChild(view.group);
   }
 }

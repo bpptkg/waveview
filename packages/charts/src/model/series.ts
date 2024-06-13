@@ -9,10 +9,11 @@ export class SeriesModel<
 
   private _data: SeriesData;
 
-  constructor(options: T) {
-    super(options);
+  constructor(options?: T) {
+    const opts = options || ({} as T);
+    super(opts);
 
-    this._data = options.data || Series.empty();
+    this._data = Series.empty();
   }
 
   isEmpty(): boolean {

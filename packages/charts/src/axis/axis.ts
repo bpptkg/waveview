@@ -19,13 +19,14 @@ export interface AxisEventMap extends EventMap {
 export class Axis extends View<AxisModel> {
   override type = "axis";
   private _rect: LayoutRect;
+  private _markers: MarkerView[] = [];
   private readonly _builder: AxisBuilder;
-  private readonly _markers: MarkerView[] = [];
 
-  constructor(model: AxisModel, rect: LayoutRect) {
+  constructor(rect: LayoutRect, options?: Partial<AxisOptions>) {
+    const model = new AxisModel(options);
     super(model);
-    this._rect = rect;
 
+    this._rect = rect;
     this._builder = new AxisBuilder(model, this);
   }
 
@@ -168,7 +169,7 @@ export class Axis extends View<AxisModel> {
     value: number,
     options: Partial<LineMarkerOptions>
   ): LineMarker {
-    const marker = new LineMarker(this, this.getModel().getChart(), {
+    const marker = new LineMarker(this, {
       value,
       ...options,
     });
@@ -192,7 +193,7 @@ export class Axis extends View<AxisModel> {
     end: number,
     options: Partial<AreaMarkerOptions>
   ): AreaMarker {
-    const marker = new AreaMarker(this, this.getModel().getChart(), {
+    const marker = new AreaMarker(this, {
       start,
       end,
       ...options,

@@ -2,7 +2,6 @@ import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
 import { Model } from "../model/model";
 import { LayoutRect, ModelOptions } from "../util/types";
-import { ChartView } from "../view/chartView";
 import { View } from "../view/view";
 
 export interface AreaMarkerOptions extends ModelOptions {
@@ -57,19 +56,13 @@ export class AreaMarkerModel extends Model<AreaMarkerOptions> {
 export class AreaMarker extends View<AreaMarkerModel> {
   override readonly type = "areaMarker";
   readonly axis: Axis;
-  readonly chart: ChartView;
   private _rect: LayoutRect;
 
-  constructor(
-    axis: Axis,
-    chart: ChartView,
-    options?: Partial<AreaMarkerOptions>
-  ) {
+  constructor(axis: Axis, options?: Partial<AreaMarkerOptions>) {
     const model = new AreaMarkerModel(options);
     super(model);
 
     this.axis = axis;
-    this.chart = chart;
     this._rect = axis.getRect();
   }
 

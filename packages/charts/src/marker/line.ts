@@ -2,7 +2,6 @@ import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
 import { Model } from "../model/model";
 import { LayoutRect, ModelOptions } from "../util/types";
-import { ChartView } from "../view/chartView";
 import { View } from "../view/view";
 
 export interface LineMarkerOptions extends ModelOptions {
@@ -30,20 +29,14 @@ export class LineMarkerModel extends Model<LineMarkerOptions> {
 export class LineMarker extends View<LineMarkerModel> {
   override readonly type = "lineMarker";
   readonly axis: Axis;
-  readonly chart: ChartView;
   private _rect: LayoutRect;
 
-  constructor(
-    axis: Axis,
-    chart: ChartView,
-    options?: Partial<LineMarkerOptions>
-  ) {
+  constructor(axis: Axis, options?: Partial<LineMarkerOptions>) {
     const model = new LineMarkerModel(options);
     super(model);
 
     this.axis = axis;
     this._rect = axis.getRect();
-    this.chart = chart;
   }
 
   getValue(): number {
