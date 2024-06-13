@@ -2,7 +2,6 @@ import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
 import { AxisModel } from "../axis/axisModel";
 import { Channel, EMPTY_CHANNEL } from "../data/channel";
-import { DataProvider } from "../data/dataProvider";
 import { Grid } from "../grid/grid";
 import { GridModel, GridOptions } from "../grid/gridModel";
 import { ChartOptions } from "../model/chartModel";
@@ -60,14 +59,16 @@ function getDefaultOptions(): HelicorderChartOptions {
       top: 50,
       right: 50,
       bottom: 50,
-      left: 50,
+      left: 80,
     },
   };
 }
 
 export interface HelicorderChartType extends ChartType<HelicorderChartOptions> {
-  updateData(): void;
-  setData(data: SeriesData): void;
+  setTrackData(data: SeriesData, start: number, end: number): void;
+  getTrackData(start: number, end: number): SeriesData | undefined;
+  getTrackExtents(): [number, number][];
+  update(): void;
   getTrackCount(): number;
   setChannel(channel: Channel): void;
   getChannel(): Channel;
@@ -98,6 +99,10 @@ export interface HelicorderEventMap extends EventMap {
   offsetChanged: (offset: Date) => void;
 }
 
+function createTrackId(start: number, end: number): string {
+  return `${start}-${end}`;
+}
+
 export class Helicorder
   extends ChartView<HelicorderChartOptions>
   implements HelicorderChartType
@@ -107,14 +112,14 @@ export class Helicorder
   private readonly tracks: Track[] = [];
   readonly xAxis: Axis;
   private readonly grid: Grid;
-  private readonly dataProvider: DataProvider;
   private _channel: Channel;
   private _markers: EventMarker[] = [];
   private readonly _selection: Selection;
+  private _dataMap: Map<string, SeriesData> = new Map();
+  private _normFactor: number = Infinity;
 
   constructor(
     dom: HTMLCanvasElement,
-    dataProvider: DataProvider,
     options?: Partial<HelicorderChartOptions>
   ) {
     const opts = merge(
@@ -125,10 +130,9 @@ export class Helicorder
 
     super(dom, opts);
 
-    this.dataProvider = dataProvider;
     this._channel = EMPTY_CHANNEL;
 
-    const gridModel = new GridModel(this, options?.grid);
+    const gridModel = new GridModel(this, opts.grid);
     const grid = new Grid(gridModel, this.getRect());
     this.addComponent(grid);
 
@@ -255,76 +259,50 @@ export class Helicorder
     this._selection.moveDown();
   }
 
-  updateData(): void {
-    const { verticalScaling } = this.model.getOptions();
-    if (verticalScaling === "local") {
-      throw new Error("Local scaling is not supported yet");
-    }
+  setTrackData(data: SeriesData, start: number, end: number): void {
+    const key = createTrackId(start, end);
+    this._dataMap.set(key, data);
 
-    const extremes: number[] = [];
-    const seriesData: SeriesData[] = [];
-
-    for (let i = 0; i < this.tracks.length; i++) {
-      const [start, end] = this.getTrackExtentAt(i);
-      const data = this.dataProvider.getData(this._channel, start, end);
-      seriesData.push(data);
-
-      const min = data.min();
-      const max = data.max();
-      extremes.push(max - min);
-    }
-
-    const normalizationFactor = Math.min(...extremes);
-
-    for (let i = 0; i < this.tracks.length; i++) {
-      const normalizedData = seriesData[i].scalarDivide(normalizationFactor);
-      normalizedData.setIndex(
-        normalizedData.index.map((value) => this.timeToOffset(i, value))
-      );
-
-      const series = new LineSeries(this, {
-        data: normalizedData,
-      });
-      const track = this.tracks[i];
-      if (track) {
-        const [start, end] = this.getTrackExtentAt(
-          this.getTrackCount() - i - 1
-        );
-        const leftLabel = formatDate(
-          start,
-          i === 0 ? "{MM}-{dd} {HH}:{mm}" : "{HH}:{mm}",
-          false
-        );
-        const rightLabel = formatDate(end, "{HH}:{mm}", true);
-        track.getModel().mergeOptions({ leftLabel, rightLabel });
-        track.setSingleSeries(series);
-        track.setYExtent([-1, 1]);
-      }
+    for (const [_, data] of this._dataMap) {
+      const range = data.max() - data.min();
+      this._normFactor = Math.min(this._normFactor, range);
     }
   }
 
-  setData(data: SeriesData): void {
-    const normFactor = Array.from({ length: this.tracks.length }, (_, i) => i)
-      .map((i) => {
-        const [start, end] = this.getTrackExtentAt(i);
-        const series = data.slice(start, end);
-        return series.max() - series.min();
-      })
-      .reduce((a, b) => Math.min(a, b), Infinity);
+  getTrackData(start: number, end: number): SeriesData | undefined {
+    const key = createTrackId(start, end);
+    const data = this._dataMap.get(key);
+    return data;
+  }
 
+  getTrackExtents(): [number, number][] {
+    const extents: [number, number][] = [];
     for (let i = 0; i < this.tracks.length; i++) {
       const [start, end] = this.getTrackExtentAt(i);
-      const slice = data.slice(start, end).scalarDivide(normFactor);
-      slice.setIndex(slice.index.map((value) => this.timeToOffset(i, value)));
+      extents.push([start, end]);
+    }
+    return extents;
+  }
+
+  update(): void {
+    for (let i = 0; i < this.tracks.length; i++) {
+      const trackIndex = this.getTrackCount() - i - 1;
+      const [start, end] = this.getTrackExtentAt(trackIndex);
+      const data = this.getTrackData(start, end);
+      if (!data) {
+        continue;
+      }
+      const slice = data.scalarDivide(this._normFactor);
+      slice.setIndex(
+        slice.index.map((value: number) => this.timeToOffset(trackIndex, value))
+      );
 
       const series = new LineSeries(this, {
         data: slice,
       });
       const track = this.tracks[i];
       if (track) {
-        const [start, end] = this.getTrackExtentAt(
-          this.getTrackCount() - i - 1
-        );
+        track.clearSeries();
         const leftLabel = formatDate(
           start,
           i === 0 ? "{MM}-{dd} {HH}:{mm}" : "{HH}:{mm}",
