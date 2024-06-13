@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
-import { Channel, EMPTY_CHANNEL } from "../data/channel";
+import { Channel } from "../data/channel";
 import { Grid } from "../grid/grid";
 import { GridOptions } from "../grid/gridModel";
 import { ChartOptions } from "../model/chartModel";
@@ -13,6 +13,10 @@ import { EventMarker, EventMarkerOptions } from "./eventMarker";
 import { Selection } from "./selection";
 
 export interface HelicorderChartOptions extends ChartOptions {
+  /**
+   * Channel ID of the helicorder chart.
+   */
+  channelId: string;
   /**
    * Interval of the helicorder chart in minutes.
    */
@@ -46,6 +50,7 @@ export interface HelicorderChartOptions extends ChartOptions {
 
 function getDefaultOptions(): HelicorderChartOptions {
   return {
+    channelId: "",
     interval: 30,
     duration: 12,
     offsetDate: new Date(),
@@ -96,7 +101,14 @@ export interface HelicorderChartType extends ChartType<HelicorderChartOptions> {
 }
 
 export interface HelicorderEventMap extends EventMap {
+  channelChanged: (channel: Channel) => void;
   offsetChanged: (offset: Date) => void;
+  amplitudeChanged: (range: [number, number]) => void;
+  trackSelected: (index: number) => void;
+  trackUnselected: () => void;
+  viewShiftedUp: (range: [number, number]) => void;
+  viewShiftedDown: (range: [number, number]) => void;
+  viewShiftedToNow: () => void;
 }
 
 function createTrackId(start: number, end: number): string {
@@ -131,7 +143,7 @@ export class Helicorder
 
     super(dom, opts);
 
-    this._channel = EMPTY_CHANNEL;
+    this._channel = { id: opts.channelId };
 
     this._grid = new Grid(this.getRect(), opts.grid);
     this.addComponent(this._grid);
@@ -156,6 +168,7 @@ export class Helicorder
 
   setChannel(channel: Channel): void {
     this._channel = channel;
+    this.emit("channelChanged", channel);
   }
 
   getChannel(): Channel {
@@ -170,10 +183,13 @@ export class Helicorder
     for (const track of this._tracks) {
       track.setYExtent(this._yExtent);
     }
+
+    this.emit("amplitudeChanged", this._yExtent);
   }
 
   decreaseAmplitude(by: number): void {
     this.increaseAmplitude(-by);
+    this.emit("amplitudeChanged", this._yExtent);
   }
 
   resetAmplitude(): void {
@@ -181,6 +197,7 @@ export class Helicorder
     for (const track of this._tracks) {
       track.setYExtent(this._yExtent);
     }
+    this.emit("amplitudeChanged", this._yExtent);
   }
 
   shiftViewUp(): [number, number] {
@@ -191,7 +208,9 @@ export class Helicorder
     this.setOffsetDate(offsetDate);
 
     const trackIndex = this.getTrackIndexAtTime(offsetDate.getTime());
-    return this.getTrackExtentAt(trackIndex);
+    const extent = this.getTrackExtentAt(trackIndex);
+    this.emit("viewShiftedUp", extent);
+    return extent;
   }
 
   shiftViewDown(): [number, number] {
@@ -202,16 +221,20 @@ export class Helicorder
     this.setOffsetDate(offsetDate);
 
     const trackIndex = this.getTrackIndexAtTime(offsetDate.getTime());
-    return this.getTrackExtentAt(trackIndex);
+    const extent = this.getTrackExtentAt(trackIndex);
+    this.emit("viewShiftedDown", extent);
+    return extent;
   }
 
   shiftViewToNow(): void {
     const offsetDate = new Date();
     this.setOffsetDate(offsetDate);
+    this.emit("viewShiftedToNow");
   }
 
   setOffsetDate(date: Date): void {
     this.model.mergeOptions({ offsetDate: date });
+    this.emit("offsetChanged", date);
   }
 
   addEventMarker(value: Date, options?: Partial<EventMarkerOptions>): void {
@@ -250,22 +273,25 @@ export class Helicorder
   }
 
   selectTrack(index: number): void {
-    const [start, end] = this.getTrackExtentAt(
-      this.getTrackCount() - index - 1
-    );
+    const trackIndex = this.getTrackCount() - index - 1;
+    const [start, end] = this.getTrackExtentAt(trackIndex);
     this._selection.setValue((start + end) / 2);
+    this.emit("trackSelected", trackIndex);
   }
 
   unselectTrack(): void {
     this._selection.reset();
+    this.emit("trackUnselected");
   }
 
   moveSelectionUp(): void {
     this._selection.moveUp();
+    this.emit("trackSelected", this._selection.getTrackIndex());
   }
 
   moveSelectionDown(): void {
     this._selection.moveDown();
+    this.emit("trackSelected", this._selection.getTrackIndex());
   }
 
   setTrackData(data: SeriesData, start: number, end: number): void {
