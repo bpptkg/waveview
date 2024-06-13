@@ -30,35 +30,42 @@ export abstract class View<T extends Model = Model> {
     this.group.destroy({ children: true });
   }
 
-  on<K extends keyof EventMap>(event: K, fn: EventMap[K]): void {
+  addEventListener<K extends keyof EventMap>(event: K, fn: EventMap[K]): void {
     if (!this.listeners[event]) {
       this.listeners[event] = [];
     }
     this.listeners[event]?.push(fn);
   }
 
-  off<K extends keyof EventMap>(event: K, fn: EventMap[K]): void {
+  removeEventListener<K extends keyof EventMap>(
+    event: K,
+    fn: EventMap[K]
+  ): void {
     if (this.listeners[event]) {
       this.listeners[event] = this.listeners[event]?.filter((f) => f !== fn);
     }
   }
 
-  emit<K extends keyof EventMap>(
+  dispatchEvent<K extends keyof EventMap>(
     event: K,
     ...args: Parameters<EventMap[K]>
   ): void {
     this.listeners[event]?.forEach((fn) => fn.apply(this, args));
   }
 
-  addEventListener<K extends keyof EventMap>(event: K, fn: EventMap[K]): void {
-    this.on(event, fn);
+  on<K extends keyof EventMap>(event: K, fn: EventMap[K]): void {
+    this.addEventListener(event, fn);
   }
 
-  removeEventListener<K extends keyof EventMap>(
+  off<K extends keyof EventMap>(event: K, fn: EventMap[K]): void {
+    this.removeEventListener(event, fn);
+  }
+
+  emit<K extends keyof EventMap>(
     event: K,
-    fn: EventMap[K]
+    ...args: Parameters<EventMap[K]>
   ): void {
-    this.off(event, fn);
+    this.dispatchEvent(event, ...args);
   }
 
   removeAllEventListeners(): void {
