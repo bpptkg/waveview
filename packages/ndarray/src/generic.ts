@@ -18,7 +18,10 @@ export type TypedArrayConstructor<T> = {
 
 export type NDFrameArray = TypedArray;
 
-export class NDFrame<D extends NDFrameArray, I extends NDFrameArray = D> {
+export class NDFrame<
+  D extends NDFrameArray = NDFrameArray,
+  I extends NDFrameArray = NDFrameArray
+> {
   readonly _values: D;
   private _axes: Map<number, Index<I>> = new Map();
 
@@ -34,11 +37,15 @@ export class NDFrame<D extends NDFrameArray, I extends NDFrameArray = D> {
     return shape;
   }
 
-  getAxis(axis: number): Index<I> {
+  get values(): D {
+    return this._values;
+  }
+
+  protected getAxis(axis: number): Index<I> {
     return this._axes.get(axis) || Index.empty<I>();
   }
 
-  setAxis(axis: number, labels: Index<I>): void {
+  protected setAxis(axis: number, labels: Index<I>): void {
     this._axes.set(axis, labels);
   }
 }
