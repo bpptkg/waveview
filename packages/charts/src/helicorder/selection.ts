@@ -13,7 +13,7 @@ export interface SelectionOptions extends ModelOptions {
 }
 
 export class SelectionModel extends Model<SelectionOptions> {
-  override readonly type = "Selection";
+  override readonly type = "selection";
 
   static defaultOptions: SelectionOptions = {
     value: 0,
@@ -51,6 +51,10 @@ export class Selection extends View<SelectionModel> {
 
   setValue(value: number): void {
     this.model.mergeOptions({ value });
+  }
+
+  getTrackIndex(): number {
+    return this.chart.getTrackIndexAtTime(this.model.options.value);
   }
 
   show(): void {
