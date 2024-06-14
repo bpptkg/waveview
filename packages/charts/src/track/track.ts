@@ -158,7 +158,7 @@ export class Track extends View<TrackModel> {
           fontFamily: "Arial",
           fontSize: 12,
           fill: "#000",
-          align: "center",
+          align: "left",
         },
         x: x + width + margin,
         y: y + height - height / 2,
