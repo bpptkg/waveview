@@ -2,7 +2,10 @@ import { StreamResponseData } from "./types";
 
 export async function readStream(blob: Blob): Promise<StreamResponseData> {
   const buffer = await blob.arrayBuffer();
-  const channelId = new TextDecoder().decode(new Uint8Array(buffer, 0, 64));
+  const channelId = new TextDecoder("utf-8")
+    .decode(new Uint8Array(buffer, 0, 64))
+    .replace(/\0+$/, "")
+    .trim();
   const header = new BigUint64Array(buffer, 64, 8);
   const start = Number(header[0]);
   const end = Number(header[1]);

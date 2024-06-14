@@ -4,7 +4,7 @@ import { InteractionEvent } from "pixi.js";
 import { Axis } from "../axis/axis";
 import { Model } from "../model/model";
 import { formatDate } from "../util/time";
-import { LayoutRect } from "../util/types";
+import { Extension, LayoutRect } from "../util/types";
 import { View } from "../view/view";
 import { Seismogram } from "./seismogram";
 
@@ -51,10 +51,17 @@ export class AxisPointer extends View<AxisPointerModel> {
     this.chart = chart;
     this.axis = axis;
     this._rect = axis.getRect();
+  }
+
+  attachEventListeners(): void {
     this.chart.app.stage.on("pointermove", this.onPointerMove.bind(this));
   }
 
-  private onPointerMove(event: InteractionEvent): void {
+  detachEventListeners(): void {
+    this.chart.app.stage.off("pointermove", this.onPointerMove.bind(this));
+  }
+
+  onPointerMove(event: InteractionEvent): void {
     this._position = event.data.getLocalPosition(this.chart.app.stage);
     this.render();
   }
@@ -145,5 +152,30 @@ export class AxisPointer extends View<AxisPointerModel> {
     label.addChild(text);
 
     this.group.addChild(label);
+  }
+}
+
+export class AxisPointerExtension implements Extension<Seismogram> {
+  private options: Partial<AxisPointerOptions>;
+  private axisPointer!: AxisPointer;
+
+  constructor(options?: Partial<AxisPointerOptions>) {
+    this.options = options || {};
+  }
+
+  install(chart: Seismogram): void {
+    this.axisPointer = new AxisPointer(chart.getXAxis(), chart, this.options);
+    this.axisPointer.attachEventListeners();
+  }
+
+  uninstall(): void {
+    this.axisPointer.detachEventListeners();
+  }
+
+  getInstance(): AxisPointer {
+    if (!this.axisPointer) {
+      throw new Error("AxisPointer is not initialized");
+    }
+    return this.axisPointer;
   }
 }

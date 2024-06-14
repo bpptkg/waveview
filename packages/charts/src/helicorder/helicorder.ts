@@ -102,7 +102,7 @@ export interface HelicorderChartType extends ChartType<HelicorderChartOptions> {
   getTrackExtents(): [number, number][];
   getTrackData(start: number, end: number): SeriesData | undefined;
   setTrackData(data: SeriesData, start: number, end: number): void;
-  updateTracks(): void;
+  refreshData(): void;
   getXAxis(): Axis;
   getYExtent(): [number, number];
   getChartExtent(): [number, number];
@@ -336,7 +336,7 @@ export class Helicorder
     return extents;
   }
 
-  updateTracks(): void {
+  refreshData(): void {
     let normFactor = Infinity;
     for (let i = 0; i < this._tracks.length; i++) {
       const [start, end] = this.getTrackExtentAt(i);

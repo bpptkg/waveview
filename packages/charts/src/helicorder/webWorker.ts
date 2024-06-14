@@ -1,16 +1,13 @@
 import { Series } from "@waveview/ndarray";
 import {
   Extension,
+  RefreshMode,
   StreamRequestData,
   StreamResponseData,
   WorkerRequestData,
   WorkerResponseData,
 } from "../util/types";
 import { Helicorder } from "./helicorder";
-
-export interface RefreshMode {
-  mode: "light" | "hard";
-}
 
 export class HelicorderWebWorker {
   private worker: Worker;
@@ -69,7 +66,7 @@ export class HelicorderWebWorker {
     // If all data is present, rerender the chart directly to avoid double
     // rendering.
     if (allDataPresent) {
-      this.chart.updateTracks();
+      this.chart.refreshData();
       this.chart.render();
     }
   }
@@ -114,7 +111,7 @@ export class HelicorderWebWorker {
       name: data.channelId,
     });
     this.chart.setTrackData(seriesData, data.start, data.end);
-    this.chart.updateTracks();
+    this.chart.refreshData();
     this.chart.render();
   }
 
@@ -158,7 +155,7 @@ export class HelicorderWebWorkerExtension implements Extension<Helicorder> {
 
   getInstance(): HelicorderWebWorker {
     if (!this.impl) {
-      throw new Error("Extension not installed");
+      throw new Error("HelicorderWebWorker extension is not installed");
     }
     return this.impl;
   }

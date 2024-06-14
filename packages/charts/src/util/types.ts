@@ -84,3 +84,7 @@ export interface RenderableGroup {
   group: PIXI.Container;
   render(): void;
 }
+
+export interface RefreshMode {
+  mode: "light" | "hard";
+}

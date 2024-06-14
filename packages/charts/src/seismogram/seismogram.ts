@@ -1,19 +1,18 @@
+import { Series } from "@waveview/ndarray";
 import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
-import { AxisModel } from "../axis/axisModel";
 import { Channel } from "../data/channel";
-import { DataProvider } from "../data/dataProvider";
+import { DataStore } from "../data/dataStore";
 import { Grid } from "../grid/grid";
-import { GridModel } from "../grid/gridModel";
+import { GridOptions } from "../grid/gridModel";
 import { AreaMarkerOptions } from "../marker/area";
 import { LineMarkerOptions } from "../marker/line";
 import { ChartOptions } from "../model/chartModel";
-import { LineSeries } from "../series/line";
 import { Track } from "../track/track";
-import { TrackModel } from "../track/trackModel";
-import { LayoutRect, SeriesData } from "../util/types";
+import { EventMap, LayoutRect, SeriesData } from "../util/types";
 import { ChartType, ChartView } from "../view/chartView";
 import { AxisPointer } from "./axisPointer";
+import { TrackManager } from "./trackManager";
 
 export interface SeismogramChartOptions extends ChartOptions {
   startTime?: number;
@@ -22,6 +21,9 @@ export interface SeismogramChartOptions extends ChartOptions {
   forceCenter: boolean;
   useUTC: boolean;
   verticalScaling: "local" | "global";
+  grid: Partial<GridOptions>;
+  timezone: string;
+  channels: Channel[];
 }
 
 function getDefaultOptions(): SeismogramChartOptions {
@@ -32,24 +34,35 @@ function getDefaultOptions(): SeismogramChartOptions {
     forceCenter: true,
     useUTC: false,
     verticalScaling: "global",
+    grid: {
+      top: 50,
+      right: 50,
+      bottom: 50,
+      left: 80,
+    },
+    timezone: "UTC",
+    channels: [],
   };
 }
 
 export interface SeismogramChartType extends ChartType<SeismogramChartOptions> {
-  updateData(): void;
+  getChannels(): Channel[];
+  getChannelAt(index: number): Channel;
   addChannel(channel: Channel): void;
-  addChannels(channels: Channel[]): void;
   removeChannel(index: number): void;
-  removeChannels(indexes: number[]): void;
+  moveChannel(from: number, to: number): void;
+  moveChannelUp(index: number): void;
+  moveChannelDown(index: number): void;
   increaseAmplitude(by: number): void;
   decreaseAmplitude(by: number): void;
+  resetAmplitude(): void;
   scrollLeft(by: number): void;
   scrollRight(by: number): void;
   scrollTo(date: Date): void;
   scrollToNow(): void;
   zoomIn(center: number, by: number): void;
   zoomOut(center: number, by: number): void;
-  getTrackCount(): number;
+  getChannelCount(): number;
   addLineMarker(value: Date, options?: Partial<LineMarkerOptions>): void;
   removeLineMarker(value: Date): void;
   addAreaMarker(
@@ -60,13 +73,30 @@ export interface SeismogramChartType extends ChartType<SeismogramChartOptions> {
   removeAreaMarker(start: Date, end: Date): void;
   showVisibleMarkers(): void;
   hideVisibleMarkers(): void;
-  selectTrack(index: number): void;
-  unselectTrack(): void;
+  selectChannel(index: number): void;
+  unselectChannel(): void;
   moveSelectionUp(): void;
   moveSelectionDown(): void;
-  getTrackIndexAtPosition(y: number): number;
-  getTrackAt(index: number): Track | undefined;
+  getChannelIndexAtPosition(y: number): number;
+  getTrackAt(index: number): Track;
+  getTrackIndexByChannelId(id: string): number;
   getChartExtent(): [number, number];
+  getXAxis(): Axis;
+  getYExtent(): [number, number];
+  getTracks(): Track[];
+  setChannelData(index: number, data: SeriesData): void;
+  refreshData(): void;
+  getDataStore(): DataStore<SeriesData>;
+}
+
+export interface SeismogramEventMap extends EventMap {
+  channelAdded: (channel: Channel) => void;
+  channelRemoved: (channel: Channel) => void;
+  channelMoved: (from: number, to: number) => void;
+  amplitudeChanged: (range: [number, number]) => void;
+  trackSelected: (index: number) => void;
+  trackUnselected: () => void;
+  extentChanged: (extent: [number, number]) => void;
 }
 
 export class Seismogram
@@ -75,17 +105,16 @@ export class Seismogram
 {
   override readonly type = "seismogram";
 
-  private readonly tracks: Track[] = [];
-  readonly xAxis: Axis;
-  private readonly dataProvider: DataProvider;
-  private readonly grid: Grid;
-  private readonly channels: Channel[] = [];
-  private _selectedTrackIndex: number = -1;
+  private readonly _xAxis: Axis;
+  private readonly _grid: Grid;
   private readonly _axisPointer: AxisPointer;
+  private _selectedTrackIndex: number = -1;
+  private _trackManager: TrackManager = new TrackManager();
+  private _yExtent: [number, number] = [-1, 1];
+  private _dataStore: DataStore<SeriesData> = new DataStore();
 
   constructor(
     dom: HTMLCanvasElement,
-    dataProvider: DataProvider,
     options?: Partial<SeismogramChartOptions>
   ) {
     const opts = Object.assign(
@@ -95,68 +124,84 @@ export class Seismogram
     ) as SeismogramChartOptions;
     super(dom, opts);
 
-    this.dataProvider = dataProvider;
-
-    const gridModel = new GridModel(this, {
-      top: 50,
-      right: 50,
-      bottom: 50,
-      left: 80,
-    });
-    const grid = new Grid(gridModel, this.getRect());
-    this.addComponent(grid);
-
-    this.grid = grid;
+    this._grid = new Grid(this.getRect(), opts.grid);
+    this.addComponent(this._grid);
 
     const { startTime, endTime, useUTC } = opts;
-    const axisModel = new AxisModel(this, {
+    this._xAxis = new Axis(this._grid.getRect(), {
       position: "top",
       type: "time",
       useUTC,
     });
-    this.xAxis = new Axis(axisModel, this.grid.getRect());
     if (startTime && endTime) {
-      this.xAxis.setExtent([startTime, endTime]);
+      this._xAxis.setExtent([startTime, endTime]);
     } else {
       const end = Date.now();
       const start = end - opts.interval * 1000 * 60;
-      this.xAxis.setExtent([start, end]);
+      this._xAxis.setExtent([start, end]);
     }
-    this.addComponent(this.xAxis);
+    this.addComponent(this._xAxis);
 
-    this._axisPointer = new AxisPointer(this.xAxis, this);
+    this._axisPointer = new AxisPointer(this._xAxis, this);
     this.addComponent(this._axisPointer);
+
+    this._xAxis.on("extentChanged", (extent) => {
+      this.emit("extentChanged", extent);
+    });
+
+    for (const channel of opts.channels) {
+      this.addChannelInternal(channel);
+    }
+  }
+
+  getChannels(): Channel[] {
+    return this._trackManager.getChannels();
+  }
+
+  getChannelAt(index: number): Channel {
+    return this._trackManager.getChannelByIndex(index);
   }
 
   addChannel(channel: Channel): void {
     this.addChannelInternal(channel);
+    this.emit("channelAdded", channel);
   }
 
   removeChannel(index: number): void {
-    this.removeChannelInternal(index);
+    const channel = this.removeChannelInternal(index);
+    this.emit("channelRemoved", channel);
   }
 
-  addChannels(channels: Channel[]): void {
-    channels.forEach((channel) => {
-      this.addChannelInternal(channel);
-    });
+  moveChannel(from: number, to: number): void {
+    this._trackManager.moveChannel(from, to);
+
+    this.updateTracksRect();
+    this.emit("channelMoved", from, to);
   }
 
-  removeChannels(indexes: number[]): void {
-    indexes.forEach((index) => {
-      this.removeChannelInternal(index);
-    });
+  moveChannelUp(index: number): void {
+    if (index === 0) {
+      return;
+    }
+    this.moveChannel(index, index - 1);
+  }
+
+  moveChannelDown(index: number): void {
+    if (index === this._trackManager.count() - 1) {
+      return;
+    }
+    this.moveChannel(index, index + 1);
   }
 
   addLineMarker(
     value: Date,
     options?: Partial<Omit<LineMarkerOptions, "value">>
   ): void {
-    this.xAxis.addLineMarker(value.getTime(), options || {});
+    this._xAxis.addLineMarker(value.getTime(), options || {});
   }
 
   removeLineMarker(value: Date): void {
-    this.xAxis.removeLineMarker(value.getTime());
+    this._xAxis.removeLineMarker(value.getTime());
   }
 
   addAreaMarker(
@@ -164,36 +209,39 @@ export class Seismogram
     end: Date,
     options?: Partial<Omit<AreaMarkerOptions, "start" | "end">>
   ): void {
-    this.xAxis.addAreaMarker(start.getTime(), end.getTime(), options || {});
+    this._xAxis.addAreaMarker(start.getTime(), end.getTime(), options || {});
   }
 
   removeAreaMarker(start: Date, end: Date): void {
-    this.xAxis.removeAreaMarker(start.getTime(), end.getTime());
+    this._xAxis.removeAreaMarker(start.getTime(), end.getTime());
   }
 
   showVisibleMarkers(): void {
-    this.xAxis.showVisibleMarkers();
+    this._xAxis.showVisibleMarkers();
   }
 
   hideVisibleMarkers(): void {
-    this.xAxis.hideVisibleMarkers();
+    this._xAxis.hideVisibleMarkers();
   }
 
-  selectTrack(index: number): void {
+  selectChannel(index: number): void {
     this._selectedTrackIndex = index;
-    this.tracks.forEach((track) => {
+    for (const track of this._trackManager.tracks()) {
       track.unhighlight();
-    });
-    const track = this.tracks[index];
+    }
+    const track = this._trackManager.getTrackByIndex(index);
     if (track) {
       track.highlight();
+      this.emit("trackSelected", index);
     }
   }
 
-  unselectTrack(): void {
-    this.tracks.forEach((track) => {
+  unselectChannel(): void {
+    for (const track of this._trackManager.tracks()) {
       track.unhighlight();
-    });
+    }
+    this._selectedTrackIndex = -1;
+    this.emit("trackUnselected");
   }
 
   moveSelectionUp(): void {
@@ -201,16 +249,8 @@ export class Seismogram
       return;
     }
     const index = this._selectedTrackIndex - 1;
-    if (index < 0 || index > this.tracks.length - 1) {
-      return;
-    }
-    const track = this.tracks[index];
-    if (track) {
-      this._selectedTrackIndex = index;
-      this.tracks.forEach((track) => {
-        track.unhighlight();
-      });
-      track.highlight();
+    if (index >= 0) {
+      this.selectChannel(index);
     }
   }
 
@@ -219,114 +259,153 @@ export class Seismogram
       return;
     }
     const index = this._selectedTrackIndex + 1;
-    if (index < 0 || index > this.tracks.length - 1) {
-      return;
-    }
-    const track = this.tracks[index];
-    if (track) {
-      this._selectedTrackIndex = index;
-      this.tracks.forEach((track) => {
-        track.unhighlight();
-      });
-      track.highlight();
+    if (index < this._trackManager.count()) {
+      this.selectChannel(index);
     }
   }
 
   increaseAmplitude(by: number): void {
-    this.tracks.forEach((track) => {
-      track.increaseAmplitude(by);
-    });
+    const [ymin, ymax] = this.getYExtent();
+    const dy = -(ymax - ymin) * by;
+    this._yExtent = [ymin + dy, ymax + dy];
+
+    for (const track of this._trackManager.tracks()) {
+      track.setYExtent(this._yExtent);
+    }
+    this.emit("amplitudeChanged", this._yExtent);
   }
 
   decreaseAmplitude(by: number): void {
-    this.tracks.forEach((track) => {
-      track.decreaseAmplitude(by);
-    });
+    this.increaseAmplitude(-by);
+  }
+
+  resetAmplitude(): void {
+    this._yExtent = [-1, 1];
+    for (const track of this._trackManager.tracks()) {
+      track.setYExtent(this._yExtent);
+    }
+    this.emit("amplitudeChanged", this._yExtent);
   }
 
   scrollLeft(by: number): void {
-    this.xAxis.scrollLeft(by);
+    this._xAxis.scrollLeft(by);
   }
 
   scrollRight(by: number): void {
-    this.xAxis.scrollRight(by);
+    this._xAxis.scrollRight(by);
   }
 
   scrollTo(date: Date): void {
-    this.xAxis.scrollTo(date.getTime());
+    this._xAxis.scrollTo(date.getTime());
   }
 
   scrollToNow(): void {
     const now = Date.now();
-    this.xAxis.scrollTo(now);
+    this._xAxis.scrollTo(now);
   }
 
   zoomIn(at: number, by: number): void {
-    this.xAxis.zoomIn(at, by);
+    this._xAxis.zoomIn(at, by);
   }
 
   zoomOut(at: number, by: number): void {
-    this.xAxis.zoomOut(at, by);
+    this._xAxis.zoomOut(at, by);
   }
 
-  updateData(): void {
+  setChannelData(index: number, data: SeriesData): void {
+    const channel = this._trackManager.getChannelByIndex(index);
+    this._dataStore.set(channel.id, data);
+  }
+
+  getChannelData(index: number): SeriesData {
+    const channel = this._trackManager.getChannelByIndex(index);
+    const data = this._dataStore.get(channel.id);
+    return data || Series.empty();
+  }
+
+  refreshData(): void {
     const { verticalScaling } = this.model.options;
+
     if (verticalScaling === "local") {
-      throw new Error("Local scaling is not supported yet.");
+      this.refreshLocalScaling();
+    } else {
+      this.refreshGlobalScaling();
     }
-    const extremes: number[] = [];
-    const seriesData: SeriesData[] = [];
-    const [start, end] = this.xAxis.getExtent();
+  }
 
-    for (let i = 0; i < this.tracks.length; i++) {
-      const data = this.dataProvider.getData(this.channels[i], start, end);
-      seriesData.push(data);
-
-      const min = data.min();
-      const max = data.max();
-      extremes.push(max - min);
+  private refreshLocalScaling(): void {
+    for (let i = 0; i < this._trackManager.count(); i++) {
+      const track = this._trackManager.getTrackByIndex(i);
+      const data = this.getChannelData(i);
+      track.getSeries().setData(data);
+      track.fitY();
     }
+  }
 
-    const normalizationFactor = Math.min(...extremes);
-
-    for (let i = 0; i < this.tracks.length; i++) {
-      const normalizedData = seriesData[i].scalarDivide(normalizationFactor);
-
-      const series = new LineSeries(this, {
-        data: normalizedData,
-      });
-      const track = this.tracks[i];
-      if (track) {
-        track.setSingleSeries(series);
-        track.setYExtent([-1, 1]);
+  private refreshGlobalScaling(): void {
+    let normFactor = Infinity;
+    for (let i = 0; i < this._trackManager.count(); i++) {
+      const series = this.getChannelData(i);
+      if (series.isEmpty()) {
+        continue;
       }
+
+      const factor = series.max() - series.min();
+      normFactor = Math.min(normFactor, factor);
+    }
+
+    for (let i = 0; i < this._trackManager.count(); i++) {
+      const track = this._trackManager.getTrackByIndex(i);
+      const data = this.getChannelData(i);
+      const norm = data.scalarDivide(normFactor);
+      track.getSeries().setData(norm);
     }
   }
 
-  getTrackCount(): number {
-    return this.tracks.length;
+  getXAxis(): Axis {
+    return this._xAxis;
   }
 
-  getTrackIndexAtPosition(y: number): number {
-    const trackCount = this.getTrackCount();
-    const trackHeight = this.grid.getRect().height / trackCount;
+  getYExtent(): [number, number] {
+    return this._yExtent;
+  }
+
+  getTracks(): Track[] {
+    return this._trackManager.getTracks();
+  }
+
+  getChannelCount(): number {
+    return this._trackManager.count();
+  }
+
+  getChannelIndexAtPosition(y: number): number {
+    const trackCount = this.getChannelCount();
+    const trackHeight = this._grid.getRect().height / trackCount;
     return Math.floor(y / trackHeight);
   }
 
-  getTrackAt(index: number): Track | undefined {
-    return this.tracks[index];
+  getTrackAt(index: number): Track {
+    return this._trackManager.getTrackByIndex(index);
+  }
+
+  getTrackIndexByChannelId(id: string): number {
+    return this._trackManager.findChannelIndex(id);
   }
 
   getChartExtent(): [number, number] {
-    return this.xAxis.getExtent();
+    return this._xAxis.getExtent();
+  }
+
+  getDataStore(): DataStore<SeriesData> {
+    return this._dataStore;
   }
 
   override getGrid(): Grid {
-    return this.grid;
+    return this._grid;
   }
 
   private getRectForTrack(index: number, count: number): LayoutRect {
-    const rect = this.grid.getRect();
+    const rect = this._grid.getRect();
     if (count === 0) {
       return rect;
     }
@@ -339,39 +418,37 @@ export class Seismogram
   }
 
   private addChannelInternal(channel: Channel): Channel {
-    this.channels.push(channel);
+    const length = this._trackManager.count();
+    const rect = this.getRectForTrack(length, length + 1);
 
-    const length = this.channels.length;
-    const rect = this.getRectForTrack(length - 1, length);
-    const model = new TrackModel(this, {
+    const yAxis = new Axis(rect, { position: "left" });
+    yAxis.setExtent(this._yExtent);
+
+    const track = new Track(rect, this._xAxis, yAxis, this, {
       leftLabel: channel.id,
     });
-    const yAxis = new Axis(
-      new AxisModel(this, {
-        position: "left",
-        show: false,
-      }),
-      rect
-    );
-    const track = new Track(model, rect, this.xAxis, yAxis);
-    this.tracks.push(track);
+    this._trackManager.add(channel, track);
+
     this.addComponent(track);
+    this.updateTracksRect();
+
+    return channel;
+  }
+
+  private removeChannelInternal(index: number): Channel {
+    const [channel, track] = this._trackManager.remove(index);
+
+    this.removeComponent(track);
     this.updateTracksRect();
     return channel;
   }
 
-  private removeChannelInternal(index: number): void {
-    this.channels.splice(index, 1);
-    const track = this.tracks.splice(index, 1)[0];
-    this.removeComponent(track);
-    this.updateTracksRect();
-  }
-
   private updateTracksRect(): void {
-    const trackCount = this.getTrackCount();
-    this.tracks.forEach((track, index) => {
-      const rect = this.getRectForTrack(index, trackCount);
+    const trackCount = this.getChannelCount();
+    for (let i = 0; i < this._trackManager.count(); i++) {
+      const track = this._trackManager.getTrackByIndex(i);
+      const rect = this.getRectForTrack(i, trackCount);
       track.setRect(rect);
-    });
+    }
   }
 }

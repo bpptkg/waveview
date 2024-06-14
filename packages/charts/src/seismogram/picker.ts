@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 import { Model } from "../model/model";
-import { LayoutRect, ModelOptions } from "../util/types";
+import { Extension, LayoutRect, ModelOptions } from "../util/types";
 import { View } from "../view/view";
 import { Seismogram } from "./seismogram";
 // @ts-ignore
@@ -102,7 +102,7 @@ export class Picker extends View<PickerModel> {
     if (!this._isActive) {
       return;
     }
-    const { xAxis } = this.chart;
+    const xAxis = this.chart.getXAxis();
 
     if (this._clickCount === 0) {
       this._isDragging = true;
@@ -124,7 +124,7 @@ export class Picker extends View<PickerModel> {
 
     if (this._isDragging) {
       this._end = event.data.getLocalPosition(this.chart.app.stage);
-      this._endValue = this.chart.xAxis.getValueForPixel(this._end.x);
+      this._endValue = this.chart.getXAxis().getValueForPixel(this._end.x);
       this.render({ drawLabel: true });
     }
   }
@@ -136,7 +136,7 @@ export class Picker extends View<PickerModel> {
 
     if (this._isDragging) {
       this._end = event.data.getLocalPosition(this.chart.app.stage);
-      this._endValue = this.chart.xAxis.getValueForPixel(this._end.x);
+      this._endValue = this.chart.getXAxis().getValueForPixel(this._end.x);
       if (Math.abs(this._end.x - this._start.x) > 0) {
         this._isDragging = false;
         this.render();
@@ -159,7 +159,7 @@ export class Picker extends View<PickerModel> {
 
     const { color, opacity, borderWidth } = this.model.getOptions();
 
-    const { xAxis } = this.chart;
+    const xAxis = this.chart.getXAxis();
     const min = Math.min(this._startValue, this._endValue);
     const max = Math.max(this._startValue, this._endValue);
     const duration = (max - min) / 1000; // in seconds
@@ -233,5 +233,32 @@ export class Picker extends View<PickerModel> {
         this.group.addChild(line);
       }
     }
+  }
+}
+
+export class PickerExtension implements Extension<Seismogram> {
+  private options: Partial<PickerOptions>;
+  private picker?: Picker;
+
+  constructor(options?: Partial<PickerOptions>) {
+    this.options = options || {};
+  }
+
+  install(chart: Seismogram): void {
+    this.picker = new Picker(chart, this.options);
+    this.picker.attachEventListeners();
+  }
+
+  uninstall(): void {
+    if (this.picker) {
+      this.picker.detachEventListeners();
+    }
+  }
+
+  getInstance(): Picker {
+    if (!this.picker) {
+      throw new Error("Picker extension not initialized");
+    }
+    return this.picker;
   }
 }

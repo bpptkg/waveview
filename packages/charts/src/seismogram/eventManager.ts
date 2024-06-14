@@ -1,4 +1,4 @@
-import { EventManager, EventManagerConfig } from "../util/types";
+import { EventManager, EventManagerConfig, Extension } from "../util/types";
 // @ts-ignore
 import { InteractionEvent } from "pixi.js";
 import { Seismogram } from "./seismogram";
@@ -76,7 +76,7 @@ export class SeismogramEventManager implements EventManager {
       return;
     }
 
-    const center = this.chart.xAxis.getValueForPixel(x);
+    const center = this.chart.getXAxis().getValueForPixel(x);
     if (shiftKey) {
       if (deltaY > 0 || deltaX > 0) {
         this.chart.scrollRight(0.1);
@@ -139,5 +139,32 @@ export class SeismogramEventManager implements EventManager {
 
   disable(): void {
     this.enabled = false;
+  }
+}
+
+export class SeismogramEventManagerExtension implements Extension<Seismogram> {
+  private config: SeismogramEventManagerConfig;
+  private instance?: SeismogramEventManager;
+
+  constructor(config: SeismogramEventManagerConfig = {}) {
+    this.config = config;
+  }
+
+  install(chart: Seismogram): void {
+    this.instance = new SeismogramEventManager(chart, this.config);
+    this.instance.attachEventListeners();
+  }
+
+  uninstall(): void {
+    if (this.instance) {
+      this.instance.detachEventListeners();
+    }
+  }
+
+  getInstance(): SeismogramEventManager {
+    if (!this.instance) {
+      throw new Error("Extension not installed");
+    }
+    return this.instance;
   }
 }
