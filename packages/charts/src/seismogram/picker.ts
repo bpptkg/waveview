@@ -58,6 +58,7 @@ export class Picker extends View<PickerModel> {
 
     this._rect = chart.getGrid().getRect();
     this.chart = chart;
+    this.chart.addComponent(this);
   }
 
   attachEventListeners(): void {
@@ -191,7 +192,7 @@ export class Picker extends View<PickerModel> {
       const offset = 8;
 
       const text = new PIXI.Text({
-        text: `${duration.toFixed(2)}s`,
+        text: `${duration.toFixed(3)}s`,
         style: {
           fontFamily: "Arial",
           fontSize: 11,
@@ -249,9 +250,10 @@ export class PickerExtension implements Extension<Seismogram> {
     this.picker.attachEventListeners();
   }
 
-  uninstall(): void {
+  uninstall(chart: Seismogram): void {
     if (this.picker) {
       this.picker.detachEventListeners();
+      chart.removeComponent(this.picker);
     }
   }
 

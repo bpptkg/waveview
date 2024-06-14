@@ -51,6 +51,7 @@ export class AxisPointer extends View<AxisPointerModel> {
     this.chart = chart;
     this.axis = axis;
     this._rect = axis.getRect();
+    this.chart.addComponent(this);
   }
 
   attachEventListeners(): void {
@@ -157,7 +158,7 @@ export class AxisPointer extends View<AxisPointerModel> {
 
 export class AxisPointerExtension implements Extension<Seismogram> {
   private options: Partial<AxisPointerOptions>;
-  private axisPointer!: AxisPointer;
+  private axisPointer?: AxisPointer;
 
   constructor(options?: Partial<AxisPointerOptions>) {
     this.options = options || {};
@@ -168,8 +169,11 @@ export class AxisPointerExtension implements Extension<Seismogram> {
     this.axisPointer.attachEventListeners();
   }
 
-  uninstall(): void {
-    this.axisPointer.detachEventListeners();
+  uninstall(chart: Seismogram): void {
+    if (this.axisPointer) {
+      this.axisPointer.detachEventListeners();
+      chart.removeComponent(this.axisPointer);
+    }
   }
 
   getInstance(): AxisPointer {
