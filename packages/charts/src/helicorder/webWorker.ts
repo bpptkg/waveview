@@ -1,28 +1,12 @@
 import { Series } from "@waveview/ndarray";
 import {
   Extension,
+  StreamRequestData,
+  StreamResponseData,
   WorkerRequestData,
   WorkerResponseData,
 } from "../util/types";
 import { Helicorder } from "./helicorder";
-import { debounce } from "../util/decorators";
-
-export interface StreamRequestData {
-  channelId: string;
-  start: number;
-  end: number;
-  width: number;
-  height: number;
-}
-
-export interface StreamResponseData {
-  index: Float64Array;
-  data: Float64Array;
-  extent: [number, number];
-  channelId: string;
-  start: number;
-  end: number;
-}
 
 export interface RefreshMode {
   mode: "light" | "hard";
@@ -46,32 +30,45 @@ export class HelicorderWebWorker {
     this.chart.off("offsetChanged", this.onOffsetChanged.bind(this));
   }
 
-  @debounce(500)
   onOffsetChanged(): void {
     this.fetchAllTracksData({ mode: "light" });
   }
 
   fetchAllTracksData(options: Partial<RefreshMode> = {}): void {
-    if (options.mode === "light") {
-      this.chart.getTrackExtents().map((extent: [number, number]): void => {
-        const trackId = this.chart.getTrackId(extent);
-        const dataStore = this.chart.getDataStore();
-        if (dataStore.has(trackId)) {
-          return;
+    const mode = options.mode || "light";
+    const extents = this.chart.getTrackExtents();
+    const dataStore = this.chart.getDataStore();
+    let allDataPresent = true;
+
+    extents.forEach((extent: [number, number]) => {
+      const trackId = this.chart.getTrackId(extent);
+      if (!dataStore.has(trackId)) {
+        allDataPresent = false;
+        if (mode === "light") {
+          // In light mode, only request data for tracks not in the data store.
+          this.postRequestMessage(extent);
         }
+      }
+    });
+
+    if (mode !== "light") {
+      // In modes other than light, request data for all tracks regardless.
+      extents.forEach((extent: [number, number]) => {
         this.postRequestMessage(extent);
       });
-    } else {
-      this.chart.getTrackExtents().map((extent: [number, number]): void => {
-        this.postRequestMessage(extent);
-      });
+    }
+
+    // If all data is present, rerender the chart directly to avoid double
+    // rendering.
+    if (allDataPresent) {
+      this.chart.updateTracks();
+      this.chart.render();
     }
   }
 
   postRequestMessage(extent: [number, number]): void {
     const [start, end] = extent;
     const width = this.chart.getWidth();
-    const height = this.chart.getHeight();
     const channelId = this.chart.getChannel().id;
     const msg: WorkerRequestData<StreamRequestData> = {
       type: "stream.fetch",
@@ -80,7 +77,7 @@ export class HelicorderWebWorker {
         start,
         end,
         width,
-        height,
+        mode: "match_width",
       },
     };
 

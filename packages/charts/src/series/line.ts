@@ -87,14 +87,6 @@ export class LineSeriesView extends View<LineSeries> {
     const sprite = new PIXI.Sprite(renderTexture);
     sprite.position.set(0, 0);
     this.group.addChild(sprite);
-
-    const chart = this.model.chart;
-    const rect = chart.getGrid().getRect();
-    const mask = new PIXI.Graphics();
-    mask.rect(rect.x, rect.y, rect.width, rect.height).fill({
-      color: 0xffffff,
-    });
-    chart.app.stage.addChild(mask);
-    this.group.mask = mask;
+    graphics.destroy();
   }
 }

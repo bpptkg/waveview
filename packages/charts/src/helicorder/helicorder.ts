@@ -1,3 +1,4 @@
+import { Series } from "@waveview/ndarray";
 import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
 import { Channel } from "../data/channel";
@@ -132,7 +133,6 @@ export class Helicorder
   private _channel: Channel;
   private _markers: EventMarker[] = [];
   private _dataStore = new DataStore<SeriesData>();
-  private _normFactor: number = Infinity;
   private _yExtent: [number, number] = [-1, 1];
 
   constructor(
@@ -310,17 +310,12 @@ export class Helicorder
   setTrackData(data: SeriesData, start: number, end: number): void {
     const key = createTrackId(start, end);
     this._dataStore.set(key, data);
-
-    for (const data of this._dataStore.values()) {
-      const range = data.max() - data.min();
-      this._normFactor = Math.min(this._normFactor, range);
-    }
   }
 
-  getTrackData(start: number, end: number): SeriesData | undefined {
+  getTrackData(start: number, end: number): SeriesData {
     const key = createTrackId(start, end);
     const data = this._dataStore.get(key);
-    return data;
+    return data || Series.empty();
   }
 
   getTrackExtents(): [number, number][] {
@@ -333,17 +328,20 @@ export class Helicorder
   }
 
   updateTracks(): void {
+    let normFactor = Infinity;
+    for (let i = 0; i < this._tracks.length; i++) {
+      const [start, end] = this.getTrackExtentAt(i);
+      const series = this.getTrackData(start, end);
+      if (series.isEmpty()) {
+        continue;
+      }
+      const factor = series.max() - series.min();
+      normFactor = Math.min(normFactor, factor);
+    }
+
     for (let i = 0; i < this._tracks.length; i++) {
       const trackIndex = this.getTrackCount() - i - 1;
       const [start, end] = this.getTrackExtentAt(trackIndex);
-      const data = this.getTrackData(start, end);
-      if (!data) {
-        continue;
-      }
-      const slice = data.scalarDivide(this._normFactor);
-      slice.setIndex(
-        slice.index.map((value: number) => this.timeToOffset(trackIndex, value))
-      );
 
       const track = this._tracks[i];
       if (track) {
@@ -354,6 +352,14 @@ export class Helicorder
         );
         const rightLabel = formatDate(end, "{HH}:{mm}", true);
         track.getModel().mergeOptions({ leftLabel, rightLabel });
+
+        const data = this.getTrackData(start, end);
+        const slice = data.scalarDivide(normFactor);
+        slice.setIndex(
+          slice.index.map((value: number) =>
+            this.timeToOffset(trackIndex, value)
+          )
+        );
         track.getSeries().setData(slice);
       }
     }
@@ -437,7 +443,8 @@ export class Helicorder
     const trackCount = this.getTrackCount();
     const rect = this.getRectForTrack(index, trackCount);
     const yAxis = new Axis(rect, { position: "left" });
-    const track = new Track(rect, this.getXAxis(), yAxis);
+    yAxis.setExtent(this.getYExtent());
+    const track = new Track(rect, this.getXAxis(), yAxis, this);
     return track;
   }
 

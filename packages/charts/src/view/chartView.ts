@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { Grid } from "../grid/grid";
 import { ChartModel, ChartOptions } from "../model/chartModel";
-import { LayoutRect, Extension } from "../util/types";
+import { Extension, LayoutRect } from "../util/types";
 import { View } from "./view";
 
 export interface ChartType<T extends ChartOptions> {
@@ -43,6 +43,7 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
 
   readonly dom: HTMLCanvasElement;
   readonly app: PIXI.Application = new PIXI.Application();
+  readonly content = new PIXI.Container();
 
   constructor(dom: HTMLCanvasElement, options?: T) {
     const model = new ChartModel(options);
@@ -87,12 +88,22 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
 
     this.app.stage.addChild(this.group);
     this.app.stage.interactive = true;
+    this.app.stage.sortableChildren = true;
     this.app.stage.hitArea = new PIXI.Rectangle(
       0,
       0,
       this.dom.width,
       this.dom.height
     );
+
+    const rect = this.getGrid().getRect();
+    const mask = new PIXI.Graphics();
+    mask.rect(rect.x, rect.y, rect.width, rect.height).fill({
+      color: "0xfff",
+    });
+    this.app.stage.addChild(mask);
+    this.app.stage.addChild(this.content);
+    this.content.mask = mask;
   }
 
   getRect(): LayoutRect {
@@ -106,6 +117,7 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
   abstract getGrid(): Grid;
 
   render(): void {
+    this.content.removeChildren();
     for (const view of this._views) {
       view.render();
     }

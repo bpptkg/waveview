@@ -1,33 +1,36 @@
 import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
-import { SeriesModel } from "../model/series";
 import { LineSeries, LineSeriesView } from "../series/line";
 import { LayoutRect } from "../util/types";
+import { ChartView } from "../view/chartView";
 import { View } from "../view/view";
 import { TrackModel, TrackOptions } from "./trackModel";
 
 export class Track extends View<TrackModel> {
   override type = "track";
   private _rect: LayoutRect;
-  private _series: SeriesModel;
+  private _series: LineSeries;
   private _highlighted: boolean = false;
 
   readonly xAxis: Axis;
   readonly yAxis: Axis;
+  readonly chart: ChartView;
 
   constructor(
     rect: LayoutRect,
     xAxis: Axis,
     yAxis: Axis,
+    chart: ChartView,
     options?: Partial<TrackOptions>
   ) {
     const model = new TrackModel(options);
     super(model);
 
     this._rect = rect;
-    this._series = new SeriesModel();
+    this._series = new LineSeries(chart);
     this.xAxis = xAxis;
     this.yAxis = yAxis;
+    this.chart = chart;
   }
 
   getXRange(): [number, number] {
@@ -38,11 +41,11 @@ export class Track extends View<TrackModel> {
     return this._series.getYRange();
   }
 
-  getSeries(): SeriesModel {
+  getSeries(): LineSeries {
     return this._series;
   }
 
-  setSeries(series: SeriesModel): void {
+  setSeries(series: LineSeries): void {
     this._series = series;
   }
 
@@ -166,7 +169,7 @@ export class Track extends View<TrackModel> {
   }
 
   private renderSeries(): void {
-    const lineSeries = this._series as LineSeries;
+    const lineSeries = this._series;
     const view = new LineSeriesView(
       lineSeries,
       this.getRect(),
@@ -174,6 +177,6 @@ export class Track extends View<TrackModel> {
       this.yAxis
     );
     view.render();
-    this.group.addChild(view.group);
+    this.chart.content.addChild(view.group);
   }
 }
