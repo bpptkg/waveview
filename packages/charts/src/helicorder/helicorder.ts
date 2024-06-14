@@ -12,6 +12,7 @@ import { ONE_HOUR, ONE_MINUTE, formatDate } from "../util/time";
 import { EventMap, LayoutRect, SeriesData } from "../util/types";
 import { ChartType, ChartView } from "../view/chartView";
 import { EventMarker, EventMarkerOptions } from "./eventMarker";
+import { Footer } from "./footer";
 import { Selection } from "./selection";
 
 export interface HelicorderChartOptions extends ChartOptions {
@@ -48,6 +49,10 @@ export interface HelicorderChartOptions extends ChartOptions {
    * Grid options for the helicorder chart.
    */
   grid: Partial<GridOptions>;
+  /**
+   * Timezone of the helicorder chart.
+   */
+  timezone: string;
 }
 
 function getDefaultOptions(): HelicorderChartOptions {
@@ -65,6 +70,7 @@ function getDefaultOptions(): HelicorderChartOptions {
       bottom: 50,
       left: 80,
     },
+    timezone: "UTC",
   };
 }
 
@@ -168,6 +174,9 @@ export class Helicorder
 
     this._selection = new Selection(this._xAxis, this);
     this.addComponent(this._selection);
+
+    const footer = new Footer(this);
+    this.addComponent(footer);
   }
 
   setChannel(channel: Channel): void {
