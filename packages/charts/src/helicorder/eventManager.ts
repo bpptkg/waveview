@@ -115,4 +115,11 @@ export class HelicorderEventManagerExtension implements Extension<Helicorder> {
       this.eventManager.removeEventListeners();
     }
   }
+
+  getInstance(): HelicorderEventManager {
+    if (!this.eventManager) {
+      throw new Error("Extension not installed");
+    }
+    return this.eventManager;
+  }
 }
