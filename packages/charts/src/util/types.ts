@@ -44,3 +44,17 @@ export interface Extension<T> {
   install(target: T): void;
   uninstall(target: T): void;
 }
+
+export type ExtensionConstructor<T> = new (config?: any) => Extension<T>;
+
+export type WorkerRequestType = "ping" | "stream.fetch" | "stream.fetch.error";
+
+export interface WorkerRequestData<T> {
+  type: WorkerRequestType;
+  payload: T;
+}
+
+export interface WorkerResponseData<T> {
+  type: WorkerRequestType;
+  payload: T;
+}
