@@ -1,5 +1,4 @@
 import { Series } from "@waveview/ndarray";
-import { debounce } from "../util/decorators";
 import { ONE_MINUTE } from "../util/time";
 import {
   Extension,
@@ -31,12 +30,8 @@ export class SeismogramWebWorker {
 
   onExtentChanged(): void {
     this.fetchAllChannelsData();
-
-    this.chart.refreshData();
-    this.chart.render();
   }
 
-  @debounce(100)
   fetchAllChannelsData(): void {
     const extent = this.chart.getXAxis().getExtent();
     const channels = this.chart.getChannels();
