@@ -1,6 +1,7 @@
 import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
 import { Channel } from "../data/channel";
+import { DataStore } from "../data/dataStore";
 import { Grid } from "../grid/grid";
 import { GridOptions } from "../grid/gridModel";
 import { ChartOptions } from "../model/chartModel";
@@ -76,7 +77,7 @@ export interface HelicorderChartType extends ChartType<HelicorderChartOptions> {
   shiftViewUp(): [number, number];
   shiftViewDown(): [number, number];
   shiftViewToNow(): void;
-  setOffsetDate(date: Date): void;
+  setOffsetDate(date: Date | number): void;
   addEventMarker(value: Date, options?: Partial<EventMarkerOptions>): void;
   removeEventMarker(value: Date): void;
   showVisibleMarkers(): void;
@@ -98,6 +99,8 @@ export interface HelicorderChartType extends ChartType<HelicorderChartOptions> {
   getXAxis(): Axis;
   getYExtent(): [number, number];
   getChartExtent(): [number, number];
+  getDataStore(): DataStore<SeriesData>;
+  getTrackId(extent: [number, number]): string;
 }
 
 export interface HelicorderEventMap extends EventMap {
@@ -109,9 +112,10 @@ export interface HelicorderEventMap extends EventMap {
   viewShiftedUp: (range: [number, number]) => void;
   viewShiftedDown: (range: [number, number]) => void;
   viewShiftedToNow: () => void;
+  viewShiftedToTime: (time: number) => void;
 }
 
-function createTrackId(start: number, end: number): string {
+export function createTrackId(start: number, end: number): string {
   return `${start}-${end}`;
 }
 
@@ -127,7 +131,7 @@ export class Helicorder
   private _tracks: Track[] = [];
   private _channel: Channel;
   private _markers: EventMarker[] = [];
-  private _dataMap: Map<string, SeriesData> = new Map();
+  private _dataStore = new DataStore<SeriesData>();
   private _normFactor: number = Infinity;
   private _yExtent: [number, number] = [-1, 1];
 
@@ -232,7 +236,16 @@ export class Helicorder
     this.emit("viewShiftedToNow");
   }
 
-  setOffsetDate(date: Date): void {
+  shiftViewToTime(time: number): void {
+    const offsetDate = new Date(time);
+    this.setOffsetDate(offsetDate);
+    this.emit("viewShiftedToTime", time);
+  }
+
+  setOffsetDate(date: Date | number): void {
+    if (typeof date === "number") {
+      date = new Date(date);
+    }
     this.model.mergeOptions({ offsetDate: date });
     this.emit("offsetChanged", date);
   }
@@ -296,9 +309,9 @@ export class Helicorder
 
   setTrackData(data: SeriesData, start: number, end: number): void {
     const key = createTrackId(start, end);
-    this._dataMap.set(key, data);
+    this._dataStore.set(key, data);
 
-    for (const data of this._dataMap.values()) {
+    for (const data of this._dataStore.values()) {
       const range = data.max() - data.min();
       this._normFactor = Math.min(this._normFactor, range);
     }
@@ -306,7 +319,7 @@ export class Helicorder
 
   getTrackData(start: number, end: number): SeriesData | undefined {
     const key = createTrackId(start, end);
-    const data = this._dataMap.get(key);
+    const data = this._dataStore.get(key);
     return data;
   }
 
@@ -356,6 +369,14 @@ export class Helicorder
 
   getTracks(): Track[] {
     return this._tracks;
+  }
+
+  getDataStore(): DataStore<SeriesData> {
+    return this._dataStore;
+  }
+
+  getTrackId(extent: [number, number]): string {
+    return createTrackId(extent[0], extent[1]);
   }
 
   getTrackCount() {
