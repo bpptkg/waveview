@@ -79,3 +79,8 @@ export interface StreamResponseData {
   start: number;
   end: number;
 }
+
+export interface RenderableGroup {
+  group: PIXI.Container;
+  render(): void;
+}

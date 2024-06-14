@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { Grid } from "../grid/grid";
 import { ChartModel, ChartOptions } from "../model/chartModel";
-import { Extension, LayoutRect } from "../util/types";
+import { Extension, LayoutRect, RenderableGroup } from "../util/types";
 import { View } from "./view";
 
 export interface ChartType<T extends ChartOptions> {
@@ -38,7 +38,7 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
   override type = "chart";
 
   private _rect: LayoutRect;
-  protected _views: View[] = [];
+  protected _views: RenderableGroup[] = [];
   protected _isFocused = false;
 
   readonly dom: HTMLCanvasElement;
@@ -124,12 +124,12 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
     this.app.renderer.render(this.app.stage);
   }
 
-  addComponent(component: View): void {
+  addComponent(component: RenderableGroup): void {
     this._views.push(component);
     this.group.addChild(component.group);
   }
 
-  removeComponent(component: View): void {
+  removeComponent(component: RenderableGroup): void {
     const index = this._views.indexOf(component);
     if (index >= 0) {
       this._views.splice(index, 1);
