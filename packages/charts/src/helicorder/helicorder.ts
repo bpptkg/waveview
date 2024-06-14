@@ -358,7 +358,7 @@ export class Helicorder
         const formatStringLocal =
           i === 0 || isMidnight(start) ? "{MM}-{dd} {HH}:{mm}" : "{HH}:{mm}";
         const formatStringUTC =
-          i === 0 || isUTCMidnight(start) ? "{HH}:{mm} {MM}-{dd}" : "{HH}:{mm}";
+          i === 0 || isUTCMidnight(end) ? "{HH}:{mm} {MM}-{dd}" : "{HH}:{mm}";
 
         const leftLabel = formatDate(start, formatStringLocal, false);
         const rightLabel = formatDate(end, formatStringUTC, true);

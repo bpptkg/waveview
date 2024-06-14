@@ -42,7 +42,15 @@ export class HelicorderWebWorker {
 
     extents.forEach((extent: [number, number]) => {
       const trackId = this.chart.getTrackId(extent);
-      if (!dataStore.has(trackId)) {
+      if (dataStore.has(trackId)) {
+        const [start, end] = extent;
+        const now = Date.now();
+        if (now >= start && now <= end) {
+          // If now is between the start and end of the track, request data.
+          this.postRequestMessage(extent);
+          allDataPresent = false;
+        }
+      } else {
         allDataPresent = false;
         if (mode === "light") {
           // In light mode, only request data for tracks not in the data store.
