@@ -57,6 +57,8 @@ export class AreaMarker extends View<AreaMarkerModel> {
   override readonly type = "areaMarker";
   readonly axis: Axis;
   private _rect: LayoutRect;
+  private readonly _head: PIXI.Graphics;
+  private readonly _body: PIXI.Graphics;
 
   constructor(axis: Axis, options?: Partial<AreaMarkerOptions>) {
     const model = new AreaMarkerModel(options);
@@ -64,6 +66,11 @@ export class AreaMarker extends View<AreaMarkerModel> {
 
     this.axis = axis;
     this._rect = axis.getRect();
+    this._head = new PIXI.Graphics();
+    this._body = new PIXI.Graphics();
+    this.group.addChild(this._head);
+    this.group.addChild(this._body);
+    this.axis.group.addChild(this.group);
   }
 
   getStart(): number {
@@ -72,7 +79,6 @@ export class AreaMarker extends View<AreaMarkerModel> {
 
   setStart(start: number): void {
     this.model.mergeOptions({ start });
-    this.render();
   }
 
   getEnd(): number {
@@ -81,17 +87,14 @@ export class AreaMarker extends View<AreaMarkerModel> {
 
   setEnd(end: number): void {
     this.model.mergeOptions({ end });
-    this.render();
   }
 
   show(): void {
     this.model.mergeOptions({ show: true });
-    this.render();
   }
 
   hide(): void {
     this.model.mergeOptions({ show: false });
-    this.render();
   }
 
   override getRect(): LayoutRect {
@@ -103,7 +106,8 @@ export class AreaMarker extends View<AreaMarkerModel> {
   }
 
   override render(): void {
-    this.clear();
+    this._head.clear();
+    this._body.clear();
 
     const { show, color, opacity, pill, length } = this.model.getOptions();
 
@@ -141,8 +145,7 @@ export class AreaMarker extends View<AreaMarkerModel> {
       h = height;
     }
 
-    const head = new PIXI.Graphics();
-    head
+    this._head
       .rect(
         cx,
         cy,
@@ -153,14 +156,14 @@ export class AreaMarker extends View<AreaMarkerModel> {
         color,
       });
 
-    const body = new PIXI.Graphics();
-    body.rect(cx, cy, w, h).fill({
+    this._body.rect(cx, cy, w, h).fill({
       color,
       alpha: opacity,
     });
     if (pill) {
-      this.group.addChild(head);
+      this._head.visible = true;
+    } else {
+      this._head.visible = false;
     }
-    this.group.addChild(body);
   }
 }
