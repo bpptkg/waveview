@@ -17,7 +17,6 @@ export interface ChartType<T extends ChartOptions> {
   init(): Promise<void>;
   render(): void;
   resize(): void;
-  clear(): void;
   dispose(): void;
   toDataURL(type?: string, quality?: number): string;
   focus(): void;
@@ -117,7 +116,6 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
   abstract getGrid(): Grid;
 
   render(): void {
-    this.content.removeChildren();
     for (const view of this._views) {
       view.render();
     }
@@ -141,10 +139,6 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
     this._rect.width = this.dom.width;
     this._rect.height = this.dom.height;
     this.app.renderer.resize(this.dom.width, this.dom.height);
-  }
-
-  override clear(): void {
-    this.app.stage.removeChildren();
   }
 
   override dispose(): void {

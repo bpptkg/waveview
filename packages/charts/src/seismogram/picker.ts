@@ -52,6 +52,12 @@ export class Picker extends View<PickerModel> {
   private _startValue: number = 0;
   private _endValue: number = 0;
 
+  private readonly _graphics: PIXI.Graphics;
+  private readonly _label: PIXI.Text;
+  private readonly _leftArrow: PIXI.Graphics;
+  private readonly _rightArrow: PIXI.Graphics;
+  private readonly _line: PIXI.Graphics;
+
   constructor(chart: Seismogram, options?: Partial<PickerOptions>) {
     const model = new PickerModel(options);
     super(model);
@@ -59,6 +65,18 @@ export class Picker extends View<PickerModel> {
     this._rect = chart.getGrid().getRect();
     this.chart = chart;
     this.chart.addComponent(this);
+
+    this._graphics = new PIXI.Graphics();
+    this._label = new PIXI.Text();
+    this._leftArrow = new PIXI.Graphics();
+    this._rightArrow = new PIXI.Graphics();
+    this._line = new PIXI.Graphics();
+
+    this.group.addChild(this._graphics);
+    this.group.addChild(this._label);
+    this.group.addChild(this._leftArrow);
+    this.group.addChild(this._rightArrow);
+    this.group.addChild(this._line);
   }
 
   attachEventListeners(): void {
@@ -90,7 +108,6 @@ export class Picker extends View<PickerModel> {
     this._end = new PIXI.Point();
     this._startValue = 0;
     this._endValue = 0;
-    this.clear();
   }
 
   handleKeyDown(event: KeyboardEvent): void {
@@ -156,7 +173,11 @@ export class Picker extends View<PickerModel> {
   }
 
   override render({ drawLabel = false } = {}): void {
-    this.clear();
+    this._graphics.clear();
+    this._label.text = "";
+    this._leftArrow.clear();
+    this._rightArrow.clear();
+    this._line.clear();
 
     const { color, opacity, borderWidth } = this.model.getOptions();
 
@@ -175,8 +196,7 @@ export class Picker extends View<PickerModel> {
       return;
     }
 
-    const graphics = new PIXI.Graphics();
-    graphics
+    this._graphics
       .rect(x1, y, length, height)
       .stroke({
         color: color,
@@ -186,40 +206,33 @@ export class Picker extends View<PickerModel> {
         color: color,
         alpha: opacity,
       });
-    this.group.addChild(graphics);
 
     if (drawLabel) {
       const offset = 8;
 
-      const text = new PIXI.Text({
-        text: `${duration.toFixed(3)}s`,
-        style: {
-          fontFamily: "Arial",
-          fontSize: 11,
-          fill: "#000",
-          align: "center",
-        },
-        x: (x1 + x2) / 2,
-        y: y + height + offset * 1.1,
-        anchor: { x: 0.5, y: 0 },
-      });
+      this._label.text = `${duration.toFixed(3)}s`;
+      this._label.style = {
+        fontFamily: "Arial",
+        fontSize: 11,
+        fill: "#000",
+        align: "center",
+      };
+      this._label.anchor.set(0.5, 0);
+      this._label.position.set((x1 + x2) / 2, y + height + offset * 1.1);
 
-      const leftArrow = new PIXI.Graphics();
-      leftArrow
+      this._leftArrow
         .poly(createArrowPoints(x1, y + height + offset, 5, "left"))
         .fill({
           color: "#000",
         });
 
-      const rightArrow = new PIXI.Graphics();
-      rightArrow
+      this._rightArrow
         .poly(createArrowPoints(x2, y + height + offset, 5, "right"))
         .fill({
           color: "#000",
         });
 
-      const line = new PIXI.Graphics();
-      line
+      this._line
         .moveTo(x1, y + height + offset)
         .lineTo(x2, y + height + offset)
         .stroke({
@@ -227,11 +240,16 @@ export class Picker extends View<PickerModel> {
           width: 1,
         });
 
-      if (length > 20) {
-        this.group.addChild(text);
-        this.group.addChild(leftArrow);
-        this.group.addChild(rightArrow);
-        this.group.addChild(line);
+      if (length > this._label.width) {
+        this._label.visible = true;
+        this._leftArrow.visible = true;
+        this._rightArrow.visible = true;
+        this._line.visible = true;
+      } else {
+        this._label.visible = false;
+        this._leftArrow.visible = false;
+        this._rightArrow.visible = false;
+        this._line.visible = false;
       }
     }
   }

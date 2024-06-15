@@ -8,7 +8,6 @@ export interface HightlightOptions {
 }
 
 export interface TrackOptions {
-  show: boolean;
   leftLabel: string;
   rightLabel: string;
   margin: number;
@@ -19,7 +18,6 @@ export class TrackModel extends Model<TrackOptions> {
   override readonly type = "track";
 
   static defaultOptions: TrackOptions = {
-    show: true,
     leftLabel: "",
     rightLabel: "",
     margin: 8,

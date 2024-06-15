@@ -31,6 +31,7 @@ export class EventMarker extends View<EventMarkerModel> {
   readonly axis: Axis;
   readonly chart: Helicorder;
   private _rect: LayoutRect;
+  private readonly _graphics: PIXI.Graphics;
 
   constructor(
     axis: Axis,
@@ -41,8 +42,10 @@ export class EventMarker extends View<EventMarkerModel> {
     super(model);
 
     this.axis = axis;
-    this._rect = axis.getRect();
+    this._rect = axis.getRect().clone();
     this.chart = chart;
+    this._graphics = new PIXI.Graphics();
+    this.group.addChild(this._graphics);
   }
 
   getValue(): number {
@@ -70,7 +73,7 @@ export class EventMarker extends View<EventMarkerModel> {
   }
 
   override render() {
-    this.clear();
+    this._graphics.clear();
 
     const {
       show,
@@ -105,9 +108,7 @@ export class EventMarker extends View<EventMarkerModel> {
     color: string,
     width: number
   ) {
-    const graphics = new PIXI.Graphics();
-    graphics.rect(x, y, width, height).fill({ color });
-    this.group.addChild(graphics);
+    this._graphics.rect(x, y, width, height).fill({ color });
   }
 
   private _renderHorizontalLine(
@@ -117,8 +118,6 @@ export class EventMarker extends View<EventMarkerModel> {
     color: string,
     borderWidth: number
   ) {
-    const graphics = new PIXI.Graphics();
-    graphics.rect(x, y, width, borderWidth).fill({ color });
-    this.group.addChild(graphics);
+    this._graphics.rect(x, y, width, borderWidth).fill({ color });
   }
 }

@@ -22,10 +22,6 @@ export abstract class View<T extends Model = Model> {
 
   abstract render(): void;
 
-  clear(): void {
-    this.group.removeChildren();
-  }
-
   dispose(): void {
     this.group.destroy({ children: true });
   }

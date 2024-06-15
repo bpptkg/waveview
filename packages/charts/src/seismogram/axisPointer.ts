@@ -39,6 +39,9 @@ export class AxisPointer extends View<AxisPointerModel> {
   readonly axis: Axis;
   private _position: PIXI.Point = new PIXI.Point();
   private _rect: LayoutRect;
+  private readonly _line: PIXI.Graphics;
+  private readonly _label: PIXI.Text;
+  private readonly _background: PIXI.Graphics;
 
   constructor(
     axis: Axis,
@@ -52,6 +55,14 @@ export class AxisPointer extends View<AxisPointerModel> {
     this.axis = axis;
     this._rect = axis.getRect();
     this.chart.addComponent(this);
+
+    this._line = new PIXI.Graphics();
+    this._label = new PIXI.Text();
+    this._background = new PIXI.Graphics();
+
+    this.group.addChild(this._background);
+    this.group.addChild(this._line);
+    this.group.addChild(this._label);
   }
 
   attachEventListeners(): void {
@@ -88,7 +99,9 @@ export class AxisPointer extends View<AxisPointerModel> {
   }
 
   override render(): void {
-    this.clear();
+    this._line.clear();
+    this._background.clear();
+    this._label.text = "";
 
     const {
       lineColor,
@@ -108,51 +121,41 @@ export class AxisPointer extends View<AxisPointerModel> {
       return;
     }
 
-    const line = new PIXI.Graphics();
-    line
+    this._line
       .moveTo(x, y0)
       .lineTo(x, y0 + height)
       .stroke({
         color: lineColor,
         width: lineWidth,
       });
-    this.group.addChild(line);
 
     const value = this.axis.getValueForPixel(x);
     const padding = 5;
-    const label = new PIXI.Container();
     const isUTC = this.chart.getModel().getOptions().useUTC;
     const template = isUTC
       ? "{yyyy}-{MM}-{dd}T{HH}:{mm}:{ss}.{SSS}"
       : "{yyyy}-{MM}-{dd} {HH}:{mm}:{ss}.{SSS}";
     const valueFormatted = formatDate(value, template, isUTC);
-    const text = new PIXI.Text({
-      text: valueFormatted,
-      style: {
-        fill: textColor,
-        fontSize: textFontSize,
-        align: "center",
-      },
-      anchor: { x: 0.5, y: 1.1 },
-      x: x,
-      y: y0,
-    });
-    const background = new PIXI.Graphics();
-    background
+
+    this._label.text = valueFormatted;
+    this._label.style = {
+      fill: textColor,
+      fontSize: textFontSize,
+    };
+    this._label.anchor.set(0.5, 1.1);
+    this._label.position.set(x, y0);
+
+    this._background
       .rect(
-        x - text.width / 2 - padding,
-        y0 - text.height - padding,
-        text.width + padding * 2,
-        text.height + padding
+        x - this._label.width / 2 - padding,
+        y0 - this._label.height - padding,
+        this._label.width + padding * 2,
+        this._label.height + padding
       )
       .fill({
         color: backgroundColor,
         alignment: 0,
       });
-    label.addChild(background);
-    label.addChild(text);
-
-    this.group.addChild(label);
   }
 }
 
@@ -178,7 +181,7 @@ export class AxisPointerExtension implements Extension<Seismogram> {
 
   getInstance(): AxisPointer {
     if (!this.axisPointer) {
-      throw new Error("AxisPointer is not initialized");
+      throw new Error("AxisPointer extension is not installed");
     }
     return this.axisPointer;
   }

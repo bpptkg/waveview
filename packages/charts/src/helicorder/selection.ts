@@ -31,6 +31,7 @@ export class Selection extends View<SelectionModel> {
   readonly axis: Axis;
   readonly chart: Helicorder;
   private _rect: LayoutRect;
+  private readonly _graphics: PIXI.Graphics;
 
   constructor(
     axis: Axis,
@@ -41,8 +42,10 @@ export class Selection extends View<SelectionModel> {
     super(model);
 
     this.axis = axis;
-    this._rect = axis.getRect();
+    this._rect = axis.getRect().clone();
     this.chart = chart;
+    this._graphics = new PIXI.Graphics();
+    this.group.addChild(this._graphics);
   }
 
   getValue(): number {
@@ -90,7 +93,7 @@ export class Selection extends View<SelectionModel> {
   }
 
   override render() {
-    this.clear();
+    this._graphics.clear();
 
     const { value, color, opacity, borderWidth } = this.model.getOptions();
 
@@ -101,8 +104,8 @@ export class Selection extends View<SelectionModel> {
     }
 
     const { x, y, width, height } = track.getRect();
-    const graphics = new PIXI.Graphics();
-    graphics
+
+    this._graphics
       .rect(x, y, width, height)
       .stroke({
         color: color,
@@ -112,6 +115,5 @@ export class Selection extends View<SelectionModel> {
         color: color,
         alpha: opacity,
       });
-    this.group.addChild(graphics);
   }
 }

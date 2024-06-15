@@ -374,13 +374,13 @@ export class Helicorder
         track.getModel().mergeOptions({ leftLabel, rightLabel });
 
         const data = this.getTrackData(start, end);
-        const slice = data.scalarDivide(normFactor);
-        slice.setIndex(
-          slice.index.map((value: number) =>
+        const norm = data.scalarDivide(normFactor);
+        norm.setIndex(
+          norm.index.map((value: number) =>
             this.timeToOffset(trackIndex, value)
           )
         );
-        track.getSeries().setData(slice);
+        track.getSeries().getModel().setData(norm);
       }
     }
   }

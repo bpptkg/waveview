@@ -8,30 +8,40 @@ import { View } from "../view/view";
 
 export interface LineSeriesOptions extends SeriesOptions {}
 
-export class LineSeries extends SeriesModel<LineSeriesOptions> {
+export class LineSeriesModel extends SeriesModel<LineSeriesOptions> {
   override type = "line";
-  readonly chart: ChartView;
 
-  constructor(chart: ChartView, options?: Partial<LineSeriesOptions>) {
+  constructor(options?: Partial<LineSeriesOptions>) {
     const opts = merge({}, options) as LineSeriesOptions;
     super(opts);
-
-    this.chart = chart;
   }
 }
 
-export class LineSeriesView extends View<LineSeries> {
+export class LineSeries extends View<LineSeriesModel> {
   override type = "line";
   private _rect: LayoutRect;
   readonly xAxis: Axis;
   readonly yAxis: Axis;
+  readonly chart: ChartView;
 
-  constructor(model: LineSeries, rect: LayoutRect, xAxis: Axis, yAxis: Axis) {
+  private readonly _graphics: PIXI.Graphics;
+
+  constructor(
+    xAxis: Axis,
+    yAxis: Axis,
+    chart: ChartView,
+    options?: Partial<LineSeriesOptions>
+  ) {
+    const model = new LineSeriesModel(options);
     super(model);
 
-    this._rect = rect;
+    this._rect = xAxis.getRect();
     this.xAxis = xAxis;
     this.yAxis = yAxis;
+    this.chart = chart;
+
+    this._graphics = new PIXI.Graphics();
+    this.group.addChild(this._graphics);
   }
 
   override getRect(): LayoutRect {
@@ -43,7 +53,7 @@ export class LineSeriesView extends View<LineSeries> {
   }
 
   override render(): void {
-    this.clear();
+    this._graphics.clear();
 
     const model = this.getModel();
     if (model.isEmpty()) {
@@ -52,41 +62,22 @@ export class LineSeriesView extends View<LineSeries> {
 
     const { xAxis, yAxis } = this;
     const data = model.getData();
-    const graphics = new PIXI.Graphics();
     let first = false;
     for (const [px, py] of data.items()) {
       const cx = xAxis.getPixelForValue(px);
       const cy = yAxis.getPixelForValue(py);
 
       if (!first) {
-        graphics.moveTo(cx, cy);
+        this._graphics.moveTo(cx, cy);
         first = true;
       } else {
-        graphics.lineTo(cx, cy);
+        this._graphics.lineTo(cx, cy);
       }
     }
 
-    graphics.stroke({
+    this._graphics.stroke({
       color: "#000",
       width: 1,
     });
-
-    const w = this.model.chart.getWidth();
-    const h = this.model.chart.getHeight();
-
-    const renderTexture = PIXI.RenderTexture.create({
-      width: w,
-      height: h,
-    });
-
-    this.model.chart.app.renderer.render({
-      container: graphics,
-      target: renderTexture,
-    });
-
-    const sprite = new PIXI.Sprite(renderTexture);
-    sprite.position.set(0, 0);
-    this.group.addChild(sprite);
-    graphics.destroy();
   }
 }

@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
-import { LineSeries, LineSeriesView } from "../series/line";
+import { LineSeries } from "../series/line";
 import { LayoutRect } from "../util/types";
 import { ChartView } from "../view/chartView";
 import { View } from "../view/view";
@@ -11,6 +11,9 @@ export class Track extends View<TrackModel> {
   private _rect: LayoutRect;
   private _series: LineSeries;
   private _highlighted: boolean = false;
+  private readonly _leftText: PIXI.Text;
+  private readonly _rightText: PIXI.Text;
+  private readonly _highlight: PIXI.Graphics;
 
   readonly xAxis: Axis;
   readonly yAxis: Axis;
@@ -27,18 +30,29 @@ export class Track extends View<TrackModel> {
     super(model);
 
     this._rect = rect;
-    this._series = new LineSeries(chart);
     this.xAxis = xAxis;
     this.yAxis = yAxis;
     this.chart = chart;
+    this._series = new LineSeries(this.xAxis, this.yAxis, this.chart);
+
+    this._leftText = new PIXI.Text();
+    this._rightText = new PIXI.Text();
+    this._highlight = new PIXI.Graphics();
+
+    this.group.addChild(this._leftText);
+    this.group.addChild(this._rightText);
+    this.group.addChild(this._highlight);
+
+    // Add the series to the masked content container.
+    this.chart.content.addChild(this._series.group);
   }
 
   getXRange(): [number, number] {
-    return this._series.getXRange();
+    return this._series.getModel().getXRange();
   }
 
   getYRange(): [number, number] {
-    return this._series.getYRange();
+    return this._series.getModel().getYRange();
   }
 
   getSeries(): LineSeries {
@@ -98,13 +112,14 @@ export class Track extends View<TrackModel> {
   }
 
   override render(): void {
-    this.clear();
-    this.renderGrid();
-    this.renderSeries();
-    this.renderHighlight();
+    this._renderLabels();
+    this._renderSeries();
+    this._renderHighlight();
   }
 
-  private renderHighlight(): void {
+  private _renderHighlight(): void {
+    this._highlight.clear();
+
     if (!this._highlighted) {
       return;
     }
@@ -112,8 +127,7 @@ export class Track extends View<TrackModel> {
     const { x, y, width, height } = this.getRect();
     const { color, opacity, borderWidth } = this.model.getOptions().highlight;
 
-    const graphics = new PIXI.Graphics();
-    graphics
+    this._highlight
       .rect(x, y, width, height)
       .stroke({
         color: color,
@@ -123,60 +137,35 @@ export class Track extends View<TrackModel> {
         color: color,
         alpha: opacity,
       });
-    this.group.addChild(graphics);
   }
 
-  private renderGrid(): void {
-    const { show, leftLabel, rightLabel, margin } = this.model.getOptions();
-
-    if (!show) {
-      return;
-    }
+  private _renderLabels(): void {
+    const { leftLabel, rightLabel, margin } = this.model.getOptions();
 
     const { x, y, width, height } = this.getRect();
 
-    if (leftLabel) {
-      const leftText = new PIXI.Text({
-        text: leftLabel,
-        style: {
-          fontFamily: "Arial",
-          fontSize: 12,
-          fill: "#000",
-          align: "right",
-        },
-        x: x - margin,
-        y: y + height / 2,
-        anchor: { x: 1, y: 0.5 },
-      });
-      this.group.addChild(leftText);
-    }
+    this._leftText.text = leftLabel;
+    this._leftText.position.set(x - margin, y + height / 2);
+    this._leftText.anchor.set(1, 0.5);
+    this._leftText.style = {
+      fontFamily: "Arial",
+      fontSize: 12,
+      fill: "#000",
+      align: "right",
+    };
 
-    if (rightLabel) {
-      const rightText = new PIXI.Text({
-        text: rightLabel,
-        style: {
-          fontFamily: "Arial",
-          fontSize: 12,
-          fill: "#000",
-          align: "left",
-        },
-        x: x + width + margin,
-        y: y + height - height / 2,
-        anchor: { x: 0, y: 0.5 },
-      });
-      this.group.addChild(rightText);
-    }
+    this._rightText.text = rightLabel;
+    this._rightText.position.set(x + width + margin, y + height / 2);
+    this._rightText.anchor.set(0, 0.5);
+    this._rightText.style = {
+      fontFamily: "Arial",
+      fontSize: 12,
+      fill: "#000",
+      align: "left",
+    };
   }
 
-  private renderSeries(): void {
-    const lineSeries = this._series;
-    const view = new LineSeriesView(
-      lineSeries,
-      this.getRect(),
-      this.xAxis,
-      this.yAxis
-    );
-    view.render();
-    this.chart.content.addChild(view.group);
+  private _renderSeries(): void {
+    this._series.render();
   }
 }

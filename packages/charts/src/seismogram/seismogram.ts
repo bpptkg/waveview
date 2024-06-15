@@ -337,7 +337,7 @@ export class Seismogram
     for (let i = 0; i < this._trackManager.count(); i++) {
       const track = this._trackManager.getTrackByIndex(i);
       const data = this.getChannelData(i);
-      track.getSeries().setData(data);
+      track.getSeries().getModel().setData(data);
       track.fitY();
     }
   }
@@ -358,7 +358,7 @@ export class Seismogram
       const track = this._trackManager.getTrackByIndex(i);
       const data = this.getChannelData(i);
       const norm = data.scalarDivide(normFactor);
-      track.getSeries().setData(norm);
+      track.getSeries().getModel().setData(norm);
     }
   }
 
