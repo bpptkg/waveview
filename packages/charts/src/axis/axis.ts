@@ -1,8 +1,9 @@
+import * as PIXI from "pixi.js";
 import { AreaMarker, AreaMarkerOptions } from "../marker/area";
 import { LineMarker, LineMarkerOptions } from "../marker/line";
+import { drawDash } from "../util/dashline";
 import { EventMap, LayoutRect, ScaleTick } from "../util/types";
 import { View } from "../view/view";
-import { AxisBuilder } from "./axisBuilder";
 import { AxisModel, AxisOptions } from "./axisModel";
 
 export interface TickPixel {
@@ -17,17 +18,28 @@ export interface AxisEventMap extends EventMap {
 }
 
 export class Axis extends View<AxisModel> {
-  override type = "axis";
+  override readonly type = "axis";
   private _rect: LayoutRect;
   private _markers: MarkerView[] = [];
-  private readonly _builder: AxisBuilder;
+  private readonly _axisLine: PIXI.Graphics;
+  private readonly _majorTicks: PIXI.Graphics;
+  private readonly _minorTicks: PIXI.Graphics;
+  private readonly _splitLine: PIXI.Graphics;
+  private readonly _labels: PIXI.Text[] = [];
 
   constructor(rect: LayoutRect, options?: Partial<AxisOptions>) {
     const model = new AxisModel(options);
     super(model);
 
     this._rect = rect;
-    this._builder = new AxisBuilder(model, this);
+    this._axisLine = new PIXI.Graphics();
+    this._majorTicks = new PIXI.Graphics();
+    this._minorTicks = new PIXI.Graphics();
+    this._splitLine = new PIXI.Graphics();
+    this.group.addChild(this._axisLine);
+    this.group.addChild(this._majorTicks);
+    this.group.addChild(this._minorTicks);
+    this.group.addChild(this._splitLine);
   }
 
   setExtent(extent: [number, number]) {
@@ -256,22 +268,249 @@ export class Axis extends View<AxisModel> {
   }
 
   override render(): void {
-    this.clear();
-
     const { show } = this.model.getOptions();
     if (!show) {
       return;
     }
 
-    this._builder.drawAxisLine();
-    this._builder.drawMajorTick();
-    this._builder.drawMinorTick();
-    this.renderMarkers();
+    this._drawAxisLine();
+    this._drawMajorTick();
+    this._drawLabels();
+    this._drawMinorTick();
+    this._drawSplitLine();
+    this._renderMarkers();
   }
 
-  private renderMarkers(): void {
+  private _renderMarkers(): void {
     for (const marker of this._markers) {
       marker.render();
+    }
+  }
+
+  private _drawAxisLine(): void {
+    this._axisLine.clear();
+
+    const [x, y] = this.getOrigin();
+    const { width, height } = this.getRect();
+    let x1, x2, y1, y2;
+
+    if (this.isHorizontal()) {
+      x1 = x;
+      x2 = x + width;
+      y1 = y2 = y;
+    } else {
+      x1 = x2 = x;
+      y1 = y;
+      y2 = y + height;
+    }
+
+    this._axisLine.moveTo(x1, y1).lineTo(x2, y2).stroke({
+      color: "#000",
+      width: 1,
+    });
+  }
+
+  private _calcAdjustedTickPositions(tick: TickPixel): {
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+  } {
+    const { length, inside } = this.model.getOptions().axisTick;
+    const [x, y] = this.getOrigin();
+    let x1, x2, y1, y2;
+
+    const getYOffset = (y: number) => {
+      if (this.isAxisPositionEqualTo("top")) {
+        return inside ? y + length : y - length;
+      } else {
+        return inside ? y - length : y + length;
+      }
+    };
+
+    const getXOffset = (x: number) => {
+      if (this.isAxisPositionEqualTo("left")) {
+        return inside ? x + length : x - length;
+      } else {
+        return inside ? x - length : x + length;
+      }
+    };
+
+    if (this.isHorizontal()) {
+      x1 = x2 = tick.pixel;
+      y1 = y;
+      y2 = getYOffset(y);
+    } else {
+      x1 = x;
+      x2 = getXOffset(x);
+      y1 = y2 = tick.pixel;
+    }
+
+    return { x1, y1, x2, y2 };
+  }
+
+  private _drawMajorTick(): void {
+    this._majorTicks.clear();
+
+    const { show } = this.model.getOptions().axisTick;
+    if (!show) {
+      return;
+    }
+
+    const ticks = this.getTicksPixels();
+
+    for (const tick of ticks) {
+      const { x1, y1, x2, y2 } = this._calcAdjustedTickPositions(tick);
+
+      this._majorTicks.moveTo(x1, y1).lineTo(x2, y2).stroke({
+        color: "#000",
+        width: 1,
+      });
+    }
+  }
+
+  private _drawLabels(): void {
+    const { show, margin, formatter } = this.model.options.axisLabel;
+    if (!show) {
+      return;
+    }
+
+    // Get ticks and their positions
+    const ticks = this.getTicksPixels().map((tick) => {
+      const text = formatter
+        ? formatter(tick.tick.value)
+        : this.model.scale.getLabel(tick.tick);
+      const { x1, y1 } = this._calcAdjustedTickPositions(tick);
+      return { x: x1, y: y1, text };
+    });
+
+    // Create labels if needed
+    while (this._labels.length < ticks.length) {
+      const text = new PIXI.Text({
+        text: "",
+        style: {
+          fontFamily: "Arial",
+          fontSize: 12,
+          fill: "#000",
+          align: "center",
+        },
+        anchor: { x: 0.5, y: 1 },
+      });
+      this._labels.push(text);
+      this.group.addChild(text);
+    }
+
+    // Update label positions
+    const { position } = this.model.options;
+    for (const [index, tick] of ticks.entries()) {
+      const text = this._labels[index];
+      text.text = tick.text;
+      text.x = tick.x;
+      text.y = tick.y;
+
+      switch (position) {
+        case "bottom":
+          text.y += margin;
+          break;
+        case "top":
+          text.y -= margin;
+          break;
+        case "left":
+          text.x -= margin;
+          break;
+        case "right":
+          text.x += margin;
+          break;
+      }
+    }
+
+    // Hide unused labels
+    for (let i = ticks.length; i < this._labels.length; i++) {
+      this._labels[i].visible = false;
+    }
+  }
+
+  _drawMinorTick(): void {
+    this._minorTicks.clear();
+
+    const { show, length } = this.model.options.minorTick;
+    const { inside } = this.model.options.axisTick;
+    if (!show) {
+      return;
+    }
+
+    const ticks = this.getMinorTicksPixels();
+    const [x, y] = this.getOrigin();
+    let x1, x2, y1, y2;
+
+    const getYOffset = (y: number) => {
+      if (this.isAxisPositionEqualTo("top")) {
+        return inside ? y + length : y - length;
+      } else {
+        return inside ? y - length : y + length;
+      }
+    };
+
+    const getXOffset = (x: number) => {
+      if (this.isAxisPositionEqualTo("left")) {
+        return inside ? x + length : x - length;
+      } else {
+        return inside ? x - length : x + length;
+      }
+    };
+
+    for (const tick of ticks) {
+      if (this.isHorizontal()) {
+        x1 = x2 = tick.pixel;
+        y1 = y;
+        y2 = getYOffset(y);
+      } else {
+        x1 = x;
+        x2 = getXOffset(x);
+        y1 = y2 = tick.pixel;
+      }
+
+      this._minorTicks.moveTo(x1, y1).lineTo(x2, y2).stroke({
+        color: "#000",
+        width: 1,
+      });
+    }
+  }
+
+  _drawSplitLine(): void {
+    this._splitLine.clear();
+
+    const { show, color, width: lineWidth } = this.model.options.splitLine;
+    if (!show) {
+      return;
+    }
+
+    const { width, height } = this.getRect();
+
+    const ticks = this.getTicksPixels();
+    for (const [index, tick] of ticks.entries()) {
+      if (index === 0 || index === ticks.length - 1) {
+        continue;
+      }
+
+      const { x1: x, y1: y } = this._calcAdjustedTickPositions(tick);
+
+      let x1, x2, y1, y2;
+      if (this.isHorizontal()) {
+        x1 = x2 = x;
+        y1 = y;
+        y2 = y + height;
+      } else {
+        x1 = x;
+        x2 = x + width;
+        y1 = y2 = y;
+      }
+
+      drawDash(this._splitLine, x1, y1, x2, y2, 5, 5);
+      this._splitLine.stroke({
+        color: color,
+        width: lineWidth,
+      });
     }
   }
 }
