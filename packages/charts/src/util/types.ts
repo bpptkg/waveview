@@ -88,3 +88,42 @@ export interface RenderableGroup {
 export interface RefreshMode {
   mode: "light" | "hard";
 }
+
+export type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
+
+export type ThemeMode = "light" | "dark";
+
+export interface AxisStyle {
+  axisLineColor: string;
+  axisTickColor: string;
+  splitLineColor: string;
+}
+
+export interface GridStyle {
+  lineColor: string;
+  lineWidth: number;
+}
+
+export interface SeriesStyle {
+  lineColor: string;
+  lineWidth: number;
+}
+
+export interface HighlightStyle {
+  color: string;
+  opacity: number;
+  borderWidth: number;
+}
+
+export interface ThemeStyle {
+  backgroundColor: string;
+  textColor: string;
+  fontSize: number;
+  fontFamily: string;
+  gridStyle: GridStyle;
+  axisStyle: AxisStyle;
+  seriesStyle: SeriesStyle;
+  highlightStyle: HighlightStyle;
+}

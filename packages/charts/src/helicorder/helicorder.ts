@@ -135,6 +135,7 @@ export class Helicorder
   private readonly _xAxis: Axis;
   private readonly _grid: Grid;
   private readonly _selection: Selection;
+  private readonly _footer: Footer;
   private _tracks: Track[] = [];
   private _channel: Channel;
   private _markers: EventMarker[] = [];
@@ -175,8 +176,12 @@ export class Helicorder
     this._selection = new Selection(this._xAxis, this);
     this.addComponent(this._selection);
 
-    const footer = new Footer(this);
-    this.addComponent(footer);
+    this._footer = new Footer(this);
+    this.addComponent(this._footer);
+
+    if (opts.darkMode) {
+      this.setTheme("dark");
+    }
   }
 
   setChannel(channel: Channel): void {
@@ -457,6 +462,18 @@ export class Helicorder
 
   override getGrid(): Grid {
     return this._grid;
+  }
+
+  override applyThemeStyles(): void {
+    const theme = this.getTheme();
+
+    this._xAxis.applyThemeStyle(theme);
+    this._grid.applyThemeStyle(theme);
+    this._footer.applyThemeStyle(theme);
+    this._selection.applyThemeStyle(theme);
+    for (const track of this._tracks) {
+      track.applyThemeStyle(theme);
+    }
   }
 
   private createTrack(index: number): Track {

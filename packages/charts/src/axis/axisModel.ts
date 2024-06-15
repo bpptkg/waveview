@@ -2,19 +2,31 @@ import { Model } from "../model/model";
 import { LinearScale } from "../scale/linear";
 import { Scale } from "../scale/scale";
 import { TimeScale } from "../scale/time";
-import { merge } from "../util/merge";
+import { clone, merge } from "../util/merge";
+import { DeepPartial } from "../util/types";
 
 export interface AxisTickOptions {
   show: boolean;
+  color: string;
   length: number;
   inside: boolean;
+  width: number;
 }
 
 export interface AxisLabelOptions {
   show: boolean;
   inside: boolean;
   margin: number;
+  color: string;
+  fontSize: number;
+  fontFamily: string;
   formatter?: (value: number) => string;
+}
+
+export interface AxisLineOptions {
+  show: boolean;
+  color: string;
+  width: number;
 }
 
 export interface SplitLineOptions {
@@ -25,7 +37,9 @@ export interface SplitLineOptions {
 
 export interface MinorTickOptions {
   show: boolean;
+  color: string;
   length: number;
+  width: number;
   splitNumber: number;
 }
 
@@ -40,6 +54,7 @@ export interface AxisOptions {
   axisTick: AxisTickOptions;
   minorTick: MinorTickOptions;
   axisLabel: AxisLabelOptions;
+  axisLine: AxisLineOptions;
   splitLine: SplitLineOptions;
   min?: number;
   max?: number;
@@ -59,16 +74,28 @@ export class AxisModel extends Model<AxisOptions> {
       show: true,
       length: 10,
       inside: true,
+      color: "#000",
+      width: 1,
     },
     minorTick: {
       show: true,
       length: 5,
       splitNumber: 5,
+      color: "#000",
+      width: 1,
+    },
+    axisLine: {
+      show: true,
+      color: "#000",
+      width: 1,
     },
     axisLabel: {
       show: true,
       inside: false,
       margin: 8,
+      color: "#000",
+      fontSize: 12,
+      fontFamily: "Arial",
     },
     splitLine: {
       show: false,
@@ -80,9 +107,9 @@ export class AxisModel extends Model<AxisOptions> {
 
   readonly scale: Scale;
 
-  constructor(options?: Partial<AxisOptions>) {
+  constructor(options?: DeepPartial<AxisOptions>) {
     const opts = merge(
-      Object.assign({}, AxisModel.defaultOptions),
+      clone(AxisModel.defaultOptions),
       options || {},
       true
     ) as AxisOptions;

@@ -56,36 +56,45 @@ const objToString = Object.prototype.toString;
  * (There might be a large number of date in `series.data`).
  * So date should not be modified in and out of echarts.
  */
-export function clone<T extends any>(source: T): T {
+export function clone<T>(source: T, map = new WeakMap()): T {
   if (source == null || typeof source !== "object") {
     return source;
   }
 
-  let result = source as any;
-  const typeStr = <string>objToString.call(source);
+  if (map.has(source)) {
+    return map.get(source);
+  }
+
+  let result: any;
+  const typeStr = objToString.call(source);
 
   if (typeStr === "[object Array]") {
-    if (!isPrimitive(source)) {
-      result = [] as any;
-      for (let i = 0, len = (source as any[]).length; i < len; i++) {
-        result[i] = clone((source as any[])[i]);
-      }
+    result = [];
+    map.set(source, result);
+    for (let i = 0, len = (source as any[]).length; i < len; i++) {
+      result[i] = clone((source as any[])[i], map);
     }
   } else if (TYPED_ARRAY[typeStr]) {
-    if (!isPrimitive(source)) {
-      /* eslint-disable-next-line */
-      const Ctor = source.constructor as typeof Float32Array;
-      if (Ctor.from) {
-        result = Ctor.from(source as unknown as ArrayLike<number>);
-      } else {
-        result = new Ctor((source as unknown as ArrayLike<number>).length);
-        for (
-          let i = 0, len = (source as unknown as ArrayLike<number>).length;
-          i < len;
-          i++
-        ) {
-          result[i] = (source as unknown as ArrayLike<number>)[i];
-        }
+    const Ctor = source.constructor as typeof Float32Array;
+    if (Ctor.from) {
+      result = Ctor.from(source as unknown as ArrayLike<number>);
+    } else {
+      result = new Ctor((source as unknown as ArrayLike<number>).length);
+      for (
+        let i = 0, len = (source as unknown as ArrayLike<number>).length;
+        i < len;
+        i++
+      ) {
+        result[i] = (source as unknown as ArrayLike<number>)[i];
+      }
+    }
+    map.set(source, result);
+  } else {
+    result = {};
+    map.set(source, result);
+    for (const key in source) {
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        result[key] = clone((source as { [key: string]: any })[key], map);
       }
     }
   }

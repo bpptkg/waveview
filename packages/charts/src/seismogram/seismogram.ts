@@ -152,6 +152,10 @@ export class Seismogram
     for (const channel of opts.channels) {
       this.addChannelInternal(channel);
     }
+
+    if (opts.darkMode) {
+      this.setTheme("dark");
+    }
   }
 
   getChannels(): Channel[] {
@@ -398,6 +402,16 @@ export class Seismogram
 
   getDataStore(): DataStore<SeriesData> {
     return this._dataStore;
+  }
+
+  override applyThemeStyles(): void {
+    const theme = this.getTheme();
+
+    this._grid.applyThemeStyle(theme);
+    this._xAxis.applyThemeStyle(theme);
+    for (const track of this._trackManager.tracks()) {
+      track.applyThemeStyle(theme);
+    }
   }
 
   override getGrid(): Grid {

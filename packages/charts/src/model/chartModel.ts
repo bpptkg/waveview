@@ -11,7 +11,7 @@ export class ChartModel<T extends ChartOptions> extends Model<T> {
   override readonly type = "chart";
 
   static defaultOptions: ChartOptions = {
-    backgroundColor: "#ffffff",
+    backgroundColor: "transparent",
     devicePixelRatio: window.devicePixelRatio,
     darkMode: false,
   };

@@ -1,7 +1,15 @@
 import * as PIXI from "pixi.js";
 import { Grid } from "../grid/grid";
 import { ChartModel, ChartOptions } from "../model/chartModel";
-import { Extension, LayoutRect, RenderableGroup } from "../util/types";
+import darkTheme from "../theme/dark";
+import lightTheme from "../theme/light";
+import {
+  Extension,
+  LayoutRect,
+  RenderableGroup,
+  ThemeMode,
+  ThemeStyle,
+} from "../util/types";
 import { View } from "./view";
 
 export interface ChartType<T extends ChartOptions> {
@@ -28,6 +36,8 @@ export interface ChartType<T extends ChartOptions> {
   removeComponent(component: View): void;
   getGrid(): Grid;
   use(extension: Extension<ChartType<T>>): void;
+  setTheme(theme: ThemeMode): void;
+  getTheme(): ThemeStyle;
 }
 
 export abstract class ChartView<T extends ChartOptions = ChartOptions>
@@ -39,6 +49,7 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
   private _rect: LayoutRect;
   protected _views: RenderableGroup[] = [];
   protected _isFocused = false;
+  private _currentTheme: ThemeStyle = lightTheme;
 
   readonly dom: HTMLCanvasElement;
   readonly app: PIXI.Application = new PIXI.Application();
@@ -164,4 +175,15 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
   use(extension: Extension<ChartView<T>>): void {
     extension.install(this);
   }
+
+  setTheme(theme: ThemeMode): void {
+    this._currentTheme = theme === "light" ? lightTheme : darkTheme;
+    this.applyThemeStyles();
+  }
+
+  getTheme(): ThemeStyle {
+    return this._currentTheme;
+  }
+
+  abstract applyThemeStyles(): void;
 }

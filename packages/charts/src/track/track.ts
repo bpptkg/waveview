@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
 import { LineSeries } from "../series/line";
-import { LayoutRect } from "../util/types";
+import { LayoutRect, ThemeStyle } from "../util/types";
 import { ChartView } from "../view/chartView";
 import { View } from "../view/view";
 import { TrackModel, TrackOptions } from "./trackModel";
@@ -45,6 +45,21 @@ export class Track extends View<TrackModel> {
 
     // Add the series to the masked content container.
     this.chart.content.addChild(this._series.group);
+  }
+
+  applyThemeStyle(theme: ThemeStyle): void {
+    const { highlightStyle } = theme;
+    this.model.mergeOptions({
+      textColor: theme.textColor,
+      fontSize: theme.fontSize,
+      fontFamily: theme.fontFamily,
+      highlight: {
+        color: highlightStyle.color,
+        opacity: highlightStyle.opacity,
+        borderWidth: highlightStyle.borderWidth,
+      },
+    });
+    this._series.applyThemeStyle(theme);
   }
 
   getXRange(): [number, number] {
@@ -140,7 +155,8 @@ export class Track extends View<TrackModel> {
   }
 
   private _renderLabels(): void {
-    const { leftLabel, rightLabel, margin } = this.model.getOptions();
+    const { leftLabel, rightLabel, margin, textColor, fontSize, fontFamily } =
+      this.model.getOptions();
 
     const { x, y, width, height } = this.getRect();
 
@@ -148,9 +164,9 @@ export class Track extends View<TrackModel> {
     this._leftText.position.set(x - margin, y + height / 2);
     this._leftText.anchor.set(1, 0.5);
     this._leftText.style = {
-      fontFamily: "Arial",
-      fontSize: 12,
-      fill: "#000",
+      fontFamily,
+      fontSize,
+      fill: textColor,
       align: "right",
     };
 
@@ -158,9 +174,9 @@ export class Track extends View<TrackModel> {
     this._rightText.position.set(x + width + margin, y + height / 2);
     this._rightText.anchor.set(0, 0.5);
     this._rightText.style = {
-      fontFamily: "Arial",
-      fontSize: 12,
-      fill: "#000",
+      fontFamily,
+      fontSize,
+      fill: textColor,
       align: "left",
     };
   }

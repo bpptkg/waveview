@@ -2,7 +2,7 @@ import * as PIXI from "pixi.js";
 import { AreaMarker, AreaMarkerOptions } from "../marker/area";
 import { LineMarker, LineMarkerOptions } from "../marker/line";
 import { drawDash } from "../util/dashline";
-import { EventMap, LayoutRect, ScaleTick } from "../util/types";
+import { EventMap, LayoutRect, ScaleTick, ThemeStyle } from "../util/types";
 import { View } from "../view/view";
 import { AxisModel, AxisOptions } from "./axisModel";
 
@@ -40,6 +40,29 @@ export class Axis extends View<AxisModel> {
     this.group.addChild(this._majorTicks);
     this.group.addChild(this._minorTicks);
     this.group.addChild(this._splitLine);
+  }
+
+  applyThemeStyle(style: ThemeStyle): void {
+    const { axisStyle, textColor, fontSize, fontFamily } = style;
+    this.model.mergeOptions({
+      axisTick: {
+        color: axisStyle.axisTickColor,
+      },
+      minorTick: {
+        color: axisStyle.axisTickColor,
+      },
+      axisLine: {
+        color: axisStyle.axisLineColor,
+      },
+      axisLabel: {
+        color: textColor,
+        fontSize,
+        fontFamily,
+      },
+      splitLine: {
+        color: axisStyle.splitLineColor,
+      },
+    });
   }
 
   setExtent(extent: [number, number]) {
@@ -268,6 +291,12 @@ export class Axis extends View<AxisModel> {
   }
 
   override render(): void {
+    this._axisLine.clear();
+    this._majorTicks.clear();
+    this._minorTicks.clear();
+    this._splitLine.clear();
+    this._labels.forEach((label) => (label.visible = false));
+
     const { show } = this.model.getOptions();
     if (!show) {
       return;
@@ -288,7 +317,10 @@ export class Axis extends View<AxisModel> {
   }
 
   private _drawAxisLine(): void {
-    this._axisLine.clear();
+    const { show, color, width: lineWidth } = this.model.getOptions().axisLine;
+    if (!show) {
+      return;
+    }
 
     const [x, y] = this.getOrigin();
     const { width, height } = this.getRect();
@@ -305,8 +337,8 @@ export class Axis extends View<AxisModel> {
     }
 
     this._axisLine.moveTo(x1, y1).lineTo(x2, y2).stroke({
-      color: "#000",
-      width: 1,
+      color: color,
+      width: lineWidth,
     });
   }
 
@@ -350,9 +382,7 @@ export class Axis extends View<AxisModel> {
   }
 
   private _drawMajorTick(): void {
-    this._majorTicks.clear();
-
-    const { show } = this.model.getOptions().axisTick;
+    const { show, color, width } = this.model.getOptions().axisTick;
     if (!show) {
       return;
     }
@@ -363,14 +393,15 @@ export class Axis extends View<AxisModel> {
       const { x1, y1, x2, y2 } = this._calcAdjustedTickPositions(tick);
 
       this._majorTicks.moveTo(x1, y1).lineTo(x2, y2).stroke({
-        color: "#000",
-        width: 1,
+        color,
+        width,
       });
     }
   }
 
   private _drawLabels(): void {
-    const { show, margin, formatter } = this.model.options.axisLabel;
+    const { show, margin, formatter, color, fontFamily, fontSize } =
+      this.model.options.axisLabel;
     if (!show) {
       return;
     }
@@ -386,16 +417,7 @@ export class Axis extends View<AxisModel> {
 
     // Create labels if needed
     while (this._labels.length < ticks.length) {
-      const text = new PIXI.Text({
-        text: "",
-        style: {
-          fontFamily: "Arial",
-          fontSize: 12,
-          fill: "#000",
-          align: "center",
-        },
-        anchor: { x: 0.5, y: 1 },
-      });
+      const text = new PIXI.Text();
       this._labels.push(text);
       this.group.addChild(text);
     }
@@ -405,8 +427,15 @@ export class Axis extends View<AxisModel> {
     for (const [index, tick] of ticks.entries()) {
       const text = this._labels[index];
       text.text = tick.text;
-      text.x = tick.x;
-      text.y = tick.y;
+      text.visible = true;
+      text.style = {
+        fontFamily,
+        fontSize,
+        fill: color,
+        align: "center",
+      };
+      text.position.set(tick.x, tick.y);
+      text.anchor.set(0.5, 1);
 
       switch (position) {
         case "bottom":
@@ -431,9 +460,7 @@ export class Axis extends View<AxisModel> {
   }
 
   _drawMinorTick(): void {
-    this._minorTicks.clear();
-
-    const { show, length } = this.model.options.minorTick;
+    const { show, length, color, width } = this.model.options.minorTick;
     const { inside } = this.model.options.axisTick;
     if (!show) {
       return;
@@ -471,15 +498,13 @@ export class Axis extends View<AxisModel> {
       }
 
       this._minorTicks.moveTo(x1, y1).lineTo(x2, y2).stroke({
-        color: "#000",
-        width: 1,
+        color,
+        width,
       });
     }
   }
 
   _drawSplitLine(): void {
-    this._splitLine.clear();
-
     const { show, color, width: lineWidth } = this.model.options.splitLine;
     if (!show) {
       return;

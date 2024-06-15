@@ -1,5 +1,6 @@
 import { Model } from "../model/model";
 import { merge } from "../util/merge";
+import { ThemeStyle } from "../util/types";
 
 export interface HightlightOptions {
   color: string;
@@ -12,6 +13,9 @@ export interface TrackOptions {
   rightLabel: string;
   margin: number;
   highlight: HightlightOptions;
+  textColor: string;
+  fontSize: number;
+  fontFamily: string;
 }
 
 export class TrackModel extends Model<TrackOptions> {
@@ -21,8 +25,11 @@ export class TrackModel extends Model<TrackOptions> {
     leftLabel: "",
     rightLabel: "",
     margin: 8,
+    textColor: "#000",
+    fontSize: 12,
+    fontFamily: "Arial",
     highlight: {
-      color: "#9747FF",
+      color: "#9747ff",
       opacity: 0.25,
       borderWidth: 1,
     },
@@ -35,5 +42,19 @@ export class TrackModel extends Model<TrackOptions> {
       true
     ) as TrackOptions;
     super(opts);
+  }
+
+  applyThemeStyle(theme: ThemeStyle): void {
+    const { highlightStyle } = theme;
+    this.mergeOptions({
+      textColor: theme.textColor,
+      fontSize: theme.fontSize,
+      fontFamily: theme.fontFamily,
+      highlight: {
+        color: highlightStyle.color,
+        opacity: highlightStyle.opacity,
+        borderWidth: highlightStyle.borderWidth,
+      },
+    });
   }
 }

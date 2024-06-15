@@ -1,4 +1,5 @@
-import { ModelOptions } from "../util/types";
+import { merge } from "../util/merge";
+import { DeepPartial, ModelOptions } from "../util/types";
 
 export class Model<T extends ModelOptions = ModelOptions> {
   type = "model";
@@ -16,7 +17,7 @@ export class Model<T extends ModelOptions = ModelOptions> {
     return this._options;
   }
 
-  mergeOptions(options: Partial<T>): void {
-    this._options = { ...this._options, ...options };
+  mergeOptions(options: DeepPartial<T>): void {
+    this._options = merge(this._options, options, true) as T;
   }
 }

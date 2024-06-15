@@ -2,17 +2,28 @@ import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
 import { SeriesModel } from "../model/series";
 import { merge } from "../util/merge";
-import { LayoutRect, SeriesOptions } from "../util/types";
+import { LayoutRect, SeriesOptions, ThemeStyle } from "../util/types";
 import { ChartView } from "../view/chartView";
 import { View } from "../view/view";
 
-export interface LineSeriesOptions extends SeriesOptions {}
+export interface LineSeriesOptions extends SeriesOptions {
+  color: string;
+  width: number;
+}
 
 export class LineSeriesModel extends SeriesModel<LineSeriesOptions> {
   override type = "line";
 
+  static defaultOptions: LineSeriesOptions = {
+    color: "#000",
+    width: 1,
+  };
+
   constructor(options?: Partial<LineSeriesOptions>) {
-    const opts = merge({}, options) as LineSeriesOptions;
+    const opts = merge(
+      { ...LineSeriesModel.defaultOptions },
+      options
+    ) as LineSeriesOptions;
     super(opts);
   }
 }
@@ -42,6 +53,14 @@ export class LineSeries extends View<LineSeriesModel> {
 
     this._graphics = new PIXI.Graphics();
     this.group.addChild(this._graphics);
+  }
+
+  applyThemeStyle(theme: ThemeStyle): void {
+    const { seriesStyle } = theme;
+    this.model.mergeOptions({
+      color: seriesStyle.lineColor,
+      width: seriesStyle.lineWidth,
+    });
   }
 
   override getRect(): LayoutRect {
@@ -75,9 +94,11 @@ export class LineSeries extends View<LineSeriesModel> {
       }
     }
 
+    const { color, width } = model.getOptions();
+
     this._graphics.stroke({
-      color: "#000",
-      width: 1,
+      color,
+      width,
     });
   }
 }

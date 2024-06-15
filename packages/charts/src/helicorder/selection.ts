@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
 import { Model } from "../model/model";
-import { LayoutRect, ModelOptions } from "../util/types";
+import { LayoutRect, ModelOptions, ThemeStyle } from "../util/types";
 import { View } from "../view/view";
 import { Helicorder } from "./helicorder";
 
@@ -46,6 +46,15 @@ export class Selection extends View<SelectionModel> {
     this.chart = chart;
     this._graphics = new PIXI.Graphics();
     this.group.addChild(this._graphics);
+  }
+
+  applyThemeStyle(theme: ThemeStyle): void {
+    const { highlightStyle } = theme;
+    this.model.mergeOptions({
+      color: highlightStyle.color,
+      opacity: highlightStyle.opacity,
+      borderWidth: highlightStyle.borderWidth,
+    });
   }
 
   getValue(): number {

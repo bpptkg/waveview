@@ -1,5 +1,5 @@
 import * as PIXI from "pixi.js";
-import { LayoutRect } from "../util/types";
+import { LayoutRect, ThemeStyle } from "../util/types";
 import { View } from "../view/view";
 import { GridModel, GridOptions } from "./gridModel";
 
@@ -15,6 +15,14 @@ export class Grid extends View<GridModel> {
     this._rect = rect;
     this._graphics = new PIXI.Graphics();
     this.group.addChild(this._graphics);
+  }
+
+  applyThemeStyle(theme: ThemeStyle): void {
+    const { gridStyle } = theme;
+    this.model.mergeOptions({
+      borderColor: gridStyle.lineColor,
+      borderWidth: gridStyle.lineWidth,
+    });
   }
 
   override getRect(): LayoutRect {
