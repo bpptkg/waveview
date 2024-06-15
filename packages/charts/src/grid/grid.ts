@@ -4,14 +4,17 @@ import { View } from "../view/view";
 import { GridModel, GridOptions } from "./gridModel";
 
 export class Grid extends View<GridModel> {
-  override type = "grid";
+  override readonly type = "grid";
   private _rect: LayoutRect;
+  private readonly _graphics: PIXI.Graphics;
 
   constructor(rect: LayoutRect, options?: Partial<GridOptions>) {
     const model = new GridModel(options);
     super(model);
 
     this._rect = rect;
+    this._graphics = new PIXI.Graphics();
+    this.group.addChild(this._graphics);
   }
 
   override getRect(): LayoutRect {
@@ -30,7 +33,7 @@ export class Grid extends View<GridModel> {
   }
 
   override render(): void {
-    this.clear();
+    this._graphics.clear();
 
     const { show, backgroundColor, borderColor, borderWidth } =
       this.model.getOptions();
@@ -40,8 +43,7 @@ export class Grid extends View<GridModel> {
     }
 
     const { x, y, width, height } = this.getRect();
-    const graphics = new PIXI.Graphics();
-    graphics
+    this._graphics
       .rect(x, y, width, height)
       .stroke({
         color: borderColor,
@@ -50,6 +52,5 @@ export class Grid extends View<GridModel> {
       .fill({
         color: backgroundColor,
       });
-    this.group.addChild(graphics);
   }
 }
