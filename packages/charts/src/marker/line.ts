@@ -30,6 +30,7 @@ export class LineMarker extends View<LineMarkerModel> {
   override readonly type = "lineMarker";
   readonly axis: Axis;
   private _rect: LayoutRect;
+  private readonly _line: PIXI.Graphics;
 
   constructor(axis: Axis, options?: Partial<LineMarkerOptions>) {
     const model = new LineMarkerModel(options);
@@ -37,6 +38,9 @@ export class LineMarker extends View<LineMarkerModel> {
 
     this.axis = axis;
     this._rect = axis.getRect();
+    this._line = new PIXI.Graphics();
+    this.group.addChild(this._line);
+    this.axis.group.addChild(this.group);
   }
 
   getValue(): number {
@@ -64,7 +68,7 @@ export class LineMarker extends View<LineMarkerModel> {
   }
 
   override render() {
-    this.clear();
+    this._line.clear();
 
     const {
       show,
@@ -87,7 +91,6 @@ export class LineMarker extends View<LineMarkerModel> {
     } else {
       this._renderVerticalLine(pos, y, height, borderColor, borderWidth);
     }
-    this.axis.group.addChild(this.group);
   }
 
   private _renderVerticalLine(
@@ -97,15 +100,13 @@ export class LineMarker extends View<LineMarkerModel> {
     color: string,
     width: number
   ) {
-    const line = new PIXI.Graphics();
-    line
+    this._line
       .moveTo(x, y)
       .lineTo(x, y + height)
       .stroke({
         color: color,
         width,
       });
-    this.group.addChild(line);
   }
 
   private _renderHorizontalLine(
@@ -115,14 +116,12 @@ export class LineMarker extends View<LineMarkerModel> {
     color: string,
     borderWidth: number
   ) {
-    const line = new PIXI.Graphics();
-    line
+    this._line
       .moveTo(x, y)
       .lineTo(x + width, y)
       .stroke({
         color: color,
         width: borderWidth,
       });
-    this.group.addChild(line);
   }
 }
