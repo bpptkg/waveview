@@ -34,3 +34,19 @@ export {
   SeismogramWebWorkerExtension,
 } from "./seismogram/webWorker";
 export { readStream } from "./util/stream";
+export type {
+  AxisStyle,
+  Extension,
+  GridStyle,
+  HighlightStyle,
+  ResampleMode,
+  SeriesData,
+  SeriesOptions,
+  SeriesStyle,
+  StreamRequestData,
+  StreamResponseData,
+  ThemeMode,
+  ThemeStyle,
+  WorkerRequestData,
+  WorkerResponseData,
+} from "./util/types";
