@@ -47,6 +47,7 @@ function getDefaultOptions(): SeismogramChartOptions {
 
 export interface SeismogramChartType extends ChartType<SeismogramChartOptions> {
   getChannels(): Channel[];
+  getChannelCount(): number;
   getChannelAt(index: number): Channel;
   addChannel(channel: Channel): void;
   removeChannel(index: number): void;
@@ -78,6 +79,7 @@ export interface SeismogramChartType extends ChartType<SeismogramChartOptions> {
   moveSelectionUp(): void;
   moveSelectionDown(): void;
   getChannelIndexAtPosition(y: number): number;
+  getTrackCount(): number;
   getTrackAt(index: number): Track;
   getTrackIndexByChannelId(id: string): number;
   getChartExtent(): [number, number];
@@ -386,6 +388,10 @@ export class Seismogram
     const trackCount = this.getChannelCount();
     const trackHeight = this._grid.getRect().height / trackCount;
     return Math.floor(y / trackHeight);
+  }
+
+  getTrackCount(): number {
+    return this._trackManager.count();
   }
 
   getTrackAt(index: number): Track {

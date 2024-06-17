@@ -1,7 +1,7 @@
 export function debounce(delay: number): MethodDecorator {
   return function (
-    target: any,
-    propertyKey: string | symbol,
+    _target: any,
+    _propertyKey: string | symbol,
     descriptor: PropertyDescriptor
   ) {
     let timeout: any = null;

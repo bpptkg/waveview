@@ -1,9 +1,36 @@
 export type { Channel } from "./data/channel";
-export type { DataProvider } from "./data/dataProvider";
-export { HelicorderEventManager } from "./helicorder/eventManager";
+export {
+  HelicorderEventManager,
+  HelicorderEventManagerExtension,
+} from "./helicorder/eventManager";
+export type { HelicorderEventManagerConfig } from "./helicorder/eventManager";
+export { EventMarker } from "./helicorder/eventMarker";
+export type { EventMarkerOptions } from "./helicorder/eventMarker";
 export { Helicorder } from "./helicorder/helicorder";
-export { HelicorderWebWorker } from "./helicorder/webWorker";
-export { SeismogramEventManager } from "./seismogram/eventManager";
-export { Picker } from "./seismogram/picker";
+export type { HelicorderChartOptions } from "./helicorder/helicorder";
+export { Selection } from "./helicorder/selection";
+export type { SelectionOptions } from "./helicorder/selection";
+export {
+  HelicorderWebWorker,
+  HelicorderWebWorkerExtension,
+} from "./helicorder/webWorker";
+export { AreaMarker } from "./marker/area";
+export type { AreaMarkerOptions } from "./marker/area";
+export { LineMarker } from "./marker/line";
+export type { LineMarkerOptions } from "./marker/line";
+export { AxisPointer, AxisPointerExtension } from "./seismogram/axisPointer";
+export type { AxisPointerOptions } from "./seismogram/axisPointer";
+export {
+  SeismogramEventManager,
+  SeismogramEventManagerExtension,
+} from "./seismogram/eventManager";
+export type { SeismogramEventManagerConfig } from "./seismogram/eventManager";
+export { Picker, PickerExtension } from "./seismogram/picker";
+export type { PickerOptions } from "./seismogram/picker";
 export { Seismogram } from "./seismogram/seismogram";
-export type { SeriesData } from "./util/types";
+export type { SeismogramChartOptions } from "./seismogram/seismogram";
+export {
+  SeismogramWebWorker,
+  SeismogramWebWorkerExtension,
+} from "./seismogram/webWorker";
+export { readStream } from "./util/stream";
