@@ -1,4 +1,4 @@
-import { Index } from "./index";
+import { Index } from "./indexing";
 
 export type TypedArray =
   | Float32Array
@@ -35,10 +35,6 @@ export class NDFrame<
       shape[key] = value.length;
     }
     return shape;
-  }
-
-  get values(): D {
-    return this._values;
   }
 
   protected getAxis(axis: number): Index<I> {

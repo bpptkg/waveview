@@ -1,7 +1,7 @@
-import { Index, parseIndex } from "./index";
+import { Index, parseIndex } from "./indexing";
 import { NDFrame, NDFrameArray } from "./generic";
 
-interface SeriesOptions<I extends NDFrameArray> {
+export interface SeriesOptions<I extends NDFrameArray> {
   name: string;
   index: I | Index<I>;
 }
@@ -25,6 +25,10 @@ export class Series<
       D,
       I
     >;
+  }
+
+  get values(): D {
+    return this._values;
   }
 
   get index(): Index<I> {
