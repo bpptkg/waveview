@@ -32,8 +32,8 @@ export interface ChartType<T extends ChartOptions> {
   isFocused(): boolean;
   getRect(): LayoutRect;
   setRect(rect: LayoutRect): void;
-  addComponent(component: View): void;
-  removeComponent(component: View): void;
+  addComponent(component: RenderableGroup): void;
+  removeComponent(component: RenderableGroup): void;
   getGrid(): Grid;
   use(extension: Extension<ChartType<T>>): void;
   setTheme(theme: ThemeMode): void;
