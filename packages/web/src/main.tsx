@@ -1,11 +1,15 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import { RouterProvider } from "react-router-dom";
-import router from "./routes/index.tsx";
-import "./index.css";
+import { FluentProvider, webLightTheme } from '@fluentui/react-components';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { RouterProvider } from 'react-router-dom';
+import router from './routes/index.tsx';
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
+import './index.css';
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <FluentProvider theme={webLightTheme}>
+      <RouterProvider router={router} />
+    </FluentProvider>
   </React.StrictMode>
 );
