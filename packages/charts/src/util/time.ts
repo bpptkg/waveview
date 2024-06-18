@@ -318,7 +318,8 @@ export interface DateAdapter<T extends AnyObject = AnyObject> {
     this: DateAdapter<T>,
     timestamp: number,
     format: TimeUnit,
-    isUTC: boolean
+    isUTC: boolean,
+    lang?: string
   ): string;
   /**
    * Adds the specified `amount` of `unit` to the given `timestamp`.
@@ -401,8 +402,8 @@ export class DefaultDateAdapter implements DateAdapter {
     return abstract();
   }
 
-  format(value: number, unit: TimeUnit, isUTC: boolean): string {
-    return formatDate(value, defaultFormatterTemplte[unit], isUTC);
+  format(value: number, unit: TimeUnit, isUTC: boolean, lang?: string): string {
+    return formatDate(value, defaultFormatterTemplte[unit], isUTC, lang);
   }
 
   add(a: number, delta: number, unit: TimeUnit): number {
