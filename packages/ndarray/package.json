@@ -3,9 +3,8 @@
   "version": "0.0.0",
   "description": "N dimensional array library for WaveView",
   "type": "module",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.es.js",
-  "types": "dist/index.d.ts",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/bpptkg/waveview"
@@ -23,12 +22,12 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.es.js",
-      "require": "./dist/index.umd.js"
+      "import": "./src/index.ts",
+      "require": "./src/index.ts"
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "src"
   ]
 }
