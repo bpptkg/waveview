@@ -24,7 +24,7 @@ export interface ChartType<T extends ChartOptions> {
   getHeight(): number;
   init(): Promise<void>;
   render(): void;
-  resize(): void;
+  resize(width: number, height: number): void;
   dispose(): void;
   toDataURL(type?: string, quality?: number): string;
   focus(): void;
@@ -46,7 +46,7 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
 {
   override type = "chart";
 
-  private _rect: LayoutRect;
+  protected _rect: LayoutRect;
   protected _views: RenderableGroup[] = [];
   protected _isFocused = false;
   private _currentTheme: ThemeStyle = lightTheme;
@@ -146,11 +146,7 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
     }
   }
 
-  resize(): void {
-    this._rect.width = this.dom.width;
-    this._rect.height = this.dom.height;
-    this.app.renderer.resize(this.dom.width, this.dom.height);
-  }
+  abstract resize(width: number, height: number): void;
 
   override dispose(): void {
     this.app.destroy(true);
