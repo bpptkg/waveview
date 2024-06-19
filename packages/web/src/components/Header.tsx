@@ -8,15 +8,15 @@ import SearchBox from './SearchBox';
 const Header = () => {
   return (
     <div className="flex w-full h-[48px] items-center justify-between px-2 border-b">
-      <div className='flex items-center gap-2'>
+      <div className='flex items-center gap-3'>
         <Logo />
         <LogoText />
       </div>
-      <div className='flex items-center gap-1'>
+      <div className='flex items-center gap-2'>
         <ArrowNavigation />
         <SearchBox />
       </div>
-      <div className='flex items-center gap-1'>
+      <div className='flex items-center gap-3'>
         <Notification />
         <Account />
       </div>
