@@ -7,7 +7,7 @@ import SearchBox from './SearchBox';
 
 const Header = () => {
   return (
-    <div className="flex w-full h-[48px] items-center justify-between px-2 border-b">
+    <div className="flex h-[48px] items-center justify-between px-2 border-b">
       <div className='flex items-center gap-3'>
         <Logo />
         <LogoText />
