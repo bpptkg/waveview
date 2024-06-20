@@ -7,7 +7,10 @@ export type { HelicorderEventManagerConfig } from "./helicorder/eventManager";
 export { EventMarker } from "./helicorder/eventMarker";
 export type { EventMarkerOptions } from "./helicorder/eventMarker";
 export { Helicorder } from "./helicorder/helicorder";
-export type { HelicorderChartOptions } from "./helicorder/helicorder";
+export type {
+  HelicorderChartOptions,
+  HelicorderChartType,
+} from "./helicorder/helicorder";
 export { Selection } from "./helicorder/selection";
 export type { SelectionOptions } from "./helicorder/selection";
 export {
@@ -28,7 +31,10 @@ export type { SeismogramEventManagerConfig } from "./seismogram/eventManager";
 export { Picker, PickerExtension } from "./seismogram/picker";
 export type { PickerOptions } from "./seismogram/picker";
 export { Seismogram } from "./seismogram/seismogram";
-export type { SeismogramChartOptions } from "./seismogram/seismogram";
+export type {
+  SeismogramChartOptions,
+  SeismogramChartType,
+} from "./seismogram/seismogram";
 export {
   SeismogramWebWorker,
   SeismogramWebWorkerExtension,
