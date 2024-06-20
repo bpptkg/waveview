@@ -5,6 +5,9 @@ export interface ChartOptions extends ModelOptions {
   backgroundColor?: string;
   devicePixelRatio?: number;
   darkMode?: boolean;
+  autoDensity?: boolean;
+  antialias?: boolean;
+  resizeTo?: HTMLElement;
 }
 
 export class ChartModel<T extends ChartOptions> extends Model<T> {
@@ -14,6 +17,8 @@ export class ChartModel<T extends ChartOptions> extends Model<T> {
     backgroundColor: "transparent",
     devicePixelRatio: window.devicePixelRatio,
     darkMode: false,
+    autoDensity: true,
+    antialias: true,
   };
 
   constructor(options?: T) {
