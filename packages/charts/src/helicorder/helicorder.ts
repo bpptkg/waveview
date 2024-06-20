@@ -479,6 +479,7 @@ export class Helicorder
     this._mask.rect(rect.x, rect.y, rect.width, rect.height).fill({
       color: "0xfff",
     });
+    this.app.stage.hitArea = new PIXI.Rectangle(0, 0, width, height);
     this.app.renderer.resize(width, height);
   }
 
