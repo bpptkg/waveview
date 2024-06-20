@@ -31,7 +31,7 @@ export interface HelicorderChartOptions extends ChartOptions {
   /**
    * Offset date of the helicorder chart.
    */
-  offsetDate: Date;
+  offsetDate: number;
   /**
    * Force center the signal in the helicorder chart.
    */
@@ -60,7 +60,7 @@ function getDefaultOptions(): HelicorderChartOptions {
     channelId: "",
     interval: 30,
     duration: 12,
-    offsetDate: new Date(),
+    offsetDate: Date.now(),
     forceCenter: true,
     useUTC: false,
     verticalScaling: "global",
@@ -84,9 +84,9 @@ export interface HelicorderChartType extends ChartType<HelicorderChartOptions> {
   shiftViewUp(): [number, number];
   shiftViewDown(): [number, number];
   shiftViewToNow(): void;
-  setOffsetDate(date: Date | number): void;
-  addEventMarker(value: Date, options?: Partial<EventMarkerOptions>): void;
-  removeEventMarker(value: Date): void;
+  setOffsetDate(date: number): void;
+  addEventMarker(value: number, options?: Partial<EventMarkerOptions>): void;
+  removeEventMarker(value: number): void;
   showVisibleMarkers(): void;
   hideVisibleMarkers(): void;
   selectTrack(index: number): void;
@@ -112,7 +112,7 @@ export interface HelicorderChartType extends ChartType<HelicorderChartOptions> {
 
 export interface HelicorderEventMap extends EventMap {
   channelChanged: (channel: Channel) => void;
-  offsetChanged: (offset: Date) => void;
+  offsetChanged: (offset: number) => void;
   amplitudeChanged: (range: [number, number]) => void;
   trackSelected: (index: number) => void;
   trackUnselected: () => void;
@@ -220,12 +220,11 @@ export class Helicorder
 
   shiftViewUp(): [number, number] {
     const { interval } = this.model.getOptions();
-    const offsetDate = new Date(
-      this.model.getOptions().offsetDate.getTime() - interval * ONE_MINUTE
-    );
+    const offsetDate =
+      this.model.getOptions().offsetDate - interval * ONE_MINUTE;
     this.setOffsetDate(offsetDate);
 
-    const trackIndex = this.getTrackIndexAtTime(offsetDate.getTime());
+    const trackIndex = this.getTrackIndexAtTime(offsetDate);
     const extent = this.getTrackExtentAt(trackIndex);
     this.emit("viewShiftedUp", extent);
     return extent;
@@ -233,49 +232,44 @@ export class Helicorder
 
   shiftViewDown(): [number, number] {
     const { interval } = this.model.getOptions();
-    const offsetDate = new Date(
-      this.model.getOptions().offsetDate.getTime() + interval * ONE_MINUTE
-    );
+    const offsetDate =
+      this.model.getOptions().offsetDate + interval * ONE_MINUTE;
     this.setOffsetDate(offsetDate);
 
-    const trackIndex = this.getTrackIndexAtTime(offsetDate.getTime());
+    const trackIndex = this.getTrackIndexAtTime(offsetDate);
     const extent = this.getTrackExtentAt(trackIndex);
     this.emit("viewShiftedDown", extent);
     return extent;
   }
 
   shiftViewToNow(): void {
-    const offsetDate = new Date();
+    const offsetDate = Date.now();
     this.setOffsetDate(offsetDate);
     this.emit("viewShiftedToNow");
   }
 
   shiftViewToTime(time: number): void {
-    const offsetDate = new Date(time);
-    this.setOffsetDate(offsetDate);
+    this.setOffsetDate(time);
     this.emit("viewShiftedToTime", time);
   }
 
-  setOffsetDate(date: Date | number): void {
-    if (typeof date === "number") {
-      date = new Date(date);
-    }
-    this.model.mergeOptions({ offsetDate: date });
+  setOffsetDate(date: number): void {
+    this.model.mergeOptions({ offsetDate: date, forceCenter: false });
     this.emit("offsetChanged", date);
   }
 
-  addEventMarker(value: Date, options?: Partial<EventMarkerOptions>): void {
+  addEventMarker(value: number, options?: Partial<EventMarkerOptions>): void {
     const marker = new EventMarker(this._xAxis, this, {
-      value: value.getTime(),
+      value: value,
       ...options,
     });
     this._markers.push(marker);
     this.addComponent(marker);
   }
 
-  removeEventMarker(value: Date): void {
+  removeEventMarker(value: number): void {
     const index = this._markers.findIndex(
-      (marker) => marker.getValue() === value.getTime()
+      (marker) => marker.getValue() === value
     );
     if (index !== -1) {
       const marker = this._markers.splice(index, 1)[0];
@@ -423,15 +417,15 @@ export class Helicorder
     const endOf = (value: number) => value + segment - (value % segment);
 
     return [
-      startOf(offsetDate.getTime() - index * interval * ONE_MINUTE),
-      endOf(offsetDate.getTime() - index * interval * ONE_MINUTE),
+      startOf(offsetDate - index * interval * ONE_MINUTE),
+      endOf(offsetDate - index * interval * ONE_MINUTE),
     ];
   }
 
   getChartExtent(): [number, number] {
     const { duration, offsetDate } = this.model.getOptions();
-    const start = offsetDate.getTime() - duration * ONE_HOUR;
-    const end = offsetDate.getTime();
+    const start = offsetDate - duration * ONE_HOUR;
+    const end = offsetDate;
     return [start, end];
   }
 
@@ -445,7 +439,7 @@ export class Helicorder
     const { interval, offsetDate } = this.model.getOptions();
     const segment = interval * ONE_MINUTE;
     const endOf = (value: number) => value + segment - (value % segment);
-    const end = endOf(offsetDate.getTime());
+    const end = endOf(offsetDate);
     const diff = end - time;
     return Math.floor(diff / segment);
   }
