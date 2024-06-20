@@ -11,8 +11,9 @@ const HelpIcon = ChatHelp24Regular;
 function App() {
   const navigate = useNavigate();
   return (
-    <div className="flex flex-col min-h-screen bg-neutral-grey-94">
+    <div className="bg-neutral-grey-94 flex flex-col min-h-screen">
       <Header />
+
       <div className="flex flex-grow">
         <AppBar>
           <AppBarTab
@@ -34,7 +35,8 @@ function App() {
             Help
           </AppBarTab>
         </AppBar>
-        <div className="w-full bg-neutral-grey-98">
+
+        <div className="bg-neutral-grey-98 flex flex-col flex-grow relative">
           <Outlet />
         </div>
       </div>

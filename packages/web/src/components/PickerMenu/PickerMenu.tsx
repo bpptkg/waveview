@@ -5,9 +5,13 @@ import NavigationMenu from './NavigationMenu';
 import SignalMenu from './SignalMenu';
 import ViewMenu from './ViewMenu';
 
+export interface PickerMenuProps {
+  className?: string;
+}
+
 const PickerMenu = () => {
   return (
-    <div className="flex items-center justify-between h-[32px]">
+    <div className="flex items-center justify-between h-[32px] relative">
       <div className="flex items-center justify-start">
         <FileMenu />
         <ViewMenu />
