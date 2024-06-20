@@ -15,7 +15,6 @@ export class ChartModel<T extends ChartOptions> extends Model<T> {
 
   static defaultOptions: ChartOptions = {
     backgroundColor: "transparent",
-    devicePixelRatio: window.devicePixelRatio,
     darkMode: false,
     autoDensity: true,
     antialias: true,

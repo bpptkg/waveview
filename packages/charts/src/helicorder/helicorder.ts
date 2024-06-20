@@ -474,6 +474,11 @@ export class Helicorder
       track.setRect(this.getRectForTrack(i, this.getTrackCount()));
     }
     this._selection.setRect(this._xAxis.getRect());
+    const rect = this._grid.getRect();
+    this._mask.clear();
+    this._mask.rect(rect.x, rect.y, rect.width, rect.height).fill({
+      color: "0xfff",
+    });
     this.app.renderer.resize(width, height);
   }
 
@@ -496,7 +501,7 @@ export class Helicorder
     const rect = this.getRectForTrack(index, trackCount);
     const yAxis = new Axis(rect, { position: "left" });
     yAxis.setExtent(this.getYExtent());
-    const track = new Track(rect, this.getXAxis(), yAxis, this);
+    const track = new Track(rect, this._xAxis, yAxis, this);
     return track;
   }
 

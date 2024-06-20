@@ -49,7 +49,8 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
   protected _rect: LayoutRect;
   protected _views: RenderableGroup[] = [];
   protected _isFocused = false;
-  private _currentTheme: ThemeStyle = lightTheme;
+  protected _mask = new PIXI.Graphics();
+  protected _currentTheme: ThemeStyle = lightTheme;
 
   readonly dom: HTMLCanvasElement;
   readonly app: PIXI.Application = new PIXI.Application();
@@ -108,13 +109,12 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
     );
 
     const rect = this.getGrid().getRect();
-    const mask = new PIXI.Graphics();
-    mask.rect(rect.x, rect.y, rect.width, rect.height).fill({
+    this._mask.rect(rect.x, rect.y, rect.width, rect.height).fill({
       color: "0xfff",
     });
-    this.app.stage.addChild(mask);
+    this.app.stage.addChild(this._mask);
     this.app.stage.addChild(this.content);
-    this.content.mask = mask;
+    this.content.mask = this._mask;
   }
 
   getRect(): LayoutRect {

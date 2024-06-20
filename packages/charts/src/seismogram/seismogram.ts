@@ -433,6 +433,11 @@ export class Seismogram
     this._xAxis.setRect(this._grid.getRect());
     this._axisPointer.setRect(this._grid.getRect());
     this.updateTracksRect();
+    const rect = this._grid.getRect();
+    this._mask.clear();
+    this._mask.rect(rect.x, rect.y, rect.width, rect.height).fill({
+      color: "0xfff",
+    });
     this.app.renderer.resize(width, height);
   }
 
