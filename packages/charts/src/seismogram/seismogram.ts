@@ -412,7 +412,9 @@ export class Seismogram
 
   override applyThemeStyles(): void {
     const theme = this.getTheme();
-
+    this.model.mergeOptions({
+      backgroundColor: theme.backgroundColor,
+    });
     this._grid.applyThemeStyle(theme);
     this._xAxis.applyThemeStyle(theme);
     for (const track of this._trackManager.tracks()) {
@@ -422,6 +424,16 @@ export class Seismogram
 
   override getGrid(): Grid {
     return this._grid;
+  }
+
+  override resize(width: number, height: number): void {
+    this._rect.width = width;
+    this._rect.height = height;
+    this._grid.setRect(this.getRect());
+    this._xAxis.setRect(this._grid.getRect());
+    this._axisPointer.setRect(this._grid.getRect());
+    this.updateTracksRect();
+    this.app.renderer.resize(width, height);
   }
 
   private getRectForTrack(index: number, count: number): LayoutRect {
