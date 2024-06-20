@@ -457,7 +457,7 @@ export class Seismogram
     yAxis.setExtent(this._yExtent);
 
     const track = new Track(rect, this._xAxis, yAxis, this, {
-      leftLabel: channel.id,
+      leftLabel: channel.label ?? channel.id,
     });
     this._trackManager.add(channel, track);
 
