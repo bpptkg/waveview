@@ -464,9 +464,24 @@ export class Helicorder
     return this._grid;
   }
 
+  override resize(width: number, height: number): void {
+    this._rect.width = width;
+    this._rect.height = height;
+    this._grid.setRect(this.getRect());
+    this._xAxis.setRect(this._grid.getRect());
+    for (let i = 0; i < this._tracks.length; i++) {
+      const track = this._tracks[i];
+      track.setRect(this.getRectForTrack(i, this.getTrackCount()));
+    }
+    this._selection.setRect(this._xAxis.getRect());
+    this.app.renderer.resize(width, height);
+  }
+
   override applyThemeStyles(): void {
     const theme = this.getTheme();
-
+    this.model.mergeOptions({
+      backgroundColor: theme.backgroundColor,
+    });
     this._xAxis.applyThemeStyle(theme);
     this._grid.applyThemeStyle(theme);
     this._footer.applyThemeStyle(theme);
