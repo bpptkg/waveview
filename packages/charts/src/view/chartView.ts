@@ -89,11 +89,12 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
     await this.app.init({
       canvas: this.dom,
       backgroundColor: options.backgroundColor,
-      antialias: true,
-      autoDensity: true,
-      resolution: devicePixelRatio,
+      antialias: options.antialias,
+      autoDensity: options.autoDensity,
+      resolution: options.devicePixelRatio,
       width: this.dom.width,
       height: this.dom.height,
+      resizeTo: options.resizeTo,
     });
 
     this.app.stage.addChild(this.group);
