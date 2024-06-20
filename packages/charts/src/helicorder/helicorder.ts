@@ -195,8 +195,8 @@ export class Helicorder
 
   increaseAmplitude(by: number): void {
     const [ymin, ymax] = this.getYExtent();
-    const dy = -(ymax - ymin) * by;
-    this._yExtent = [ymin + dy, ymax + dy];
+    const dy = (ymax - ymin) * by;
+    this._yExtent = [ymin + dy, ymax - dy];
 
     for (const track of this._tracks) {
       track.setYExtent(this._yExtent);
