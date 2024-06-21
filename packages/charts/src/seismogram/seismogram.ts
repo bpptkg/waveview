@@ -60,19 +60,19 @@ export interface SeismogramChartType extends ChartType<SeismogramChartOptions> {
   resetAmplitude(): void;
   scrollLeft(by: number): void;
   scrollRight(by: number): void;
-  scrollTo(date: Date): void;
+  scrollTo(date: number): void;
   scrollToNow(): void;
   zoomIn(center: number, by: number): void;
   zoomOut(center: number, by: number): void;
   getChannelCount(): number;
-  addLineMarker(value: Date, options?: Partial<LineMarkerOptions>): void;
-  removeLineMarker(value: Date): void;
+  addLineMarker(value: number, options?: Partial<LineMarkerOptions>): void;
+  removeLineMarker(value: number): void;
   addAreaMarker(
-    start: Date,
-    end: Date,
+    start: number,
+    end: number,
     options?: Partial<AreaMarkerOptions>
   ): void;
-  removeAreaMarker(start: Date, end: Date): void;
+  removeAreaMarker(start: number, end: number): void;
   showVisibleMarkers(): void;
   hideVisibleMarkers(): void;
   selectChannel(index: number): void;
@@ -203,26 +203,26 @@ export class Seismogram
   }
 
   addLineMarker(
-    value: Date,
+    value: number,
     options?: Partial<Omit<LineMarkerOptions, "value">>
   ): void {
-    this._xAxis.addLineMarker(value.getTime(), options || {});
+    this._xAxis.addLineMarker(value, options || {});
   }
 
-  removeLineMarker(value: Date): void {
-    this._xAxis.removeLineMarker(value.getTime());
+  removeLineMarker(value: number): void {
+    this._xAxis.removeLineMarker(value);
   }
 
   addAreaMarker(
-    start: Date,
-    end: Date,
+    start: number,
+    end: number,
     options?: Partial<Omit<AreaMarkerOptions, "start" | "end">>
   ): void {
-    this._xAxis.addAreaMarker(start.getTime(), end.getTime(), options || {});
+    this._xAxis.addAreaMarker(start, end, options || {});
   }
 
-  removeAreaMarker(start: Date, end: Date): void {
-    this._xAxis.removeAreaMarker(start.getTime(), end.getTime());
+  removeAreaMarker(start: number, end: number): void {
+    this._xAxis.removeAreaMarker(start, end);
   }
 
   showVisibleMarkers(): void {
@@ -304,8 +304,8 @@ export class Seismogram
     this._xAxis.scrollRight(by);
   }
 
-  scrollTo(date: Date): void {
-    this._xAxis.scrollTo(date.getTime());
+  scrollTo(date: number): void {
+    this._xAxis.scrollTo(date);
   }
 
   scrollToNow(): void {
