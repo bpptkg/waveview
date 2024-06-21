@@ -1,23 +1,43 @@
-import { Helicorder } from '@waveview/charts';
-import React, { useEffect, useRef } from 'react';
+import { Seismogram, SeismogramChartOptions } from '@waveview/charts';
+import React, { useEffect, useImperativeHandle, useRef } from 'react';
 import { debounce } from '../../shared/debounce';
 
-export interface HelicorderChartProps {
-  className?: string;
+export interface SeismogramChartProps {
+  channels?: string[];
+  initOptions?: Partial<SeismogramChartOptions>;
 }
 
-const HelicorderChart: React.FC<HelicorderChartProps> = () => {
-  const heliRef = useRef<HTMLCanvasElement>(null);
-  const chart = useRef<Helicorder | null>(null);
+export interface SeismogramChartRef {
+  scrollLeft: (by: number) => void;
+  scrollRight: (by: number) => void;
+}
+
+const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & React.RefAttributes<SeismogramChartRef>> = React.forwardRef((props, ref) => {
+  const { initOptions } = props;
+
+  const seisRef = useRef<HTMLCanvasElement>(null);
+  const chart = useRef<Seismogram | null>(null);
   const resizeObserver = useRef<ResizeObserver | null>(null);
   const initialResizeComplete = useRef<boolean>(false);
 
+  useImperativeHandle(ref, () => ({
+    scrollLeft: (by: number) => {
+      chart.current?.scrollLeft(by);
+      chart.current?.render();
+    },
+    scrollRight(by) {
+      chart.current?.scrollRight(by);
+      chart.current?.render();
+    },
+  }));
+
   useEffect(() => {
     async function init() {
-      if (heliRef.current) {
-        chart.current = new Helicorder(heliRef.current);
-        chart.current.setChannel({ id: 'VG.MEPAS.00.HHZ' });
-        chart.current.setTheme('light');
+      if (seisRef.current) {
+        chart.current = new Seismogram(seisRef.current, {
+          devicePixelRatio: window.devicePixelRatio,
+          ...initOptions,
+        });
         await chart.current.init();
         chart.current.refreshData();
         chart.current.render();
@@ -51,8 +71,8 @@ const HelicorderChart: React.FC<HelicorderChartProps> = () => {
 
     init().then(() => {
       resizeObserver.current = new ResizeObserver(handleResize);
-      if (heliRef.current) {
-        resizeObserver.current.observe(heliRef.current.parentElement!);
+      if (seisRef.current) {
+        resizeObserver.current.observe(seisRef.current.parentElement!);
       }
     });
 
@@ -60,13 +80,14 @@ const HelicorderChart: React.FC<HelicorderChartProps> = () => {
       chart.current?.dispose();
       resizeObserver.current?.disconnect();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <div className="absolute top-0 right-0 bottom-0 left-0">
-      <canvas ref={heliRef} />
+      <canvas ref={seisRef} />
     </div>
   );
-};
+});
 
-export default HelicorderChart;
+export default SeismogramChart;

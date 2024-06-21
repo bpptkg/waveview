@@ -22,7 +22,7 @@
   },
   "include": [
     "src"
-  ],
+, "src/node_modules/PickerContext.ts", "src/node_modules/PickerContextProvider.tsx"  ],
   "references": [
     {
       "path": "./tsconfig.node.json"

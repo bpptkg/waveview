@@ -1,5 +1,4 @@
-import { StreamRequestData, StreamResponseData, WorkerRequestData, WorkerResponseData } from '@waveview/charts/src/util/types';
-import { readStream } from '@waveview/charts/src/util/stream';
+import { StreamRequestData, StreamResponseData, WorkerRequestData, WorkerResponseData, readStream } from '@waveview/charts';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { WebSocketRequest } from '../types/websocket';
 
