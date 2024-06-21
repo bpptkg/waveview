@@ -78,28 +78,37 @@ const HelicorderWorkspace = () => {
       />
       <div className="flex-grow relative mt-1 flex h-full">
         <div className="relative w-1/3">
-          <HelicorderChart ref={heliChart} channelId={channelId} interval={interval} duration={duration} initOptions={{
-            grid: {
-              top: 30,
-              right: 80,
-              bottom: 25,
-              left: 80,
-            }
-          }} />
+          <HelicorderChart
+            ref={heliChart}
+            channelId={channelId}
+            interval={interval}
+            duration={duration}
+            initOptions={{
+              grid: {
+                top: 30,
+                right: 80,
+                bottom: 25,
+                left: 80,
+              },
+            }}
+          />
         </div>
         <div className="relative w-2/3 h-full flex flex-col">
           <div className="flex-1 relative">
-            <SeismogramChart ref={seisChart} initOptions={{
-              grid: {
-                top: 30,
-                right: 10,
-                bottom: 5,
-                left: 80,
-              }
-            }} />
+            <SeismogramChart
+              ref={seisChart}
+              initOptions={{
+                grid: {
+                  top: 30,
+                  right: 10,
+                  bottom: 5,
+                  left: 80,
+                },
+              }}
+            />
           </div>
           <div className=" bg-white dark:bg-black relative flex items-center justify-end gap-2 mr-2 h-[20px]">
-            <RealtimeClock />
+            <RealtimeClock useUTC={useUTC} />
             <span className="text-sm">{useUTC ? 'UTC' : timeZone}</span>
           </div>
         </div>

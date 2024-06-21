@@ -1,22 +1,27 @@
-import { Button, Menu, MenuItem, MenuList, MenuPopover, MenuTrigger } from '@fluentui/react-components';
+import { Button, Menu, MenuItem, MenuList, MenuPopover, MenuTrigger, makeStyles } from '@fluentui/react-components';
+
+const useStyles = makeStyles({
+  btn: {
+    minWidth: 'auto',
+  },
+});
 
 const FileMenu = () => {
+  const styles = useStyles();
   return (
-    <div>
-      <Menu>
-        <MenuTrigger>
-          <Button appearance="transparent" size="small">
-            File
-          </Button>
-        </MenuTrigger>
+    <Menu>
+      <MenuTrigger>
+        <Button appearance="transparent" size="small" className={styles.btn}>
+          File
+        </Button>
+      </MenuTrigger>
 
-        <MenuPopover>
-          <MenuList>
-            <MenuItem>Action</MenuItem>
-          </MenuList>
-        </MenuPopover>
-      </Menu>
-    </div>
+      <MenuPopover>
+        <MenuList>
+          <MenuItem>Action</MenuItem>
+        </MenuList>
+      </MenuPopover>
+    </Menu>
   );
 };
 

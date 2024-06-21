@@ -34,7 +34,7 @@ const pickerStore = create<PickerStore, [['zustand/devtools', never]]>(
     interval: 30,
     showEvent: true,
     offsetDate: Date.now(),
-    useUTC: true,
+    useUTC: false,
     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     setWorkspace: (workspace) => set({ workspace }),
     setChannelId: (channelId) => set({ channelId }),
