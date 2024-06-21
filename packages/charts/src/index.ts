@@ -40,6 +40,7 @@ export {
   SeismogramWebWorkerExtension,
 } from "./seismogram/webWorker";
 export { readStream } from "./util/stream";
+export { formatDate } from "./util/time";
 export type {
   AxisStyle,
   Extension,
