@@ -7,6 +7,7 @@ import { Grid } from "../grid/grid";
 import { GridOptions } from "../grid/gridModel";
 import { ChartOptions } from "../model/chartModel";
 import { Track } from "../track/track";
+import { TrackOptions } from "../track/trackModel";
 import { merge } from "../util/merge";
 import { ONE_HOUR, ONE_MINUTE, formatDate } from "../util/time";
 import { EventMap, LayoutRect, SeriesData } from "../util/types";
@@ -108,11 +109,15 @@ export interface HelicorderChartType extends ChartType<HelicorderChartOptions> {
   getChartExtent(): [number, number];
   getDataStore(): DataStore<SeriesData>;
   getTrackId(extent: [number, number]): string;
+  setInterval(interval: number): void;
+  setDuration(duration: number): void;
 }
 
 export interface HelicorderEventMap extends EventMap {
   channelChanged: (channel: Channel) => void;
   offsetChanged: (offset: number) => void;
+  intervalChanged: (interval: number) => void;
+  durationChanged: (duration: number) => void;
   amplitudeChanged: (range: [number, number]) => void;
   trackSelected: (index: number) => void;
   trackUnselected: () => void;
@@ -166,12 +171,13 @@ export class Helicorder
     this._xAxis.setExtent([0, opts.interval]);
     this.addComponent(this._xAxis);
 
-    const trackCount = this.getTrackCount();
-    for (let i = 0; i < trackCount; i++) {
-      const track = this.createTrack(i);
-      this._tracks.push(track);
-      this.addComponent(track);
-    }
+    // const trackCount = this.getTrackCount();
+    // for (let i = 0; i < trackCount; i++) {
+    //   const track = this.createTrack(i);
+    //   this._tracks.push(track);
+    //   this.addComponent(track);
+    // }
+    this.updateTracks();
 
     this._selection = new Selection(this._xAxis, this);
     this.addComponent(this._selection);
@@ -256,6 +262,17 @@ export class Helicorder
   setOffsetDate(date: number): void {
     this.model.mergeOptions({ offsetDate: date, forceCenter: false });
     this.emit("offsetChanged", date);
+  }
+
+  setInterval(interval: number): void {
+    this.model.mergeOptions({ interval });
+    this._xAxis.setExtent([0, interval]);
+    this.updateTracks();
+  }
+
+  setDuration(duration: number): void {
+    this.model.mergeOptions({ duration });
+    this.updateTracks();
   }
 
   addEventMarker(value: number, options?: Partial<EventMarkerOptions>): void {
@@ -347,15 +364,15 @@ export class Helicorder
       normFactor = Math.min(normFactor, factor);
     }
 
-    const isMidnight = (time: number) => {
-      const date = new Date(time);
-      return date.getHours() === 0 && date.getMinutes() === 0;
-    };
+    // const isMidnight = (time: number) => {
+    //   const date = new Date(time);
+    //   return date.getHours() === 0 && date.getMinutes() === 0;
+    // };
 
-    const isUTCMidnight = (time: number) => {
-      const date = new Date(time);
-      return date.getUTCHours() === 0 && date.getUTCMinutes() === 0;
-    };
+    // const isUTCMidnight = (time: number) => {
+    //   const date = new Date(time);
+    //   return date.getUTCHours() === 0 && date.getUTCMinutes() === 0;
+    // };
 
     for (let i = 0; i < this._tracks.length; i++) {
       const trackIndex = this.getTrackCount() - i - 1;
@@ -363,14 +380,14 @@ export class Helicorder
 
       const track = this._tracks[i];
       if (track) {
-        const formatStringLocal =
-          i === 0 || isMidnight(start) ? "{MM}-{dd} {HH}:{mm}" : "{HH}:{mm}";
-        const formatStringUTC =
-          i === 0 || isUTCMidnight(end) ? "{HH}:{mm} {MM}-{dd}" : "{HH}:{mm}";
+        // const formatStringLocal =
+        //   i === 0 || isMidnight(start) ? "{MM}-{dd} {HH}:{mm}" : "{HH}:{mm}";
+        // const formatStringUTC =
+        //   i === 0 || isUTCMidnight(end) ? "{HH}:{mm} {MM}-{dd}" : "{HH}:{mm}";
 
-        const leftLabel = formatDate(start, formatStringLocal, false);
-        const rightLabel = formatDate(end, formatStringUTC, true);
-        track.getModel().mergeOptions({ leftLabel, rightLabel });
+        // const leftLabel = formatDate(start, formatStringLocal, false);
+        // const rightLabel = formatDate(end, formatStringUTC, true);
+        // track.getModel().mergeOptions({ leftLabel, rightLabel });
 
         const data = this.getTrackData(start, end);
         const norm = data.scalarDivide(normFactor);
@@ -491,12 +508,12 @@ export class Helicorder
     }
   }
 
-  private createTrack(index: number): Track {
+  private createTrack(index: number, options?: Partial<TrackOptions>): Track {
     const trackCount = this.getTrackCount();
     const rect = this.getRectForTrack(index, trackCount);
     const yAxis = new Axis(rect, { position: "left" });
     yAxis.setExtent(this.getYExtent());
-    const track = new Track(rect, this._xAxis, yAxis, this);
+    const track = new Track(rect, this._xAxis, yAxis, this, options);
     return track;
   }
 
@@ -511,5 +528,73 @@ export class Helicorder
     const trackY = y + index * trackHeight;
 
     return new PIXI.Rectangle(x, trackY, width, trackHeight);
+  }
+
+  private updateTracks(): void {
+    const requiredTrackCount = this.getTrackCount();
+    const currentTrackCount = this._tracks.length;
+    const repeat = Math.max(Math.ceil(requiredTrackCount / 25), 1);
+
+    if (requiredTrackCount <= currentTrackCount) {
+      this._tracks.slice(0, requiredTrackCount).forEach((track, index) => {
+        track.setRect(this.getRectForTrack(index, requiredTrackCount));
+      });
+      this._tracks
+        .slice(requiredTrackCount)
+        .forEach((track) => this.removeTrack(track));
+    } else {
+      this._tracks.forEach((track, index) => {
+        track.setRect(this.getRectForTrack(index, requiredTrackCount));
+      });
+      for (let i = currentTrackCount; i < requiredTrackCount; i++) {
+        const track = this.createTrack(i);
+        this._tracks.push(track);
+        this.addComponent(track);
+      }
+    }
+
+    const isMidnight = (time: number) => {
+      const date = new Date(time);
+      return date.getHours() === 0 && date.getMinutes() === 0;
+    };
+
+    const isUTCMidnight = (time: number) => {
+      const date = new Date(time);
+      return date.getUTCHours() === 0 && date.getUTCMinutes() === 0;
+    };
+
+    const adjustLabel = (index: number, label: string): string => {
+      return index % repeat === 0 ? label : "";
+    };
+
+    for (let i = 0; i < this._tracks.length; i++) {
+      const trackIndex = this.getTrackCount() - i - 1;
+      const [start, end] = this.getTrackExtentAt(trackIndex);
+
+      const track = this._tracks[i];
+      if (track) {
+        const formatStringLocal = adjustLabel(
+          i,
+          i === 0 || isMidnight(start) ? "{MM}-{dd} {HH}:{mm}" : "{HH}:{mm}"
+        );
+        const formatStringUTC = adjustLabel(
+          i,
+          i === 0 || isUTCMidnight(end) ? "{HH}:{mm} {MM}-{dd}" : "{HH}:{mm}"
+        );
+
+        const leftLabel = formatDate(start, formatStringLocal, false);
+        const rightLabel = formatDate(end, formatStringUTC, true);
+        track.getModel().mergeOptions({ leftLabel, rightLabel });
+      }
+    }
+  }
+
+  private removeTrack(track: Track): void {
+    this.removeComponent(track);
+    const index = this._tracks.indexOf(track);
+    if (index !== -1) {
+      this._tracks.splice(index, 1);
+      track.dispose();
+    }
   }
 }

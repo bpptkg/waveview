@@ -83,6 +83,7 @@ export interface StreamResponseData {
 export interface RenderableGroup {
   group: PIXI.Container;
   render(): void;
+  dispose(): void;
 }
 
 export interface RefreshMode {

@@ -310,6 +310,15 @@ export class Axis extends View<AxisModel> {
     this._renderMarkers();
   }
 
+  override dispose(): void {
+    this._axisLine.destroy();
+    this._majorTicks.destroy();
+    this._minorTicks.destroy();
+    this._splitLine.destroy();
+    this._labels.forEach((label) => label.destroy());
+    this._markers.forEach((marker) => marker.dispose());
+  }
+
   private _renderMarkers(): void {
     for (const marker of this._markers) {
       marker.render();

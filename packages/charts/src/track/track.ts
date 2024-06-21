@@ -132,6 +132,14 @@ export class Track extends View<TrackModel> {
     this._renderHighlight();
   }
 
+  override dispose(): void {
+    this._series.dispose();
+    this._leftText.destroy();
+    this._rightText.destroy();
+    this._highlight.destroy();
+    this.group.destroy();
+  }
+
   private _renderHighlight(): void {
     this._highlight.clear();
 

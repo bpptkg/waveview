@@ -83,4 +83,11 @@ export class Footer implements RenderableGroup {
     this._timeInMinutes.position.set(x + width / 2, y + height + margin);
     this._utcTime.position.set(x + width + margin, y + height + margin);
   }
+
+  dispose(): void {
+    this._localTime.destroy();
+    this._timeInMinutes.destroy();
+    this._utcTime.destroy();
+    this.group.destroy();
+  }
 }

@@ -157,6 +157,13 @@ export class AxisPointer extends View<AxisPointerModel> {
         alignment: 0,
       });
   }
+
+  override dispose(): void {
+    this.detachEventListeners();
+    this._line.destroy();
+    this._label.destroy();
+    this._background.destroy();
+  }
 }
 
 export class AxisPointerExtension implements Extension<Seismogram> {

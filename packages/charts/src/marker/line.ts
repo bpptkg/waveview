@@ -93,6 +93,11 @@ export class LineMarker extends View<LineMarkerModel> {
     }
   }
 
+  override dispose(): void {
+    this._line.destroy();
+    this.group.destroy();
+  }
+
   private _renderVerticalLine(
     x: number,
     y: number,

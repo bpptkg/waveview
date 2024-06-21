@@ -61,4 +61,9 @@ export class Grid extends View<GridModel> {
         color: backgroundColor,
       });
   }
+
+  override dispose(): void {
+    this._graphics.destroy();
+    this.group.destroy();
+  }
 }

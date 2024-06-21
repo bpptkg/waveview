@@ -149,7 +149,10 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
 
   abstract resize(width: number, height: number): void;
 
-  override dispose(): void {
+  dispose(): void {
+    for (const view of this._views) {
+      view.dispose();
+    }
     this.app.destroy(true);
   }
 

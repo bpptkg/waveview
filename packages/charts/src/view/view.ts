@@ -22,9 +22,7 @@ export abstract class View<T extends Model = Model> {
 
   abstract render(): void;
 
-  dispose(): void {
-    this.group.destroy({ children: true });
-  }
+  abstract dispose(): void;
 
   addEventListener<K extends keyof EventMap>(event: K, fn: EventMap[K]): void {
     if (!this.listeners[event]) {

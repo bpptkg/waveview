@@ -101,4 +101,9 @@ export class LineSeries extends View<LineSeriesModel> {
       width,
     });
   }
+
+  override dispose(): void {
+    this._graphics.destroy();
+    this.group.destroy();
+  }
 }

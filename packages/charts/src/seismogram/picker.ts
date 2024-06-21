@@ -253,6 +253,16 @@ export class Picker extends View<PickerModel> {
       }
     }
   }
+
+  override dispose(): void {
+    this.chart.removeComponent(this);
+    this.detachEventListeners();
+    this._graphics.destroy();
+    this._label.destroy();
+    this._leftArrow.destroy();
+    this._rightArrow.destroy();
+    this._line.destroy();
+  }
 }
 
 export class PickerExtension implements Extension<Seismogram> {

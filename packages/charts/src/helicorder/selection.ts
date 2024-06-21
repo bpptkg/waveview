@@ -125,4 +125,9 @@ export class Selection extends View<SelectionModel> {
         alpha: opacity,
       });
   }
+
+  dispose(): void {
+    this._graphics.destroy();
+    this.group.destroy();
+  }
 }

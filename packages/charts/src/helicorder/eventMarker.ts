@@ -101,6 +101,11 @@ export class EventMarker extends View<EventMarkerModel> {
     this.axis.group.addChild(this.group);
   }
 
+  dispose(): void {
+    this._graphics.destroy();
+    this.group.destroy();
+  }
+
   private _renderVerticalLine(
     x: number,
     y: number,

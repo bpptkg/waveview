@@ -166,4 +166,10 @@ export class AreaMarker extends View<AreaMarkerModel> {
       this._head.visible = false;
     }
   }
+
+  dispose(): void {
+    this._head.destroy();
+    this._body.destroy();
+    this.group.destroy();
+  }
 }
