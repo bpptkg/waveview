@@ -360,31 +360,12 @@ export class Helicorder
       normFactor = Math.min(normFactor, factor);
     }
 
-    // const isMidnight = (time: number) => {
-    //   const date = new Date(time);
-    //   return date.getHours() === 0 && date.getMinutes() === 0;
-    // };
-
-    // const isUTCMidnight = (time: number) => {
-    //   const date = new Date(time);
-    //   return date.getUTCHours() === 0 && date.getUTCMinutes() === 0;
-    // };
-
     for (let i = 0; i < this._tracks.length; i++) {
       const trackIndex = this.getTrackCount() - i - 1;
       const [start, end] = this.getTrackExtentAt(trackIndex);
 
       const track = this._tracks[i];
       if (track) {
-        // const formatStringLocal =
-        //   i === 0 || isMidnight(start) ? "{MM}-{dd} {HH}:{mm}" : "{HH}:{mm}";
-        // const formatStringUTC =
-        //   i === 0 || isUTCMidnight(end) ? "{HH}:{mm} {MM}-{dd}" : "{HH}:{mm}";
-
-        // const leftLabel = formatDate(start, formatStringLocal, false);
-        // const rightLabel = formatDate(end, formatStringUTC, true);
-        // track.getModel().mergeOptions({ leftLabel, rightLabel });
-
         const data = this.getTrackData(start, end);
         const norm = data.scalarDivide(normFactor);
         norm.setIndex(
