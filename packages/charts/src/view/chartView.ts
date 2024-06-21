@@ -52,6 +52,7 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
   protected _isFocused = false;
   protected _mask = new PIXI.Graphics();
   protected _currentTheme: ThemeStyle = lightTheme;
+  protected _extensions: Extension<ChartType<T>>[] = [];
 
   readonly uid: number = uid();
   readonly dom: HTMLCanvasElement;
@@ -152,13 +153,26 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
   abstract resize(width: number, height: number): void;
 
   dispose(): void {
+    // Dispose all views
     for (const view of this._views) {
       view.dispose();
     }
+    this._views = [];
+    this._mask.destroy({ children: true });
+
+    // Dispose all extensions
+    for (const extension of this._extensions) {
+      extension.uninstall(this);
+    }
+    this._extensions = [];
+
+    // Remove all event listeners
+    this.removeAllEventListeners();
+
+    // Destroy PIXI objects
     this.group.destroy({ children: true });
     this.content.destroy({ children: true });
     this.app.destroy(true);
-    this.removeAllEventListeners();
   }
 
   toDataURL(type?: string, quality?: number): string {
@@ -179,6 +193,7 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
 
   use(extension: Extension<ChartView<T>>): void {
     extension.install(this);
+    this._extensions.push(extension);
   }
 
   setTheme(theme: ThemeMode): void {

@@ -10,14 +10,36 @@ import {
 } from "../util/types";
 import { Seismogram } from "./seismogram";
 
+export interface SeismogramWebWorkerOptions {
+  /**
+   * The threshold in minutes to determine the resample mode.
+   */
+  threshold: number;
+  /**
+   * The maximum number of points to fetch.
+   */
+  maxPoints: number;
+}
+
 export class SeismogramWebWorker {
   private worker: Worker;
   private chart: Seismogram;
+  private options: SeismogramWebWorkerOptions;
 
-  constructor(chart: Seismogram, worker: Worker) {
+  constructor(
+    chart: Seismogram,
+    worker: Worker,
+    options?: Partial<SeismogramWebWorkerOptions>
+  ) {
     this.worker = worker;
     this.worker.addEventListener("message", this.onMessage.bind(this));
     this.chart = chart;
+
+    this.options = {
+      threshold: 4,
+      maxPoints: 100 * 60 * 4,
+      ...options,
+    };
   }
 
   attachEventListeners(): void {
@@ -42,11 +64,11 @@ export class SeismogramWebWorker {
   }
 
   postRequestMessage(channelId: string, extent: [number, number]): void {
+    const { threshold, maxPoints } = this.options;
     const [start, end] = extent;
     const diffInMinutes = (end - start) / ONE_MINUTE;
-    const threshold = 3;
     const mode: ResampleMode =
-      diffInMinutes < threshold ? "max_points" : "match_width";
+      diffInMinutes < threshold ? "max_points" : "auto";
 
     const width = this.chart.getWidth();
     const msg: WorkerRequestData<StreamRequestData> = {
@@ -57,7 +79,7 @@ export class SeismogramWebWorker {
         end,
         width,
         mode,
-        maxPoints: 100 * 60 * 3,
+        maxPoints: maxPoints,
       },
     };
 
@@ -95,7 +117,8 @@ export class SeismogramWebWorker {
     this.worker.postMessage(data);
   }
 
-  destroy(): void {
+  dispose(): void {
+    this.detachEventListeners();
     this.worker.terminate();
   }
 }

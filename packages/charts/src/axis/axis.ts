@@ -187,8 +187,8 @@ export class Axis extends View<AxisModel> {
 
   zoomIn(center: number, factor: number): void {
     const [min, max] = this.getExtent();
-    const newMin = center - (center - min) * (1 + factor);
-    const newMax = center + (max - center) * (1 + factor);
+    const newMin = center - (center - min) * (1 - factor);
+    const newMax = center + (max - center) * (1 - factor);
     this.setExtent([newMin, newMax]);
   }
 

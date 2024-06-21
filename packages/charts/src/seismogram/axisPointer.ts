@@ -183,6 +183,7 @@ export class AxisPointerExtension implements Extension<Seismogram> {
     if (this.axisPointer) {
       this.axisPointer.detachEventListeners();
       chart.removeComponent(this.axisPointer);
+      this.axisPointer.dispose();
     }
   }
 

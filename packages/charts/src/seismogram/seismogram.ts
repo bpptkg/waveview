@@ -275,8 +275,8 @@ export class Seismogram
 
   increaseAmplitude(by: number): void {
     const [ymin, ymax] = this.getYExtent();
-    const dy = -(ymax - ymin) * by;
-    this._yExtent = [ymin + dy, ymax + dy];
+    const dy = (ymax - ymin) * by;
+    this._yExtent = [ymin + dy, ymax - dy];
 
     for (const track of this._trackManager.tracks()) {
       track.setYExtent(this._yExtent);

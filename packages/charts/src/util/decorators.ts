@@ -1,4 +1,4 @@
-export function debounce(delay: number): MethodDecorator {
+export function Debounce(delay: number): MethodDecorator {
   return function (
     _target: any,
     _propertyKey: string | symbol,
