@@ -24,92 +24,91 @@ const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & Re
   const { channelId, interval, duration, initOptions } = props;
 
   const heliRef = useRef<HTMLCanvasElement>(null);
-  const chart = useRef<Helicorder | null>(null);
-  const resizeObserver = useRef<ResizeObserver | null>(null);
-  const initialResizeComplete = useRef<boolean>(false);
-  const webWorker = useRef<HelicorderWebWorkerExtension | null>(null);
-  const eventManager = useRef<HelicorderEventManagerExtension | null>(null);
-
-  const worker = new Worker(new URL('../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
+  const chartRef = useRef<Helicorder | null>(null);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
+  const initialResizeCompleteRef = useRef<boolean>(false);
+  const webWorkerRef = useRef<HelicorderWebWorkerExtension | null>(null);
+  const eventManagerRef = useRef<HelicorderEventManagerExtension | null>(null);
+  const workerRef = useRef<Worker>(new Worker(new URL('../../workers/stream.worker.ts', import.meta.url), { type: 'module' }));
 
   useImperativeHandle(ref, () => ({
     shiftViewUp: () => {
-      chart.current?.shiftViewUp();
+      chartRef.current?.shiftViewUp();
     },
     shiftViewDown: () => {
-      chart.current?.shiftViewDown();
+      chartRef.current?.shiftViewDown();
     },
     shiftViewToNow: () => {
-      chart.current?.shiftViewToNow();
+      chartRef.current?.shiftViewToNow();
     },
     increaseAmplitude: (by: number) => {
-      chart.current?.increaseAmplitude(by);
-      chart.current?.render();
+      chartRef.current?.increaseAmplitude(by);
+      chartRef.current?.render();
     },
     decreaseAmplitude: (by: number) => {
-      chart.current?.decreaseAmplitude(by);
-      chart.current?.render();
+      chartRef.current?.decreaseAmplitude(by);
+      chartRef.current?.render();
     },
     resetAmplitude: () => {
-      chart.current?.resetAmplitude();
-      chart.current?.render();
+      chartRef.current?.resetAmplitude();
+      chartRef.current?.render();
     },
     setInterval: (interval: number) => {
-      chart.current?.setInterval(interval);
-      chart.current?.refreshData();
-      chart.current?.render();
-      webWorker.current?.getInstance().fetchAllTracksData();
+      chartRef.current?.setInterval(interval);
+      chartRef.current?.refreshData();
+      chartRef.current?.render();
+      webWorkerRef.current?.getInstance().fetchAllTracksData();
     },
     setDuration: (duration: number) => {
-      chart.current?.setDuration(duration);
-      chart.current?.refreshData();
-      chart.current?.render();
-      webWorker.current?.getInstance().fetchAllTracksData();
+      chartRef.current?.setDuration(duration);
+      chartRef.current?.refreshData();
+      chartRef.current?.render();
+      webWorkerRef.current?.getInstance().fetchAllTracksData();
     },
   }));
 
   useEffect(() => {
     async function init() {
       if (heliRef.current) {
-        chart.current = new Helicorder(heliRef.current, {
+        chartRef.current = new Helicorder(heliRef.current, {
           channelId,
           interval,
           duration,
           devicePixelRatio: window.devicePixelRatio,
           ...initOptions,
         });
-        chart.current.setChannel({ id: 'VG.MEPAS.00.HHZ' });
-        chart.current.setTheme('light');
-        await chart.current.init();
-        chart.current.refreshData();
-        chart.current.render();
+        chartRef.current.setChannel({ id: 'VG.MEPAS.00.HHZ' });
+        chartRef.current.setTheme('light');
+        await chartRef.current.init();
+        chartRef.current.refreshData();
+        chartRef.current.render();
 
-        webWorker.current = new HelicorderWebWorkerExtension(worker);
-        eventManager.current = new HelicorderEventManagerExtension();
-        chart.current.use(webWorker.current);
-        chart.current.use(eventManager.current);
+        webWorkerRef.current = new HelicorderWebWorkerExtension(workerRef.current);
+        eventManagerRef.current = new HelicorderEventManagerExtension();
+        chartRef.current.use(webWorkerRef.current);
+        chartRef.current.use(eventManagerRef.current);
       }
     }
 
     const onResizeDebounced = debounce((entries: ResizeObserverEntry[]) => {
       for (const entry of entries) {
         const { width, height } = entry.contentRect;
-        chart.current?.resize(width, height);
-        chart.current?.render();
+        chartRef.current?.resize(width, height);
+        chartRef.current?.render();
       }
     }, 200);
 
     const onResize = (entries: ResizeObserverEntry[]) => {
       for (const entry of entries) {
         const { width, height } = entry.contentRect;
-        chart.current?.resize(width, height);
-        chart.current?.render();
+        chartRef.current?.resize(width, height);
+        chartRef.current?.render();
       }
     };
 
     const handleResize = (entries: ResizeObserverEntry[]) => {
-      if (!initialResizeComplete.current) {
-        initialResizeComplete.current = true;
+      if (!initialResizeCompleteRef.current) {
+        initialResizeCompleteRef.current = true;
         onResize(entries);
       } else {
         onResizeDebounced(entries);
@@ -118,19 +117,19 @@ const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & Re
 
     init()
       .then(() => {
-        resizeObserver.current = new ResizeObserver(handleResize);
+        resizeObserverRef.current = new ResizeObserver(handleResize);
         if (heliRef.current) {
-          resizeObserver.current.observe(heliRef.current.parentElement!);
+          resizeObserverRef.current.observe(heliRef.current.parentElement!);
         }
       })
       .finally(() => {
-        webWorker.current?.getInstance().fetchAllTracksData();
+        webWorkerRef.current?.getInstance().fetchAllTracksData();
       });
 
     return () => {
-      chart.current?.dispose();
-      resizeObserver.current?.disconnect();
-      webWorker.current?.dispose();
+      chartRef.current?.dispose();
+      resizeObserverRef.current?.disconnect();
+      webWorkerRef.current?.dispose();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

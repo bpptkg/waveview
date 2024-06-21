@@ -1,12 +1,9 @@
 import { formatDate } from '@waveview/charts';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { usePickerStore } from '../../stores/picker';
 
-export interface RealtimeClockProps {
-  useUTC?: boolean;
-}
-
-const RealtimeClock: React.FC<RealtimeClockProps> = (props) => {
-  const { useUTC = false } = props;
+const RealtimeClock = () => {
+  const { useUTC } = usePickerStore();
 
   const [time, setTime] = useState(new Date());
 
@@ -25,7 +22,7 @@ const RealtimeClock: React.FC<RealtimeClockProps> = (props) => {
     return formatDate(date, '{HH}:{mm}:{ss}', false);
   };
 
-  return <span className="text-sm">{useUTC ? formatUTC(time) : formatLocal(time)}</span>;
+  return <span className="text-xs">{useUTC ? formatUTC(time) : formatLocal(time)}</span>;
 };
 
 export default RealtimeClock;

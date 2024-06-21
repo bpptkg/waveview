@@ -57,7 +57,7 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
     channelId,
     interval = 30,
     duration = 12,
-    showEvent = true,
+    showEvent,
     onChannelChange,
     onDurationChange,
     onIntervalChange,

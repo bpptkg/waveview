@@ -14,6 +14,7 @@ import {
 import {
   Add20Regular,
   AutoFitHeight20Regular,
+  Calendar20Regular,
   ChevronDoubleRight20Regular,
   ChevronDownUp20Regular,
   ChevronLeft20Regular,
@@ -28,12 +29,14 @@ import ToolbarContextSwicher from './ToolbarContextSwicher';
 import React, { useCallback, useState } from 'react';
 
 export interface SeismogramToolbarProps {
+  showEvent?: boolean;
   onChannelAdd?: (channelId: string) => void;
   onZoomIn?: () => void;
   onZoomOut?: () => void;
   onScrollLeft?: () => void;
   onScrollRight?: () => void;
-  onScrollNow?: () => void;
+  onScrollToNow?: () => void;
+  onScrollToDate?: (date: number) => void;
   onIncreaseAmplitude?: () => void;
   onDecreaseAmplitude?: () => void;
   onResetAmplitude?: () => void;
@@ -50,12 +53,14 @@ const componentOptions = [
 
 const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
   const {
+    showEvent = true,
     onChannelAdd,
     onZoomIn,
     onZoomOut,
     onScrollLeft,
     onScrollRight,
-    onScrollNow,
+    onScrollToNow,
+    onScrollToDate,
     onIncreaseAmplitude,
     onDecreaseAmplitude,
     onResetAmplitude,
@@ -65,14 +70,12 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
   } = props;
 
   const [component, setComponent] = useState('Z');
-  const [showEvent, setShowEvent] = useState(false);
 
   const handleShowEventChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setShowEvent(event.target.checked);
-      onShowEventChange?.(event.target.checked);
+      onShowEventChange?.(event.currentTarget.checked);
     },
-    [setShowEvent, onShowEventChange]
+    [onShowEventChange]
   );
 
   const handleComponentChange = useCallback(
@@ -89,12 +92,12 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
         <ToolbarContextSwicher />
         <ToolbarDivider />
         <ToolbarButton aria-label="Add Channel" icon={<Add20Regular />} />
-        <ToolbarDivider />
         <ToolbarButton aria-label="Zoom In" icon={<ZoomIn20Regular />} onClick={onZoomIn} />
         <ToolbarButton aria-label="Zoom Out" icon={<ZoomOut20Regular />} onClick={onZoomOut} />
         <ToolbarButton aria-label="Scroll Left" icon={<ChevronLeft20Regular />} onClick={onScrollLeft} />
         <ToolbarButton aria-label="Scroll Right" icon={<ChevronRight20Regular />} onClick={onScrollRight} />
-        <ToolbarButton aria-label="Scroll to Now" icon={<ChevronDoubleRight20Regular />} onClick={onScrollNow} />
+        <ToolbarButton aria-label="Scroll to Now" icon={<ChevronDoubleRight20Regular />} onClick={onScrollToNow} />
+        <ToolbarButton aria-label="Scroll to Date" icon={<Calendar20Regular />} />
         <ToolbarButton aria-label="Increase Amplitude" icon={<ChevronUpDown20Regular />} onClick={onIncreaseAmplitude} />
         <ToolbarButton aria-label="Decrease Amplitude" icon={<ChevronDownUp20Regular />} onClick={onDecreaseAmplitude} />
         <ToolbarButton aria-label="Reset Amplitude" icon={<AutoFitHeight20Regular />} onClick={onResetAmplitude} />
@@ -110,7 +113,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
           <MenuPopover>
             <MenuList>
               {componentOptions.map((option) => (
-                <MenuItem key={option.value} onClick={() => handleComponentChange(options.value)}>
+                <MenuItem key={option.value} onClick={() => handleComponentChange(option.value)}>
                   {option.label}
                 </MenuItem>
               ))}

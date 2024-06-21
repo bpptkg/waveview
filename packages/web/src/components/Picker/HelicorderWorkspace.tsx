@@ -1,16 +1,16 @@
-import { Seismogram } from '@waveview/charts';
 import { useCallback, useRef } from 'react';
-import HelicorderToolbar from './Toolbar/HelicorderToolbar';
 import { usePickerStore } from '../../stores/picker';
 import HelicorderChart, { HelicorderChartRef } from './HelicorderChart';
-import SeismogramChart from './SeismogramChart';
 import RealtimeClock from './RealtimeClock';
+import SeismogramChart, { SeismogramChartRef } from './SeismogramChart';
+import TimeZoneSelector from './TimezoneSelector';
+import HelicorderToolbar from './Toolbar/HelicorderToolbar';
 
 const HelicorderWorkspace = () => {
   const heliChart = useRef<HelicorderChartRef | null>(null);
-  const seisChart = useRef<Seismogram | null>(null);
+  const seisChart = useRef<SeismogramChartRef | null>(null);
   const pickerStore = usePickerStore();
-  const { channelId, interval, duration, showEvent, useUTC, timeZone, setInterval, setDuration, setChannelId } = pickerStore;
+  const { channelId, interval, duration, showEvent, setInterval, setDuration, setChannelId, setShowEvent } = pickerStore;
 
   const handleShiftViewUp = useCallback(() => {
     heliChart.current?.shiftViewUp();
@@ -59,6 +59,18 @@ const HelicorderWorkspace = () => {
     [setDuration]
   );
 
+  const handleShowEventChange = useCallback(
+    (showEvent: boolean) => {
+      setShowEvent(showEvent);
+      if (showEvent) {
+        seisChart.current?.showVisibleMarkers();
+      } else {
+        seisChart.current?.hideVisibleMarkers();
+      }
+    },
+    [setShowEvent]
+  );
+
   return (
     <>
       <HelicorderToolbar
@@ -75,6 +87,7 @@ const HelicorderWorkspace = () => {
         onChannelChange={handleChannelChange}
         onIntervalChange={handleChangeInterval}
         onDurationChange={handleChangeDuration}
+        onShowEventChange={handleShowEventChange}
       />
       <div className="flex-grow relative mt-1 flex h-full">
         <div className="relative w-1/3">
@@ -108,8 +121,8 @@ const HelicorderWorkspace = () => {
             />
           </div>
           <div className=" bg-white dark:bg-black relative flex items-center justify-end gap-2 mr-2 h-[20px]">
-            <RealtimeClock useUTC={useUTC} />
-            <span className="text-sm">{useUTC ? 'UTC' : timeZone}</span>
+            <RealtimeClock />
+            <TimeZoneSelector />
           </div>
         </div>
       </div>
