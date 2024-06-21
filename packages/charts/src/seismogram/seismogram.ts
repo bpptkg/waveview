@@ -9,6 +9,7 @@ import { AreaMarkerOptions } from "../marker/area";
 import { LineMarkerOptions } from "../marker/line";
 import { ChartOptions } from "../model/chartModel";
 import { Track } from "../track/track";
+import { merge } from "../util/merge";
 import { EventMap, LayoutRect, SeriesData } from "../util/types";
 import { ChartType, ChartView } from "../view/chartView";
 import { AxisPointer } from "./axisPointer";
@@ -119,10 +120,10 @@ export class Seismogram
     dom: HTMLCanvasElement,
     options?: Partial<SeismogramChartOptions>
   ) {
-    const opts = Object.assign(
-      {},
-      getDefaultOptions(),
-      options || {}
+    const opts = merge(
+      Object.assign({}, getDefaultOptions()),
+      options || {},
+      true
     ) as SeismogramChartOptions;
     super(dom, opts);
 
@@ -157,6 +158,8 @@ export class Seismogram
 
     if (opts.darkMode) {
       this.setTheme("dark");
+    } else {
+      this.setTheme("light");
     }
   }
 

@@ -171,12 +171,6 @@ export class Helicorder
     this._xAxis.setExtent([0, opts.interval]);
     this.addComponent(this._xAxis);
 
-    // const trackCount = this.getTrackCount();
-    // for (let i = 0; i < trackCount; i++) {
-    //   const track = this.createTrack(i);
-    //   this._tracks.push(track);
-    //   this.addComponent(track);
-    // }
     this.updateTracks();
 
     this._selection = new Selection(this._xAxis, this);
@@ -187,6 +181,8 @@ export class Helicorder
 
     if (opts.darkMode) {
       this.setTheme("dark");
+    } else {
+      this.setTheme("light");
     }
   }
 
