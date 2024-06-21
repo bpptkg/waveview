@@ -131,32 +131,43 @@ export class HelicorderWebWorker {
 
     this.worker.postMessage(msg);
   }
+
+  dispose(): void {
+    this.detachEventListeners();
+    this.terminate();
+  }
 }
 
 export class HelicorderWebWorkerExtension implements Extension<Helicorder> {
   private worker: Worker;
-  private impl?: HelicorderWebWorker;
+  private instance?: HelicorderWebWorker;
 
   constructor(worker: Worker) {
     this.worker = worker;
   }
 
   install(chart: Helicorder): void {
-    this.impl = new HelicorderWebWorker(chart, this.worker);
-    this.impl.attachEventListeners();
+    this.instance = new HelicorderWebWorker(chart, this.worker);
+    this.instance.attachEventListeners();
   }
 
   uninstall(): void {
-    if (this.impl) {
-      this.impl.detachEventListeners();
-      this.impl.terminate();
+    if (this.instance) {
+      this.dispose();
     }
   }
 
   getInstance(): HelicorderWebWorker {
-    if (!this.impl) {
+    if (!this.instance) {
       throw new Error("HelicorderWebWorker extension is not installed");
     }
-    return this.impl;
+    return this.instance;
+  }
+
+  dispose(): void {
+    if (this.instance) {
+      this.instance.dispose();
+      this.instance = undefined;
+    }
   }
 }

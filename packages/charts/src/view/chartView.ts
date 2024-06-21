@@ -10,6 +10,7 @@ import {
   ThemeMode,
   ThemeStyle,
 } from "../util/types";
+import { uid } from "../util/uid";
 import { View } from "./view";
 
 export interface ChartType<T extends ChartOptions> {
@@ -52,6 +53,7 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
   protected _mask = new PIXI.Graphics();
   protected _currentTheme: ThemeStyle = lightTheme;
 
+  readonly uid: number = uid();
   readonly dom: HTMLCanvasElement;
   readonly app: PIXI.Application = new PIXI.Application();
   readonly content = new PIXI.Container();
@@ -156,6 +158,7 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
     this.group.destroy({ children: true });
     this.content.destroy({ children: true });
     this.app.destroy(true);
+    this.removeAllEventListeners();
   }
 
   toDataURL(type?: string, quality?: number): string {
