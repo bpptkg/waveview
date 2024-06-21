@@ -153,6 +153,8 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
     for (const view of this._views) {
       view.dispose();
     }
+    this.group.destroy({ children: true });
+    this.content.destroy({ children: true });
     this.app.destroy(true);
   }
 
