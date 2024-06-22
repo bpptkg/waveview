@@ -18,6 +18,7 @@ export interface HelicorderChartRef {
   resetAmplitude: () => void;
   setInterval: (interval: number) => void;
   setDuration: (duration: number) => void;
+  setTheme: (theme: 'light' | 'dark') => void;
 }
 
 const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & React.RefAttributes<HelicorderChartRef>> = React.forwardRef((props, ref) => {
@@ -65,6 +66,12 @@ const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & Re
       chartRef.current?.render();
       webWorkerRef.current?.getInstance().fetchAllTracksData();
     },
+    setTheme: (theme: 'light' | 'dark') => {
+      if (chartRef.current) {
+        chartRef.current.setTheme(theme);
+        chartRef.current.render();
+      }
+    },
   }));
 
   useEffect(() => {
@@ -77,8 +84,6 @@ const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & Re
           devicePixelRatio: window.devicePixelRatio,
           ...initOptions,
         });
-        chartRef.current.setChannel({ id: 'VG.MEPAS.00.HHZ' });
-        chartRef.current.setTheme('light');
         await chartRef.current.init();
         chartRef.current.refreshData();
         chartRef.current.render();

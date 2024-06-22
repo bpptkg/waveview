@@ -101,7 +101,7 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
   );
 
   return (
-    <div className="bg-white mx-2 drop-shadow rounded">
+    <div className="bg-white dark:bg-black mx-2 drop-shadow rounded">
       <Toolbar aria-label="Helicorder Toolbar">
         <ToolbarContextSwicher />
         <ToolbarDivider />

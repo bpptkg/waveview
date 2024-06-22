@@ -22,7 +22,7 @@ const RealtimeClock = () => {
     return formatDate(date, '{HH}:{mm}:{ss}', false);
   };
 
-  return <span className="text-xs">{useUTC ? formatUTC(time) : formatLocal(time)}</span>;
+  return <span className="text-xs dark:text-neutral-grey-84">{useUTC ? formatUTC(time) : formatLocal(time)}</span>;
 };
 
 export default RealtimeClock;

@@ -19,6 +19,7 @@ export interface SeismogramChartRef {
   showVisibleMarkers: () => void;
   hideVisibleMarkers: () => void;
   setExtent: (extent: [number, number]) => void;
+  setTheme: (theme: 'light' | 'dark') => void;
 }
 
 const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & React.RefAttributes<SeismogramChartRef>> = React.forwardRef((props, ref) => {
@@ -117,6 +118,12 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
         chartRef.current.getXAxis().setExtent(extent);
         chartRef.current.render();
         fetchDataDebounced();
+      }
+    },
+    setTheme: (theme: 'light' | 'dark') => {
+      if (chartRef.current) {
+        chartRef.current.setTheme(theme);
+        chartRef.current.render();
       }
     },
   }));

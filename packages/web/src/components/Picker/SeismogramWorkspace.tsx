@@ -1,4 +1,5 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
+import { useAppStore } from '../../stores/app';
 import { usePickerStore } from '../../stores/picker';
 import RealtimeClock from './RealtimeClock';
 import SeismogramChart, { SeismogramChartRef } from './SeismogramChart';
@@ -8,7 +9,9 @@ import SeismogramToolbar from './Toolbar/SeismogramToolbar';
 
 const SeismogramWorkspace = () => {
   const seisChart = useRef<SeismogramChartRef | null>(null);
+  const initialRenderCompleteRef = useRef<boolean>(false);
   const { showEvent, setShowEvent } = usePickerStore();
+  const { darkMode } = useAppStore();
 
   const handleZoomIn = useCallback(() => {
     seisChart.current?.zoomIn(0.05);
@@ -59,6 +62,19 @@ const SeismogramWorkspace = () => {
     seisChart.current?.setExtent([start, end]);
   }, []);
 
+  useEffect(() => {
+    if (!initialRenderCompleteRef.current) {
+      initialRenderCompleteRef.current = true;
+      return;
+    }
+
+    if (darkMode) {
+      seisChart.current?.setTheme('dark');
+    } else {
+      seisChart.current?.setTheme('light');
+    }
+  }, [darkMode]);
+
   return (
     <>
       <SeismogramToolbar
@@ -89,6 +105,7 @@ const SeismogramWorkspace = () => {
               bottom: 5,
               left: 80,
             },
+            darkMode,
           }}
         />
       </div>

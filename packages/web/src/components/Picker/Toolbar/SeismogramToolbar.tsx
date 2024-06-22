@@ -20,13 +20,14 @@ import {
   ChevronLeft20Regular,
   ChevronRight20Regular,
   ChevronUpDown20Regular,
+  FullScreenMaximizeRegular,
   MoreHorizontal24Filled,
   ZoomIn20Regular,
   ZoomOut20Regular,
 } from '@fluentui/react-icons';
+import React, { useCallback, useState } from 'react';
 import PickIcon from '../../Icons/PickIcon';
 import ToolbarContextSwicher from './ToolbarContextSwicher';
-import React, { useCallback, useState } from 'react';
 
 export interface SeismogramToolbarProps {
   showEvent?: boolean;
@@ -87,13 +88,14 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
   );
 
   return (
-    <div className="bg-white mx-2 drop-shadow rounded">
+    <div className="bg-white dark:bg-black mx-2 drop-shadow rounded">
       <Toolbar aria-label="Seismogram Toolbar">
         <ToolbarContextSwicher />
         <ToolbarDivider />
         <ToolbarButton aria-label="Add Channel" icon={<Add20Regular />} />
         <ToolbarButton aria-label="Zoom In" icon={<ZoomIn20Regular />} onClick={onZoomIn} />
         <ToolbarButton aria-label="Zoom Out" icon={<ZoomOut20Regular />} onClick={onZoomOut} />
+        <ToolbarToggleButton aria-label="Zoom Area" icon={<FullScreenMaximizeRegular />} name="zoomArea" value="zoomArea" appearance="subtle" />
         <ToolbarButton aria-label="Scroll Left" icon={<ChevronLeft20Regular />} onClick={onScrollLeft} />
         <ToolbarButton aria-label="Scroll Right" icon={<ChevronRight20Regular />} onClick={onScrollRight} />
         <ToolbarButton aria-label="Scroll to Now" icon={<ChevronDoubleRight20Regular />} onClick={onScrollToNow} />

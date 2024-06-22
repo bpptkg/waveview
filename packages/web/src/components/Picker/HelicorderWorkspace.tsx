@@ -1,4 +1,5 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
+import { useAppStore } from '../../stores/app';
 import { usePickerStore } from '../../stores/picker';
 import HelicorderChart, { HelicorderChartRef } from './HelicorderChart';
 import RealtimeClock from './RealtimeClock';
@@ -9,8 +10,12 @@ import HelicorderToolbar from './Toolbar/HelicorderToolbar';
 const HelicorderWorkspace = () => {
   const heliChart = useRef<HelicorderChartRef | null>(null);
   const seisChart = useRef<SeismogramChartRef | null>(null);
+  const initialRenderCompleteRef = useRef<boolean>(false);
+
   const pickerStore = usePickerStore();
   const { channelId, interval, duration, showEvent, setInterval, setDuration, setChannelId, setShowEvent } = pickerStore;
+
+  const { darkMode } = useAppStore();
 
   const handleShiftViewUp = useCallback(() => {
     heliChart.current?.shiftViewUp();
@@ -71,6 +76,21 @@ const HelicorderWorkspace = () => {
     [setShowEvent]
   );
 
+  useEffect(() => {
+    if (!initialRenderCompleteRef.current) {
+      initialRenderCompleteRef.current = true;
+      return;
+    }
+
+    if (darkMode) {
+      heliChart.current?.setTheme('dark');
+      seisChart.current?.setTheme('dark');
+    } else {
+      heliChart.current?.setTheme('light');
+      seisChart.current?.setTheme('light');
+    }
+  }, [darkMode]);
+
   return (
     <>
       <HelicorderToolbar
@@ -103,6 +123,8 @@ const HelicorderWorkspace = () => {
                 bottom: 25,
                 left: 80,
               },
+              channelId,
+              darkMode,
             }}
           />
         </div>
@@ -117,6 +139,7 @@ const HelicorderWorkspace = () => {
                   bottom: 5,
                   left: 80,
                 },
+                darkMode,
               }}
             />
           </div>

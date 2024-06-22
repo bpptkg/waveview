@@ -22,6 +22,7 @@ export interface PickerActions {
   setInterval: (interval: number) => void;
   setShowEvent: (showEvent: boolean) => void;
   setOffsetDate: (offsetDate: number) => void;
+  setUseUTC: (useUTC: boolean) => void;
 }
 
 export type PickerStore = PickerState & PickerActions;
@@ -42,6 +43,7 @@ const pickerStore = create<PickerStore, [['zustand/devtools', never]]>(
     setInterval: (interval) => set({ interval }),
     setShowEvent: (showEvent) => set({ showEvent }),
     setOffsetDate: (offsetDate) => set({ offsetDate }),
+    setUseUTC: (useUTC) => set({ useUTC }),
   }))
 );
 
