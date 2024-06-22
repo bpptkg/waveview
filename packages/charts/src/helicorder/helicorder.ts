@@ -6,6 +6,7 @@ import { DataStore } from "../data/dataStore";
 import { Grid } from "../grid/grid";
 import { GridOptions } from "../grid/gridModel";
 import { ChartOptions } from "../model/chartModel";
+import darkTheme from "../theme/dark";
 import { Track } from "../track/track";
 import { TrackOptions } from "../track/trackModel";
 import { merge } from "../util/merge";
@@ -180,10 +181,9 @@ export class Helicorder
     this.addComponent(this._footer);
 
     if (opts.darkMode) {
-      this.setTheme("dark");
-    } else {
-      this.setTheme("light");
+      this._currentTheme = darkTheme;
     }
+    this.applyComponentThemeStyles();
   }
 
   setChannel(channel: Channel): void {
@@ -471,7 +471,7 @@ export class Helicorder
     this.app.renderer.resize(width, height);
   }
 
-  override applyThemeStyles(): void {
+  private applyComponentThemeStyles(): void {
     const theme = this.getTheme();
     this.model.mergeOptions({
       backgroundColor: theme.backgroundColor,
@@ -483,6 +483,12 @@ export class Helicorder
     for (const track of this._tracks) {
       track.applyThemeStyle(theme);
     }
+  }
+
+  override applyThemeStyles(): void {
+    this.applyComponentThemeStyles();
+    const theme = this.getTheme();
+    this.app.renderer.background.color = theme.backgroundColor;
   }
 
   private createTrack(index: number, options?: Partial<TrackOptions>): Track {

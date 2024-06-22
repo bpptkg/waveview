@@ -8,6 +8,7 @@ import { GridOptions } from "../grid/gridModel";
 import { AreaMarkerOptions } from "../marker/area";
 import { LineMarkerOptions } from "../marker/line";
 import { ChartOptions } from "../model/chartModel";
+import darkTheme from "../theme/dark";
 import { Track } from "../track/track";
 import { merge } from "../util/merge";
 import { EventMap, LayoutRect, SeriesData } from "../util/types";
@@ -157,10 +158,9 @@ export class Seismogram
     }
 
     if (opts.darkMode) {
-      this.setTheme("dark");
-    } else {
-      this.setTheme("light");
+      this._currentTheme = darkTheme;
     }
+    this.applyComponentThemeStyles();
   }
 
   getChannels(): Channel[] {
@@ -413,7 +413,7 @@ export class Seismogram
     return this._dataStore;
   }
 
-  override applyThemeStyles(): void {
+  private applyComponentThemeStyles(): void {
     const theme = this.getTheme();
     this.model.mergeOptions({
       backgroundColor: theme.backgroundColor,
@@ -423,6 +423,12 @@ export class Seismogram
     for (const track of this._trackManager.tracks()) {
       track.applyThemeStyle(theme);
     }
+  }
+
+  override applyThemeStyles(): void {
+    this.applyComponentThemeStyles();
+    const theme = this.getTheme();
+    this.app.renderer.background.color = theme.backgroundColor;
   }
 
   override getGrid(): Grid {

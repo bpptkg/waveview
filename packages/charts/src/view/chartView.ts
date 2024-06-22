@@ -196,13 +196,20 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
     this._extensions.push(extension);
   }
 
-  setTheme(theme: ThemeMode): void {
-    this._currentTheme = theme === "light" ? lightTheme : darkTheme;
-    this.applyThemeStyles();
-  }
-
   getTheme(): ThemeStyle {
     return this._currentTheme;
+  }
+
+  setTheme(theme: ThemeMode): void {
+    switch (theme) {
+      case "light":
+        this._currentTheme = lightTheme;
+        break;
+      case "dark":
+        this._currentTheme = darkTheme;
+        break;
+    }
+    this.applyThemeStyles();
   }
 
   abstract applyThemeStyles(): void;
