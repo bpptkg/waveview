@@ -1,4 +1,4 @@
-import { AxisPointerExtension, Seismogram, SeismogramChartOptions, SeismogramWebWorker } from '@waveview/charts';
+import { AxisPointerExtension, Seismogram, SeismogramChartOptions, SeismogramWebWorker, ZoomRectangleExtension } from '@waveview/charts';
 import React, { useEffect, useImperativeHandle, useRef } from 'react';
 import { debounce } from '../../shared/debounce';
 
@@ -20,6 +20,8 @@ export interface SeismogramChartRef {
   hideVisibleMarkers: () => void;
   setExtent: (extent: [number, number]) => void;
   setTheme: (theme: 'light' | 'dark') => void;
+  activateZoomRectangle: () => void;
+  deactivateZoomRectangle: () => void;
 }
 
 const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & React.RefAttributes<SeismogramChartRef>> = React.forwardRef((props, ref) => {
@@ -32,6 +34,7 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
 
   const workerRef = useRef<Worker>(new Worker(new URL('../../workers/stream.worker.ts', import.meta.url), { type: 'module' }));
   const webWorkerRef = useRef<SeismogramWebWorker | null>(null);
+  const zoomRectangleExtensionRef = useRef<ZoomRectangleExtension | null>(null);
 
   const fetchDataDebounced = debounce(() => {
     webWorkerRef.current?.fetchAllChannelsData();
@@ -126,7 +129,25 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
         chartRef.current.render();
       }
     },
+    activateZoomRectangle: () => {
+      if (zoomRectangleExtensionRef.current) {
+        zoomRectangleExtensionRef.current.activate();
+      }
+    },
+    deactivateZoomRectangle: () => {
+      if (zoomRectangleExtensionRef.current) {
+        zoomRectangleExtensionRef.current.deactivate();
+      }
+    },
   }));
+
+  const handleZoomRectangle = (extent: [number, number]) => {
+    if (chartRef.current) {
+      chartRef.current.getXAxis().setExtent(extent);
+      chartRef.current.render();
+      fetchDataDebounced();
+    }
+  };
 
   useEffect(() => {
     async function init() {
@@ -141,7 +162,11 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
 
         webWorkerRef.current = new SeismogramWebWorker(chartRef.current, workerRef.current);
         const axisPointerExtension = new AxisPointerExtension();
+        zoomRectangleExtensionRef.current = new ZoomRectangleExtension();
         chartRef.current.use(axisPointerExtension);
+        chartRef.current.use(zoomRectangleExtensionRef.current);
+
+        zoomRectangleExtensionRef.current.getInstance().on('extentSelected', handleZoomRectangle);
       }
     }
 

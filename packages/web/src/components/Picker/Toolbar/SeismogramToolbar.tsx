@@ -9,6 +9,7 @@ import {
   Toolbar,
   ToolbarButton,
   ToolbarDivider,
+  ToolbarProps,
   ToolbarToggleButton,
 } from '@fluentui/react-components';
 import {
@@ -44,6 +45,7 @@ export interface SeismogramToolbarProps {
   onPickModeChange?: (active: boolean) => void;
   onComponentChange?: (component: string) => void;
   onShowEventChange?: (showEvent: boolean) => void;
+  onZoomRectangleChange?: (active: boolean) => void;
 }
 
 const componentOptions = [
@@ -68,9 +70,13 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
     onPickModeChange,
     onComponentChange,
     onShowEventChange,
+    onZoomRectangleChange,
   } = props;
 
   const [component, setComponent] = useState('Z');
+  const [checkedValues, setCheckedValues] = React.useState<Record<string, string[]>>({
+    options: [],
+  });
 
   const handleShowEventChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,15 +93,36 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
     [setComponent, onComponentChange]
   );
 
+  const handleCheckedValueChange = useCallback<NonNullable<ToolbarProps['onCheckedValueChange']>>(
+    (_e, { name, checkedItems }) => {
+      if (name === 'options') {
+        if (checkedItems.includes('pick')) {
+          onPickModeChange?.(true);
+        } else {
+          onPickModeChange?.(false);
+        }
+        if (checkedItems.includes('zoomRect')) {
+          onZoomRectangleChange?.(true);
+        } else {
+          onZoomRectangleChange?.(false);
+        }
+      }
+      setCheckedValues((s) => {
+        return s ? { ...s, [name]: checkedItems } : { [name]: checkedItems };
+      });
+    },
+    [onPickModeChange, onZoomRectangleChange]
+  );
+
   return (
     <div className="bg-white dark:bg-black mx-2 drop-shadow rounded">
-      <Toolbar aria-label="Seismogram Toolbar">
+      <Toolbar aria-label="Seismogram Toolbar" checkedValues={checkedValues} onCheckedValueChange={handleCheckedValueChange}>
         <ToolbarContextSwicher />
         <ToolbarDivider />
         <ToolbarButton aria-label="Add Channel" icon={<Add20Regular />} />
         <ToolbarButton aria-label="Zoom In" icon={<ZoomIn20Regular />} onClick={onZoomIn} />
         <ToolbarButton aria-label="Zoom Out" icon={<ZoomOut20Regular />} onClick={onZoomOut} />
-        <ToolbarToggleButton aria-label="Zoom Area" icon={<FullScreenMaximizeRegular />} name="zoomArea" value="zoomArea" appearance="subtle" />
+        <ToolbarToggleButton aria-label="Zoom Area" icon={<FullScreenMaximizeRegular />} name="options" value="zoomRect" appearance="subtle" />
         <ToolbarButton aria-label="Scroll Left" icon={<ChevronLeft20Regular />} onClick={onScrollLeft} />
         <ToolbarButton aria-label="Scroll Right" icon={<ChevronRight20Regular />} onClick={onScrollRight} />
         <ToolbarButton aria-label="Scroll to Now" icon={<ChevronDoubleRight20Regular />} onClick={onScrollToNow} />
@@ -104,7 +131,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
         <ToolbarButton aria-label="Decrease Amplitude" icon={<ChevronDownUp20Regular />} onClick={onDecreaseAmplitude} />
         <ToolbarButton aria-label="Reset Amplitude" icon={<AutoFitHeight20Regular />} onClick={onResetAmplitude} />
         <ToolbarDivider />
-        <ToolbarToggleButton aria-label="Pick mode" icon={<PickIcon />} name="pick" value="pick" appearance="subtle" />
+        <ToolbarToggleButton aria-label="Pick mode" icon={<PickIcon />} name="options" value="pick" appearance="subtle" />
         <Menu>
           <MenuTrigger>
             <MenuButton appearance="transparent" size="small" aria-label="Select Component">

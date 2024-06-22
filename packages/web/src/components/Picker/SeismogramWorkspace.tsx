@@ -62,6 +62,17 @@ const SeismogramWorkspace = () => {
     seisChart.current?.setExtent([start, end]);
   }, []);
 
+  const handleZoomRectangleChange = useCallback(
+    (active: boolean) => {
+      if (active) {
+        seisChart.current?.activateZoomRectangle();
+      } else {
+        seisChart.current?.deactivateZoomRectangle();
+      }
+    },
+    [seisChart]
+  );
+
   useEffect(() => {
     if (!initialRenderCompleteRef.current) {
       initialRenderCompleteRef.current = true;
@@ -88,6 +99,7 @@ const SeismogramWorkspace = () => {
         onDecreaseAmplitude={handleDecreaseAmplitude}
         onResetAmplitude={handleResetAmplitude}
         onShowEventChange={handleShowEvent}
+        onZoomRectangleChange={handleZoomRectangleChange}
       />
       <div className="flex-grow relative mt-1 flex h-full">
         <SeismogramChart
