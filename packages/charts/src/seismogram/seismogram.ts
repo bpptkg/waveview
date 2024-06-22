@@ -101,6 +101,7 @@ export interface SeismogramEventMap extends EventMap {
   trackSelected: (index: number) => void;
   trackUnselected: () => void;
   extentChanged: (extent: [number, number]) => void;
+  resize: (width: number, height: number) => void;
 }
 
 export class Seismogram
@@ -449,6 +450,7 @@ export class Seismogram
     });
     this.app.stage.hitArea = new PIXI.Rectangle(0, 0, width, height);
     this.app.renderer.resize(width, height);
+    this.emit("resize", width, height);
   }
 
   private getRectForTrack(index: number, count: number): LayoutRect {

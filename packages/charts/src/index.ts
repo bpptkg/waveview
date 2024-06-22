@@ -39,6 +39,11 @@ export {
   SeismogramWebWorker,
   SeismogramWebWorkerExtension,
 } from "./seismogram/webWorker";
+export {
+  ZoomRectangle,
+  ZoomRectangleExtension,
+} from "./seismogram/zoomRectangle";
+export type { ZoomRectangleOptions } from "./seismogram/zoomRectangle";
 export { readStream } from "./util/stream";
 export { formatDate } from "./util/time";
 export type {
