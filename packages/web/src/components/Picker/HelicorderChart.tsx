@@ -35,10 +35,10 @@ const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & Re
   const heliRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Helicorder | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
-  const initialResizeCompleteRef = useRef<boolean>(false);
+  const initialResizeCompleteRef = useRef<boolean | null>(null);
   const webWorkerRef = useRef<HelicorderWebWorkerExtension | null>(null);
   const eventManagerRef = useRef<HelicorderEventManagerExtension | null>(null);
-  const workerRef = useRef<Worker>(new Worker(new URL('../../workers/stream.worker.ts', import.meta.url), { type: 'module' }));
+  const workerRef = useRef<Worker | null>(null);
 
   const fetchDataDebounced = debounce(() => {
     webWorkerRef.current?.getInstance().fetchAllTracksData();
@@ -139,8 +139,10 @@ const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & Re
         chartRef.current.refreshData();
         chartRef.current.render();
 
+        workerRef.current = new Worker(new URL('../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
         webWorkerRef.current = new HelicorderWebWorkerExtension(workerRef.current);
         eventManagerRef.current = new HelicorderEventManagerExtension();
+
         chartRef.current.use(webWorkerRef.current);
         chartRef.current.use(eventManagerRef.current);
       }
@@ -185,7 +187,6 @@ const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & Re
     return () => {
       chartRef.current?.dispose();
       resizeObserverRef.current?.disconnect();
-      webWorkerRef.current?.dispose();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

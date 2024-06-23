@@ -42,9 +42,9 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
   const seisRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Seismogram | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
-  const initialResizeCompleteRef = useRef<boolean>(false);
+  const initialResizeCompleteRef = useRef<boolean | null>(null);
 
-  const workerRef = useRef<Worker>(new Worker(new URL('../../workers/stream.worker.ts', import.meta.url), { type: 'module' }));
+  const workerRef = useRef<Worker | null>(null);
   const webWorkerRef = useRef<SeismogramWebWorker | null>(null);
   const zoomRectangleExtensionRef = useRef<ZoomRectangleExtension | null>(null);
   const axisPointerExtensionRef = useRef<AxisPointerExtension | null>(null);
@@ -195,6 +195,7 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
         chartRef.current.refreshData();
         chartRef.current.render();
 
+        workerRef.current = new Worker(new URL('../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
         webWorkerRef.current = new SeismogramWebWorker(chartRef.current, workerRef.current);
         axisPointerExtensionRef.current = new AxisPointerExtension();
         eventManagerExtensionRef.current = new SeismogramEventManagerExtension({
@@ -247,12 +248,8 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
         webWorkerRef.current?.fetchAllChannelsData();
       });
 
-    const worker = workerRef.current;
-
     return () => {
       chartRef.current?.dispose();
-      webWorkerRef.current?.dispose();
-      worker.terminate();
       resizeObserverRef.current?.disconnect();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
