@@ -82,8 +82,17 @@ export class HelicorderEventManager implements EventManager {
     if (!this.enabled) {
       return;
     }
-    const position: Point = event.data.getLocalPosition(this.chart.app.stage);
-    const trackIndex = this.chart.getTrackIndexAtPosition(position.y);
+    const { x, y }: Point = event.data.getLocalPosition(this.chart.app.stage);
+    const rect = this.chart.getGrid().getRect();
+    if (
+      x < rect.x ||
+      x > rect.x + rect.width ||
+      y < rect.y ||
+      y > rect.y + rect.height
+    ) {
+      return;
+    }
+    const trackIndex = this.chart.getTrackIndexAtPosition(y);
     this.chart.selectTrack(trackIndex);
     this.chart.render();
   }
