@@ -8,8 +8,8 @@ import TimeZoneSelector from './TimezoneSelector';
 import HelicorderToolbar from './Toolbar/HelicorderToolbar';
 
 const HelicorderWorkspace = () => {
-  const heliChart = useRef<HelicorderChartRef | null>(null);
-  const seisChart = useRef<SeismogramChartRef | null>(null);
+  const heliChartRef = useRef<HelicorderChartRef | null>(null);
+  const seisChartRef = useRef<SeismogramChartRef | null>(null);
   const initialRenderCompleteRef = useRef<boolean>(false);
 
   const pickerStore = usePickerStore();
@@ -18,27 +18,27 @@ const HelicorderWorkspace = () => {
   const { darkMode } = useAppStore();
 
   const handleShiftViewUp = useCallback(() => {
-    heliChart.current?.shiftViewUp();
+    heliChartRef.current?.shiftViewUp();
   }, []);
 
   const handleShiftViewDown = useCallback(() => {
-    heliChart.current?.shiftViewDown();
+    heliChartRef.current?.shiftViewDown();
   }, []);
 
   const handleShiftViewToNow = useCallback(() => {
-    heliChart.current?.shiftViewToNow();
+    heliChartRef.current?.shiftViewToNow();
   }, []);
 
   const handleIncreaseAmplitude = useCallback(() => {
-    heliChart.current?.increaseAmplitude(0.05);
+    heliChartRef.current?.increaseAmplitude(0.05);
   }, []);
 
   const handleDecreaseAmplitude = useCallback(() => {
-    heliChart.current?.decreaseAmplitude(0.05);
+    heliChartRef.current?.decreaseAmplitude(0.05);
   }, []);
 
   const handleResetAmplitude = useCallback(() => {
-    heliChart.current?.resetAmplitude();
+    heliChartRef.current?.resetAmplitude();
   }, []);
 
   const handleChannelChange = useCallback(
@@ -51,7 +51,7 @@ const HelicorderWorkspace = () => {
   const handleChangeInterval = useCallback(
     (interval: number) => {
       setInterval(interval);
-      heliChart.current?.setInterval(interval);
+      heliChartRef.current?.setInterval(interval);
     },
     [setInterval]
   );
@@ -59,7 +59,7 @@ const HelicorderWorkspace = () => {
   const handleChangeDuration = useCallback(
     (duration: number) => {
       setDuration(duration);
-      heliChart.current?.setDuration(duration);
+      heliChartRef.current?.setDuration(duration);
     },
     [setDuration]
   );
@@ -68,9 +68,9 @@ const HelicorderWorkspace = () => {
     (showEvent: boolean) => {
       setShowEvent(showEvent);
       if (showEvent) {
-        seisChart.current?.showVisibleMarkers();
+        seisChartRef.current?.showVisibleMarkers();
       } else {
-        seisChart.current?.hideVisibleMarkers();
+        seisChartRef.current?.hideVisibleMarkers();
       }
     },
     [setShowEvent]
@@ -83,13 +83,24 @@ const HelicorderWorkspace = () => {
     }
 
     if (darkMode) {
-      heliChart.current?.setTheme('dark');
-      seisChart.current?.setTheme('dark');
+      heliChartRef.current?.setTheme('dark');
+      seisChartRef.current?.setTheme('dark');
     } else {
-      heliChart.current?.setTheme('light');
-      seisChart.current?.setTheme('light');
+      heliChartRef.current?.setTheme('light');
+      seisChartRef.current?.setTheme('light');
     }
   }, [darkMode]);
+
+  const handleTrackSelected = useCallback((trackId: number) => {
+    if (heliChartRef.current && seisChartRef.current) {
+      const extent = heliChartRef.current.getTrackExtent(trackId);
+      seisChartRef.current.setExtent(extent);
+    }
+  }, []);
+
+  const handleTrackDeselected = useCallback(() => {
+    // TODO
+  }, []);
 
   return (
     <>
@@ -112,7 +123,7 @@ const HelicorderWorkspace = () => {
       <div className="flex-grow relative mt-1 flex h-full">
         <div className="relative w-1/3">
           <HelicorderChart
-            ref={heliChart}
+            ref={heliChartRef}
             channelId={channelId}
             interval={interval}
             duration={duration}
@@ -126,13 +137,21 @@ const HelicorderWorkspace = () => {
               channelId,
               darkMode,
             }}
+            onTrackSelected={handleTrackSelected}
+            onTrackDeselected={handleTrackDeselected}
           />
         </div>
         <div className="relative w-2/3 h-full flex flex-col">
           <div className="flex-1 relative">
             <SeismogramChart
-              ref={seisChart}
+              ref={seisChartRef}
               initOptions={{
+                channels: [
+                  { id: 'VG.MEPAS.00.HHZ', label: 'VG.MEPAS' },
+                  { id: 'VG.MELAB.00.HHz', label: 'VG.MELAB' },
+                  { id: 'VG.MEPUS.00.HHz', label: 'VG.MEPUS' },
+                  { id: 'VG.MEPLA.00.HHz', label: 'VG.MEPLA' },
+                ],
                 grid: {
                   top: 30,
                   right: 10,

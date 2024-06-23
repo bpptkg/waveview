@@ -1,5 +1,5 @@
 import { Helicorder, HelicorderChartOptions, HelicorderEventManagerExtension, HelicorderWebWorkerExtension } from '@waveview/charts';
-import React, { useEffect, useImperativeHandle, useRef } from 'react';
+import React, { useCallback, useEffect, useImperativeHandle, useRef } from 'react';
 import { debounce } from '../../shared/debounce';
 
 export interface HelicorderChartProps {
@@ -7,6 +7,8 @@ export interface HelicorderChartProps {
   interval: number;
   duration: number;
   initOptions?: Partial<HelicorderChartOptions>;
+  onTrackSelected?: (trackId: number) => void;
+  onTrackDeselected?: (trackId: number) => void;
 }
 
 export interface HelicorderChartRef {
@@ -19,10 +21,11 @@ export interface HelicorderChartRef {
   setInterval: (interval: number) => void;
   setDuration: (duration: number) => void;
   setTheme: (theme: 'light' | 'dark') => void;
+  getTrackExtent: (trackId: number) => [number, number];
 }
 
 const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & React.RefAttributes<HelicorderChartRef>> = React.forwardRef((props, ref) => {
-  const { channelId, interval, duration, initOptions } = props;
+  const { channelId, interval, duration, initOptions, onTrackSelected, onTrackDeselected } = props;
 
   const heliRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Helicorder | null>(null);
@@ -72,7 +75,28 @@ const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & Re
         chartRef.current.render();
       }
     },
+    getTrackExtent: (trackId: number) => {
+      if (chartRef.current) {
+        return chartRef.current?.getTrackExtentAt(trackId);
+      } else {
+        return [0, 0];
+      }
+    },
   }));
+
+  const handleTrackSelected = useCallback(
+    (trackId: number) => {
+      onTrackSelected?.(trackId);
+    },
+    [onTrackSelected]
+  );
+
+  const handleTrackDeselected = useCallback(
+    (trackId: number) => {
+      onTrackDeselected?.(trackId);
+    },
+    [onTrackDeselected]
+  );
 
   useEffect(() => {
     async function init() {
@@ -85,6 +109,8 @@ const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & Re
           ...initOptions,
         });
         await chartRef.current.init();
+        chartRef.current.on('trackSelected', handleTrackSelected);
+        chartRef.current.on('trackDeselected', handleTrackDeselected);
         chartRef.current.refreshData();
         chartRef.current.render();
 

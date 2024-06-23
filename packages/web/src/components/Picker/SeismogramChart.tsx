@@ -127,6 +127,7 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
     },
     setExtent: (extent: [number, number]) => {
       if (chartRef.current) {
+        chartRef.current.clearData();
         chartRef.current.getXAxis().setExtent(extent);
         chartRef.current.render();
         fetchDataDebounced();

@@ -90,6 +90,7 @@ export interface SeismogramChartType extends ChartType<SeismogramChartOptions> {
   getTracks(): Track[];
   setChannelData(index: number, data: SeriesData): void;
   refreshData(): void;
+  clearData(): void;
   getDataStore(): DataStore<SeriesData>;
 }
 
@@ -369,6 +370,15 @@ export class Seismogram
       const data = this.getChannelData(i);
       const norm = data.scalarDivide(normFactor);
       track.getSeries().getModel().setData(norm);
+    }
+  }
+
+  clearData(): void {
+    this._dataStore.clear();
+
+    for (let i = 0; i < this._trackManager.count(); i++) {
+      const track = this._trackManager.getTrackByIndex(i);
+      track.getSeries().getModel().clearData();
     }
   }
 

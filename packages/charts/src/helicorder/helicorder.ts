@@ -92,7 +92,7 @@ export interface HelicorderChartType extends ChartType<HelicorderChartOptions> {
   showVisibleMarkers(): void;
   hideVisibleMarkers(): void;
   selectTrack(index: number): void;
-  unselectTrack(): void;
+  deselectTrack(): void;
   moveSelectionUp(): void;
   moveSelectionDown(): void;
   getTrackIndexAtPosition(y: number): number;
@@ -121,7 +121,7 @@ export interface HelicorderEventMap extends EventMap {
   durationChanged: (duration: number) => void;
   amplitudeChanged: (range: [number, number]) => void;
   trackSelected: (index: number) => void;
-  trackUnselected: () => void;
+  trackDeselected: () => void;
   viewShiftedUp: (range: [number, number]) => void;
   viewShiftedDown: (range: [number, number]) => void;
   viewShiftedToNow: () => void;
@@ -313,9 +313,9 @@ export class Helicorder
     this.emit("trackSelected", trackIndex);
   }
 
-  unselectTrack(): void {
+  deselectTrack(): void {
     this._selection.reset();
-    this.emit("trackUnselected");
+    this.emit("trackDeselected");
   }
 
   moveSelectionUp(): void {
