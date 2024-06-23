@@ -10,6 +10,8 @@ export interface SeismogramEventManagerConfig extends EventManagerConfig {
   enableArrowDown?: boolean;
   enableNKey?: boolean;
   enableWheel?: boolean;
+  refreshDataAfterEvent?: boolean;
+  fetchData?: () => void;
 }
 
 export class SeismogramEventManager implements EventManager {
@@ -60,7 +62,7 @@ export class SeismogramEventManager implements EventManager {
     this.chart.app.stage.off("wheel", this.onWheel.bind(this));
   }
 
-  onWheel(event: InteractionEvent): void {
+  private onWheel(event: InteractionEvent): void {
     if (!this.enabled) {
       return;
     }
@@ -69,7 +71,8 @@ export class SeismogramEventManager implements EventManager {
       return;
     }
 
-    const { deltaX, deltaY, shiftKey } = event.data.originalEvent as WheelEvent;
+    const { deltaX, deltaY, shiftKey, altKey } = event.data
+      .originalEvent as WheelEvent;
     const { x, y } = event.data.getLocalPosition(this.chart.app.stage);
     const { x: x0, y: y0, width, height } = this.chart.getGrid().getRect();
     if (x < x0 || x > x0 + width || y < y0 || y > y0 + height) {
@@ -79,9 +82,15 @@ export class SeismogramEventManager implements EventManager {
     const center = this.chart.getXAxis().getValueForPixel(x);
     if (shiftKey) {
       if (deltaY > 0 || deltaX > 0) {
-        this.chart.scrollRight(0.1);
+        this.chart.scrollRight(0.05);
       } else {
-        this.chart.scrollLeft(0.1);
+        this.chart.scrollLeft(0.05);
+      }
+    } else if (altKey) {
+      if (deltaY > 0) {
+        this.chart.decreaseAmplitude(0.05);
+      } else {
+        this.chart.increaseAmplitude(0.05);
       }
     } else {
       if (deltaY > 0) {
@@ -91,46 +100,59 @@ export class SeismogramEventManager implements EventManager {
       }
     }
     this.chart.render();
+    this.onFinished();
   }
 
-  onArrowLeft(): void {
+  private onArrowLeft(): void {
     if (this.config.enableArrowLeft === false) {
       return;
     }
     this.chart.scrollLeft(0.05);
     this.chart.render();
+    this.onFinished();
   }
 
-  onArrowRight(): void {
+  private onArrowRight(): void {
     if (this.config.enableArrowRight === false) {
       return;
     }
     this.chart.scrollRight(0.05);
     this.chart.render();
+    this.onFinished();
   }
 
-  onArrowUp(): void {
+  private onArrowUp(): void {
     if (this.config.enableArrowUp === false) {
       return;
     }
     this.chart.increaseAmplitude(0.05);
     this.chart.render();
+    this.onFinished();
   }
 
-  onArrowDown(): void {
+  private onArrowDown(): void {
     if (this.config.enableArrowDown === false) {
       return;
     }
     this.chart.decreaseAmplitude(0.05);
     this.chart.render();
+    this.onFinished();
   }
 
-  onNKey(): void {
+  private onNKey(): void {
     if (this.config.enableNKey === false) {
       return;
     }
     this.chart.scrollToNow();
     this.chart.render();
+    this.onFinished();
+  }
+
+  private onFinished(): void {
+    const { refreshDataAfterEvent, fetchData } = this.config;
+    if (refreshDataAfterEvent && fetchData) {
+      fetchData();
+    }
   }
 
   enable(): void {
