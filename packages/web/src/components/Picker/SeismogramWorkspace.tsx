@@ -8,69 +8,69 @@ import TimeZoneSelector from './TimezoneSelector';
 import SeismogramToolbar from './Toolbar/SeismogramToolbar';
 
 const SeismogramWorkspace = () => {
-  const seisChart = useRef<SeismogramChartRef | null>(null);
+  const seisChartRef = useRef<SeismogramChartRef | null>(null);
   const initialRenderCompleteRef = useRef<boolean>(false);
   const { showEvent, setShowEvent } = usePickerStore();
   const { darkMode } = useAppStore();
 
-  const handleZoomIn = useCallback(() => {
-    seisChart.current?.zoomIn(0.05);
+  const handleSeismogramZoomIn = useCallback(() => {
+    seisChartRef.current?.zoomIn(0.05);
   }, []);
 
-  const handleZoomOut = useCallback(() => {
-    seisChart.current?.zoomOut(0.05);
+  const handleSeismogramZoomOut = useCallback(() => {
+    seisChartRef.current?.zoomOut(0.05);
   }, []);
 
-  const handleScrollLeft = useCallback(() => {
-    seisChart.current?.scrollLeft(0.05);
+  const handleSeismogramScrollLeft = useCallback(() => {
+    seisChartRef.current?.scrollLeft(0.05);
   }, []);
 
-  const handleScrollRight = useCallback(() => {
-    seisChart.current?.scrollRight(0.05);
+  const handleSeismogramScrollRight = useCallback(() => {
+    seisChartRef.current?.scrollRight(0.05);
   }, []);
 
-  const handleScrollToNow = useCallback(() => {
-    seisChart.current?.scrollToNow();
+  const handleSeismogramScrollToNow = useCallback(() => {
+    seisChartRef.current?.scrollToNow();
   }, []);
 
-  const handleIncreaseAmplitude = useCallback(() => {
-    seisChart.current?.increaseAmplitude(0.05);
+  const handleSeismogramIncreaseAmplitude = useCallback(() => {
+    seisChartRef.current?.increaseAmplitude(0.05);
   }, []);
 
-  const handleDecreaseAmplitude = useCallback(() => {
-    seisChart.current?.decreaseAmplitude(0.05);
+  const handleSeismogramDecreaseAmplitude = useCallback(() => {
+    seisChartRef.current?.decreaseAmplitude(0.05);
   }, []);
 
-  const handleResetAmplitude = useCallback(() => {
-    seisChart.current?.resetAmplitude();
+  const handleSeismogramResetAmplitude = useCallback(() => {
+    seisChartRef.current?.resetAmplitude();
   }, []);
 
-  const handleShowEvent = useCallback(
+  const handleSeismogramShowEvent = useCallback(
     (showEvent: boolean) => {
       if (showEvent) {
-        seisChart.current?.showVisibleMarkers();
+        seisChartRef.current?.showVisibleMarkers();
         setShowEvent(true);
       } else {
-        seisChart.current?.hideVisibleMarkers();
+        seisChartRef.current?.hideVisibleMarkers();
         setShowEvent(false);
       }
     },
     [setShowEvent]
   );
 
-  const handleTimeRangeSelected = useCallback((start: number, end: number) => {
-    seisChart.current?.setExtent([start, end]);
+  const handleSeismogramTimeRangeSelected = useCallback((start: number, end: number) => {
+    seisChartRef.current?.setExtent([start, end]);
   }, []);
 
-  const handleZoomRectangleChange = useCallback(
+  const handleSeismogramZoomRectangleChange = useCallback(
     (active: boolean) => {
       if (active) {
-        seisChart.current?.activateZoomRectangle();
+        seisChartRef.current?.activateZoomRectangle();
       } else {
-        seisChart.current?.deactivateZoomRectangle();
+        seisChartRef.current?.deactivateZoomRectangle();
       }
     },
-    [seisChart]
+    [seisChartRef]
   );
 
   useEffect(() => {
@@ -80,34 +80,34 @@ const SeismogramWorkspace = () => {
     }
 
     if (darkMode) {
-      seisChart.current?.setTheme('dark');
+      seisChartRef.current?.setTheme('dark');
     } else {
-      seisChart.current?.setTheme('light');
+      seisChartRef.current?.setTheme('light');
     }
   }, [darkMode]);
 
   useEffect(() => {
-    seisChart.current?.focus();
+    seisChartRef.current?.focus();
   }, []);
 
   return (
     <>
       <SeismogramToolbar
         showEvent={showEvent}
-        onZoomIn={handleZoomIn}
-        onZoomOut={handleZoomOut}
-        onScrollLeft={handleScrollLeft}
-        onScrollRight={handleScrollRight}
-        onScrollToNow={handleScrollToNow}
-        onIncreaseAmplitude={handleIncreaseAmplitude}
-        onDecreaseAmplitude={handleDecreaseAmplitude}
-        onResetAmplitude={handleResetAmplitude}
-        onShowEventChange={handleShowEvent}
-        onZoomRectangleChange={handleZoomRectangleChange}
+        onZoomIn={handleSeismogramZoomIn}
+        onZoomOut={handleSeismogramZoomOut}
+        onScrollLeft={handleSeismogramScrollLeft}
+        onScrollRight={handleSeismogramScrollRight}
+        onScrollToNow={handleSeismogramScrollToNow}
+        onIncreaseAmplitude={handleSeismogramIncreaseAmplitude}
+        onDecreaseAmplitude={handleSeismogramDecreaseAmplitude}
+        onResetAmplitude={handleSeismogramResetAmplitude}
+        onShowEventChange={handleSeismogramShowEvent}
+        onZoomRectangleChange={handleSeismogramZoomRectangleChange}
       />
       <div className="flex-grow relative mt-1 flex h-full">
         <SeismogramChart
-          ref={seisChart}
+          ref={seisChartRef}
           initOptions={{
             channels: [
               { id: 'VG.MEPAS.00.HHZ', label: 'VG.MEPAS' },
@@ -127,7 +127,7 @@ const SeismogramWorkspace = () => {
       </div>
       <div className=" bg-white dark:bg-black">
         <div className="ml-[80px] flex items-center justify-between">
-          <TimeRangeSelector onSelected={handleTimeRangeSelected} />
+          <TimeRangeSelector onSelected={handleSeismogramTimeRangeSelected} />
           <div className="flex items-center gap-2 mr-2">
             <RealtimeClock />
             <TimeZoneSelector />
