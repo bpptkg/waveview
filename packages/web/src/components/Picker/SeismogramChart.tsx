@@ -250,6 +250,7 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
 
     return () => {
       chartRef.current?.dispose();
+      workerRef.current?.terminate();
       resizeObserverRef.current?.disconnect();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
