@@ -6,6 +6,7 @@ import RealtimeClock from './RealtimeClock';
 import SeismogramChart, { SeismogramChartRef } from './SeismogramChart';
 import TimeZoneSelector from './TimezoneSelector';
 import HelicorderToolbar from './Toolbar/HelicorderToolbar';
+import SeismogramToolbar from './Toolbar/SeismogramToolbar';
 
 const HelicorderWorkspace = () => {
   const heliChartRef = useRef<HelicorderChartRef | null>(null);
@@ -13,7 +14,7 @@ const HelicorderWorkspace = () => {
   const initialRenderCompleteRef = useRef<boolean>(false);
 
   const pickerStore = usePickerStore();
-  const { channelId, interval, duration, showEvent, setInterval, setDuration, setChannelId, setShowEvent } = pickerStore;
+  const { channelId, interval, duration, showEvent, selectedChart, setInterval, setDuration, setChannelId, setShowEvent, setSelectedChart } = pickerStore;
 
   const { darkMode } = useAppStore();
 
@@ -102,28 +103,51 @@ const HelicorderWorkspace = () => {
     // TODO
   }, []);
 
+  const handleHelicorderFocus = useCallback(() => {
+    seisChartRef.current?.blur();
+    setSelectedChart('helicorder');
+  }, [setSelectedChart]);
+
+  const handleHelicorderBlur = useCallback(() => {
+    // TODO
+  }, []);
+
+  const handleSeismogramFocus = useCallback(() => {
+    // TODO
+    heliChartRef.current?.blur();
+    setSelectedChart('seismogram');
+  }, [setSelectedChart]);
+
+  const handleSeismogramBlur = useCallback(() => {
+    // TODO
+  }, []);
+
   return (
     <>
-      <HelicorderToolbar
-        channelId={channelId}
-        interval={interval}
-        duration={duration}
-        showEvent={showEvent}
-        onShiftViewUp={handleShiftViewUp}
-        onShiftViewDown={handleShiftViewDown}
-        onShiftViewToNow={handleShiftViewToNow}
-        onIncreaseAmplitude={handleIncreaseAmplitude}
-        onDecreaseAmplitude={handleDecreaseAmplitude}
-        onResetAmplitude={handleResetAmplitude}
-        onChannelChange={handleChannelChange}
-        onIntervalChange={handleChangeInterval}
-        onDurationChange={handleChangeDuration}
-        onShowEventChange={handleShowEventChange}
-      />
+      {selectedChart === 'helicorder' && (
+        <HelicorderToolbar
+          channelId={channelId}
+          interval={interval}
+          duration={duration}
+          showEvent={showEvent}
+          onShiftViewUp={handleShiftViewUp}
+          onShiftViewDown={handleShiftViewDown}
+          onShiftViewToNow={handleShiftViewToNow}
+          onIncreaseAmplitude={handleIncreaseAmplitude}
+          onDecreaseAmplitude={handleDecreaseAmplitude}
+          onResetAmplitude={handleResetAmplitude}
+          onChannelChange={handleChannelChange}
+          onIntervalChange={handleChangeInterval}
+          onDurationChange={handleChangeDuration}
+          onShowEventChange={handleShowEventChange}
+        />
+      )}
+      {selectedChart === 'seismogram' && <SeismogramToolbar />}
       <div className="flex-grow relative mt-1 flex h-full">
         <div className="relative w-1/3">
           <HelicorderChart
             ref={heliChartRef}
+            className={selectedChart === 'helicorder' ? 'border border-brand-hosts-80' : 'border border-transparent'}
             channelId={channelId}
             interval={interval}
             duration={duration}
@@ -139,12 +163,15 @@ const HelicorderWorkspace = () => {
             }}
             onTrackSelected={handleTrackSelected}
             onTrackDeselected={handleTrackDeselected}
+            onFocused={handleHelicorderFocus}
+            onBlurred={handleHelicorderBlur}
           />
         </div>
         <div className="relative w-2/3 h-full flex flex-col">
           <div className="flex-1 relative">
             <SeismogramChart
               ref={seisChartRef}
+              className={selectedChart === 'seismogram' ? 'border border-brand-hosts-80' : 'border border-transparent'}
               initOptions={{
                 channels: [
                   { id: 'VG.MEPAS.00.HHZ', label: 'VG.MEPAS' },
@@ -160,6 +187,8 @@ const HelicorderWorkspace = () => {
                 },
                 darkMode,
               }}
+              onFocused={handleSeismogramFocus}
+              onBlurred={handleSeismogramBlur}
             />
           </div>
           <div className=" bg-white dark:bg-black relative flex items-center justify-end gap-2 mr-2 h-[20px]">

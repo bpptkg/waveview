@@ -6,11 +6,14 @@ import {
   SeismogramWebWorker,
   ZoomRectangleExtension,
 } from '@waveview/charts';
-import React, { useEffect, useImperativeHandle, useRef } from 'react';
+import React, { useCallback, useEffect, useImperativeHandle, useRef } from 'react';
 import { debounce } from '../../shared/debounce';
 
 export interface SeismogramChartProps {
   initOptions?: Partial<SeismogramChartOptions>;
+  className?: string;
+  onFocused?: () => void;
+  onBlurred?: () => void;
 }
 
 export interface SeismogramChartRef {
@@ -34,7 +37,7 @@ export interface SeismogramChartRef {
 }
 
 const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & React.RefAttributes<SeismogramChartRef>> = React.forwardRef((props, ref) => {
-  const { initOptions } = props;
+  const { initOptions, className, onFocused, onBlurred } = props;
 
   const seisRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Seismogram | null>(null);
@@ -44,6 +47,8 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
   const workerRef = useRef<Worker>(new Worker(new URL('../../workers/stream.worker.ts', import.meta.url), { type: 'module' }));
   const webWorkerRef = useRef<SeismogramWebWorker | null>(null);
   const zoomRectangleExtensionRef = useRef<ZoomRectangleExtension | null>(null);
+  const axisPointerExtensionRef = useRef<AxisPointerExtension | null>(null);
+  const eventManagerExtensionRef = useRef<SeismogramEventManagerExtension | null>(null);
 
   const fetchDataDebounced = debounce(() => {
     webWorkerRef.current?.fetchAllChannelsData();
@@ -169,6 +174,14 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
     }
   };
 
+  const handleFocus = useCallback(() => {
+    onFocused?.();
+  }, [onFocused]);
+
+  const handleBlur = useCallback(() => {
+    onBlurred?.();
+  }, [onBlurred]);
+
   useEffect(() => {
     async function init() {
       if (seisRef.current) {
@@ -177,20 +190,22 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
           ...initOptions,
         });
         await chartRef.current.init();
+        chartRef.current.on('focus', handleFocus);
+        chartRef.current.on('blur', handleBlur);
         chartRef.current.refreshData();
         chartRef.current.render();
 
         webWorkerRef.current = new SeismogramWebWorker(chartRef.current, workerRef.current);
-        const axisPointerExtension = new AxisPointerExtension();
-        const eventManagerExtension = new SeismogramEventManagerExtension({
+        axisPointerExtensionRef.current = new AxisPointerExtension();
+        eventManagerExtensionRef.current = new SeismogramEventManagerExtension({
           refreshDataAfterEvent: true,
           fetchData: fetchDataDebounced,
         });
         zoomRectangleExtensionRef.current = new ZoomRectangleExtension();
 
-        chartRef.current.use(axisPointerExtension);
+        chartRef.current.use(axisPointerExtensionRef.current);
         chartRef.current.use(zoomRectangleExtensionRef.current);
-        chartRef.current.use(eventManagerExtension);
+        chartRef.current.use(eventManagerExtensionRef.current);
 
         zoomRectangleExtensionRef.current.getInstance().on('extentSelected', handleZoomRectangle);
       }
@@ -244,7 +259,7 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
   }, []);
 
   return (
-    <div className="absolute top-0 right-0 bottom-0 left-0">
+    <div className={`absolute top-0 right-0 bottom-0 left-0 ${className ?? ''}`}>
       <canvas ref={seisRef} />
     </div>
   );
