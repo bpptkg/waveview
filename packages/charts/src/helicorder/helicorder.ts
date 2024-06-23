@@ -9,6 +9,7 @@ import { ChartOptions } from "../model/chartModel";
 import darkTheme from "../theme/dark";
 import { Track } from "../track/track";
 import { TrackOptions } from "../track/trackModel";
+import { almostEquals } from "../util/math";
 import { merge } from "../util/merge";
 import { ONE_HOUR, ONE_MINUTE, formatDate } from "../util/time";
 import { EventMap, LayoutRect, SeriesData } from "../util/types";
@@ -309,6 +310,11 @@ export class Helicorder
   selectTrack(index: number): void {
     const trackIndex = this.getTrackCount() - index - 1;
     const [start, end] = this.getTrackExtentAt(trackIndex);
+    const value = (start + end) / 2;
+    const prevValue = this._selection.getValue();
+    if (almostEquals(value, prevValue, 1)) {
+      return;
+    }
     this._selection.setValue((start + end) / 2);
     this.emit("trackSelected", trackIndex);
   }
