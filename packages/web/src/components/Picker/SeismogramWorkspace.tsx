@@ -86,6 +86,10 @@ const SeismogramWorkspace = () => {
     }
   }, [darkMode]);
 
+  useEffect(() => {
+    seisChart.current?.focus();
+  }, []);
+
   return (
     <>
       <SeismogramToolbar

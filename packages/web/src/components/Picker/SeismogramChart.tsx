@@ -1,4 +1,11 @@
-import { AxisPointerExtension, Seismogram, SeismogramChartOptions, SeismogramWebWorker, ZoomRectangleExtension } from '@waveview/charts';
+import {
+  AxisPointerExtension,
+  Seismogram,
+  SeismogramChartOptions,
+  SeismogramEventManagerExtension,
+  SeismogramWebWorker,
+  ZoomRectangleExtension,
+} from '@waveview/charts';
 import React, { useEffect, useImperativeHandle, useRef } from 'react';
 import { debounce } from '../../shared/debounce';
 
@@ -22,6 +29,8 @@ export interface SeismogramChartRef {
   setTheme: (theme: 'light' | 'dark') => void;
   activateZoomRectangle: () => void;
   deactivateZoomRectangle: () => void;
+  focus(): void;
+  blur(): void;
 }
 
 const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & React.RefAttributes<SeismogramChartRef>> = React.forwardRef((props, ref) => {
@@ -38,7 +47,7 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
 
   const fetchDataDebounced = debounce(() => {
     webWorkerRef.current?.fetchAllChannelsData();
-  }, 200);
+  }, 250);
 
   useImperativeHandle(ref, () => ({
     addChannel: (channelId: string) => {
@@ -139,6 +148,16 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
         zoomRectangleExtensionRef.current.deactivate();
       }
     },
+    focus: () => {
+      if (chartRef.current) {
+        chartRef.current.focus();
+      }
+    },
+    blur: () => {
+      if (chartRef.current) {
+        chartRef.current.blur();
+      }
+    },
   }));
 
   const handleZoomRectangle = (extent: [number, number]) => {
@@ -162,9 +181,15 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
 
         webWorkerRef.current = new SeismogramWebWorker(chartRef.current, workerRef.current);
         const axisPointerExtension = new AxisPointerExtension();
+        const eventManagerExtension = new SeismogramEventManagerExtension({
+          refreshDataAfterEvent: true,
+          fetchData: fetchDataDebounced,
+        });
         zoomRectangleExtensionRef.current = new ZoomRectangleExtension();
+
         chartRef.current.use(axisPointerExtension);
         chartRef.current.use(zoomRectangleExtensionRef.current);
+        chartRef.current.use(eventManagerExtension);
 
         zoomRectangleExtensionRef.current.getInstance().on('extentSelected', handleZoomRectangle);
       }
