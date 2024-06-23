@@ -18,11 +18,18 @@ export class SeismogramEventManager implements EventManager {
   private chart: Seismogram;
   private enabled: boolean;
   private config: SeismogramEventManagerConfig;
+  private handleKeyDownBound: (event: KeyboardEvent) => void;
+  private onWheelBound: (event: InteractionEvent) => void;
+  private onPointerDownBound: (event: InteractionEvent) => void;
 
   constructor(chart: Seismogram, config: SeismogramEventManagerConfig = {}) {
     this.chart = chart;
     this.enabled = true;
     this.config = config;
+
+    this.handleKeyDownBound = this.handleKeyDown.bind(this);
+    this.onWheelBound = this.onWheel.bind(this);
+    this.onPointerDownBound = this.onPointerDown.bind(this);
   }
 
   private handleKeyDown(event: KeyboardEvent): void {
@@ -53,13 +60,15 @@ export class SeismogramEventManager implements EventManager {
   }
 
   attachEventListeners(): void {
-    window.addEventListener("keydown", this.handleKeyDown.bind(this));
-    this.chart.app.stage.on("wheel", this.onWheel.bind(this));
+    window.addEventListener("keydown", this.handleKeyDownBound);
+    this.chart.app.stage.on("wheel", this.onWheelBound);
+    this.chart.app.stage.on("pointerdown", this.onPointerDownBound);
   }
 
   detachEventListeners(): void {
-    window.removeEventListener("keydown", this.handleKeyDown.bind(this));
-    this.chart.app.stage.off("wheel", this.onWheel.bind(this));
+    window.removeEventListener("keydown", this.handleKeyDownBound);
+    this.chart.app.stage.off("wheel", this.onWheelBound);
+    this.chart.app.stage.off("pointerdown", this.onPointerDownBound);
   }
 
   private onWheel(event: InteractionEvent): void {
@@ -155,12 +164,37 @@ export class SeismogramEventManager implements EventManager {
     }
   }
 
+  private onPointerDown(event: InteractionEvent): void {
+    if (!this.enabled) {
+      return;
+    }
+    this.handleFocusBlur(event);
+  }
+
+  private handleFocusBlur(event: InteractionEvent): void {
+    const { x, y } = event.data.getLocalPosition(this.chart.app.stage);
+    const rect = this.chart.getRect();
+    if (
+      x < rect.x ||
+      x > rect.x + rect.width ||
+      y < rect.y ||
+      y > rect.y + rect.height
+    ) {
+      return;
+    }
+    this.chart.focus();
+  }
+
   enable(): void {
     this.enabled = true;
   }
 
   disable(): void {
     this.enabled = false;
+  }
+
+  dispose(): void {
+    this.detachEventListeners();
   }
 }
 
@@ -179,7 +213,7 @@ export class SeismogramEventManagerExtension implements Extension<Seismogram> {
 
   uninstall(): void {
     if (this.instance) {
-      this.instance.detachEventListeners();
+      this.instance.dispose();
     }
   }
 

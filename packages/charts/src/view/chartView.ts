@@ -181,10 +181,12 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
 
   focus(): void {
     this._isFocused = true;
+    this.emit("focus");
   }
 
   blur(): void {
     this._isFocused = false;
+    this.emit("blur");
   }
 
   isFocused(): boolean {

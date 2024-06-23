@@ -127,6 +127,8 @@ export interface HelicorderEventMap extends EventMap {
   viewShiftedDown: (range: [number, number]) => void;
   viewShiftedToNow: () => void;
   viewShiftedToTime: (time: number) => void;
+  focus: () => void;
+  blur: () => void;
 }
 
 export function createTrackId(start: number, end: number): string {

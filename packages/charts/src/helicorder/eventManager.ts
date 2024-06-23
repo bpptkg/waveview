@@ -14,6 +14,8 @@ export class HelicorderEventManager implements EventManager {
   private chart: Helicorder;
   private enabled: boolean;
   private config: HelicorderEventManagerConfig;
+  private handleKeyDownBound: (event: KeyboardEvent) => void;
+  private onPointerDownBound: (event: InteractionEvent) => void;
 
   constructor(chart: Helicorder, config: HelicorderEventManagerConfig = {}) {
     this.chart = chart;
@@ -21,16 +23,18 @@ export class HelicorderEventManager implements EventManager {
     this.config = config;
 
     this.chart.app.stage.cursor = "pointer";
+    this.handleKeyDownBound = this.handleKeyDown.bind(this);
+    this.onPointerDownBound = this.onPointerDown.bind(this);
   }
 
   attachEventListeners(): void {
-    window.addEventListener("keydown", this.handleKeyDown.bind(this));
-    this.chart.app.stage.on("pointerdown", this.onPointerDown.bind(this));
+    window.addEventListener("keydown", this.handleKeyDownBound);
+    this.chart.app.stage.on("pointerdown", this.onPointerDownBound);
   }
 
   removeEventListeners(): void {
-    window.removeEventListener("keydown", this.handleKeyDown.bind(this));
-    this.chart.app.stage.off("pointerdown", this.onPointerDown.bind(this));
+    window.removeEventListener("keydown", this.handleKeyDownBound);
+    this.chart.app.stage.off("pointerdown", this.onPointerDownBound);
   }
 
   private handleKeyDown(event: KeyboardEvent): void {
@@ -54,7 +58,7 @@ export class HelicorderEventManager implements EventManager {
     }
   }
 
-  onArrowUp(): void {
+  private onArrowUp(): void {
     if (this.config.enableArrowUp === false) {
       return;
     }
@@ -62,7 +66,7 @@ export class HelicorderEventManager implements EventManager {
     this.chart.render();
   }
 
-  onArrowDown(): void {
+  private onArrowDown(): void {
     if (this.config.enableArrowDown === false) {
       return;
     }
@@ -70,7 +74,7 @@ export class HelicorderEventManager implements EventManager {
     this.chart.render();
   }
 
-  onNKey(): void {
+  private onNKey(): void {
     if (this.config.enableNKey === false) {
       return;
     }
@@ -78,10 +82,15 @@ export class HelicorderEventManager implements EventManager {
     this.chart.render();
   }
 
-  onPointerDown(event: InteractionEvent): void {
+  private onPointerDown(event: InteractionEvent): void {
     if (!this.enabled) {
       return;
     }
+    this.handleTrackSelected(event);
+    this.handleFocusBlur(event);
+  }
+
+  private handleTrackSelected(event: InteractionEvent): void {
     const { x, y }: Point = event.data.getLocalPosition(this.chart.app.stage);
     const rect = this.chart.getGrid().getRect();
     if (
@@ -95,6 +104,21 @@ export class HelicorderEventManager implements EventManager {
     const trackIndex = this.chart.getTrackIndexAtPosition(y);
     this.chart.selectTrack(trackIndex);
     this.chart.render();
+  }
+
+  private handleFocusBlur(event: InteractionEvent): void {
+    const { x, y }: Point = event.data.getLocalPosition(this.chart.app.stage);
+    const rect = this.chart.getRect();
+    if (
+      x < rect.x ||
+      x > rect.x + rect.width ||
+      y < rect.y ||
+      y > rect.y + rect.height
+    ) {
+      this.chart.blur();
+    } else {
+      this.chart.focus();
+    }
   }
 
   enable(): void {

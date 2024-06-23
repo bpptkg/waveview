@@ -103,6 +103,8 @@ export interface SeismogramEventMap extends EventMap {
   trackUnselected: () => void;
   extentChanged: (extent: [number, number]) => void;
   resize: (width: number, height: number) => void;
+  focus: () => void;
+  blur: () => void;
 }
 
 export class Seismogram
