@@ -42,6 +42,7 @@ export class AxisPointer extends View<AxisPointerModel> {
   private readonly _line: PIXI.Graphics;
   private readonly _label: PIXI.Text;
   private readonly _background: PIXI.Graphics;
+  private onPointerMoveBound: (event: InteractionEvent) => void;
 
   constructor(
     axis: Axis,
@@ -63,14 +64,16 @@ export class AxisPointer extends View<AxisPointerModel> {
     this.group.addChild(this._background);
     this.group.addChild(this._line);
     this.group.addChild(this._label);
+
+    this.onPointerMoveBound = this.onPointerMove.bind(this);
   }
 
   attachEventListeners(): void {
-    this.chart.app.stage.on("pointermove", this.onPointerMove.bind(this));
+    this.chart.app.stage.on("pointermove", this.onPointerMoveBound);
   }
 
   detachEventListeners(): void {
-    this.chart.app.stage.off("pointermove", this.onPointerMove.bind(this));
+    this.chart.app.stage.off("pointermove", this.onPointerMoveBound);
   }
 
   onPointerMove(event: InteractionEvent): void {

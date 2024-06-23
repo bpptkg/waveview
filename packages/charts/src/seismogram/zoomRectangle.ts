@@ -40,6 +40,10 @@ export class ZoomRectangle extends View<ZoomRectangleModel> {
   private _end: PIXI.Point = new PIXI.Point();
   private _isVisible: boolean = false;
 
+  private onPointerDownBound: (event: InteractionEvent) => void;
+  private onPointerMoveBound: (event: InteractionEvent) => void;
+  private onPointerUpBound: () => void;
+
   constructor(chart: Seismogram, options?: Partial<ZoomRectangleOptions>) {
     const model = new ZoomRectangleModel(options);
     super(model);
@@ -49,18 +53,22 @@ export class ZoomRectangle extends View<ZoomRectangleModel> {
 
     this.chart = chart;
     this._rect = chart.getGrid().getRect().clone();
+
+    this.onPointerDownBound = this.onPointerDown.bind(this);
+    this.onPointerMoveBound = this.onPointerMove.bind(this);
+    this.onPointerUpBound = this.onPointerUp.bind(this);
   }
 
   attachEventListeners(): void {
-    this.chart.app.stage.on("pointerdown", this.onPointerDown.bind(this));
-    this.chart.app.stage.on("pointermove", this.onPointerMove.bind(this));
-    this.chart.app.stage.on("pointerup", this.onPointerUp.bind(this));
+    this.chart.app.stage.on("pointerdown", this.onPointerDownBound);
+    this.chart.app.stage.on("pointermove", this.onPointerMoveBound);
+    this.chart.app.stage.on("pointerup", this.onPointerUpBound);
   }
 
   detachEventListeners(): void {
-    this.chart.app.stage.off("pointerdown", this.onPointerDown.bind(this));
-    this.chart.app.stage.off("pointermove", this.onPointerMove.bind(this));
-    this.chart.app.stage.off("pointerup", this.onPointerUp.bind(this));
+    this.chart.app.stage.off("pointerdown", this.onPointerDownBound);
+    this.chart.app.stage.off("pointermove", this.onPointerMoveBound);
+    this.chart.app.stage.off("pointerup", this.onPointerUpBound);
   }
 
   activate(): void {

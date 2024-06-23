@@ -58,6 +58,11 @@ export class Picker extends View<PickerModel> {
   private readonly _rightArrow: PIXI.Graphics;
   private readonly _line: PIXI.Graphics;
 
+  private handleKeyDownBound: (event: KeyboardEvent) => void;
+  private handlePointerDownBound: (event: InteractionEvent) => void;
+  private handlePointerMoveBound: (event: InteractionEvent) => void;
+  private handlePointerUpBound: (event: InteractionEvent) => void;
+
   constructor(chart: Seismogram, options?: Partial<PickerOptions>) {
     const model = new PickerModel(options);
     super(model);
@@ -77,20 +82,25 @@ export class Picker extends View<PickerModel> {
     this.group.addChild(this._leftArrow);
     this.group.addChild(this._rightArrow);
     this.group.addChild(this._line);
+
+    this.handleKeyDownBound = this.handleKeyDown.bind(this);
+    this.handlePointerDownBound = this.handlePointerDown.bind(this);
+    this.handlePointerMoveBound = this.handlePointerMove.bind(this);
+    this.handlePointerUpBound = this.handlePointerUp.bind(this);
   }
 
   attachEventListeners(): void {
-    window.addEventListener("keydown", this.handleKeyDown.bind(this));
-    this.chart.app.stage.on("pointerdown", this.handlePointerDown.bind(this));
-    this.chart.app.stage.on("pointerup", this.handlePointerUp.bind(this));
-    this.chart.app.stage.on("pointermove", this.handlePointerMove.bind(this));
+    window.addEventListener("keydown", this.handleKeyDownBound);
+    this.chart.app.stage.on("pointerdown", this.handlePointerDownBound);
+    this.chart.app.stage.on("pointerup", this.handlePointerUpBound);
+    this.chart.app.stage.on("pointermove", this.handlePointerMoveBound);
   }
 
   detachEventListeners(): void {
-    window.removeEventListener("keydown", this.handleKeyDown.bind(this));
-    this.chart.app.stage.off("pointerdown", this.handlePointerDown.bind(this));
-    this.chart.app.stage.off("pointerup", this.handlePointerUp.bind(this));
-    this.chart.app.stage.off("pointermove", this.handlePointerMove.bind(this));
+    window.removeEventListener("keydown", this.handleKeyDownBound);
+    this.chart.app.stage.off("pointerdown", this.handlePointerDownBound);
+    this.chart.app.stage.off("pointerup", this.handlePointerUpBound);
+    this.chart.app.stage.off("pointermove", this.handlePointerMoveBound);
   }
 
   enable(): void {
