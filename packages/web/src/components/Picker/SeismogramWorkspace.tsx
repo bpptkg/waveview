@@ -122,6 +122,7 @@ const SeismogramWorkspace = () => {
               left: 80,
             },
             darkMode,
+            devicePixelRatio: window.devicePixelRatio,
           }}
         />
       </div>

@@ -4,9 +4,6 @@ import { debounce } from '../../shared/debounce';
 
 export interface HelicorderChartProps {
   className?: string;
-  channelId: string;
-  interval: number;
-  duration: number;
   initOptions?: Partial<HelicorderChartOptions>;
   onTrackSelected?: (trackId: number) => void;
   onTrackDeselected?: (trackId: number) => void;
@@ -21,6 +18,7 @@ export interface HelicorderChartRef {
   increaseAmplitude: (by: number) => void;
   decreaseAmplitude: (by: number) => void;
   resetAmplitude: () => void;
+  setOffsetDate: (date: number) => void;
   setInterval: (interval: number) => void;
   setDuration: (duration: number) => void;
   setTheme: (theme: 'light' | 'dark') => void;
@@ -30,7 +28,7 @@ export interface HelicorderChartRef {
 }
 
 const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & React.RefAttributes<HelicorderChartRef>> = React.forwardRef((props, ref) => {
-  const { channelId, interval, duration, initOptions, className, onTrackSelected, onTrackDeselected, onFocused, onBlurred } = props;
+  const { initOptions, className, onTrackSelected, onTrackDeselected, onFocused, onBlurred } = props;
 
   const heliRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Helicorder | null>(null);
@@ -65,6 +63,12 @@ const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & Re
     resetAmplitude: () => {
       chartRef.current?.resetAmplitude();
       chartRef.current?.render();
+    },
+    setOffsetDate: (date: number) => {
+      chartRef.current?.setOffsetDate(date);
+      chartRef.current?.refreshData();
+      chartRef.current?.render();
+      fetchDataDebounced();
     },
     setInterval: (interval: number) => {
       chartRef.current?.setInterval(interval);
@@ -124,20 +128,12 @@ const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & Re
   useEffect(() => {
     async function init() {
       if (heliRef.current) {
-        chartRef.current = new Helicorder(heliRef.current, {
-          channelId,
-          interval,
-          duration,
-          devicePixelRatio: window.devicePixelRatio,
-          ...initOptions,
-        });
+        chartRef.current = new Helicorder(heliRef.current, initOptions);
         await chartRef.current.init();
         chartRef.current.on('trackSelected', handleTrackSelected);
         chartRef.current.on('trackDeselected', handleTrackDeselected);
         chartRef.current.on('focus', handleFocus);
         chartRef.current.on('blur', handleBlur);
-        chartRef.current.refreshData();
-        chartRef.current.render();
 
         workerRef.current = new Worker(new URL('../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
         webWorkerRef.current = new HelicorderWebWorkerExtension(workerRef.current);
@@ -145,6 +141,9 @@ const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & Re
 
         chartRef.current.use(webWorkerRef.current);
         chartRef.current.use(eventManagerRef.current);
+
+        chartRef.current.refreshData();
+        chartRef.current.render();
       }
     }
 

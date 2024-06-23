@@ -185,15 +185,10 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
   useEffect(() => {
     async function init() {
       if (seisRef.current) {
-        chartRef.current = new Seismogram(seisRef.current, {
-          devicePixelRatio: window.devicePixelRatio,
-          ...initOptions,
-        });
+        chartRef.current = new Seismogram(seisRef.current, initOptions);
         await chartRef.current.init();
         chartRef.current.on('focus', handleFocus);
         chartRef.current.on('blur', handleBlur);
-        chartRef.current.refreshData();
-        chartRef.current.render();
 
         workerRef.current = new Worker(new URL('../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
         webWorkerRef.current = new SeismogramWebWorker(chartRef.current, workerRef.current);
@@ -209,6 +204,9 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
         chartRef.current.use(eventManagerExtensionRef.current);
 
         zoomRectangleExtensionRef.current.getInstance().on('extentSelected', handleZoomRectangle);
+
+        chartRef.current.refreshData();
+        chartRef.current.render();
       }
     }
 

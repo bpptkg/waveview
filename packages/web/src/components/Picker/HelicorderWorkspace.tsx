@@ -14,7 +14,8 @@ const HelicorderWorkspace = () => {
   const initialRenderCompleteRef = useRef<boolean>(false);
 
   const pickerStore = usePickerStore();
-  const { channelId, interval, duration, showEvent, selectedChart, setInterval, setDuration, setChannelId, setShowEvent, setSelectedChart } = pickerStore;
+  const { channelId, interval, duration, showEvent, selectedChart, setInterval, setDuration, setChannelId, setShowEvent, setSelectedChart, setOffsetDate } =
+    pickerStore;
 
   const { darkMode } = useAppStore();
 
@@ -27,8 +28,10 @@ const HelicorderWorkspace = () => {
   }, []);
 
   const handleShiftViewToNow = useCallback(() => {
-    heliChartRef.current?.shiftViewToNow();
-  }, []);
+    const now = Date.now();
+    heliChartRef.current?.setOffsetDate(now);
+    setOffsetDate(now);
+  }, [setOffsetDate]);
 
   const handleIncreaseAmplitude = useCallback(() => {
     heliChartRef.current?.increaseAmplitude(0.05);
@@ -216,18 +219,18 @@ const HelicorderWorkspace = () => {
           <HelicorderChart
             ref={heliChartRef}
             className={selectedChart === 'helicorder' ? 'border border-brand-hosts-80' : 'border border-transparent'}
-            channelId={channelId}
-            interval={interval}
-            duration={duration}
             initOptions={{
+              interval,
+              duration,
+              channelId,
+              darkMode,
               grid: {
                 top: 30,
                 right: 80,
                 bottom: 25,
                 left: 80,
               },
-              channelId,
-              darkMode,
+              devicePixelRatio: window.devicePixelRatio,
             }}
             onTrackSelected={handleTrackSelected}
             onTrackDeselected={handleTrackDeselected}
@@ -254,6 +257,7 @@ const HelicorderWorkspace = () => {
                   left: 80,
                 },
                 darkMode,
+                devicePixelRatio: window.devicePixelRatio,
               }}
               onFocused={handleSeismogramFocus}
               onBlurred={handleSeismogramBlur}
