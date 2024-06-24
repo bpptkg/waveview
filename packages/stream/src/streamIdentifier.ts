@@ -39,7 +39,7 @@ export class StreamIdentifier {
       const { network, station, location, channel } =
         options as StreamIndentifierOptions;
 
-      this._network = network!;
+      this._network = network;
       this._station = station;
       this._location = location;
       this._channel = channel;
