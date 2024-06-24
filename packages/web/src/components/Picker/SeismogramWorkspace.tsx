@@ -11,7 +11,16 @@ const SeismogramWorkspace = () => {
   const seisChartRef = useRef<SeismogramChartRef | null>(null);
   const initialRenderCompleteRef = useRef<boolean>(false);
 
-  const { showEvent, lastSeismogramExtent, setShowEvent, setLastSeismogramExtent } = usePickerStore();
+  const {
+    showEvent,
+    lastSeismogramExtent,
+    seismogramToolbarCheckedValues,
+    setShowEvent,
+    setLastSeismogramExtent,
+    seismogramToolbarSetCheckedValues,
+    seismogramToolbarAddCheckedValue,
+    seismogramToolbarRemoveCheckedValue,
+  } = usePickerStore();
   const { darkMode } = useAppStore();
 
   const handleSeismogramZoomIn = useCallback(() => {
@@ -81,6 +90,13 @@ const SeismogramWorkspace = () => {
     [setLastSeismogramExtent]
   );
 
+  const handleSeismogramCheckValueChange = useCallback(
+    (name: string, values: string[]) => {
+      seismogramToolbarSetCheckedValues(name, values);
+    },
+    [seismogramToolbarSetCheckedValues]
+  );
+
   useEffect(() => {
     if (!initialRenderCompleteRef.current) {
       initialRenderCompleteRef.current = true;
@@ -98,10 +114,38 @@ const SeismogramWorkspace = () => {
     seisChartRef.current?.focus();
   }, []);
 
+  // Zoom Rectangle Keydown
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!seisChartRef.current || !seisChartRef.current.isFocused()) {
+        return;
+      }
+
+      switch (event.key) {
+        case 'Escape':
+          seisChartRef.current?.deactivateZoomRectangle();
+          seismogramToolbarRemoveCheckedValue('options', 'zoom-rectangle');
+          break;
+        case 'z':
+        case 'Z':
+          seisChartRef.current?.activateZoomRectangle();
+          seismogramToolbarAddCheckedValue('options', 'zoom-rectangle');
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [seismogramToolbarAddCheckedValue, seismogramToolbarRemoveCheckedValue]);
+
   return (
     <>
       <SeismogramToolbar
         showEvent={showEvent}
+        checkedValues={seismogramToolbarCheckedValues}
         onZoomIn={handleSeismogramZoomIn}
         onZoomOut={handleSeismogramZoomOut}
         onScrollLeft={handleSeismogramScrollLeft}
@@ -112,6 +156,7 @@ const SeismogramWorkspace = () => {
         onResetAmplitude={handleSeismogramResetAmplitude}
         onShowEventChange={handleSeismogramShowEvent}
         onZoomRectangleChange={handleSeismogramZoomRectangleChange}
+        onCheckedValueChange={handleSeismogramCheckValueChange}
       />
       <div className="flex-grow relative mt-1 flex h-full">
         <SeismogramChart

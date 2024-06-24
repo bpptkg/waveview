@@ -24,6 +24,7 @@ const HelicorderWorkspace = () => {
     selectedChart,
     lastTrackExtent,
     lastSelection,
+    seismogramToolbarCheckedValues,
     setInterval,
     setDuration,
     setChannelId,
@@ -32,6 +33,9 @@ const HelicorderWorkspace = () => {
     setOffsetDate,
     setLastTrackExtent,
     setLastSelection,
+    seismogramToolbarSetCheckedValues,
+    seismogramToolbarAddCheckedValue,
+    seismogramToolbarRemoveCheckedValue,
   } = pickerStore;
 
   const { darkMode } = useAppStore();
@@ -193,8 +197,9 @@ const HelicorderWorkspace = () => {
   const handleHelicorderFocus = useCallback(() => {
     seisChartRef.current?.blur();
     seisChartRef.current?.deactivateZoomRectangle();
+    seismogramToolbarRemoveCheckedValue('options', 'zoom-rectangle');
     setSelectedChart('helicorder');
-  }, [setSelectedChart]);
+  }, [seismogramToolbarRemoveCheckedValue, setSelectedChart]);
 
   const handleHelicorderBlur = useCallback(() => {
     // TODO
@@ -231,6 +236,13 @@ const HelicorderWorkspace = () => {
     [setLastSelection]
   );
 
+  const handleSeismogramCheckValueChange = useCallback(
+    (name: string, values: string[]) => {
+      seismogramToolbarSetCheckedValues(name, values);
+    },
+    [seismogramToolbarSetCheckedValues]
+  );
+
   // Zoom Rectangle Keydown
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -241,10 +253,12 @@ const HelicorderWorkspace = () => {
       switch (event.key) {
         case 'Escape':
           seisChartRef.current?.deactivateZoomRectangle();
+          seismogramToolbarRemoveCheckedValue('options', 'zoom-rectangle');
           break;
         case 'z':
         case 'Z':
           seisChartRef.current?.activateZoomRectangle();
+          seismogramToolbarAddCheckedValue('options', 'zoom-rectangle');
           break;
       }
     };
@@ -254,7 +268,7 @@ const HelicorderWorkspace = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [seismogramToolbarAddCheckedValue, seismogramToolbarRemoveCheckedValue]);
 
   return (
     <>
@@ -279,6 +293,7 @@ const HelicorderWorkspace = () => {
       {selectedChart === 'seismogram' && (
         <SeismogramToolbar
           showEvent={showEvent}
+          checkedValues={seismogramToolbarCheckedValues}
           onZoomIn={handleSeismogramZoomIn}
           onZoomOut={handleSeismogramZoomOut}
           onScrollLeft={handleSeismogramScrollLeft}
@@ -289,6 +304,7 @@ const HelicorderWorkspace = () => {
           onResetAmplitude={handleSeismogramResetAmplitude}
           onShowEventChange={handleSeismogramShowEvent}
           onZoomRectangleChange={handleSeismogramZoomRectangleChange}
+          onCheckedValueChange={handleSeismogramCheckValueChange}
         />
       )}
       <div className="flex-grow relative mt-1 flex h-full">

@@ -4,6 +4,7 @@ import { createSelectors } from '../shared/createSelectors';
 
 export type PickerWorkspace = 'helicorder' | 'seismogram';
 export type PickerChart = 'helicorder' | 'seismogram';
+export type SeismogramCheckedValue = 'zoom-rectangle' | 'pick-mode';
 
 export interface PickerState {
   /**
@@ -58,7 +59,7 @@ export interface PickerState {
   /**
    * The toolbar items that are currently checked in the seismogram chart.
    */
-  checkedSeismogramToolbarItems: string[];
+  seismogramToolbarCheckedValues: Record<string, string[]>;
 }
 
 export interface PickerActions {
@@ -73,7 +74,9 @@ export interface PickerActions {
   setLastTrackExtent: (extent: [number, number]) => void;
   setLastSeismogramExtent: (extent: [number, number]) => void;
   setLastSelection: (value: number) => void;
-  setCheckedSeismogramToolbarItems: (items: string[]) => void;
+  seismogramToolbarSetCheckedValues: (name: string, checkedValues: string[]) => void;
+  seismogramToolbarAddCheckedValue: (name: string, item: string) => void;
+  seismogramToolbarRemoveCheckedValue: (name: string, item: string) => void;
 }
 
 export type PickerStore = PickerState & PickerActions;
@@ -110,7 +113,9 @@ const pickerStore = create<PickerStore, [['zustand/devtools', never]]>(
       lastTrackExtent: getDefaultTrackExtent(now),
       lastSeismogramExtent: getDefaultSeismogramExtent(now),
       lastSelection: 0,
-      checkedSeismogramToolbarItems: [],
+      seismogramToolbarCheckedValues: {
+        options: [],
+      },
       setWorkspace: (workspace) => set({ workspace }),
       setChannelId: (channelId) => set({ channelId }),
       setDuration: (duration) => set({ duration }),
@@ -122,7 +127,39 @@ const pickerStore = create<PickerStore, [['zustand/devtools', never]]>(
       setLastTrackExtent: (lastTrackExtent) => set({ lastTrackExtent }),
       setLastSeismogramExtent: (lastSeismogramExtent) => set({ lastSeismogramExtent }),
       setLastSelection: (lastSelection) => set({ lastSelection }),
-      setCheckedSeismogramToolbarItems: (checkedSeismogramToolbarItems) => set({ checkedSeismogramToolbarItems }),
+
+      seismogramToolbarSetCheckedValues: (name, checkedValues) =>
+        set((state) => {
+          console.log('seismogramToolbarSetCheckedValues', name, checkedValues);
+          return {
+            seismogramToolbarCheckedValues: {
+              ...state.seismogramToolbarCheckedValues,
+              [name]: checkedValues,
+            },
+          };
+        }),
+
+      seismogramToolbarAddCheckedValue: (name, item) =>
+        set((state) => {
+          const options = state.seismogramToolbarCheckedValues[name] || [];
+          return {
+            seismogramToolbarCheckedValues: {
+              ...state.seismogramToolbarCheckedValues,
+              [name]: [...options, item],
+            },
+          };
+        }),
+
+      seismogramToolbarRemoveCheckedValue: (name, item) =>
+        set((state) => {
+          const options = state.seismogramToolbarCheckedValues[name] || [];
+          return {
+            seismogramToolbarCheckedValues: {
+              ...state.seismogramToolbarCheckedValues,
+              [name]: options.filter((value) => value !== item),
+            },
+          };
+        }),
     };
   })
 );

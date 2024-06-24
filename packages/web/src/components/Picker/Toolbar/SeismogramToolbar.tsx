@@ -32,6 +32,7 @@ import ToolbarContextSwicher from './ToolbarContextSwicher';
 
 export interface SeismogramToolbarProps {
   showEvent?: boolean;
+  checkedValues?: Record<string, string[]>;
   onChannelAdd?: (channelId: string) => void;
   onZoomIn?: () => void;
   onZoomOut?: () => void;
@@ -46,6 +47,7 @@ export interface SeismogramToolbarProps {
   onComponentChange?: (component: string) => void;
   onShowEventChange?: (showEvent: boolean) => void;
   onZoomRectangleChange?: (active: boolean) => void;
+  onCheckedValueChange?: (name: string, values: string[]) => void;
 }
 
 const componentOptions = [
@@ -57,6 +59,7 @@ const componentOptions = [
 const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
   const {
     showEvent = true,
+    checkedValues = {},
     onChannelAdd,
     onZoomIn,
     onZoomOut,
@@ -71,12 +74,10 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
     onComponentChange,
     onShowEventChange,
     onZoomRectangleChange,
+    onCheckedValueChange,
   } = props;
 
   const [component, setComponent] = useState('Z');
-  const [checkedValues, setCheckedValues] = React.useState<Record<string, string[]>>({
-    options: [],
-  });
 
   const handleShowEventChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,36 +94,35 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
     [setComponent, onComponentChange]
   );
 
-  const handleCheckedValueChange = useCallback<NonNullable<ToolbarProps['onCheckedValueChange']>>(
+  const handleToolbarCheckedValueChange = useCallback<NonNullable<ToolbarProps['onCheckedValueChange']>>(
     (_e, { name, checkedItems }) => {
       if (name === 'options') {
-        if (checkedItems.includes('pick')) {
+        if (checkedItems.includes('pick-mode')) {
           onPickModeChange?.(true);
         } else {
           onPickModeChange?.(false);
         }
-        if (checkedItems.includes('zoomRect')) {
+        if (checkedItems.includes('zoom-rectangle')) {
           onZoomRectangleChange?.(true);
         } else {
           onZoomRectangleChange?.(false);
         }
       }
-      setCheckedValues((s) => {
-        return s ? { ...s, [name]: checkedItems } : { [name]: checkedItems };
-      });
+
+      onCheckedValueChange?.(name, checkedItems);
     },
-    [onPickModeChange, onZoomRectangleChange]
+    [onPickModeChange, onZoomRectangleChange, onCheckedValueChange]
   );
 
   return (
     <div className="bg-white dark:bg-black mx-2 drop-shadow rounded">
-      <Toolbar aria-label="Seismogram Toolbar" checkedValues={checkedValues} onCheckedValueChange={handleCheckedValueChange}>
+      <Toolbar aria-label="Seismogram Toolbar" checkedValues={checkedValues} onCheckedValueChange={handleToolbarCheckedValueChange}>
         <ToolbarContextSwicher />
         <ToolbarDivider />
         <ToolbarButton aria-label="Add Channel" icon={<Add20Regular />} />
         <ToolbarButton aria-label="Zoom In" icon={<ZoomIn20Regular />} onClick={onZoomIn} />
         <ToolbarButton aria-label="Zoom Out" icon={<ZoomOut20Regular />} onClick={onZoomOut} />
-        <ToolbarToggleButton aria-label="Zoom Area" icon={<FullScreenMaximizeRegular />} name="options" value="zoomRect" appearance="subtle" />
+        <ToolbarToggleButton aria-label="Zoom Area" icon={<FullScreenMaximizeRegular />} name="options" value="zoom-rectangle" appearance="subtle" />
         <ToolbarButton aria-label="Scroll Left" icon={<ChevronLeft20Regular />} onClick={onScrollLeft} />
         <ToolbarButton aria-label="Scroll Right" icon={<ChevronRight20Regular />} onClick={onScrollRight} />
         <ToolbarButton aria-label="Scroll to Now" icon={<ChevronDoubleRight20Regular />} onClick={onScrollToNow} />
@@ -131,7 +131,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
         <ToolbarButton aria-label="Decrease Amplitude" icon={<ChevronDownUp20Regular />} onClick={onDecreaseAmplitude} />
         <ToolbarButton aria-label="Reset Amplitude" icon={<AutoFitHeight20Regular />} onClick={onResetAmplitude} />
         <ToolbarDivider />
-        <ToolbarToggleButton aria-label="Pick mode" icon={<PickIcon />} name="options" value="pick" appearance="subtle" />
+        <ToolbarToggleButton aria-label="Pick mode" icon={<PickIcon />} name="options" value="pick-mode" appearance="subtle" />
         <Menu>
           <MenuTrigger>
             <MenuButton appearance="transparent" size="small" aria-label="Select Component">
