@@ -4,8 +4,8 @@ import { useCallback } from 'react';
 import { PickerWorkspace, usePickerStore } from '../../../stores/picker';
 
 const workspaceOptions = [
-  { value: 'helicorder', label: 'Helicorder', secondaryContent: 'Ctrl+1' },
-  { value: 'seismogram', label: 'Seismogram', secondaryContent: 'Ctrl+2' },
+  { value: 'helicorder', label: 'Helicorder' },
+  { value: 'seismogram', label: 'Seismogram' },
 ] as { value: PickerWorkspace; label: string; secondaryContent: string }[];
 
 const ToolbarContextSwicher = () => {
@@ -32,7 +32,6 @@ const ToolbarContextSwicher = () => {
             <MenuItem
               key={option.value}
               icon={option.value === workspace ? <Checkmark20Regular /> : undefined}
-              secondaryContent={option.secondaryContent}
               onClick={() => {
                 handleWorkspaceChange(option.value);
               }}
