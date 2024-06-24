@@ -27,6 +27,7 @@ export interface HelicorderChartRef {
   getTrackExtent: (index: number) => [number, number];
   focus: () => void;
   blur: () => void;
+  isFocused: () => boolean;
   selectTrack: (index: number) => void;
   setSelection: (value: number) => void;
 }
@@ -104,6 +105,9 @@ const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & Re
     },
     blur: () => {
       chartRef.current?.blur();
+    },
+    isFocused: () => {
+      return chartRef.current?.isFocused() ?? false;
     },
     selectTrack: (index: number) => {
       if (chartRef.current) {

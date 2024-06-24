@@ -231,6 +231,31 @@ const HelicorderWorkspace = () => {
     [setLastSelection]
   );
 
+  // Zoom Rectangle Keydown
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!seisChartRef.current || !seisChartRef.current.isFocused()) {
+        return;
+      }
+
+      switch (event.key) {
+        case 'Escape':
+          seisChartRef.current?.deactivateZoomRectangle();
+          break;
+        case 'z':
+        case 'Z':
+          seisChartRef.current?.activateZoomRectangle();
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   return (
     <>
       {selectedChart === 'helicorder' && (

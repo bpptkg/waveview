@@ -55,6 +55,10 @@ export interface PickerState {
    * helicorder chart.
    */
   lastSelection: number;
+  /**
+   * The toolbar items that are currently checked in the seismogram chart.
+   */
+  checkedSeismogramToolbarItems: string[];
 }
 
 export interface PickerActions {
@@ -69,6 +73,7 @@ export interface PickerActions {
   setLastTrackExtent: (extent: [number, number]) => void;
   setLastSeismogramExtent: (extent: [number, number]) => void;
   setLastSelection: (value: number) => void;
+  setCheckedSeismogramToolbarItems: (items: string[]) => void;
 }
 
 export type PickerStore = PickerState & PickerActions;
@@ -105,6 +110,7 @@ const pickerStore = create<PickerStore, [['zustand/devtools', never]]>(
       lastTrackExtent: getDefaultTrackExtent(now),
       lastSeismogramExtent: getDefaultSeismogramExtent(now),
       lastSelection: 0,
+      checkedSeismogramToolbarItems: [],
       setWorkspace: (workspace) => set({ workspace }),
       setChannelId: (channelId) => set({ channelId }),
       setDuration: (duration) => set({ duration }),
@@ -116,6 +122,7 @@ const pickerStore = create<PickerStore, [['zustand/devtools', never]]>(
       setLastTrackExtent: (lastTrackExtent) => set({ lastTrackExtent }),
       setLastSeismogramExtent: (lastSeismogramExtent) => set({ lastSeismogramExtent }),
       setLastSelection: (lastSelection) => set({ lastSelection }),
+      setCheckedSeismogramToolbarItems: (checkedSeismogramToolbarItems) => set({ checkedSeismogramToolbarItems }),
     };
   })
 );

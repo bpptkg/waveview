@@ -35,6 +35,7 @@ export interface SeismogramChartRef {
   deactivateZoomRectangle: () => void;
   focus(): void;
   blur(): void;
+  isFocused(): boolean;
 }
 
 const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & React.RefAttributes<SeismogramChartRef>> = React.forwardRef((props, ref) => {
@@ -164,6 +165,12 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
       if (chartRef.current) {
         chartRef.current.blur();
       }
+    },
+    isFocused: () => {
+      if (chartRef.current) {
+        return chartRef.current.isFocused();
+      }
+      return false;
     },
   }));
 
