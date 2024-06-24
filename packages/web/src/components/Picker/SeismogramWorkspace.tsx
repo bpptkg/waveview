@@ -12,6 +12,7 @@ const SeismogramWorkspace = () => {
   const initialRenderCompleteRef = useRef<boolean>(false);
 
   const {
+    channels,
     useUTC,
     showEvent,
     lastSeismogramExtent,
@@ -167,12 +168,7 @@ const SeismogramWorkspace = () => {
         <SeismogramChart
           ref={seisChartRef}
           initOptions={{
-            channels: [
-              { id: 'VG.MEPAS.00.HHZ', label: 'VG.MEPAS' },
-              { id: 'VG.MELAB.00.HHz', label: 'VG.MELAB' },
-              { id: 'VG.MEPUS.00.HHz', label: 'VG.MEPUS' },
-              { id: 'VG.MEPLA.00.HHz', label: 'VG.MEPLA' },
-            ],
+            channels,
             grid: {
               top: 30,
               right: 10,

@@ -12,9 +12,13 @@ export interface PickerState {
    */
   workspace: PickerWorkspace;
   /**
-   * The channel ID of the helicorder chart.
+   * The channel ID of the helicorder chart, e.g. `VG.MELAB.00.HHZ`.
    */
-  channelId: string;
+  channel: string;
+  /**
+   * List of channel IDs to display in the seismogram chart.
+   */
+  channels: string[];
   /**
    * The duration of the helicorder chart in hours.
    */
@@ -64,7 +68,7 @@ export interface PickerState {
 
 export interface PickerActions {
   setWorkspace: (workspace: PickerWorkspace) => void;
-  setChannelId: (channelId: string) => void;
+  setChannel: (id: string) => void;
   setDuration: (duration: number) => void;
   setInterval: (interval: number) => void;
   setShowEvent: (showEvent: boolean) => void;
@@ -102,7 +106,19 @@ const pickerStore = create<PickerStore, [['zustand/devtools', never]]>(
 
     return {
       workspace: 'helicorder',
-      channelId: 'VG.MELAB.00.HHZ',
+      channel: 'VG.MELAB.00.HHZ',
+      channels: [
+        'VG.MEPAS.00.HHZ',
+        'VG.MELAB.00.HHZ',
+        'VG.MEKAL.00.HHZ',
+        'VG.MEPUS.00.HHZ',
+        'VG.MEPET.00.HHZ',
+        'VG.MEPAT.00.HHZ',
+        'VG.MEPLA.00.HHZ',
+        'VG.MEIMO.00.HHZ',
+        'VG.MEBAB.00.HHZ',
+        'VG.MELAT.00.HHZ',
+      ],
       duration: 12,
       interval: 30,
       showEvent: true,
@@ -117,7 +133,7 @@ const pickerStore = create<PickerStore, [['zustand/devtools', never]]>(
         options: [],
       },
       setWorkspace: (workspace) => set({ workspace }),
-      setChannelId: (channelId) => set({ channelId }),
+      setChannel: (channel) => set({ channel }),
       setDuration: (duration) => set({ duration }),
       setInterval: (interval) => set({ interval }),
       setShowEvent: (showEvent) => set({ showEvent }),

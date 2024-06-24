@@ -15,7 +15,7 @@ import React, { useCallback } from 'react';
 import ToolbarContextSwicher from './ToolbarContextSwicher';
 
 export interface HelicorderToolbarProps {
-  channelId: string;
+  channel: string;
   interval?: number;
   duration?: number;
   showEvent?: boolean;
@@ -54,7 +54,7 @@ const useStyles = makeStyles({
 
 const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
   const {
-    channelId,
+    channel,
     interval = 30,
     duration = 12,
     showEvent,
@@ -73,8 +73,8 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
   const styles = useStyles();
 
   const handleChannelChange = useCallback(
-    (channelId: string) => {
-      onChannelChange?.(channelId);
+    (id: string) => {
+      onChannelChange?.(id);
     },
     [onChannelChange]
   );
@@ -106,7 +106,7 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
         <ToolbarContextSwicher />
         <ToolbarDivider />
         <ToolbarButton aria-label="Select Channel ID" icon={<Search20Regular />} className={styles.btn}>
-          <span className="font-normal">{channelId}</span>
+          <span className="font-normal">{channel}</span>
         </ToolbarButton>
         <Menu>
           <MenuTrigger>

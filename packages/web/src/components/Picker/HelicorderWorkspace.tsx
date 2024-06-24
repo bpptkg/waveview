@@ -14,10 +14,10 @@ const HelicorderWorkspace = () => {
   const initialRenderCompleteRef = useRef<boolean | null>(null);
   const selectingTrackRef = useRef<boolean | null>(null);
 
-  const pickerStore = usePickerStore();
   const {
     useUTC,
-    channelId,
+    channel,
+    channels,
     offsetDate,
     interval,
     duration,
@@ -28,7 +28,7 @@ const HelicorderWorkspace = () => {
     seismogramToolbarCheckedValues,
     setInterval,
     setDuration,
-    setChannelId,
+    setChannel,
     setShowEvent,
     setSelectedChart,
     setOffsetDate,
@@ -37,7 +37,7 @@ const HelicorderWorkspace = () => {
     seismogramToolbarSetCheckedValues,
     seismogramToolbarAddCheckedValue,
     seismogramToolbarRemoveCheckedValue,
-  } = pickerStore;
+  } = usePickerStore();
 
   const { darkMode } = useAppStore();
 
@@ -69,10 +69,10 @@ const HelicorderWorkspace = () => {
   }, []);
 
   const handleHelicorderChannelChange = useCallback(
-    (channelId: string) => {
-      setChannelId(channelId);
+    (id: string) => {
+      setChannel(id);
     },
-    [setChannelId]
+    [setChannel]
   );
 
   const handleHelicorderChangeInterval = useCallback(
@@ -278,7 +278,7 @@ const HelicorderWorkspace = () => {
     <>
       {selectedChart === 'helicorder' && (
         <HelicorderToolbar
-          channelId={channelId}
+          channel={channel}
           interval={interval}
           duration={duration}
           showEvent={showEvent}
@@ -320,7 +320,7 @@ const HelicorderWorkspace = () => {
               initOptions={{
                 interval,
                 duration,
-                channelId,
+                channel,
                 darkMode,
                 offsetDate,
                 selection: lastSelection,
@@ -346,12 +346,7 @@ const HelicorderWorkspace = () => {
               ref={seisChartRef}
               className={selectedChart === 'seismogram' ? 'border border-brand-hosts-80' : 'border border-transparent'}
               initOptions={{
-                channels: [
-                  { id: 'VG.MEPAS.00.HHZ', label: 'VG.MEPAS' },
-                  { id: 'VG.MELAB.00.HHz', label: 'VG.MELAB' },
-                  { id: 'VG.MEPUS.00.HHz', label: 'VG.MEPUS' },
-                  { id: 'VG.MEPLA.00.HHz', label: 'VG.MEPLA' },
-                ],
+                channels,
                 grid: {
                   top: 30,
                   right: 10,
