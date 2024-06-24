@@ -15,7 +15,6 @@ import { ONE_HOUR, ONE_MINUTE, formatDate } from "../util/time";
 import { EventMap, LayoutRect, SeriesData } from "../util/types";
 import { ChartType, ChartView } from "../view/chartView";
 import { EventMarker, EventMarkerOptions } from "./eventMarker";
-import { Footer } from "./footer";
 import { Selection } from "./selection";
 
 export interface HelicorderChartOptions extends ChartOptions {
@@ -73,7 +72,7 @@ function getDefaultOptions(): HelicorderChartOptions {
     verticalScaling: "global",
     grid: {
       top: 50,
-      right: 80,
+      right: 50,
       bottom: 50,
       left: 80,
     },
@@ -153,7 +152,6 @@ export class Helicorder
   private readonly _xAxis: Axis;
   private readonly _grid: Grid;
   private readonly _selection: Selection;
-  private readonly _footer: Footer;
   private _tracks: Track[] = [];
   private _channel: Channel;
   private _markers: EventMarker[] = [];
@@ -190,9 +188,6 @@ export class Helicorder
       value: opts.selection || 0,
     });
     this.addComponent(this._selection);
-
-    this._footer = new Footer(this);
-    this.addComponent(this._footer);
 
     if (opts.darkMode) {
       this._currentTheme = darkTheme;
@@ -510,7 +505,6 @@ export class Helicorder
     });
     this._xAxis.applyThemeStyle(theme);
     this._grid.applyThemeStyle(theme);
-    this._footer.applyThemeStyle(theme);
     this._selection.applyThemeStyle(theme);
     for (const track of this._tracks) {
       track.applyThemeStyle(theme);
@@ -571,17 +565,22 @@ export class Helicorder
   }
 
   private updateTrackLabels(): void {
+    const { useUTC } = this.getOptions();
     const requiredTrackCount = this.getTrackCount();
     const repeat = Math.max(Math.ceil(requiredTrackCount / 25), 1);
 
-    const isMidnight = (time: number) => {
+    const isMidnightLocal = (time: number) => {
       const date = new Date(time);
       return date.getHours() === 0 && date.getMinutes() === 0;
     };
 
-    const isUTCMidnight = (time: number) => {
+    const isMidnightUTC = (time: number) => {
       const date = new Date(time);
       return date.getUTCHours() === 0 && date.getUTCMinutes() === 0;
+    };
+
+    const isMidnight = (time: number) => {
+      return useUTC ? isMidnightUTC(time) : isMidnightLocal(time);
     };
 
     const adjustLabel = (index: number, label: string): string => {
@@ -590,22 +589,17 @@ export class Helicorder
 
     for (let i = 0; i < this._tracks.length; i++) {
       const index = this.rowToTrackIndex(i);
-      const [start, end] = this.getTrackExtentAt(index);
+      const [start] = this.getTrackExtentAt(index);
 
       const track = this._tracks[i];
       if (track) {
-        const formatStringLocal = adjustLabel(
+        const formatString = adjustLabel(
           i,
           i === 0 || isMidnight(start) ? "{MM}-{dd} {HH}:{mm}" : "{HH}:{mm}"
         );
-        const formatStringUTC = adjustLabel(
-          i,
-          i === 0 || isUTCMidnight(end) ? "{HH}:{mm} {MM}-{dd}" : "{HH}:{mm}"
-        );
 
-        const leftLabel = formatDate(start, formatStringLocal, false);
-        const rightLabel = formatDate(end, formatStringUTC, true);
-        track.getModel().mergeOptions({ leftLabel, rightLabel });
+        const leftLabel = formatDate(start, formatString, false);
+        track.getModel().mergeOptions({ leftLabel });
       }
     }
   }

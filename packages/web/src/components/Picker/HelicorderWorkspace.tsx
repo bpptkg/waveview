@@ -307,36 +307,36 @@ const HelicorderWorkspace = () => {
           onCheckedValueChange={handleSeismogramCheckValueChange}
         />
       )}
-      <div className="flex-grow relative mt-1 flex h-full">
-        <div className="relative w-1/3">
-          <HelicorderChart
-            ref={heliChartRef}
-            className={selectedChart === 'helicorder' ? 'border border-brand-hosts-80' : 'border border-transparent'}
-            initOptions={{
-              interval,
-              duration,
-              channelId,
-              darkMode,
-              offsetDate,
-              selection: lastSelection,
-              grid: {
-                top: 30,
-                right: 80,
-                bottom: 25,
-                left: 80,
-              },
-              devicePixelRatio: window.devicePixelRatio,
-            }}
-            onTrackSelected={handleTrackSelected}
-            onTrackDeselected={handleTrackDeselected}
-            onFocus={handleHelicorderFocus}
-            onBlur={handleHelicorderBlur}
-            onOffsetChange={handleHelicorderOffsetChange}
-            onSelectionChange={handleHelicorderSelectionChange}
-          />
-        </div>
-        <div className="relative w-2/3 h-full flex flex-col">
-          <div className="flex-1 relative">
+      <div className="flex-grow relative mt-1 flex flex-col h-full">
+        <div className="flex-1 flex relative">
+          <div className="relative w-1/3 h-full">
+            <HelicorderChart
+              ref={heliChartRef}
+              className={selectedChart === 'helicorder' ? 'border border-brand-hosts-80' : 'border border-transparent'}
+              initOptions={{
+                interval,
+                duration,
+                channelId,
+                darkMode,
+                offsetDate,
+                selection: lastSelection,
+                grid: {
+                  top: 30,
+                  right: 15,
+                  bottom: 5,
+                  left: 80,
+                },
+                devicePixelRatio: window.devicePixelRatio,
+              }}
+              onTrackSelected={handleTrackSelected}
+              onTrackDeselected={handleTrackDeselected}
+              onFocus={handleHelicorderFocus}
+              onBlur={handleHelicorderBlur}
+              onOffsetChange={handleHelicorderOffsetChange}
+              onSelectionChange={handleHelicorderSelectionChange}
+            />
+          </div>
+          <div className="relative w-2/3 h-full">
             <SeismogramChart
               ref={seisChartRef}
               className={selectedChart === 'seismogram' ? 'border border-brand-hosts-80' : 'border border-transparent'}
@@ -363,10 +363,10 @@ const HelicorderWorkspace = () => {
               onExtentChange={handleSeismogramExtentChange}
             />
           </div>
-          <div className=" bg-white dark:bg-black relative flex items-center justify-end gap-2 mr-2 h-[20px]">
-            <RealtimeClock />
-            <TimeZoneSelector />
-          </div>
+        </div>
+        <div className=" bg-white dark:bg-black relative flex items-center justify-end gap-2 mr-2 h-[20px]">
+          <RealtimeClock />
+          <TimeZoneSelector />
         </div>
       </div>
     </>
