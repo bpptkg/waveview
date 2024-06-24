@@ -1,7 +1,7 @@
 import { Series } from "@waveview/ndarray";
+import { StreamIdentifier } from "@waveview/stream";
 import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
-import { Channel } from "../data/channel";
 import { DataStore } from "../data/dataStore";
 import { Grid } from "../grid/grid";
 import { GridOptions } from "../grid/gridModel";
@@ -19,9 +19,9 @@ import { Selection } from "./selection";
 
 export interface HelicorderChartOptions extends ChartOptions {
   /**
-   * Channel ID of the helicorder chart.
+   * Channel ID of the helicorder chart, e.g. ``IU.ANMO.00.BHZ``.
    */
-  channelId: string;
+  channel: string;
   /**
    * Interval of the helicorder chart in minutes.
    */
@@ -63,7 +63,7 @@ export interface HelicorderChartOptions extends ChartOptions {
 
 function getDefaultOptions(): HelicorderChartOptions {
   return {
-    channelId: "",
+    channel: "",
     interval: 30,
     duration: 12,
     offsetDate: Date.now(),
@@ -83,8 +83,8 @@ function getDefaultOptions(): HelicorderChartOptions {
 
 export interface HelicorderChartType extends ChartType<HelicorderChartOptions> {
   getTrackCount(): number;
-  setChannel(channel: Channel): void;
-  getChannel(): Channel;
+  setChannel(id: string): void;
+  getChannel(): string;
   increaseAmplitude(by: number): void;
   decreaseAmplitude(by: number): void;
   resetAmplitude(): void;
@@ -124,7 +124,7 @@ export interface HelicorderChartType extends ChartType<HelicorderChartOptions> {
 }
 
 export interface HelicorderEventMap extends EventMap {
-  channelChanged: (channel: Channel) => void;
+  channelChanged: (id: string) => void;
   offsetChanged: (offset: number) => void;
   intervalChanged: (interval: number) => void;
   durationChanged: (duration: number) => void;
@@ -154,7 +154,7 @@ export class Helicorder
   private readonly _grid: Grid;
   private readonly _selection: Selection;
   private _tracks: Track[] = [];
-  private _channel: Channel;
+  private _channel: StreamIdentifier;
   private _markers: EventMarker[] = [];
   private _dataStore = new DataStore<SeriesData>();
   private _yExtent: [number, number] = [-1, 1];
@@ -171,7 +171,7 @@ export class Helicorder
 
     super(dom, opts);
 
-    this._channel = { id: opts.channelId };
+    this._channel = new StreamIdentifier({ id: opts.channel });
 
     this._grid = new Grid(this.getRect(), opts.grid);
     this.addComponent(this._grid);
@@ -196,13 +196,16 @@ export class Helicorder
     this.applyComponentThemeStyles();
   }
 
-  setChannel(channel: Channel): void {
-    this._channel = channel;
-    this.emit("channelChanged", channel);
+  setChannel(id: string): void {
+    if (this._channel.equals(id)) {
+      return;
+    }
+    this._channel.update({ id });
+    this.emit("channelChanged", id);
   }
 
-  getChannel(): Channel {
-    return this._channel;
+  getChannel(): string {
+    return this._channel.id;
   }
 
   increaseAmplitude(by: number): void {

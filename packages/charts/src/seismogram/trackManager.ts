@@ -1,22 +1,22 @@
-import { Channel } from "../data/channel";
+import { StreamIdentifier } from "@waveview/stream";
 import { Track } from "../track/track";
 
 export class TrackManager {
-  private _store: [Channel, Track][] = [];
+  private _store: [StreamIdentifier, Track][] = [];
 
   count(): number {
     return this._store.length;
   }
 
-  add(channel: Channel, track: Track): void {
+  add(channel: StreamIdentifier, track: Track): void {
     this._store.push([channel, track]);
   }
 
-  remove(index: number): [Channel, Track] {
+  remove(index: number): [StreamIdentifier, Track] {
     return this._store.splice(index, 1)[0];
   }
 
-  *items(): Generator<[Channel, Track]> {
+  *items(): Generator<[StreamIdentifier, Track]> {
     for (const pair of this._store) {
       yield pair;
     }
@@ -28,13 +28,13 @@ export class TrackManager {
     }
   }
 
-  *channels(): Generator<Channel> {
+  *channels(): Generator<StreamIdentifier> {
     for (const [channel] of this._store) {
       yield channel;
     }
   }
 
-  getTrackByChannel(channel: Channel): Track | undefined {
+  getTrackByChannel(channel: StreamIdentifier): Track | undefined {
     const pair = this._store.find(([c]) => c === channel);
     return pair ? pair[1] : undefined;
   }
@@ -47,11 +47,11 @@ export class TrackManager {
     return this._store.map(([, track]) => track);
   }
 
-  getChannelByIndex(index: number): Channel {
+  getChannelByIndex(index: number): StreamIdentifier {
     return this._store[index][0];
   }
 
-  getChannels(): Channel[] {
+  getChannels(): StreamIdentifier[] {
     return this._store.map(([channel]) => channel);
   }
 
@@ -64,7 +64,7 @@ export class TrackManager {
     this._store.splice(toIndex, 0, pair);
   }
 
-  updateChannel(index: number, channel: Channel): void {
+  updateChannel(index: number, channel: StreamIdentifier): void {
     this._store[index][0] = channel;
   }
 

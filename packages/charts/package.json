@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@waveview/ndarray": "workspace:*",
+    "@waveview/stream": "workspace:*",
     "pixi.js": "^8.1.1"
   },
   "exports": {

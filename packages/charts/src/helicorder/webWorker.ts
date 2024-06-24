@@ -74,7 +74,7 @@ export class HelicorderWebWorker {
   postRequestMessage(extent: [number, number]): void {
     const [start, end] = extent;
     const width = this.chart.getWidth();
-    const channelId = this.chart.getChannel().id;
+    const channelId = this.chart.getChannel();
     const msg: WorkerRequestData<StreamRequestData> = {
       type: "stream.fetch",
       payload: {

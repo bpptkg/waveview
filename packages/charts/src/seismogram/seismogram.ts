@@ -1,7 +1,7 @@
 import { Series } from "@waveview/ndarray";
+import { StreamIdentifier } from "@waveview/stream";
 import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
-import { Channel } from "../data/channel";
 import { DataStore } from "../data/dataStore";
 import { Grid } from "../grid/grid";
 import { GridOptions } from "../grid/gridModel";
@@ -25,7 +25,7 @@ export interface SeismogramChartOptions extends ChartOptions {
   verticalScaling: "local" | "global";
   grid: Partial<GridOptions>;
   timezone: string;
-  channels: Channel[];
+  channels: string[];
 }
 
 function getDefaultOptions(): SeismogramChartOptions {
@@ -48,10 +48,10 @@ function getDefaultOptions(): SeismogramChartOptions {
 }
 
 export interface SeismogramChartType extends ChartType<SeismogramChartOptions> {
-  getChannels(): Channel[];
+  getChannels(): string[];
   getChannelCount(): number;
-  getChannelAt(index: number): Channel;
-  addChannel(channel: Channel): void;
+  getChannelAt(index: number): string;
+  addChannel(id: string): void;
   removeChannel(index: number): void;
   moveChannel(from: number, to: number): void;
   moveChannelUp(index: number): void;
@@ -96,8 +96,8 @@ export interface SeismogramChartType extends ChartType<SeismogramChartOptions> {
 }
 
 export interface SeismogramEventMap extends EventMap {
-  channelAdded: (channel: Channel) => void;
-  channelRemoved: (channel: Channel) => void;
+  channelAdded: (id: string) => void;
+  channelRemoved: (id: string) => void;
   channelMoved: (from: number, to: number) => void;
   amplitudeChanged: (range: [number, number]) => void;
   trackSelected: (index: number) => void;
@@ -168,17 +168,17 @@ export class Seismogram
     this.applyComponentThemeStyles();
   }
 
-  getChannels(): Channel[] {
-    return this._trackManager.getChannels();
+  getChannels(): string[] {
+    return this._trackManager.getChannels().map((channel) => channel.id);
   }
 
-  getChannelAt(index: number): Channel {
-    return this._trackManager.getChannelByIndex(index);
+  getChannelAt(index: number): string {
+    return this._trackManager.getChannelByIndex(index).id;
   }
 
-  addChannel(channel: Channel): void {
-    this.addChannelInternal(channel);
-    this.emit("channelAdded", channel);
+  addChannel(id: string): void {
+    this.addChannelInternal(id);
+    this.emit("channelAdded", id);
   }
 
   removeChannel(index: number): void {
@@ -485,30 +485,32 @@ export class Seismogram
     return new PIXI.Rectangle(x, trackY, width, trackHeight);
   }
 
-  private addChannelInternal(channel: Channel): Channel {
+  private addChannelInternal(id: string): string {
     const length = this._trackManager.count();
     const rect = this.getRectForTrack(length, length + 1);
 
     const yAxis = new Axis(rect, { position: "left" });
     yAxis.setExtent(this._yExtent);
 
+    const channel = new StreamIdentifier({ id });
+
     const track = new Track(rect, this._xAxis, yAxis, this, {
-      leftLabel: channel.label ?? channel.id,
+      leftLabel: channel.shortName(),
     });
     this._trackManager.add(channel, track);
 
     this.addComponent(track);
     this.updateTracksRect();
 
-    return channel;
+    return id;
   }
 
-  private removeChannelInternal(index: number): Channel {
+  private removeChannelInternal(index: number): string {
     const [channel, track] = this._trackManager.remove(index);
 
     this.removeComponent(track);
     this.updateTracksRect();
-    return channel;
+    return channel.id;
   }
 
   private updateTracksRect(): void {
