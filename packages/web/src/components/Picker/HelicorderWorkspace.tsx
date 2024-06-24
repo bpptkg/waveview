@@ -349,7 +349,7 @@ const HelicorderWorkspace = () => {
                 channels,
                 grid: {
                   top: 30,
-                  right: 10,
+                  right: 20,
                   bottom: 5,
                   left: 80,
                 },
