@@ -192,6 +192,7 @@ const HelicorderWorkspace = () => {
   // Focus/Blur
   const handleHelicorderFocus = useCallback(() => {
     seisChartRef.current?.blur();
+    seisChartRef.current?.deactivateZoomRectangle();
     setSelectedChart('helicorder');
   }, [setSelectedChart]);
 
