@@ -56,6 +56,10 @@ export interface HelicorderChartOptions extends ChartOptions {
    * Timezone of the helicorder chart.
    */
   timezone: string;
+  /**
+   * The timestamp of the last selection in the helicorder chart.
+   */
+  selection: number;
 }
 
 function getDefaultOptions(): HelicorderChartOptions {
@@ -74,6 +78,7 @@ function getDefaultOptions(): HelicorderChartOptions {
       left: 80,
     },
     timezone: "UTC",
+    selection: 0,
   };
 }
 
@@ -98,7 +103,9 @@ export interface HelicorderChartType extends ChartType<HelicorderChartOptions> {
   moveSelectionDown(): void;
   getTrackIndexAtPosition(y: number): number;
   getTrackIndexAtTime(time: number): number;
-  timeToOffset(trackIndex: number, time: number): number;
+  rowToTrackIndex(row: number): number;
+  trackIndexToRow(index: number): number;
+  timeToOffset(index: number, time: number): number;
   getTracks(): Track[];
   getTrackAt(index: number): Track | undefined;
   getTrackExtentAt(index: number): [number, number];
@@ -113,6 +120,7 @@ export interface HelicorderChartType extends ChartType<HelicorderChartOptions> {
   getTrackId(extent: [number, number]): string;
   setInterval(interval: number): void;
   setDuration(duration: number): void;
+  getSelection(): Selection;
 }
 
 export interface HelicorderEventMap extends EventMap {
@@ -129,6 +137,7 @@ export interface HelicorderEventMap extends EventMap {
   viewShiftedToTime: (time: number) => void;
   focus: () => void;
   blur: () => void;
+  selectionChanged: (value: number) => void;
 }
 
 export function createTrackId(start: number, end: number): string {
@@ -177,7 +186,9 @@ export class Helicorder
 
     this.updateTracks();
 
-    this._selection = new Selection(this._xAxis, this);
+    this._selection = new Selection(this._xAxis, this, {
+      value: opts.selection || 0,
+    });
     this.addComponent(this._selection);
 
     this._footer = new Footer(this);
@@ -260,6 +271,7 @@ export class Helicorder
 
   setOffsetDate(date: number): void {
     this.model.mergeOptions({ offsetDate: date, forceCenter: false });
+    this.updateTrackLabels();
     this.emit("offsetChanged", date);
   }
 
@@ -310,15 +322,15 @@ export class Helicorder
   }
 
   selectTrack(index: number): void {
-    const trackIndex = this.getTrackCount() - index - 1;
-    const [start, end] = this.getTrackExtentAt(trackIndex);
+    const [start, end] = this.getTrackExtentAt(index);
     const value = (start + end) / 2;
     const prevValue = this._selection.getValue();
     if (almostEquals(value, prevValue, 1)) {
       return;
     }
     this._selection.setValue((start + end) / 2);
-    this.emit("trackSelected", trackIndex);
+    this.emit("trackSelected", index);
+    this.emit("selectionChanged", value);
   }
 
   deselectTrack(): void {
@@ -369,17 +381,15 @@ export class Helicorder
     }
 
     for (let i = 0; i < this._tracks.length; i++) {
-      const trackIndex = this.getTrackCount() - i - 1;
-      const [start, end] = this.getTrackExtentAt(trackIndex);
+      const index = this.rowToTrackIndex(i);
+      const [start, end] = this.getTrackExtentAt(index);
 
       const track = this._tracks[i];
       if (track) {
         const data = this.getTrackData(start, end);
         const norm = data.scalarDivide(normFactor);
         norm.setIndex(
-          norm.index.map((value: number) =>
-            this.timeToOffset(trackIndex, value)
-          )
+          norm.index.map((value: number) => this.timeToOffset(index, value))
         );
         track.getSeries().getModel().setData(norm);
       }
@@ -404,6 +414,10 @@ export class Helicorder
 
   getTrackId(extent: [number, number]): string {
     return createTrackId(extent[0], extent[1]);
+  }
+
+  getSelection(): Selection {
+    return this._selection;
   }
 
   getTrackCount() {
@@ -431,10 +445,24 @@ export class Helicorder
     return [start, end];
   }
 
+  rowToTrackIndex(row: number): number {
+    return this.getTrackCount() - row - 1;
+  }
+
+  trackIndexToRow(index: number): number {
+    return this.getTrackCount() - index - 1;
+  }
+
+  getTrackAt(index: number): Track | undefined {
+    const row = this.rowToTrackIndex(index);
+    return this._tracks[row];
+  }
+
   getTrackIndexAtPosition(y: number): number {
     const { y: gridY, height } = this.getGrid().getRect();
     const trackHeight = height / this.getTrackCount();
-    return Math.floor((y - gridY) / trackHeight);
+    const row = Math.floor((y - gridY) / trackHeight);
+    return this.rowToTrackIndex(row);
   }
 
   getTrackIndexAtTime(time: number): number {
@@ -446,14 +474,10 @@ export class Helicorder
     return Math.floor(diff / segment);
   }
 
-  timeToOffset(trackIndex: number, time: number): number {
+  timeToOffset(index: number, time: number): number {
     const { interval } = this.model.getOptions();
-    const [start, end] = this.getTrackExtentAt(trackIndex);
+    const [start, end] = this.getTrackExtentAt(index);
     return ((time - start) / (end - start)) * interval;
-  }
-
-  getTrackAt(index: number): Track | undefined {
-    return this._tracks[this.getTrackCount() - index - 1];
   }
 
   override getGrid(): Grid {
@@ -524,7 +548,6 @@ export class Helicorder
   private updateTracks(): void {
     const requiredTrackCount = this.getTrackCount();
     const currentTrackCount = this._tracks.length;
-    const repeat = Math.max(Math.ceil(requiredTrackCount / 25), 1);
 
     if (requiredTrackCount <= currentTrackCount) {
       this._tracks.slice(0, requiredTrackCount).forEach((track, index) => {
@@ -544,6 +567,13 @@ export class Helicorder
       }
     }
 
+    this.updateTrackLabels();
+  }
+
+  private updateTrackLabels(): void {
+    const requiredTrackCount = this.getTrackCount();
+    const repeat = Math.max(Math.ceil(requiredTrackCount / 25), 1);
+
     const isMidnight = (time: number) => {
       const date = new Date(time);
       return date.getHours() === 0 && date.getMinutes() === 0;
@@ -559,8 +589,8 @@ export class Helicorder
     };
 
     for (let i = 0; i < this._tracks.length; i++) {
-      const trackIndex = this.getTrackCount() - i - 1;
-      const [start, end] = this.getTrackExtentAt(trackIndex);
+      const index = this.rowToTrackIndex(i);
+      const [start, end] = this.getTrackExtentAt(index);
 
       const track = this._tracks[i];
       if (track) {

@@ -85,9 +85,9 @@ export class EventMarker extends View<EventMarkerModel> {
       return;
     }
 
-    const trackIndex = this.chart.getTrackIndexAtTime(value);
-    const offset = this.chart.timeToOffset(trackIndex, value);
-    const track = this.chart.getTrackAt(trackIndex);
+    const index = this.chart.getTrackIndexAtTime(value);
+    const offset = this.chart.timeToOffset(index, value);
+    const track = this.chart.getTrackAt(index);
     if (!track) {
       return;
     }

@@ -106,8 +106,8 @@ export class Selection extends View<SelectionModel> {
 
     const { value, color, opacity, borderWidth } = this.model.getOptions();
 
-    const trackIndex = this.chart.getTrackIndexAtTime(value);
-    const track = this.chart.getTrackAt(trackIndex);
+    const index = this.chart.getTrackIndexAtTime(value);
+    const track = this.chart.getTrackAt(index);
     if (!track) {
       return;
     }
