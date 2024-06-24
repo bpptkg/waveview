@@ -12,6 +12,7 @@ const SeismogramWorkspace = () => {
   const initialRenderCompleteRef = useRef<boolean>(false);
 
   const {
+    useUTC,
     showEvent,
     lastSeismogramExtent,
     seismogramToolbarCheckedValues,
@@ -97,23 +98,6 @@ const SeismogramWorkspace = () => {
     [seismogramToolbarSetCheckedValues]
   );
 
-  useEffect(() => {
-    if (!initialRenderCompleteRef.current) {
-      initialRenderCompleteRef.current = true;
-      return;
-    }
-
-    if (darkMode) {
-      seisChartRef.current?.setTheme('dark');
-    } else {
-      seisChartRef.current?.setTheme('light');
-    }
-  }, [darkMode]);
-
-  useEffect(() => {
-    seisChartRef.current?.focus();
-  }, []);
-
   // Zoom Rectangle Keydown
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -140,6 +124,27 @@ const SeismogramWorkspace = () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [seismogramToolbarAddCheckedValue, seismogramToolbarRemoveCheckedValue]);
+
+  // Focus on Mount
+  useEffect(() => {
+    seisChartRef.current?.focus();
+  }, []);
+
+  // Initial Render
+  useEffect(() => {
+    if (!initialRenderCompleteRef.current) {
+      initialRenderCompleteRef.current = true;
+      return;
+    }
+
+    if (darkMode) {
+      seisChartRef.current?.setTheme('dark');
+    } else {
+      seisChartRef.current?.setTheme('light');
+    }
+
+    seisChartRef.current?.setUseUTC(useUTC);
+  }, [darkMode, useUTC]);
 
   return (
     <>
@@ -178,6 +183,7 @@ const SeismogramWorkspace = () => {
             devicePixelRatio: window.devicePixelRatio,
             startTime: lastSeismogramExtent[0],
             endTime: lastSeismogramExtent[1],
+            useUTC,
           }}
           onExtentChange={handleSeismogramExtentChange}
         />

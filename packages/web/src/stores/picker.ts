@@ -130,7 +130,6 @@ const pickerStore = create<PickerStore, [['zustand/devtools', never]]>(
 
       seismogramToolbarSetCheckedValues: (name, checkedValues) =>
         set((state) => {
-          console.log('seismogramToolbarSetCheckedValues', name, checkedValues);
           return {
             seismogramToolbarCheckedValues: {
               ...state.seismogramToolbarCheckedValues,

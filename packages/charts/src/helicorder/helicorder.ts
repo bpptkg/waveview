@@ -119,6 +119,7 @@ export interface HelicorderChartType extends ChartType<HelicorderChartOptions> {
   getTrackId(extent: [number, number]): string;
   setInterval(interval: number): void;
   setDuration(duration: number): void;
+  setUseUTC(useUTC: boolean): void;
   getSelection(): Selection;
 }
 
@@ -279,6 +280,11 @@ export class Helicorder
   setDuration(duration: number): void {
     this.model.mergeOptions({ duration });
     this.updateTracks();
+  }
+
+  setUseUTC(useUTC: boolean): void {
+    this.model.mergeOptions({ useUTC });
+    this.updateTrackLabels();
   }
 
   addEventMarker(value: number, options?: Partial<EventMarkerOptions>): void {
@@ -598,7 +604,7 @@ export class Helicorder
           i === 0 || isMidnight(start) ? "{MM}-{dd} {HH}:{mm}" : "{HH}:{mm}"
         );
 
-        const leftLabel = formatDate(start, formatString, false);
+        const leftLabel = formatDate(start, formatString, useUTC);
         track.getModel().mergeOptions({ leftLabel });
       }
     }

@@ -135,9 +135,7 @@ export class AxisPointer extends View<AxisPointerModel> {
     const value = this.axis.getValueForPixel(x);
     const padding = 5;
     const isUTC = this.chart.getModel().getOptions().useUTC;
-    const template = isUTC
-      ? "{yyyy}-{MM}-{dd}T{HH}:{mm}:{ss}.{SSS}"
-      : "{yyyy}-{MM}-{dd} {HH}:{mm}:{ss}.{SSS}";
+    const template = "{yyyy}-{MM}-{dd} {HH}:{mm}:{ss}.{SSS}";
     const valueFormatted = formatDate(value, template, isUTC);
 
     this._label.text = valueFormatted;

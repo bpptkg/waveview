@@ -36,6 +36,7 @@ export interface SeismogramChartRef {
   focus(): void;
   blur(): void;
   isFocused(): boolean;
+  setUseUTC: (useUTC: boolean) => void;
 }
 
 const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & React.RefAttributes<SeismogramChartRef>> = React.forwardRef((props, ref) => {
@@ -171,6 +172,12 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
         return chartRef.current.isFocused();
       }
       return false;
+    },
+    setUseUTC: (useUTC: boolean) => {
+      if (chartRef.current) {
+        chartRef.current.setUseUTC(useUTC);
+        chartRef.current.render();
+      }
     },
   }));
 

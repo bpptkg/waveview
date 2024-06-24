@@ -80,7 +80,7 @@ export function setMajorTicks(
 }
 
 export interface TimeScaleOptions extends ScaleOptions {
-  isUTC?: boolean;
+  useUTC?: boolean;
   locale?: string;
 }
 
@@ -92,8 +92,8 @@ export class TimeScale extends Scale<TimeScaleOptions> {
   }
 
   override getLabel(tick: TimeScaleTick): string {
-    const { isUTC = false, locale } = this.getOptions();
-    return this.adapter.format(tick.value, tick.unit, isUTC, locale);
+    const { useUTC = false, locale } = this.getOptions();
+    return this.adapter.format(tick.value, tick.unit, useUTC, locale);
   }
 
   override calcNiceExtent(): void {

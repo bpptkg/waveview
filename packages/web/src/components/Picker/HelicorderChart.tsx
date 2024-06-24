@@ -20,6 +20,7 @@ export interface HelicorderChartRef {
   increaseAmplitude: (by: number) => void;
   decreaseAmplitude: (by: number) => void;
   resetAmplitude: () => void;
+  setUseUTC: (useUTC: boolean) => void;
   setOffsetDate: (date: number) => void;
   setInterval: (interval: number) => void;
   setDuration: (duration: number) => void;
@@ -92,6 +93,10 @@ const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & Re
         chartRef.current.setTheme(theme);
         chartRef.current.render();
       }
+    },
+    setUseUTC: (useUTC: boolean) => {
+      chartRef.current?.setUseUTC(useUTC);
+      chartRef.current?.render();
     },
     getTrackExtent: (trackId: number) => {
       if (chartRef.current) {

@@ -16,6 +16,7 @@ const HelicorderWorkspace = () => {
 
   const pickerStore = usePickerStore();
   const {
+    useUTC,
     channelId,
     offsetDate,
     interval,
@@ -156,22 +157,6 @@ const HelicorderWorkspace = () => {
     }
   }, []);
 
-  // Dark Mode
-  useEffect(() => {
-    if (!initialRenderCompleteRef.current) {
-      initialRenderCompleteRef.current = true;
-      return;
-    }
-
-    if (darkMode) {
-      heliChartRef.current?.setTheme('dark');
-      seisChartRef.current?.setTheme('dark');
-    } else {
-      heliChartRef.current?.setTheme('light');
-      seisChartRef.current?.setTheme('light');
-    }
-  }, [darkMode]);
-
   // Track Selection
   const handleTrackSelected = useCallback(
     (trackIndex: number) => {
@@ -270,6 +255,25 @@ const HelicorderWorkspace = () => {
     };
   }, [seismogramToolbarAddCheckedValue, seismogramToolbarRemoveCheckedValue]);
 
+  // Initial Render
+  useEffect(() => {
+    if (!initialRenderCompleteRef.current) {
+      initialRenderCompleteRef.current = true;
+      return;
+    }
+
+    if (darkMode) {
+      heliChartRef.current?.setTheme('dark');
+      seisChartRef.current?.setTheme('dark');
+    } else {
+      heliChartRef.current?.setTheme('light');
+      seisChartRef.current?.setTheme('light');
+    }
+
+    heliChartRef.current?.setUseUTC(useUTC);
+    seisChartRef.current?.setUseUTC(useUTC);
+  }, [darkMode, useUTC]);
+
   return (
     <>
       {selectedChart === 'helicorder' && (
@@ -327,6 +331,7 @@ const HelicorderWorkspace = () => {
                   left: 80,
                 },
                 devicePixelRatio: window.devicePixelRatio,
+                useUTC,
               }}
               onTrackSelected={handleTrackSelected}
               onTrackDeselected={handleTrackDeselected}
@@ -357,6 +362,7 @@ const HelicorderWorkspace = () => {
                 devicePixelRatio: window.devicePixelRatio,
                 startTime: lastTrackExtent[0],
                 endTime: lastTrackExtent[1],
+                useUTC,
               }}
               onFocus={handleSeismogramFocus}
               onBlur={handleSeismogramBlur}

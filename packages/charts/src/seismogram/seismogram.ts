@@ -92,6 +92,7 @@ export interface SeismogramChartType extends ChartType<SeismogramChartOptions> {
   refreshData(): void;
   clearData(): void;
   getDataStore(): DataStore<SeriesData>;
+  setUseUTC(useUTC: boolean): void;
 }
 
 export interface SeismogramEventMap extends EventMap {
@@ -204,6 +205,12 @@ export class Seismogram
       return;
     }
     this.moveChannel(index, index + 1);
+  }
+
+  setUseUTC(useUTC: boolean): void {
+    this.getModel().mergeOptions({ useUTC });
+    this.getXAxis().getModel().mergeOptions({ useUTC });
+    this.getXAxis().getModel().getScale().mergeOptions({ useUTC });
   }
 
   addLineMarker(

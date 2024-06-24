@@ -115,14 +115,15 @@ export class AxisModel extends Model<AxisOptions> {
     ) as AxisOptions;
     super(opts);
 
-    if (opts.type === "linear") {
+    const { type, useUTC } = opts;
+    if (type === "linear") {
       this.scale = new LinearScale();
-    } else if (opts.type === "time") {
+    } else if (type === "time") {
       this.scale = new TimeScale({
-        isUTC: opts.useUTC,
+        useUTC,
       });
     } else {
-      throw new Error("Unsupported scale type");
+      throw new Error(`Unsupported scale type ${type}`);
     }
   }
 
