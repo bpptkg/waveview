@@ -117,6 +117,9 @@ export class TimeScale extends Scale<TimeScaleOptions> {
     const count = +this.adapter.diff(last, first, unit);
     const rawInterval = Math.ceil(count / (numTicks - 1));
     const interval = rawInterval % 2 === 0 ? rawInterval : rawInterval + 1;
+    if (count < 1) {
+      return ticks;
+    }
 
     let tick = first;
     do {
@@ -142,6 +145,9 @@ export class TimeScale extends Scale<TimeScaleOptions> {
     const rawInterval = Math.ceil(count / (numTicks - 1));
     const interval = rawInterval % 2 === 0 ? rawInterval : rawInterval + 1;
     const minorInterval = interval / splitNumber;
+    if (count < 1) {
+      return minorTicks;
+    }
 
     let tick = first;
     do {

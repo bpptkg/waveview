@@ -94,10 +94,14 @@ export class ZoomRectangle extends View<ZoomRectangleModel> {
       return;
     }
 
-    const x1 = Math.min(this._start.x, this._end.x);
-    const x2 = Math.max(this._start.x, this._end.x);
-
     const rect = this.chart.getGrid().getRect();
+
+    const x1 = Math.max(Math.min(this._start.x, this._end.x), rect.x);
+    const x2 = Math.min(
+      Math.max(this._start.x, this._end.x),
+      rect.x + rect.width
+    );
+
     const y = rect.y;
     const width = x2 - x1;
     const height = rect.height;
@@ -147,12 +151,32 @@ export class ZoomRectangle extends View<ZoomRectangleModel> {
 
     this._isDragging = false;
     this._isVisible = false;
+
     this.render();
 
-    const xAxis = this.chart.getXAxis();
-    const start = xAxis.getValueForPixel(this._start.x);
-    const end = xAxis.getValueForPixel(this._end.x);
-    this.emit("extentSelected", [start, end]);
+    const rect = this.chart.getGrid().getRect();
+
+    const x1 = Math.max(Math.min(this._start.x, this._end.x), rect.x);
+    const x2 = Math.min(
+      Math.max(this._start.x, this._end.x),
+      rect.x + rect.width
+    );
+
+    const isSelectionReasonablyWide = Math.abs(x2 - x1) > 5;
+    if (!isSelectionReasonablyWide) {
+      return;
+    }
+
+    if (x1 >= rect.x && x2 <= rect.x + rect.width) {
+      const xAxis = this.chart.getXAxis();
+      const start = xAxis.getValueForPixel(x1);
+      const end = xAxis.getValueForPixel(x2);
+
+      this.emit("extentSelected", [start, end]);
+    }
+
+    this._start.set(0, 0);
+    this._end.set(0, 0);
   }
 }
 
