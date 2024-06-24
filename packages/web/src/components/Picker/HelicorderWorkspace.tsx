@@ -11,48 +11,66 @@ import SeismogramToolbar from './Toolbar/SeismogramToolbar';
 const HelicorderWorkspace = () => {
   const heliChartRef = useRef<HelicorderChartRef | null>(null);
   const seisChartRef = useRef<SeismogramChartRef | null>(null);
-  const initialRenderCompleteRef = useRef<boolean>(false);
+  const initialRenderCompleteRef = useRef<boolean | null>(null);
+  const selectingTrackRef = useRef<boolean | null>(null);
 
   const pickerStore = usePickerStore();
-  const { channelId, interval, duration, showEvent, selectedChart, setInterval, setDuration, setChannelId, setShowEvent, setSelectedChart, setOffsetDate } =
-    pickerStore;
+  const {
+    channelId,
+    offsetDate,
+    interval,
+    duration,
+    showEvent,
+    selectedChart,
+    lastTrackExtent,
+    lastSelection,
+    setInterval,
+    setDuration,
+    setChannelId,
+    setShowEvent,
+    setSelectedChart,
+    setOffsetDate,
+    setLastTrackExtent,
+    setLastSelection,
+  } = pickerStore;
 
   const { darkMode } = useAppStore();
 
-  const handleShiftViewUp = useCallback(() => {
+  // Helicorder Toolbar
+  const handleHelicorderShiftViewUp = useCallback(() => {
     heliChartRef.current?.shiftViewUp();
   }, []);
 
-  const handleShiftViewDown = useCallback(() => {
+  const handleHelicorderShiftViewDown = useCallback(() => {
     heliChartRef.current?.shiftViewDown();
   }, []);
 
-  const handleShiftViewToNow = useCallback(() => {
+  const handleHelicorderShiftViewToNow = useCallback(() => {
     const now = Date.now();
     heliChartRef.current?.setOffsetDate(now);
     setOffsetDate(now);
   }, [setOffsetDate]);
 
-  const handleIncreaseAmplitude = useCallback(() => {
+  const handleHelicorderIncreaseAmplitude = useCallback(() => {
     heliChartRef.current?.increaseAmplitude(0.05);
   }, []);
 
-  const handleDecreaseAmplitude = useCallback(() => {
+  const handleHelicorderDecreaseAmplitude = useCallback(() => {
     heliChartRef.current?.decreaseAmplitude(0.05);
   }, []);
 
-  const handleResetAmplitude = useCallback(() => {
+  const handleHelicorderResetAmplitude = useCallback(() => {
     heliChartRef.current?.resetAmplitude();
   }, []);
 
-  const handleChannelChange = useCallback(
+  const handleHelicorderChannelChange = useCallback(
     (channelId: string) => {
       setChannelId(channelId);
     },
     [setChannelId]
   );
 
-  const handleChangeInterval = useCallback(
+  const handleHelicorderChangeInterval = useCallback(
     (interval: number) => {
       setInterval(interval);
       heliChartRef.current?.setInterval(interval);
@@ -60,7 +78,7 @@ const HelicorderWorkspace = () => {
     [setInterval]
   );
 
-  const handleChangeDuration = useCallback(
+  const handleHelicorderChangeDuration = useCallback(
     (duration: number) => {
       setDuration(duration);
       heliChartRef.current?.setDuration(duration);
@@ -68,7 +86,7 @@ const HelicorderWorkspace = () => {
     [setDuration]
   );
 
-  const handleShowEventChange = useCallback(
+  const handleHelicorderShowEventChange = useCallback(
     (showEvent: boolean) => {
       setShowEvent(showEvent);
       if (showEvent) {
@@ -80,52 +98,7 @@ const HelicorderWorkspace = () => {
     [setShowEvent]
   );
 
-  useEffect(() => {
-    if (!initialRenderCompleteRef.current) {
-      initialRenderCompleteRef.current = true;
-      return;
-    }
-
-    if (darkMode) {
-      heliChartRef.current?.setTheme('dark');
-      seisChartRef.current?.setTheme('dark');
-    } else {
-      heliChartRef.current?.setTheme('light');
-      seisChartRef.current?.setTheme('light');
-    }
-  }, [darkMode]);
-
-  const handleTrackSelected = useCallback((trackId: number) => {
-    if (heliChartRef.current && seisChartRef.current) {
-      const extent = heliChartRef.current.getTrackExtent(trackId);
-      seisChartRef.current.setExtent(extent);
-    }
-  }, []);
-
-  const handleTrackDeselected = useCallback(() => {
-    // TODO
-  }, []);
-
-  const handleHelicorderFocus = useCallback(() => {
-    seisChartRef.current?.blur();
-    setSelectedChart('helicorder');
-  }, [setSelectedChart]);
-
-  const handleHelicorderBlur = useCallback(() => {
-    // TODO
-  }, []);
-
-  const handleSeismogramFocus = useCallback(() => {
-    // TODO
-    heliChartRef.current?.blur();
-    setSelectedChart('seismogram');
-  }, [setSelectedChart]);
-
-  const handleSeismogramBlur = useCallback(() => {
-    // TODO
-  }, []);
-
-  // Seismogram
+  // Seismogram Toolbar
   const handleSeismogramZoomIn = useCallback(() => {
     seisChartRef.current?.zoomIn(0.05);
   }, []);
@@ -179,6 +152,84 @@ const HelicorderWorkspace = () => {
     }
   }, []);
 
+  // Dark Mode
+  useEffect(() => {
+    if (!initialRenderCompleteRef.current) {
+      initialRenderCompleteRef.current = true;
+      return;
+    }
+
+    if (darkMode) {
+      heliChartRef.current?.setTheme('dark');
+      seisChartRef.current?.setTheme('dark');
+    } else {
+      heliChartRef.current?.setTheme('light');
+      seisChartRef.current?.setTheme('light');
+    }
+  }, [darkMode]);
+
+  // Track Selection
+  const handleTrackSelected = useCallback(
+    (trackIndex: number) => {
+      if (selectingTrackRef.current) {
+        return;
+      }
+
+      if (heliChartRef.current && seisChartRef.current) {
+        const extent = heliChartRef.current.getTrackExtent(trackIndex);
+        seisChartRef.current.setExtent(extent);
+
+        setLastTrackExtent(extent);
+      }
+    },
+    [setLastTrackExtent]
+  );
+
+  const handleTrackDeselected = useCallback(() => {
+    // TODO
+  }, []);
+
+  // Focus/Blur
+  const handleHelicorderFocus = useCallback(() => {
+    seisChartRef.current?.blur();
+    setSelectedChart('helicorder');
+  }, [setSelectedChart]);
+
+  const handleHelicorderBlur = useCallback(() => {
+    // TODO
+  }, []);
+
+  const handleSeismogramFocus = useCallback(() => {
+    // TODO
+    heliChartRef.current?.blur();
+    setSelectedChart('seismogram');
+  }, [setSelectedChart]);
+
+  const handleSeismogramBlur = useCallback(() => {
+    // TODO
+  }, []);
+
+  const handleSeismogramExtentChange = useCallback(
+    (extent: [number, number]) => {
+      setLastTrackExtent(extent);
+    },
+    [setLastTrackExtent]
+  );
+
+  const handleHelicorderOffsetChange = useCallback(
+    (date: number) => {
+      setOffsetDate(date);
+    },
+    [setOffsetDate]
+  );
+
+  const handleHelicorderSelectionChange = useCallback(
+    (selection: number) => {
+      setLastSelection(selection);
+    },
+    [setLastSelection]
+  );
+
   return (
     <>
       {selectedChart === 'helicorder' && (
@@ -187,16 +238,16 @@ const HelicorderWorkspace = () => {
           interval={interval}
           duration={duration}
           showEvent={showEvent}
-          onShiftViewUp={handleShiftViewUp}
-          onShiftViewDown={handleShiftViewDown}
-          onShiftViewToNow={handleShiftViewToNow}
-          onIncreaseAmplitude={handleIncreaseAmplitude}
-          onDecreaseAmplitude={handleDecreaseAmplitude}
-          onResetAmplitude={handleResetAmplitude}
-          onChannelChange={handleChannelChange}
-          onIntervalChange={handleChangeInterval}
-          onDurationChange={handleChangeDuration}
-          onShowEventChange={handleShowEventChange}
+          onShiftViewUp={handleHelicorderShiftViewUp}
+          onShiftViewDown={handleHelicorderShiftViewDown}
+          onShiftViewToNow={handleHelicorderShiftViewToNow}
+          onIncreaseAmplitude={handleHelicorderIncreaseAmplitude}
+          onDecreaseAmplitude={handleHelicorderDecreaseAmplitude}
+          onResetAmplitude={handleHelicorderResetAmplitude}
+          onChannelChange={handleHelicorderChannelChange}
+          onIntervalChange={handleHelicorderChangeInterval}
+          onDurationChange={handleHelicorderChangeDuration}
+          onShowEventChange={handleHelicorderShowEventChange}
         />
       )}
       {selectedChart === 'seismogram' && (
@@ -224,6 +275,8 @@ const HelicorderWorkspace = () => {
               duration,
               channelId,
               darkMode,
+              offsetDate,
+              selection: lastSelection,
               grid: {
                 top: 30,
                 right: 80,
@@ -234,8 +287,10 @@ const HelicorderWorkspace = () => {
             }}
             onTrackSelected={handleTrackSelected}
             onTrackDeselected={handleTrackDeselected}
-            onFocused={handleHelicorderFocus}
-            onBlurred={handleHelicorderBlur}
+            onFocus={handleHelicorderFocus}
+            onBlur={handleHelicorderBlur}
+            onOffsetChange={handleHelicorderOffsetChange}
+            onSelectionChange={handleHelicorderSelectionChange}
           />
         </div>
         <div className="relative w-2/3 h-full flex flex-col">
@@ -258,9 +313,12 @@ const HelicorderWorkspace = () => {
                 },
                 darkMode,
                 devicePixelRatio: window.devicePixelRatio,
+                startTime: lastTrackExtent[0],
+                endTime: lastTrackExtent[1],
               }}
-              onFocused={handleSeismogramFocus}
-              onBlurred={handleSeismogramBlur}
+              onFocus={handleSeismogramFocus}
+              onBlur={handleSeismogramBlur}
+              onExtentChange={handleSeismogramExtentChange}
             />
           </div>
           <div className=" bg-white dark:bg-black relative flex items-center justify-end gap-2 mr-2 h-[20px]">

@@ -12,8 +12,9 @@ import { debounce } from '../../shared/debounce';
 export interface SeismogramChartProps {
   initOptions?: Partial<SeismogramChartOptions>;
   className?: string;
-  onFocused?: () => void;
-  onBlurred?: () => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  onExtentChange?: (extent: [number, number]) => void;
 }
 
 export interface SeismogramChartRef {
@@ -37,7 +38,7 @@ export interface SeismogramChartRef {
 }
 
 const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & React.RefAttributes<SeismogramChartRef>> = React.forwardRef((props, ref) => {
-  const { initOptions, className, onFocused, onBlurred } = props;
+  const { initOptions, className, onFocus, onBlur, onExtentChange } = props;
 
   const seisRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Seismogram | null>(null);
@@ -175,12 +176,19 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
   };
 
   const handleFocus = useCallback(() => {
-    onFocused?.();
-  }, [onFocused]);
+    onFocus?.();
+  }, [onFocus]);
 
   const handleBlur = useCallback(() => {
-    onBlurred?.();
-  }, [onBlurred]);
+    onBlur?.();
+  }, [onBlur]);
+
+  const handleExtentChange = useCallback(
+    (extent: [number, number]) => {
+      onExtentChange?.(extent);
+    },
+    [onExtentChange]
+  );
 
   useEffect(() => {
     async function init() {
@@ -189,6 +197,7 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
         await chartRef.current.init();
         chartRef.current.on('focus', handleFocus);
         chartRef.current.on('blur', handleBlur);
+        chartRef.current.on('extentChanged', handleExtentChange);
 
         workerRef.current = new Worker(new URL('../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
         webWorkerRef.current = new SeismogramWebWorker(chartRef.current, workerRef.current);

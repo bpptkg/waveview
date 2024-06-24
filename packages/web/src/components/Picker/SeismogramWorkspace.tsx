@@ -10,7 +10,8 @@ import SeismogramToolbar from './Toolbar/SeismogramToolbar';
 const SeismogramWorkspace = () => {
   const seisChartRef = useRef<SeismogramChartRef | null>(null);
   const initialRenderCompleteRef = useRef<boolean>(false);
-  const { showEvent, setShowEvent } = usePickerStore();
+
+  const { showEvent, lastSeismogramExtent, setShowEvent, setLastSeismogramExtent } = usePickerStore();
   const { darkMode } = useAppStore();
 
   const handleSeismogramZoomIn = useCallback(() => {
@@ -73,6 +74,13 @@ const SeismogramWorkspace = () => {
     [seisChartRef]
   );
 
+  const handleSeismogramExtentChange = useCallback(
+    (extent: [number, number]) => {
+      setLastSeismogramExtent(extent);
+    },
+    [setLastSeismogramExtent]
+  );
+
   useEffect(() => {
     if (!initialRenderCompleteRef.current) {
       initialRenderCompleteRef.current = true;
@@ -123,7 +131,10 @@ const SeismogramWorkspace = () => {
             },
             darkMode,
             devicePixelRatio: window.devicePixelRatio,
+            startTime: lastSeismogramExtent[0],
+            endTime: lastSeismogramExtent[1],
           }}
+          onExtentChange={handleSeismogramExtentChange}
         />
       </div>
       <div className=" bg-white dark:bg-black">

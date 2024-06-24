@@ -5,10 +5,12 @@ import { debounce } from '../../shared/debounce';
 export interface HelicorderChartProps {
   className?: string;
   initOptions?: Partial<HelicorderChartOptions>;
-  onTrackSelected?: (trackId: number) => void;
-  onTrackDeselected?: (trackId: number) => void;
-  onFocused?: () => void;
-  onBlurred?: () => void;
+  onTrackSelected?: (index: number) => void;
+  onTrackDeselected?: (index: number) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  onOffsetChange?: (date: number) => void;
+  onSelectionChange?: (value: number) => void;
 }
 
 export interface HelicorderChartRef {
@@ -22,13 +24,15 @@ export interface HelicorderChartRef {
   setInterval: (interval: number) => void;
   setDuration: (duration: number) => void;
   setTheme: (theme: 'light' | 'dark') => void;
-  getTrackExtent: (trackId: number) => [number, number];
+  getTrackExtent: (index: number) => [number, number];
   focus: () => void;
   blur: () => void;
+  selectTrack: (index: number) => void;
+  setSelection: (value: number) => void;
 }
 
 const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & React.RefAttributes<HelicorderChartRef>> = React.forwardRef((props, ref) => {
-  const { initOptions, className, onTrackSelected, onTrackDeselected, onFocused, onBlurred } = props;
+  const { initOptions, className, onTrackSelected, onTrackDeselected, onFocus, onBlur, onOffsetChange, onSelectionChange } = props;
 
   const heliRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Helicorder | null>(null);
@@ -101,29 +105,54 @@ const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & Re
     blur: () => {
       chartRef.current?.blur();
     },
+    selectTrack: (index: number) => {
+      if (chartRef.current) {
+        chartRef.current.selectTrack(index);
+      }
+    },
+    setSelection: (value: number) => {
+      if (chartRef.current) {
+        chartRef.current.getSelection().setValue(value);
+        chartRef.current.render();
+      }
+    },
   }));
 
   const handleTrackSelected = useCallback(
-    (trackId: number) => {
-      onTrackSelected?.(trackId);
+    (index: number) => {
+      onTrackSelected?.(index);
     },
     [onTrackSelected]
   );
 
   const handleTrackDeselected = useCallback(
-    (trackId: number) => {
-      onTrackDeselected?.(trackId);
+    (index: number) => {
+      onTrackDeselected?.(index);
     },
     [onTrackDeselected]
   );
 
   const handleFocus = useCallback(() => {
-    onFocused?.();
-  }, [onFocused]);
+    onFocus?.();
+  }, [onFocus]);
 
   const handleBlur = useCallback(() => {
-    onBlurred?.();
-  }, [onBlurred]);
+    onBlur?.();
+  }, [onBlur]);
+
+  const handleOffsetChange = useCallback(
+    (date: number) => {
+      onOffsetChange?.(date);
+    },
+    [onOffsetChange]
+  );
+
+  const handleSelectionChange = useCallback(
+    (value: number) => {
+      onSelectionChange?.(value);
+    },
+    [onSelectionChange]
+  );
 
   useEffect(() => {
     async function init() {
@@ -134,6 +163,8 @@ const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & Re
         chartRef.current.on('trackDeselected', handleTrackDeselected);
         chartRef.current.on('focus', handleFocus);
         chartRef.current.on('blur', handleBlur);
+        chartRef.current.on('offsetChanged', handleOffsetChange);
+        chartRef.current.on('selectionChanged', handleSelectionChange);
 
         workerRef.current = new Worker(new URL('../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
         webWorkerRef.current = new HelicorderWebWorkerExtension(workerRef.current);
