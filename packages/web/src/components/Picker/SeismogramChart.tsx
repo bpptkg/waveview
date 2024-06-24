@@ -33,6 +33,7 @@ export interface SeismogramChartRef {
   setTheme: (theme: 'light' | 'dark') => void;
   activateZoomRectangle: () => void;
   deactivateZoomRectangle: () => void;
+  isZoomRectangleActive: () => boolean;
   focus(): void;
   blur(): void;
   isFocused(): boolean;
@@ -156,6 +157,12 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
       if (zoomRectangleExtensionRef.current) {
         zoomRectangleExtensionRef.current.deactivate();
       }
+    },
+    isZoomRectangleActive: () => {
+      if (zoomRectangleExtensionRef.current) {
+        return zoomRectangleExtensionRef.current.getInstance().isActive();
+      }
+      return false;
     },
     focus: () => {
       if (chartRef.current) {

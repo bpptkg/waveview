@@ -228,7 +228,7 @@ const HelicorderWorkspace = () => {
     [seismogramToolbarSetCheckedValues]
   );
 
-  // Zoom Rectangle Keydown
+  // Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!seisChartRef.current || !seisChartRef.current.isFocused()) {
@@ -236,15 +236,17 @@ const HelicorderWorkspace = () => {
       }
 
       switch (event.key) {
-        case 'Escape':
-          seisChartRef.current?.deactivateZoomRectangle();
-          seismogramToolbarRemoveCheckedValue('options', 'zoom-rectangle');
-          break;
         case 'z':
-        case 'Z':
-          seisChartRef.current?.activateZoomRectangle();
-          seismogramToolbarAddCheckedValue('options', 'zoom-rectangle');
+        case 'Z': {
+          if (seisChartRef.current.isZoomRectangleActive()) {
+            seisChartRef.current.deactivateZoomRectangle();
+            seismogramToolbarRemoveCheckedValue('options', 'zoom-rectangle');
+          } else {
+            seisChartRef.current?.activateZoomRectangle();
+            seismogramToolbarAddCheckedValue('options', 'zoom-rectangle');
+          }
           break;
+        }
       }
     };
 
