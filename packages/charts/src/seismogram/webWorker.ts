@@ -37,7 +37,7 @@ export class SeismogramWebWorker {
 
     this.options = {
       threshold: 4,
-      maxPoints: 100 * 60 * 4,
+      maxPoints: 100 * 60,
       ...options,
     };
   }
