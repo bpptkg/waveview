@@ -365,7 +365,7 @@ const HelicorderWorkspace = () => {
             />
           </div>
         </div>
-        <div className=" bg-white dark:bg-black relative flex items-center justify-end gap-2 mr-2 h-[20px]">
+        <div className="bg-white dark:bg-black relative flex items-center justify-end gap-2 mr-2 h-[20px]">
           <RealtimeClock />
           <TimeZoneSelector />
         </div>

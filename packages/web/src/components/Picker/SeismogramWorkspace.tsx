@@ -184,7 +184,7 @@ const SeismogramWorkspace = () => {
           onExtentChange={handleSeismogramExtentChange}
         />
       </div>
-      <div className=" bg-white dark:bg-black">
+      <div className="bg-white dark:bg-black">
         <div className="ml-[80px] flex items-center justify-between">
           <TimeRangeSelector onSelected={handleSeismogramTimeRangeSelected} />
           <div className="flex items-center gap-2 mr-2">
