@@ -68,7 +68,7 @@ export class SeismogramWebWorker {
     const [start, end] = extent;
     const diffInMinutes = (end - start) / ONE_MINUTE;
     const mode: ResampleMode =
-      diffInMinutes < threshold ? "max_points" : "auto";
+      diffInMinutes < threshold ? "max_points" : "match_width";
 
     const width = this.chart.getWidth();
     const msg: WorkerRequestData<StreamRequestData> = {
