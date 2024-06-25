@@ -1,4 +1,3 @@
-export type { Channel } from "./data/channel";
 export {
   HelicorderEventManager,
   HelicorderEventManagerExtension,
