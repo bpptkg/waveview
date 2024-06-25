@@ -52,7 +52,7 @@ export interface HelicorderChartOptions extends ChartOptions {
    */
   grid: Partial<GridOptions>;
   /**
-   * Timezone of the helicorder chart.
+   * Local timezone of the helicorder chart.
    */
   timezone: string;
   /**

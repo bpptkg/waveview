@@ -17,14 +17,43 @@ import { AxisPointer } from "./axisPointer";
 import { TrackManager } from "./trackManager";
 
 export interface SeismogramChartOptions extends ChartOptions {
+  /**
+   * The start time of the chart in UNIX timestamp.
+   */
   startTime?: number;
+  /**
+   * The end time of the chart in UNIX timestamp.
+   */
   endTime?: number;
+  /**
+   * The interval of the chart in minutes if `startTime` and `endTime` are not
+   * provided.
+   */
   interval: number;
+  /**
+   * Whether to force the chart to center the data.
+   */
   forceCenter: boolean;
+  /**
+   * Whether to use UTC time.
+   */
   useUTC: boolean;
+   /**
+   * Vertical scaling of the helicorder chart. ``local`` scales each track
+   * independently, while ``global`` scales all tracks together.
+   */
   verticalScaling: "local" | "global";
+  /**
+   * The grid options.
+   */
   grid: Partial<GridOptions>;
+  /**
+   * Local timezone name of the seismogram chart.
+   */
   timezone: string;
+  /**
+   * The list of channel IDs.
+   */
   channels: string[];
 }
 
