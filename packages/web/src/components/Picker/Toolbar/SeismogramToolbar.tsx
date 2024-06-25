@@ -21,7 +21,6 @@ import {
 import {
   Add20Regular,
   AutoFitHeight20Regular,
-  Calendar20Regular,
   ChevronDoubleRight20Regular,
   ChevronDown12Regular,
   ChevronDownUp20Regular,
@@ -97,7 +96,6 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
     onScrollLeft,
     onScrollRight,
     onScrollToNow,
-    onScrollToDate,
     onIncreaseAmplitude,
     onDecreaseAmplitude,
     onResetAmplitude,
@@ -207,7 +205,6 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
         <ToolbarButton aria-label="Scroll Left" icon={<ChevronLeft20Regular />} onClick={onScrollLeft} />
         <ToolbarButton aria-label="Scroll Right" icon={<ChevronRight20Regular />} onClick={onScrollRight} />
         <ToolbarButton aria-label="Scroll to Now" icon={<ChevronDoubleRight20Regular />} onClick={onScrollToNow} />
-        <ToolbarButton aria-label="Scroll to Date" icon={<Calendar20Regular />} />
         <ToolbarButton aria-label="Increase Amplitude" icon={<ChevronUpDown20Regular />} onClick={onIncreaseAmplitude} />
         <ToolbarButton aria-label="Decrease Amplitude" icon={<ChevronDownUp20Regular />} onClick={onDecreaseAmplitude} />
         <ToolbarButton aria-label="Reset Amplitude" icon={<AutoFitHeight20Regular />} onClick={onResetAmplitude} />

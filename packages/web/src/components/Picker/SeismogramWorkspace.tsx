@@ -6,6 +6,7 @@ import SeismogramChart, { SeismogramChartRef } from './SeismogramChart';
 import TimeRangeSelector from './TimeRangeSelector';
 import TimeZoneSelector from './TimezoneSelector';
 import SeismogramToolbar from './Toolbar/SeismogramToolbar';
+import { useSeismogramStore } from '../../stores/seismogram';
 
 const SeismogramWorkspace = () => {
   const seisChartRef = useRef<SeismogramChartRef | null>(null);
@@ -27,6 +28,8 @@ const SeismogramWorkspace = () => {
     moveChannel,
   } = usePickerStore();
   const { darkMode } = useAppStore();
+
+  const {offsetDate, setOffsetDate} = useSeismogramStore()
 
   const handleSeismogramZoomIn = useCallback(() => {
     seisChartRef.current?.zoomIn(0.05);
@@ -75,7 +78,8 @@ const SeismogramWorkspace = () => {
 
   const handleSeismogramTimeRangeSelected = useCallback((start: number, end: number) => {
     seisChartRef.current?.setExtent([start, end]);
-  }, []);
+    setOffsetDate(end)
+  }, [setOffsetDate]);
 
   const handleSeismogramZoomRectangleChange = useCallback(
     (active: boolean) => {
@@ -146,15 +150,17 @@ const SeismogramWorkspace = () => {
       }
 
       switch (event.key) {
-        case 'Escape':
-          seisChartRef.current?.deactivateZoomRectangle();
-          seismogramToolbarRemoveCheckedValue('options', 'zoom-rectangle');
-          break;
         case 'z':
-        case 'Z':
-          seisChartRef.current?.activateZoomRectangle();
-          seismogramToolbarAddCheckedValue('options', 'zoom-rectangle');
+        case 'Z': {
+          if (seisChartRef.current.isZoomRectangleActive()) {
+            seisChartRef.current.deactivateZoomRectangle();
+            seismogramToolbarRemoveCheckedValue('options', 'zoom-rectangle');
+          } else {
+            seisChartRef.current?.activateZoomRectangle();
+            seismogramToolbarAddCheckedValue('options', 'zoom-rectangle');
+          }
           break;
+        }
       }
     };
 
@@ -229,7 +235,7 @@ const SeismogramWorkspace = () => {
       </div>
       <div className="bg-white dark:bg-black">
         <div className="ml-[80px] flex items-center justify-between">
-          <TimeRangeSelector onSelected={handleSeismogramTimeRangeSelected} />
+          <TimeRangeSelector offsetDate={new Date(offsetDate)} onSelected={handleSeismogramTimeRangeSelected} />
           <div className="flex items-center gap-2 mr-2">
             <RealtimeClock />
             <TimeZoneSelector />

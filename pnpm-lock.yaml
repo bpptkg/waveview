@@ -63,6 +63,9 @@ importers:
 
   packages/web:
     dependencies:
+      '@fluentui/react-calendar-compat':
+        specifier: ^0.1.11
+        version: 0.1.11(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@fluentui/react-components':
         specifier: ^9.54.0
         version: 9.54.0(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.0)
@@ -492,6 +495,14 @@ packages:
       react: '>=16.14.0 <19.0.0'
       react-dom: '>=16.14.0 <19.0.0'
 
+  '@fluentui/react-calendar-compat@0.1.11':
+    resolution: {integrity: sha512-0yrwdJaG4zJio9TolGVYW3Xq2Ud6bGaOvPLdmxO57kN+ZwwznAfoEFA4zz76V/rCB8BFxiRwWLni3r3HVs9hYA==}
+    peerDependencies:
+      '@types/react': '>=16.8.0 <19.0.0'
+      '@types/react-dom': '>=16.8.0 <19.0.0'
+      react: '>=16.8.0 <19.0.0'
+      react-dom: '>=16.8.0 <19.0.0'
+
   '@fluentui/react-card@9.0.82':
     resolution: {integrity: sha512-FIOjY+oGMdDYdEm5yVpyzinpZ9EwHqvXs8Ag55S3wQgKmBCcfSkregRFGJUb1tnsA3fMJecPgeYWQ9+7rZ/a0A==}
     peerDependencies:
@@ -816,6 +827,14 @@ packages:
 
   '@fluentui/react-tabster@9.21.5':
     resolution: {integrity: sha512-35k5mWN73m94EcRKZKAjSbQroA35C+RA+sbWVlg40mNm4d9UYKyre0mblvaL+EVogQeoLUUtPLVvNu/cYxNdNg==}
+    peerDependencies:
+      '@types/react': '>=16.14.0 <19.0.0'
+      '@types/react-dom': '>=16.9.0 <19.0.0'
+      react: '>=16.14.0 <19.0.0'
+      react-dom: '>=16.14.0 <19.0.0'
+
+  '@fluentui/react-tabster@9.22.0':
+    resolution: {integrity: sha512-R61y6/kRWjA8UP9F/wMvOBtOFM1frgiQA0zF49BfrQvwnJMFEYidaLsc1e6IkNS34IiwpsESaIIOlDMn5mUXzg==}
     peerDependencies:
       '@types/react': '>=16.14.0 <19.0.0'
       '@types/react-dom': '>=16.9.0 <19.0.0'
@@ -2207,6 +2226,9 @@ packages:
   tabster@7.2.0:
     resolution: {integrity: sha512-0GJcYokZX2QIqtJBTFwGksyZzMcZr3DAGncP4egcOIspxYJFDdWqMh9zZWnxIZhAsBwVbovFK2ko7VPMp1edYw==}
 
+  tabster@8.0.0:
+    resolution: {integrity: sha512-82pqhDwH3uq7hVcy1nOo7lyYgCJcVUPqb30hvoHtX8DQ5pxEtRz9+FqVcW5w7J6kTjNBBu7cwKvuMy9qoeQt1g==}
+
   tailwindcss@3.4.4:
     resolution: {integrity: sha512-ZoyXOdJjISB7/BcLTR6SEsLgKtDStYyYZVLsUtWChO4Ps20CBad7lfJKVDiejocV4ME1hLmyY0WJE3hSDcmQ2A==}
     engines: {node: '>=14.0.0'}
@@ -2798,6 +2820,22 @@ snapshots:
       '@fluentui/react-jsx-runtime': 9.0.39(@types/react@18.3.3)(react@18.3.1)
       '@fluentui/react-shared-contexts': 9.19.0(@types/react@18.3.3)(react@18.3.1)
       '@fluentui/react-tabster': 9.21.5(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@fluentui/react-theme': 9.1.19
+      '@fluentui/react-utilities': 9.18.10(@types/react@18.3.3)(react@18.3.1)
+      '@griffel/react': 1.5.23(react@18.3.1)
+      '@swc/helpers': 0.5.11
+      '@types/react': 18.3.3
+      '@types/react-dom': 18.3.0
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
+  '@fluentui/react-calendar-compat@0.1.11(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@fluentui/keyboard-keys': 9.0.7
+      '@fluentui/react-icons': 2.0.242(react@18.3.1)
+      '@fluentui/react-jsx-runtime': 9.0.39(@types/react@18.3.3)(react@18.3.1)
+      '@fluentui/react-shared-contexts': 9.19.0(@types/react@18.3.3)(react@18.3.1)
+      '@fluentui/react-tabster': 9.22.0(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@fluentui/react-theme': 9.1.19
       '@fluentui/react-utilities': 9.18.10(@types/react@18.3.3)(react@18.3.1)
       '@griffel/react': 1.5.23(react@18.3.1)
@@ -3518,6 +3556,20 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       tabster: 7.2.0
+
+  '@fluentui/react-tabster@9.22.0(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@fluentui/react-shared-contexts': 9.19.0(@types/react@18.3.3)(react@18.3.1)
+      '@fluentui/react-theme': 9.1.19
+      '@fluentui/react-utilities': 9.18.10(@types/react@18.3.3)(react@18.3.1)
+      '@griffel/react': 1.5.23(react@18.3.1)
+      '@swc/helpers': 0.5.11
+      '@types/react': 18.3.3
+      '@types/react-dom': 18.3.0
+      keyborg: 2.6.0
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      tabster: 8.0.0
 
   '@fluentui/react-tag-picker@9.1.0(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(scheduler@0.23.0)':
     dependencies:
@@ -5035,6 +5087,11 @@ snapshots:
   supports-preserve-symlinks-flag@1.0.0: {}
 
   tabster@7.2.0:
+    dependencies:
+      keyborg: 2.6.0
+      tslib: 2.6.3
+
+  tabster@8.0.0:
     dependencies:
       keyborg: 2.6.0
       tslib: 2.6.3

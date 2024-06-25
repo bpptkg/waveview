@@ -1,3 +1,4 @@
+import { Calendar } from '@fluentui/react-calendar-compat';
 import {
   Field,
   Menu,
@@ -36,13 +37,14 @@ export interface HelicorderToolbarProps {
   interval?: number;
   duration?: number;
   showEvent?: boolean;
+  offsetDate?: Date;
   onChannelChange?: (channelId: string) => void;
   onDurationChange?: (duration: number) => void;
   onIntervalChange?: (interval: number) => void;
   onShiftViewDown?: () => void;
   onShiftViewUp?: () => void;
   onShiftViewToNow?: () => void;
-  onOffsetDateChange?: () => void;
+  onOffsetDateChange?: (date: Date) => void;
   onIncreaseAmplitude?: () => void;
   onDecreaseAmplitude?: () => void;
   onResetAmplitude?: () => void;
@@ -80,6 +82,7 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
     interval = 30,
     duration = 12,
     showEvent,
+    offsetDate,
     onChannelChange,
     onDurationChange,
     onIntervalChange,
@@ -90,6 +93,7 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
     onDecreaseAmplitude,
     onResetAmplitude,
     onShowEventChange,
+    onOffsetDateChange,
   } = props;
 
   const styles = useStyles();
@@ -122,7 +126,16 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
     [onShowEventChange]
   );
 
+  const handleSelectDate = useCallback(
+    (date: Date) => {
+      onOffsetDateChange?.(date);
+      setOffsetDatePickerOpen(false);
+    },
+    [onOffsetDateChange]
+  );
+
   const [open, setOpen] = React.useState<boolean>(false);
+  const [offsetDatePickerOpen, setOffsetDatePickerOpen] = React.useState<boolean>(false);
 
   return (
     <div className="bg-white dark:bg-black mx-2 drop-shadow rounded">
@@ -199,11 +212,22 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
             </MenuList>
           </MenuPopover>
         </Menu>
+
         <ToolbarDivider />
+
         <ToolbarButton aria-label="Shift View Up" icon={<ChevronUp20Regular />} onClick={onShiftViewUp} />
         <ToolbarButton aria-label="Shift View Down" icon={<ChevronDown20Regular />} onClick={onShiftViewDown} />
         <ToolbarButton aria-label="Shift View to Now" icon={<ChevronDoubleDown20Regular />} onClick={onShiftViewToNow} />
-        <ToolbarButton aria-label="Change Offset Date" icon={<Calendar20Regular />} />
+
+        <Popover trapFocus open={offsetDatePickerOpen} onOpenChange={() => setOffsetDatePickerOpen(!offsetDatePickerOpen)}>
+          <PopoverTrigger disableButtonEnhancement>
+            <ToolbarButton aria-label="Change Offset Date" icon={<Calendar20Regular />} />
+          </PopoverTrigger>
+          <PopoverSurface>
+            <Calendar value={offsetDate} onSelectDate={handleSelectDate} />
+          </PopoverSurface>
+        </Popover>
+
         <ToolbarButton aria-label="Increase Amplitude" icon={<ChevronUpDown20Regular />} onClick={onIncreaseAmplitude} />
         <ToolbarButton aria-label="Decrease Amplitude" icon={<ChevronDownUp20Regular />} onClick={onDecreaseAmplitude} />
         <ToolbarButton aria-label="Reset Amplitude" icon={<AutoFitHeight20Regular />} onClick={onResetAmplitude} />

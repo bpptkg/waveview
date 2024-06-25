@@ -95,6 +95,11 @@ const HelicorderWorkspace = () => {
     [setHelicorderDuration]
   );
 
+  const handleHelicorderSelectOffsetDate = useCallback((date: Date) => {
+    const offsetDate = date.getTime();
+    heliChartRef.current?.setOffsetDate(offsetDate);
+  }, []);
+
   const handleHelicorderShowEventChange = useCallback(
     (showEvent: boolean) => {
       setShowEvent(showEvent);
@@ -324,6 +329,7 @@ const HelicorderWorkspace = () => {
           interval={interval}
           duration={duration}
           showEvent={showEvent}
+          offsetDate={new Date(offsetDate)}
           onShiftViewUp={handleHelicorderShiftViewUp}
           onShiftViewDown={handleHelicorderShiftViewDown}
           onShiftViewToNow={handleHelicorderShiftViewToNow}
@@ -334,6 +340,7 @@ const HelicorderWorkspace = () => {
           onIntervalChange={handleHelicorderChangeInterval}
           onDurationChange={handleHelicorderChangeDuration}
           onShowEventChange={handleHelicorderShowEventChange}
+          onOffsetDateChange={handleHelicorderSelectOffsetDate}
         />
       )}
       {selectedChart === 'seismogram' && (
