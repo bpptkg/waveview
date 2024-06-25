@@ -18,7 +18,7 @@ export interface SeismogramChartProps {
 }
 
 export interface SeismogramChartRef {
-  addChannel: (id: string) => void;
+  addChannel: (channelId: string) => void;
   zoomIn: (by: number) => void;
   zoomOut: (by: number) => void;
   scrollLeft: (by: number) => void;
@@ -58,11 +58,16 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
     webWorkerRef.current?.fetchAllChannelsData();
   }, 250);
 
+  const fetchChannelData = (channelId: string): void => {
+    webWorkerRef.current?.fetchChannelData(channelId);
+  };
+
   useImperativeHandle(ref, () => ({
-    addChannel: (id: string) => {
+    addChannel: (channelId: string) => {
       if (chartRef.current) {
-        chartRef.current.addChannel(id);
+        chartRef.current.addChannel(channelId);
         chartRef.current.render();
+        fetchChannelData(channelId);
       }
     },
     zoomIn: (by: number) => {

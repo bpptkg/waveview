@@ -68,11 +68,11 @@ export interface PickerState {
 
 export interface PickerActions {
   setWorkspace: (workspace: PickerWorkspace) => void;
-  setChannel: (id: string) => void;
-  setDuration: (duration: number) => void;
-  setInterval: (interval: number) => void;
+  setHelicorderChannel: (channelId: string) => void;
+  setHelicorderDuration: (duration: number) => void;
+  setHelicorderInterval: (interval: number) => void;
   setShowEvent: (showEvent: boolean) => void;
-  setOffsetDate: (offsetDate: number) => void;
+  setHelicorderOffsetDate: (offsetDate: number) => void;
   setUseUTC: (useUTC: boolean) => void;
   setSelectedChart: (selectedChart: PickerChart) => void;
   setLastTrackExtent: (extent: [number, number]) => void;
@@ -81,6 +81,8 @@ export interface PickerActions {
   seismogramToolbarSetCheckedValues: (name: string, checkedValues: string[]) => void;
   seismogramToolbarAddCheckedValue: (name: string, item: string) => void;
   seismogramToolbarRemoveCheckedValue: (name: string, item: string) => void;
+  addSeismogramChannel: (channelId: string) => void;
+  removeSeismogramChannel: (channelId: string) => void;
 }
 
 export type PickerStore = PickerState & PickerActions;
@@ -107,18 +109,7 @@ const pickerStore = create<PickerStore, [['zustand/devtools', never]]>(
     return {
       workspace: 'helicorder',
       channel: 'VG.MELAB.00.HHZ',
-      channels: [
-        'VG.MEPAS.00.HHZ',
-        'VG.MELAB.00.HHZ',
-        'VG.MEKAL.00.HHZ',
-        'VG.MEPUS.00.HHZ',
-        'VG.MEPET.00.HHZ',
-        'VG.MEPAT.00.HHZ',
-        'VG.MEPLA.00.HHZ',
-        'VG.MEIMO.00.HHZ',
-        'VG.MEBAB.00.HHZ',
-        'VG.MELAT.00.HHZ',
-      ],
+      channels: ['VG.MEPAS.00.HHZ', 'VG.MELAB.00.HHZ'],
       duration: 12,
       interval: 30,
       showEvent: true,
@@ -133,11 +124,11 @@ const pickerStore = create<PickerStore, [['zustand/devtools', never]]>(
         options: [],
       },
       setWorkspace: (workspace) => set({ workspace }),
-      setChannel: (channel) => set({ channel }),
-      setDuration: (duration) => set({ duration }),
-      setInterval: (interval) => set({ interval }),
+      setHelicorderChannel: (channel) => set({ channel }),
+      setHelicorderDuration: (duration) => set({ duration }),
+      setHelicorderInterval: (interval) => set({ interval }),
+      setHelicorderOffsetDate: (offsetDate) => set({ offsetDate }),
       setShowEvent: (showEvent) => set({ showEvent }),
-      setOffsetDate: (offsetDate) => set({ offsetDate }),
       setUseUTC: (useUTC) => set({ useUTC }),
       setSelectedChart: (selectedChart) => set({ selectedChart }),
       setLastTrackExtent: (lastTrackExtent) => set({ lastTrackExtent }),
@@ -173,6 +164,20 @@ const pickerStore = create<PickerStore, [['zustand/devtools', never]]>(
               ...state.seismogramToolbarCheckedValues,
               [name]: options.filter((value) => value !== item),
             },
+          };
+        }),
+
+      addSeismogramChannel: (channelId) =>
+        set((state) => {
+          return {
+            channels: [...state.channels, channelId],
+          };
+        }),
+
+      removeSeismogramChannel: (channelId) =>
+        set((state) => {
+          return {
+            channels: state.channels.filter((channel) => channel !== channelId),
           };
         }),
     };

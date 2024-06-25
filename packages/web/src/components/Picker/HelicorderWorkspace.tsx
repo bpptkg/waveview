@@ -26,17 +26,18 @@ const HelicorderWorkspace = () => {
     lastTrackExtent,
     lastSelection,
     seismogramToolbarCheckedValues,
-    setInterval,
-    setDuration,
-    setChannel,
+    setHelicorderInterval,
+    setHelicorderDuration,
+    setHelicorderChannel,
     setShowEvent,
     setSelectedChart,
-    setOffsetDate,
+    setHelicorderOffsetDate,
     setLastTrackExtent,
     setLastSelection,
     seismogramToolbarSetCheckedValues,
     seismogramToolbarAddCheckedValue,
     seismogramToolbarRemoveCheckedValue,
+    addSeismogramChannel,
   } = usePickerStore();
 
   const { darkMode } = useAppStore();
@@ -53,8 +54,8 @@ const HelicorderWorkspace = () => {
   const handleHelicorderShiftViewToNow = useCallback(() => {
     const now = Date.now();
     heliChartRef.current?.setOffsetDate(now);
-    setOffsetDate(now);
-  }, [setOffsetDate]);
+    setHelicorderOffsetDate(now);
+  }, [setHelicorderOffsetDate]);
 
   const handleHelicorderIncreaseAmplitude = useCallback(() => {
     heliChartRef.current?.increaseAmplitude(0.05);
@@ -69,26 +70,27 @@ const HelicorderWorkspace = () => {
   }, []);
 
   const handleHelicorderChannelChange = useCallback(
-    (id: string) => {
-      setChannel(id);
+    (channelId: string) => {
+      setHelicorderChannel(channelId);
+      heliChartRef.current?.setChannel(channelId);
     },
-    [setChannel]
+    [setHelicorderChannel]
   );
 
   const handleHelicorderChangeInterval = useCallback(
     (interval: number) => {
-      setInterval(interval);
+      setHelicorderInterval(interval);
       heliChartRef.current?.setInterval(interval);
     },
-    [setInterval]
+    [setHelicorderInterval]
   );
 
   const handleHelicorderChangeDuration = useCallback(
     (duration: number) => {
-      setDuration(duration);
+      setHelicorderDuration(duration);
       heliChartRef.current?.setDuration(duration);
     },
-    [setDuration]
+    [setHelicorderDuration]
   );
 
   const handleHelicorderShowEventChange = useCallback(
@@ -104,6 +106,14 @@ const HelicorderWorkspace = () => {
   );
 
   // Seismogram Toolbar
+  const handleSeismogramChannelAdd = useCallback(
+    (channelId: string) => {
+      addSeismogramChannel(channelId);
+      seisChartRef.current?.addChannel(channelId);
+    },
+    [addSeismogramChannel]
+  );
+
   const handleSeismogramZoomIn = useCallback(() => {
     seisChartRef.current?.zoomIn(0.05);
   }, []);
@@ -209,9 +219,9 @@ const HelicorderWorkspace = () => {
 
   const handleHelicorderOffsetChange = useCallback(
     (date: number) => {
-      setOffsetDate(date);
+      setHelicorderOffsetDate(date);
     },
-    [setOffsetDate]
+    [setHelicorderOffsetDate]
   );
 
   const handleHelicorderSelectionChange = useCallback(
@@ -300,6 +310,7 @@ const HelicorderWorkspace = () => {
         <SeismogramToolbar
           showEvent={showEvent}
           checkedValues={seismogramToolbarCheckedValues}
+          onChannelAdd={handleSeismogramChannelAdd}
           onZoomIn={handleSeismogramZoomIn}
           onZoomOut={handleSeismogramZoomOut}
           onScrollLeft={handleSeismogramScrollLeft}

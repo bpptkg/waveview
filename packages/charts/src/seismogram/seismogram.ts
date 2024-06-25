@@ -51,7 +51,7 @@ export interface SeismogramChartType extends ChartType<SeismogramChartOptions> {
   getChannels(): string[];
   getChannelCount(): number;
   getChannelAt(index: number): string;
-  addChannel(id: string): void;
+  addChannel(channelId: string): void;
   removeChannel(index: number): void;
   moveChannel(from: number, to: number): void;
   moveChannelUp(index: number): void;
@@ -176,9 +176,9 @@ export class Seismogram
     return this._trackManager.getChannelByIndex(index).id;
   }
 
-  addChannel(id: string): void {
-    this.addChannelInternal(id);
-    this.emit("channelAdded", id);
+  addChannel(channelId: string): void {
+    this.addChannelInternal(channelId);
+    this.emit("channelAdded", channelId);
   }
 
   removeChannel(index: number): void {
@@ -485,24 +485,27 @@ export class Seismogram
     return new PIXI.Rectangle(x, trackY, width, trackHeight);
   }
 
-  private addChannelInternal(id: string): string {
+  private addChannelInternal(channelId: string): string {
     const length = this._trackManager.count();
     const rect = this.getRectForTrack(length, length + 1);
 
     const yAxis = new Axis(rect, { position: "left" });
     yAxis.setExtent(this._yExtent);
 
-    const channel = new StreamIdentifier({ id });
+    const channel = new StreamIdentifier({ id: channelId });
 
     const track = new Track(rect, this._xAxis, yAxis, this, {
       leftLabel: channel.shortName(),
     });
+    const theme = this.getTheme();
+    track.applyThemeStyle(theme);
+
     this._trackManager.add(channel, track);
 
     this.addComponent(track);
     this.updateTracksRect();
 
-    return id;
+    return channelId;
   }
 
   private removeChannelInternal(index: number): string {

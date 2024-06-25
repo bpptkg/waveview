@@ -19,29 +19,31 @@ const ToolbarContextSwicher = () => {
   );
 
   return (
-    <Menu hasIcons>
-      <MenuTrigger disableButtonEnhancement>
-        <MenuButton appearance="primary" size="medium">
-          {workspaceOptions.find((option) => option.value === workspace)?.label}
-        </MenuButton>
-      </MenuTrigger>
+    <div className="mr-1">
+      <Menu hasIcons>
+        <MenuTrigger disableButtonEnhancement>
+          <MenuButton appearance="primary" size="medium">
+            {workspaceOptions.find((option) => option.value === workspace)?.label}
+          </MenuButton>
+        </MenuTrigger>
 
-      <MenuPopover>
-        <MenuList>
-          {workspaceOptions.map((option) => (
-            <MenuItem
-              key={option.value}
-              icon={option.value === workspace ? <Checkmark20Regular /> : undefined}
-              onClick={() => {
-                handleWorkspaceChange(option.value);
-              }}
-            >
-              {option.label}
-            </MenuItem>
-          ))}
-        </MenuList>
-      </MenuPopover>
-    </Menu>
+        <MenuPopover>
+          <MenuList>
+            {workspaceOptions.map((option) => (
+              <MenuItem
+                key={option.value}
+                icon={option.value === workspace ? <Checkmark20Regular /> : undefined}
+                onClick={() => {
+                  handleWorkspaceChange(option.value);
+                }}
+              >
+                {option.label}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </MenuPopover>
+      </Menu>
+    </div>
   );
 };
 

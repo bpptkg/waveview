@@ -1,4 +1,21 @@
-import { Menu, MenuItem, MenuList, MenuPopover, MenuTrigger, Switch, Toolbar, ToolbarButton, ToolbarDivider, makeStyles } from '@fluentui/react-components';
+import {
+  Field,
+  Menu,
+  MenuItem,
+  MenuList,
+  MenuPopover,
+  MenuTrigger,
+  Popover,
+  PopoverSurface,
+  PopoverTrigger,
+  SearchBox,
+  Switch,
+  Toolbar,
+  ToolbarButton,
+  ToolbarDivider,
+  makeStyles,
+  tokens,
+} from '@fluentui/react-components';
 import {
   AutoFitHeight20Regular,
   Calendar20Regular,
@@ -48,7 +65,12 @@ const intervalOptions = [
 const useStyles = makeStyles({
   btn: {
     minWidth: 'auto',
-    gap: '3px',
+  },
+  searchBoxWrapper: {
+    marginBottom: tokens.spacingVerticalMNudge,
+  },
+  searchBox: {
+    width: '200px',
   },
 });
 
@@ -100,18 +122,55 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
     [onShowEventChange]
   );
 
+  const [open, setOpen] = React.useState<boolean>(false);
+
   return (
     <div className="bg-white dark:bg-black mx-2 drop-shadow rounded">
       <Toolbar aria-label="Helicorder Toolbar">
         <ToolbarContextSwicher />
-        <ToolbarDivider />
-        <ToolbarButton aria-label="Select Channel ID" icon={<Search20Regular />} className={styles.btn}>
-          <span className="font-normal">{channel}</span>
-        </ToolbarButton>
+
+        <Popover trapFocus open={open} onOpenChange={() => setOpen(!open)}>
+          <PopoverTrigger disableButtonEnhancement>
+            <ToolbarButton aria-label="Select Channel ID" icon={<Search20Regular />} className={styles.btn}>
+              <span className="font-normal">{channel}</span>
+            </ToolbarButton>
+          </PopoverTrigger>
+          <PopoverSurface>
+            <Field className={styles.searchBoxWrapper}>
+              <SearchBox placeholder="Search channel" size="medium" className={styles.searchBox} />
+            </Field>
+            <MenuList>
+              {[
+                'VG.MEPAS.00.HHZ',
+                'VG.MEPAS.00.HHN',
+                'VG.MEPAS.00.HHE',
+                'VG.MEKAL.00.HHZ',
+                'VG.MEKAL.00.HHN',
+                'VG.MEKAL.00.HHE',
+                'VG.MELAB.00.HHZ',
+                'VG.MELAB.00.HHN',
+                'VG.MELAB.00.HHE',
+              ].map((id, index) => (
+                <MenuItem
+                  key={index}
+                  onClick={() => {
+                    if (channel !== id) {
+                      handleChannelChange(id);
+                    }
+                    setOpen(false);
+                  }}
+                >
+                  {id}
+                </MenuItem>
+              ))}
+            </MenuList>
+          </PopoverSurface>
+        </Popover>
+
         <Menu>
           <MenuTrigger>
             <ToolbarButton aria-label="Select Duration" className={styles.btn}>
-              <span className="inline-block font-normal">{durationOptions.find((option) => option.value === duration)?.label}</span> <ChevronDown12Regular />
+              <span className="font-normal">{durationOptions.find((option) => option.value === duration)?.label}</span> <ChevronDown12Regular />
             </ToolbarButton>
           </MenuTrigger>
           <MenuPopover>

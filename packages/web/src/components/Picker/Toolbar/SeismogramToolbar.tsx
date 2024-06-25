@@ -1,10 +1,14 @@
 import {
+  Field,
   Menu,
-  MenuButton,
   MenuItem,
   MenuList,
   MenuPopover,
   MenuTrigger,
+  Popover,
+  PopoverSurface,
+  PopoverTrigger,
+  SearchBox,
   Switch,
   Toolbar,
   ToolbarButton,
@@ -19,6 +23,7 @@ import {
   AutoFitHeight20Regular,
   Calendar20Regular,
   ChevronDoubleRight20Regular,
+  ChevronDown12Regular,
   ChevronDownUp20Regular,
   ChevronLeft20Regular,
   ChevronRight20Regular,
@@ -59,6 +64,9 @@ const componentOptions = [
 ];
 
 const useStyles = makeStyles({
+  btn: {
+    minWidth: 'auto',
+  },
   iconZoom: {
     color: tokens.colorNeutralForeground1,
     '&:hover': {
@@ -70,6 +78,12 @@ const useStyles = makeStyles({
     '&:hover': {
       fill: tokens.colorNeutralForeground2BrandHover,
     },
+  },
+  searchBoxWrapper: {
+    marginBottom: tokens.spacingVerticalMNudge,
+  },
+  searchBox: {
+    width: '200px',
   },
 });
 
@@ -133,12 +147,54 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
     [onPickModeChange, onZoomRectangleChange, onCheckedValueChange]
   );
 
+  const handleChannelAdd = useCallback(
+    (channelId: string) => {
+      onChannelAdd?.(channelId);
+    },
+    [onChannelAdd]
+  );
+
+  const [open, setOpen] = React.useState<boolean>(false);
+
   return (
     <div className="bg-white dark:bg-black mx-2 drop-shadow rounded">
       <Toolbar aria-label="Seismogram Toolbar" checkedValues={checkedValues} onCheckedValueChange={handleToolbarCheckedValueChange}>
         <ToolbarContextSwicher />
-        <ToolbarDivider />
-        <ToolbarButton aria-label="Add Channel" icon={<Add20Regular />} />
+
+        <Popover trapFocus open={open} onOpenChange={() => setOpen(!open)}>
+          <PopoverTrigger disableButtonEnhancement>
+            <ToolbarButton aria-label="Add Channel" icon={<Add20Regular />} />
+          </PopoverTrigger>
+          <PopoverSurface>
+            <Field className={styles.searchBoxWrapper}>
+              <SearchBox placeholder="Search channel" size="medium" className={styles.searchBox} />
+            </Field>
+            <MenuList>
+              {[
+                'VG.MEPAS.00.HHZ',
+                'VG.MEPAS.00.HHN',
+                'VG.MEPAS.00.HHE',
+                'VG.MEKAL.00.HHZ',
+                'VG.MEKAL.00.HHN',
+                'VG.MEKAL.00.HHE',
+                'VG.MELAB.00.HHZ',
+                'VG.MELAB.00.HHN',
+                'VG.MELAB.00.HHE',
+              ].map((channelId, index) => (
+                <MenuItem
+                  key={index}
+                  onClick={() => {
+                    handleChannelAdd(channelId);
+                    setOpen(false);
+                  }}
+                >
+                  {channelId}
+                </MenuItem>
+              ))}
+            </MenuList>
+          </PopoverSurface>
+        </Popover>
+
         <ToolbarButton aria-label="Zoom In" icon={<ZoomIn20Regular />} onClick={onZoomIn} />
         <ToolbarButton aria-label="Zoom Out" icon={<ZoomOut20Regular />} onClick={onZoomOut} />
         <ToolbarToggleButton
@@ -157,11 +213,12 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
         <ToolbarButton aria-label="Reset Amplitude" icon={<AutoFitHeight20Regular />} onClick={onResetAmplitude} />
         <ToolbarDivider />
         <ToolbarToggleButton aria-label="Pick mode" icon={<PickIcon className={styles.iconPick} />} name="options" value="pick-mode" appearance="subtle" />
+
         <Menu>
           <MenuTrigger>
-            <MenuButton appearance="transparent" size="small" aria-label="Select Component">
-              {componentOptions.find((option) => option.value === 'Z')?.label}
-            </MenuButton>
+            <ToolbarButton aria-label="Select Component" className={styles.btn}>
+              <span className="font-normal">{componentOptions.find((option) => option.value === 'Z')?.label}</span> <ChevronDown12Regular />
+            </ToolbarButton>
           </MenuTrigger>
 
           <MenuPopover>
@@ -174,9 +231,13 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
             </MenuList>
           </MenuPopover>
         </Menu>
+
         <ToolbarDivider />
+
         <Switch checked={showEvent} label={showEvent ? 'Hide Event' : 'Show Event'} onChange={handleShowEventChange} />
+
         <ToolbarDivider />
+
         <Menu>
           <MenuTrigger>
             <ToolbarButton aria-label="More" icon={<MoreHorizontal24Filled />} />

@@ -58,9 +58,14 @@ export class SeismogramWebWorker {
     const extent = this.chart.getXAxis().getExtent();
     const channels = this.chart.getChannels();
 
-    channels.forEach((id) => {
-      this.postRequestMessage(id, extent);
+    channels.forEach((channelId) => {
+      this.postRequestMessage(channelId, extent);
     });
+  }
+
+  fetchChannelData(channelId: string): void {
+    const extent = this.chart.getXAxis().getExtent();
+    this.postRequestMessage(channelId, extent);
   }
 
   postRequestMessage(channelId: string, extent: [number, number]): void {
