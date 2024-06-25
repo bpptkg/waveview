@@ -25,7 +25,7 @@ const webWorker = new HelicorderWebWorkerExtension(worker);
 // Create a new helicorder chart
 const dom = document.getElementById("canvas");
 const helicorder = new Helicorder(dom, {
-  channelId: "VG.MEPAS.00.HHZ",
+  channel: "VG.MEPAS.00.HHZ",
   interval: 30,
   duration: 12,
 });
