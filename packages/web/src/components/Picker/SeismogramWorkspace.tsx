@@ -22,6 +22,9 @@ const SeismogramWorkspace = () => {
     seismogramToolbarSetCheckedValues,
     seismogramToolbarAddCheckedValue,
     seismogramToolbarRemoveCheckedValue,
+    addSeismogramChannel,
+    removeSeismogramChannel,
+    moveChannel,
   } = usePickerStore();
   const { darkMode } = useAppStore();
 
@@ -99,6 +102,42 @@ const SeismogramWorkspace = () => {
     [seismogramToolbarSetCheckedValues]
   );
 
+  const handleSeismogramChannelAdd = useCallback(
+    (channelId: string) => {
+      addSeismogramChannel(channelId);
+      seisChartRef.current?.addChannel(channelId);
+    },
+    [addSeismogramChannel]
+  );
+
+  const handleSeismogramRemoveChannel = useCallback(
+    (index: number) => {
+      removeSeismogramChannel(index);
+      seisChartRef.current?.removeChannel(index);
+    },
+    [removeSeismogramChannel]
+  );
+
+  const handleSeismogramMoveChannelUp = useCallback(
+    (index: number) => {
+      if (index > 0) {
+        moveChannel(index, index - 1);
+        seisChartRef.current?.moveChannelUp(index);
+      }
+    },
+    [moveChannel]
+  );
+
+  const handleSeismogramMoveChannelDown = useCallback(
+    (index: number) => {
+      if (index < channels.length - 1) {
+        moveChannel(index, index + 1);
+        seisChartRef.current?.moveChannelDown(index);
+      }
+    },
+    [moveChannel, channels]
+  );
+
   // Zoom Rectangle Keydown
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -163,6 +202,7 @@ const SeismogramWorkspace = () => {
         onShowEventChange={handleSeismogramShowEvent}
         onZoomRectangleChange={handleSeismogramZoomRectangleChange}
         onCheckedValueChange={handleSeismogramCheckValueChange}
+        onChannelAdd={handleSeismogramChannelAdd}
       />
       <div className="flex-grow relative mt-1 flex h-full">
         <SeismogramChart
@@ -182,6 +222,9 @@ const SeismogramWorkspace = () => {
             useUTC,
           }}
           onExtentChange={handleSeismogramExtentChange}
+          onRemoveChannel={handleSeismogramRemoveChannel}
+          onMoveChannelUp={handleSeismogramMoveChannelUp}
+          onMoveChannelDown={handleSeismogramMoveChannelDown}
         />
       </div>
       <div className="bg-white dark:bg-black">

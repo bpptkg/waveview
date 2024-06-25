@@ -72,9 +72,15 @@ importers:
       '@waveview/charts':
         specifier: workspace:*
         version: link:../charts
+      '@waveview/stream':
+        specifier: workspace:*
+        version: link:../stream
       date-fns:
         specifier: ^3.6.0
         version: 3.6.0
+      pixi.js:
+        specifier: ^8.1.1
+        version: 8.1.1
       react:
         specifier: ^18.2.0
         version: 18.3.1

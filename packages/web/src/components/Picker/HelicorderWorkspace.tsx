@@ -38,6 +38,8 @@ const HelicorderWorkspace = () => {
     seismogramToolbarAddCheckedValue,
     seismogramToolbarRemoveCheckedValue,
     addSeismogramChannel,
+    removeSeismogramChannel,
+    moveChannel,
   } = usePickerStore();
 
   const { darkMode } = useAppStore();
@@ -238,6 +240,34 @@ const HelicorderWorkspace = () => {
     [seismogramToolbarSetCheckedValues]
   );
 
+  const handleSeismogramRemoveChannel = useCallback(
+    (index: number) => {
+      removeSeismogramChannel(index);
+      seisChartRef.current?.removeChannel(index);
+    },
+    [removeSeismogramChannel]
+  );
+
+  const handleSeismogramMoveChannelUp = useCallback(
+    (index: number) => {
+      if (index > 0) {
+        moveChannel(index, index - 1);
+        seisChartRef.current?.moveChannelUp(index);
+      }
+    },
+    [moveChannel]
+  );
+
+  const handleSeismogramMoveChannelDown = useCallback(
+    (index: number) => {
+      if (index < channels.length - 1) {
+        moveChannel(index, index + 1);
+        seisChartRef.current?.moveChannelDown(index);
+      }
+    },
+    [moveChannel, channels]
+  );
+
   // Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -375,6 +405,9 @@ const HelicorderWorkspace = () => {
               onFocus={handleSeismogramFocus}
               onBlur={handleSeismogramBlur}
               onExtentChange={handleSeismogramExtentChange}
+              onRemoveChannel={handleSeismogramRemoveChannel}
+              onMoveChannelUp={handleSeismogramMoveChannelUp}
+              onMoveChannelDown={handleSeismogramMoveChannelDown}
             />
           </div>
         </div>

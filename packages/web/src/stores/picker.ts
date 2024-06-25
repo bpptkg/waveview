@@ -82,7 +82,8 @@ export interface PickerActions {
   seismogramToolbarAddCheckedValue: (name: string, item: string) => void;
   seismogramToolbarRemoveCheckedValue: (name: string, item: string) => void;
   addSeismogramChannel: (channelId: string) => void;
-  removeSeismogramChannel: (channelId: string) => void;
+  removeSeismogramChannel: (index: number) => void;
+  moveChannel: (fromIndex: number, toIndex: number) => void;
 }
 
 export type PickerStore = PickerState & PickerActions;
@@ -174,10 +175,22 @@ const pickerStore = create<PickerStore, [['zustand/devtools', never]]>(
           };
         }),
 
-      removeSeismogramChannel: (channelId) =>
+      removeSeismogramChannel: (index) =>
         set((state) => {
+          const channels = [...state.channels];
+          channels.splice(index, 1);
           return {
-            channels: state.channels.filter((channel) => channel !== channelId),
+            channels,
+          };
+        }),
+
+      moveChannel: (fromIndex, toIndex) =>
+        set((state) => {
+          const channels = [...state.channels];
+          const [channel] = channels.splice(fromIndex, 1);
+          channels.splice(toIndex, 0, channel);
+          return {
+            channels,
           };
         }),
     };
