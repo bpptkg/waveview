@@ -511,9 +511,10 @@ export class Seismogram
 
   private removeChannelInternal(index: number): string {
     const [channel, track] = this._trackManager.remove(index);
-
     this.removeComponent(track);
     this.updateTracksRect();
+    track.dispose();
+    this._dataStore.remove(channel.id);
     return channel.id;
   }
 
