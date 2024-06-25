@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { AppBarProps, AppBarState } from './AppBar.types';
 import { TabContextValue } from './AppBarContext';
 import { TabValue } from './AppBarTab/AppBarTab.types';
@@ -18,6 +18,10 @@ export const useAppBar = (props: AppBarProps, ref: React.Ref<HTMLElement>): AppB
     selected: selectedTab,
     handleTabClick,
   };
+
+  useEffect(() => {
+    setSelectedTab(selectedValue);
+  }, [selectedValue]);
 
   return {
     root: as,

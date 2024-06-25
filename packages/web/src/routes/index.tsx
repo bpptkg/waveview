@@ -1,30 +1,34 @@
-import { createBrowserRouter } from "react-router-dom";
-import App from "../App";
-import Admin from "../views/admin/Admin";
-import Catalog from "../views/catalog/Catalog";
-import Help from "../views/help/Help";
-import Picker from "../views/picker/Picker";
+import { createBrowserRouter, Navigate } from 'react-router-dom';
+import App from '../App';
+import Admin from '../views/admin/Admin';
+import Catalog from '../views/catalog/Catalog';
+import Help from '../views/help/Help';
+import Picker from '../views/picker/Picker';
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     element: <App />,
     children: [
       {
-        path: "/picker",
+        path: '/picker',
         element: <Picker />,
       },
       {
-        path: "/catalog",
+        path: '/catalog',
         element: <Catalog />,
       },
       {
-        path: "/admin",
+        path: '/admin',
         element: <Admin />,
       },
       {
-        path: "/help",
+        path: '/help',
         element: <Help />,
+      },
+      {
+        index: true,
+        element: <Navigate to="/picker" replace />,
       },
     ],
   },
