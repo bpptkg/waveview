@@ -410,7 +410,8 @@ export class Seismogram
   getChannelIndexAtPosition(y: number): number {
     const trackCount = this.getChannelCount();
     const trackHeight = this._grid.getRect().height / trackCount;
-    return Math.floor(y / trackHeight);
+    const index = Math.floor(y / trackHeight);
+    return Math.min(index, trackCount - 1);
   }
 
   getTrackCount(): number {
