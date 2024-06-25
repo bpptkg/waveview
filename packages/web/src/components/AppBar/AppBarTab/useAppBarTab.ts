@@ -6,6 +6,7 @@ export const useAppBarTab = (props: AppBarTabProps, ref: React.Ref<HTMLElement>)
   const { value, disabled = false, icon, children, iconOnly = false, onClick } = props;
   const context = useContext(AppBarContext);
   const selected = context?.selected === value;
+  
   return {
     root: 'button',
     content: 'span',

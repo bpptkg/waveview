@@ -1,13 +1,28 @@
 import React from 'react';
 import { AppBarTabProps } from './AppBarTab.types';
-import { renderAppBarTab } from './renderAppBarTab';
 import { useAppBarTab } from './useAppBarTab';
 import { useAppBarTabStyles } from './useAppBarTabStyles';
 
 export const AppBarTab: React.ForwardRefExoticComponent<AppBarTabProps & React.RefAttributes<HTMLElement>> = React.forwardRef(
   (props, ref: React.Ref<HTMLElement>) => {
     const state = useAppBarTab(props, ref);
-    const styles = useAppBarTabStyles(state)
-    return renderAppBarTab(state, styles);
+    const styles = useAppBarTabStyles();
+
+    const { onClick, context } = state;
+
+    function handleTabClick() {
+      context?.handleTabClick(state.value as number);
+      onClick?.();
+    }
+
+    const selected = state.value === state.context?.selected;
+
+    return (
+      <state.root className={styles.root} onClick={handleTabClick}>
+        {selected ? <state.icon className={styles.iconSelected} /> : <state.icon className={styles.icon} />}
+        {!state.iconOnly && <state.content className={selected ? styles.contentSelected : styles.content}>{state.children}</state.content>}
+        {selected && <state.indicator className={styles.indicator} />}
+      </state.root>
+    );
   }
 );

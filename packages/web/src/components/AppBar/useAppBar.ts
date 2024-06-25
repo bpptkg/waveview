@@ -1,6 +1,7 @@
 import React from 'react';
 import { AppBarProps, AppBarState } from './AppBar.types';
 import { TabContextValue } from './AppBarContext';
+import { TabValue } from './AppBarTab/AppBarTab.types';
 import { useAppBarStyles } from './useAppBarStyles';
 
 export const useAppBar = (props: AppBarProps, ref: React.Ref<HTMLElement>): AppBarState => {
@@ -9,7 +10,7 @@ export const useAppBar = (props: AppBarProps, ref: React.Ref<HTMLElement>): AppB
   const styles = useAppBarStyles();
 
   const [selectedTab, setSelectedTab] = React.useState(selectedValue);
-  const handleTabClick = (value: number) => {
+  const handleTabClick = (value: TabValue) => {
     setSelectedTab(value);
   };
 

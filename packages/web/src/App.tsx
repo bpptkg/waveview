@@ -1,7 +1,7 @@
 import { FluentProvider, webDarkTheme, webLightTheme } from '@fluentui/react-components';
 import { ChatHelp24Regular, CursorHover24Regular, Folder24Regular, PeopleTeam24Regular } from '@fluentui/react-icons';
 import { useEffect } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AppBar, AppBarTab } from './components/AppBar';
 import Header from './components/Header';
 import { useAppStore } from './stores/app';
@@ -13,6 +13,8 @@ const HelpIcon = ChatHelp24Regular;
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const { darkMode, theme, toggleTheme } = useAppStore();
 
   useEffect(() => {
@@ -26,9 +28,9 @@ function App() {
         <Header />
 
         <div className="flex flex-grow">
-          <AppBar>
+          <AppBar selectedValue={location.pathname}>
             <AppBarTab
-              value={0}
+              value="/picker"
               icon={PickerIcon}
               onClick={() => {
                 navigate('/picker');
@@ -36,13 +38,13 @@ function App() {
             >
               Picker
             </AppBarTab>
-            <AppBarTab value={1} icon={CatalogIcon} onClick={() => navigate('/catalog')}>
+            <AppBarTab value="/catalog" icon={CatalogIcon} onClick={() => navigate('/catalog')}>
               Catalog
             </AppBarTab>
-            <AppBarTab value={2} icon={AdminIcon} onClick={() => navigate('/admin')}>
+            <AppBarTab value="/admin" icon={AdminIcon} onClick={() => navigate('/admin')}>
               Admin
             </AppBarTab>
-            <AppBarTab value={3} icon={HelpIcon} onClick={() => navigate('/help')}>
+            <AppBarTab value="/help" icon={HelpIcon} onClick={() => navigate('/help')}>
               Help
             </AppBarTab>
           </AppBar>
