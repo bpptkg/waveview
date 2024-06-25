@@ -3,7 +3,7 @@ import { ThemeStyle } from "../util/types";
 const lightTheme: ThemeStyle = {
   backgroundColor: "#fff",
   textColor: "#000",
-  fontSize: 12,
+  fontSize: 11,
   fontFamily: "Arial",
   axisStyle: {
     axisLineColor: "#000",

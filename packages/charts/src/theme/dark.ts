@@ -3,7 +3,7 @@ import { ThemeStyle } from "../util/types";
 const darkTheme: ThemeStyle = {
   backgroundColor: "#000",
   textColor: "#fff",
-  fontSize: 12,
+  fontSize: 11,
   fontFamily: "Arial",
   axisStyle: {
     axisLineColor: "#fff",
