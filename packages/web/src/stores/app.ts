@@ -40,7 +40,7 @@ const appStore = create<AppState, [['zustand/devtools', never]]>(
       if (!theme) {
         theme = theme ?? get().theme;
       }
-      localStorage.setItem('wv:theme', theme);
+      localStorage.setItem(THEME_KEY, theme);
       set({ theme });
 
       let darkMode = false;
