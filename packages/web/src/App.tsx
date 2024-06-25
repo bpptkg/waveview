@@ -3,7 +3,7 @@ import { ChatHelp24Regular, CursorHover24Regular, Folder24Regular, PeopleTeam24R
 import { useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AppBar, AppBarTab } from './components/AppBar';
-import Header from './components/Header';
+import Header from './components/Header/Header';
 import { useAppStore } from './stores/app';
 
 const PickerIcon = CursorHover24Regular;

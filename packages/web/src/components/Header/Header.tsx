@@ -1,7 +1,7 @@
 import { Switch } from '@fluentui/react-components';
 import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppStore } from '../stores/app';
+import { useAppStore } from '../../stores/app';
 import Account from './Account';
 import ArrowNavigation from './ArrowNavigation';
 import Logo from './Logo';
