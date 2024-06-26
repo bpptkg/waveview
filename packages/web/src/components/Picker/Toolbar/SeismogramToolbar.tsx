@@ -122,10 +122,12 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
   );
 
   const handleComponentChange = useCallback(
-    (component: string) => {
-      onComponentChange?.(component);
+    (value: string) => {
+      if (value !== component) {
+        onComponentChange?.(value);
+      }
     },
-    [onComponentChange]
+    [component, onComponentChange]
   );
 
   const handleToolbarCheckedValueChange = useCallback<NonNullable<ToolbarProps['onCheckedValueChange']>>(
