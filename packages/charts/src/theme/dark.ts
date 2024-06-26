@@ -2,6 +2,7 @@ import { ThemeStyle } from "../util/types";
 
 const darkTheme: ThemeStyle = {
   backgroundColor: "#000",
+  foregroundColor: "#fff",
   textColor: "#fff",
   fontSize: 11,
   fontFamily: "Arial",

@@ -2,6 +2,7 @@ import { ThemeStyle } from "../util/types";
 
 const lightTheme: ThemeStyle = {
   backgroundColor: "#fff",
+  foregroundColor: "#000",
   textColor: "#000",
   fontSize: 11,
   fontFamily: "Arial",

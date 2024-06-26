@@ -120,6 +120,7 @@ export interface HighlightStyle {
 
 export interface ThemeStyle {
   backgroundColor: string;
+  foregroundColor: string;
   textColor: string;
   fontSize: number;
   fontFamily: string;
