@@ -34,11 +34,11 @@ export function useHelicorderCallback(
     }, [heliChartRef, setHelicorderOffsetDate]),
 
     handleHelicorderIncreaseAmplitude: useCallback(() => {
-      heliChartRef.current?.increaseAmplitude(0.05);
+      heliChartRef.current?.increaseAmplitude(0.1);
     }, [heliChartRef]),
 
     handleHelicorderDecreaseAmplitude: useCallback(() => {
-      heliChartRef.current?.decreaseAmplitude(0.05);
+      heliChartRef.current?.decreaseAmplitude(0.1);
     }, [heliChartRef]),
 
     handleHelicorderResetAmplitude: useCallback(() => {

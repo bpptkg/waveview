@@ -32,19 +32,19 @@ export const useSeismogramCallback = (
     ),
 
     handleSeismogramZoomIn: useCallback(() => {
-      seisChartRef.current?.zoomIn(0.05);
+      seisChartRef.current?.zoomIn(0.1);
     }, [seisChartRef]),
 
     handleSeismogramZoomOut: useCallback(() => {
-      seisChartRef.current?.zoomOut(0.05);
+      seisChartRef.current?.zoomOut(0.1);
     }, [seisChartRef]),
 
     handleSeismogramScrollLeft: useCallback(() => {
-      seisChartRef.current?.scrollLeft(0.05);
+      seisChartRef.current?.scrollLeft(0.1);
     }, [seisChartRef]),
 
     handleSeismogramScrollRight: useCallback(() => {
-      seisChartRef.current?.scrollRight(0.05);
+      seisChartRef.current?.scrollRight(0.1);
     }, [seisChartRef]),
 
     handleSeismogramScrollToNow: useCallback(() => {
@@ -52,11 +52,11 @@ export const useSeismogramCallback = (
     }, [seisChartRef]),
 
     handleSeismogramIncreaseAmplitude: useCallback(() => {
-      seisChartRef.current?.increaseAmplitude(0.05);
+      seisChartRef.current?.increaseAmplitude(0.1);
     }, [seisChartRef]),
 
     handleSeismogramDecreaseAmplitude: useCallback(() => {
-      seisChartRef.current?.decreaseAmplitude(0.05);
+      seisChartRef.current?.decreaseAmplitude(0.1);
     }, [seisChartRef]),
 
     handleSeismogramResetAmplitude: useCallback(() => {

@@ -91,21 +91,21 @@ export class SeismogramEventManager implements EventManager {
     const center = this.chart.getXAxis().getValueForPixel(x);
     if (shiftKey) {
       if (deltaY > 0 || deltaX > 0) {
-        this.chart.scrollRight(0.05);
+        this.chart.zoomOut(center, 0.1);
       } else {
-        this.chart.scrollLeft(0.05);
+        this.chart.zoomIn(center, 0.1);
       }
     } else if (altKey) {
       if (deltaY > 0) {
-        this.chart.decreaseAmplitude(0.05);
+        this.chart.decreaseAmplitude(0.1);
       } else {
-        this.chart.increaseAmplitude(0.05);
+        this.chart.increaseAmplitude(0.1);
       }
     } else {
       if (deltaY > 0) {
-        this.chart.zoomOut(center, 0.05);
+        this.chart.scrollRight(0.1);
       } else {
-        this.chart.zoomIn(center, 0.05);
+        this.chart.scrollLeft(0.1);
       }
     }
     this.chart.render();
@@ -116,7 +116,7 @@ export class SeismogramEventManager implements EventManager {
     if (this.config.enableArrowLeft === false) {
       return;
     }
-    this.chart.scrollLeft(0.05);
+    this.chart.scrollLeft(0.1);
     this.chart.render();
     this.onFinished();
   }
@@ -125,7 +125,7 @@ export class SeismogramEventManager implements EventManager {
     if (this.config.enableArrowRight === false) {
       return;
     }
-    this.chart.scrollRight(0.05);
+    this.chart.scrollRight(0.1);
     this.chart.render();
     this.onFinished();
   }
@@ -134,7 +134,7 @@ export class SeismogramEventManager implements EventManager {
     if (this.config.enableArrowUp === false) {
       return;
     }
-    this.chart.increaseAmplitude(0.05);
+    this.chart.increaseAmplitude(0.1);
     this.chart.render();
     this.onFinished();
   }
@@ -143,7 +143,7 @@ export class SeismogramEventManager implements EventManager {
     if (this.config.enableArrowDown === false) {
       return;
     }
-    this.chart.decreaseAmplitude(0.05);
+    this.chart.decreaseAmplitude(0.1);
     this.chart.render();
     this.onFinished();
   }
