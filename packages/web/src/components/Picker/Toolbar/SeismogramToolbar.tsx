@@ -34,7 +34,6 @@ import {
 } from '@fluentui/react-icons';
 import React, { useCallback, useState } from 'react';
 import PickIcon from '../../Icons/PickIcon';
-import ToolbarContextSwicher from './ToolbarContextSwicher';
 
 export interface SeismogramToolbarProps {
   showEvent?: boolean;
@@ -157,11 +156,11 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
   return (
     <div className="bg-white dark:bg-black mx-2 drop-shadow rounded">
       <Toolbar aria-label="Seismogram Toolbar" checkedValues={checkedValues} onCheckedValueChange={handleToolbarCheckedValueChange}>
-        <ToolbarContextSwicher />
-
         <Popover trapFocus open={open} onOpenChange={() => setOpen(!open)}>
           <PopoverTrigger disableButtonEnhancement>
-            <ToolbarButton aria-label="Add Channel" icon={<Add20Regular />} />
+            <ToolbarButton appearance="primary" aria-label="Add Channel" icon={<Add20Regular />}>
+              <span className="font-normal">Add channel</span>
+            </ToolbarButton>
           </PopoverTrigger>
           <PopoverSurface>
             <Field className={styles.searchBoxWrapper}>

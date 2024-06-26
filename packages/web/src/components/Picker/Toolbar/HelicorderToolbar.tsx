@@ -30,7 +30,6 @@ import {
   Search20Regular,
 } from '@fluentui/react-icons';
 import React, { useCallback } from 'react';
-import ToolbarContextSwicher from './ToolbarContextSwicher';
 
 export interface HelicorderToolbarProps {
   channel: string;
@@ -140,11 +139,9 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
   return (
     <div className="bg-white dark:bg-black mx-2 drop-shadow rounded">
       <Toolbar aria-label="Helicorder Toolbar">
-        <ToolbarContextSwicher />
-
         <Popover trapFocus open={open} onOpenChange={() => setOpen(!open)}>
           <PopoverTrigger disableButtonEnhancement>
-            <ToolbarButton aria-label="Select Channel ID" icon={<Search20Regular />} className={styles.btn}>
+            <ToolbarButton appearance="primary" aria-label="Select Channel ID" icon={<Search20Regular />} className={styles.btn}>
               <span className="font-normal">{channel}</span>
             </ToolbarButton>
           </PopoverTrigger>
