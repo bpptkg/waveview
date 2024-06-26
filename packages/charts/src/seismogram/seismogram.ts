@@ -578,6 +578,10 @@ export class Seismogram
   }
 
   private _onPointerDown(event: PIXI.FederatedPointerEvent): void {
+    if (this._trackManager.count() === 0) {
+      return;
+    }
+
     const { x, y } = event.global;
     const trackIndex = this.getChannelIndexAtPosition(y);
     const track = this.getTrackAt(trackIndex);
