@@ -38,7 +38,7 @@ export interface SeismogramChartOptions extends ChartOptions {
    * Whether to use UTC time.
    */
   useUTC: boolean;
-   /**
+  /**
    * Vertical scaling of the helicorder chart. ``local`` scales each track
    * independently, while ``global`` scales all tracks together.
    */
@@ -78,6 +78,7 @@ function getDefaultOptions(): SeismogramChartOptions {
 
 export interface SeismogramChartType extends ChartType<SeismogramChartOptions> {
   getChannels(): string[];
+  setChannels(channels: string[]): void;
   getChannelCount(): number;
   getChannelAt(index: number): string;
   addChannel(channelId: string): void;
@@ -135,6 +136,7 @@ export interface SeismogramEventMap extends EventMap {
   resize: (width: number, height: number) => void;
   focus: () => void;
   blur: () => void;
+  trackDoubleClicked: (index: number) => void;
 }
 
 export class Seismogram
@@ -150,6 +152,7 @@ export class Seismogram
   private _trackManager: TrackManager = new TrackManager();
   private _yExtent: [number, number] = [-1, 1];
   private _dataStore: DataStore<SeriesData> = new DataStore();
+  private _lastClickTime: number = 0;
 
   constructor(
     dom: HTMLCanvasElement,
@@ -195,10 +198,20 @@ export class Seismogram
       this._currentTheme = darkTheme;
     }
     this.applyComponentThemeStyles();
+
+    this.app.stage.on("pointerdown", this._onPointerDown, this);
+    this.app.stage.on("pointermove", this._onPointerMove, this);
   }
 
   getChannels(): string[] {
     return this._trackManager.getChannels().map((channel) => channel.id);
+  }
+
+  setChannels(channels: string[]): void {
+    this.clearAllTracks();
+    for (const channel of channels) {
+      this.addChannelInternal(channel);
+    }
   }
 
   getChannelAt(index: number): string {
@@ -553,6 +566,39 @@ export class Seismogram
       const track = this._trackManager.getTrackByIndex(i);
       const rect = this.getRectForTrack(i, trackCount);
       track.setRect(rect);
+    }
+  }
+
+  private clearAllTracks(): void {
+    for (const track of this._trackManager.tracks()) {
+      this.removeComponent(track);
+      track.dispose();
+    }
+    this._trackManager.clear();
+  }
+
+  private _onPointerDown(event: PIXI.FederatedPointerEvent): void {
+    const { x, y } = event.global;
+    const trackIndex = this.getChannelIndexAtPosition(y);
+    const track = this.getTrackAt(trackIndex);
+    const headRect = track.getTrackHeadRect();
+    if (headRect.contains(x, y)) {
+      const now = Date.now();
+      if (now - this._lastClickTime < 300) {
+        this.emit("trackDoubleClicked", trackIndex);
+      }
+      this._lastClickTime = now;
+    }
+  }
+
+  private _onPointerMove(event: PIXI.FederatedPointerEvent): void {
+    const { x, y } = event.global;
+    const rect = this.getGrid().getRect();
+    const handleArea = new PIXI.Rectangle(0, rect.y, rect.x, rect.height);
+    if (handleArea.contains(x, y)) {
+      this.app.stage.cursor = "pointer";
+    } else {
+      this.app.stage.cursor = "default";
     }
   }
 }
