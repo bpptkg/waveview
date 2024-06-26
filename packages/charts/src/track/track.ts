@@ -117,6 +117,24 @@ export class Track extends View<TrackModel> {
     return this._highlighted;
   }
 
+  getTrackHeadRect(): LayoutRect {
+    const gridRect = this.chart.getGrid().getRect();
+    const rect = this.getRect();
+    return new PIXI.Rectangle(0, rect.y, gridRect.x, rect.height);
+  }
+
+  getTrackTailRect(): LayoutRect {
+    const chartWidth = this.chart.getRect().width;
+    const gridRect = this.chart.getGrid().getRect();
+    const rect = this.getRect();
+    return new PIXI.Rectangle(
+      gridRect.x + gridRect.width,
+      rect.y,
+      chartWidth - (gridRect.x + gridRect.width),
+      rect.height
+    );
+  }
+
   override getRect(): LayoutRect {
     return this._rect;
   }
