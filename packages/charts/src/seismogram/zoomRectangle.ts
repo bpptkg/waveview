@@ -43,8 +43,6 @@ export class ZoomRectangle extends View<ZoomRectangleModel> {
   private onPointerDownBound: (event: InteractionEvent) => void;
   private onPointerMoveBound: (event: InteractionEvent) => void;
   private onPointerUpBound: () => void;
-  private onKeydownBound: (event: KeyboardEvent) => void;
-  private onKeyupBound: (event: KeyboardEvent) => void;
 
   constructor(chart: Seismogram, options?: Partial<ZoomRectangleOptions>) {
     const model = new ZoomRectangleModel(options);
@@ -59,21 +57,15 @@ export class ZoomRectangle extends View<ZoomRectangleModel> {
     this.onPointerDownBound = this.onPointerDown.bind(this);
     this.onPointerMoveBound = this.onPointerMove.bind(this);
     this.onPointerUpBound = this.onPointerUp.bind(this);
-    this.onKeydownBound = this.onKeydown.bind(this);
-    this.onKeyupBound = this.onKeyup.bind(this);
   }
 
   attachEventListeners(): void {
-    window.addEventListener("keydown", this.onKeydownBound);
-    window.addEventListener("keyup", this.onKeyupBound);
     this.chart.app.stage.on("pointerdown", this.onPointerDownBound);
     this.chart.app.stage.on("pointermove", this.onPointerMoveBound);
     this.chart.app.stage.on("pointerup", this.onPointerUpBound);
   }
 
   detachEventListeners(): void {
-    window.removeEventListener("keydown", this.onKeydownBound);
-    window.removeEventListener("keyup", this.onKeyupBound);
     this.chart.app.stage.off("pointerdown", this.onPointerDownBound);
     this.chart.app.stage.off("pointermove", this.onPointerMoveBound);
     this.chart.app.stage.off("pointerup", this.onPointerUpBound);
@@ -118,7 +110,8 @@ export class ZoomRectangle extends View<ZoomRectangleModel> {
     const width = x2 - x1;
     const height = rect.height;
 
-    const { color, opacity, borderWidth } = this.model.options;
+    const theme = this.chart.getTheme();
+    const { color, opacity, borderWidth } = theme.highlightStyle;
     this._graphics
       .rect(x1, y, width, height)
       .stroke({
@@ -135,18 +128,6 @@ export class ZoomRectangle extends View<ZoomRectangleModel> {
     this.chart.removeComponent(this);
     this._graphics.destroy();
     this.group.destroy();
-  }
-
-  private onKeydown(event: KeyboardEvent): void {
-    if (event.key === "Shift") {
-      this._isActive = true;
-    }
-  }
-
-  private onKeyup(event: KeyboardEvent): void {
-    if (event.key === "Shift") {
-      this._isActive = false;
-    }
   }
 
   private onPointerDown(event: InteractionEvent): void {

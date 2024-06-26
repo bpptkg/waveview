@@ -8,9 +8,6 @@ import { InteractionEvent } from "pixi.js";
 
 export interface PickerOptions extends ModelOptions {
   enable: boolean;
-  color: string;
-  opacity: number;
-  borderWidth: number;
 }
 
 export class PickerModel extends Model<PickerOptions> {
@@ -18,9 +15,6 @@ export class PickerModel extends Model<PickerOptions> {
 
   static defaultOptions: PickerOptions = {
     enable: true,
-    color: "#9747FF",
-    opacity: 0.25,
-    borderWidth: 1,
   };
 
   constructor(options?: Partial<PickerOptions>) {
@@ -58,7 +52,6 @@ export class Picker extends View<PickerModel> {
   private readonly _rightArrow: PIXI.Graphics;
   private readonly _line: PIXI.Graphics;
 
-  private handleKeyDownBound: (event: KeyboardEvent) => void;
   private handlePointerDownBound: (event: InteractionEvent) => void;
   private handlePointerMoveBound: (event: InteractionEvent) => void;
   private handlePointerUpBound: (event: InteractionEvent) => void;
@@ -83,32 +76,33 @@ export class Picker extends View<PickerModel> {
     this.group.addChild(this._rightArrow);
     this.group.addChild(this._line);
 
-    this.handleKeyDownBound = this.handleKeyDown.bind(this);
     this.handlePointerDownBound = this.handlePointerDown.bind(this);
     this.handlePointerMoveBound = this.handlePointerMove.bind(this);
     this.handlePointerUpBound = this.handlePointerUp.bind(this);
   }
 
   attachEventListeners(): void {
-    window.addEventListener("keydown", this.handleKeyDownBound);
     this.chart.app.stage.on("pointerdown", this.handlePointerDownBound);
     this.chart.app.stage.on("pointerup", this.handlePointerUpBound);
     this.chart.app.stage.on("pointermove", this.handlePointerMoveBound);
   }
 
   detachEventListeners(): void {
-    window.removeEventListener("keydown", this.handleKeyDownBound);
     this.chart.app.stage.off("pointerdown", this.handlePointerDownBound);
     this.chart.app.stage.off("pointerup", this.handlePointerUpBound);
     this.chart.app.stage.off("pointermove", this.handlePointerMoveBound);
   }
 
-  enable(): void {
+  activate(): void {
     this._isActive = true;
   }
 
-  disable(): void {
+  deactivate(): void {
     this._isActive = false;
+  }
+
+  isActive(): boolean {
+    return this._isActive;
   }
 
   reset(): void {
@@ -120,13 +114,7 @@ export class Picker extends View<PickerModel> {
     this._endValue = 0;
   }
 
-  handleKeyDown(event: KeyboardEvent): void {
-    if (event.key === "P" || event.key === "p") {
-      this._isActive = !this._isActive;
-    }
-  }
-
-  handlePointerDown(event: InteractionEvent): void {
+  private handlePointerDown(event: InteractionEvent): void {
     if (!this._isActive) {
       return;
     }
@@ -145,7 +133,7 @@ export class Picker extends View<PickerModel> {
     }
   }
 
-  handlePointerMove(event: InteractionEvent): void {
+  private handlePointerMove(event: InteractionEvent): void {
     if (!this._isActive) {
       return;
     }
@@ -157,7 +145,7 @@ export class Picker extends View<PickerModel> {
     }
   }
 
-  handlePointerUp(event: InteractionEvent): void {
+  private handlePointerUp(event: InteractionEvent): void {
     if (!this._isActive) {
       return;
     }
@@ -189,7 +177,13 @@ export class Picker extends View<PickerModel> {
     this._rightArrow.clear();
     this._line.clear();
 
-    const { color, opacity, borderWidth } = this.model.getOptions();
+    if (!this._isActive) {
+      return;
+    }
+
+    const theme = this.chart.getTheme();
+    const { textColor, fontSize, fontFamily, foregroundColor } = theme;
+    const { color, opacity, borderWidth } = theme.highlightStyle;
 
     const xAxis = this.chart.getXAxis();
     const min = Math.min(this._startValue, this._endValue);
@@ -200,11 +194,9 @@ export class Picker extends View<PickerModel> {
     let x2 = xAxis.getPixelForValue(max);
     const length = x2 - x1;
 
-    const { x, y, height, width } = this._rect;
-    if (x1 < x || x2 > x + width) {
-      this.reset();
-      return;
-    }
+    const { x, y, height, width } = this.chart.getGrid().getRect();
+    x1 = Math.max(x1, x);
+    x2 = Math.min(x2, x + width);
 
     this._graphics
       .rect(x1, y, length, height)
@@ -222,31 +214,31 @@ export class Picker extends View<PickerModel> {
 
       this._label.text = `${duration.toFixed(3)}s`;
       this._label.style = {
-        fontFamily: "Arial",
-        fontSize: 11,
-        fill: "#000",
+        fontFamily,
+        fontSize,
+        fill: textColor,
         align: "center",
       };
-      this._label.anchor.set(0.5, 0);
-      this._label.position.set((x1 + x2) / 2, y + height + offset * 1.1);
+      this._label.anchor.set(0.5, 1);
+      this._label.position.set((x1 + x2) / 2, y + height - offset * 1.1);
 
       this._leftArrow
-        .poly(createArrowPoints(x1, y + height + offset, 5, "left"))
+        .poly(createArrowPoints(x1, y + height - offset, 5, "left"))
         .fill({
-          color: "#000",
+          color: foregroundColor,
         });
 
       this._rightArrow
-        .poly(createArrowPoints(x2, y + height + offset, 5, "right"))
+        .poly(createArrowPoints(x2, y + height - offset, 5, "right"))
         .fill({
-          color: "#000",
+          color: foregroundColor,
         });
 
       this._line
-        .moveTo(x1, y + height + offset)
-        .lineTo(x2, y + height + offset)
+        .moveTo(x1, y + height - offset)
+        .lineTo(x2, y + height - offset)
         .stroke({
-          color: "#000",
+          color: foregroundColor,
           width: 1,
         });
 
@@ -300,5 +292,17 @@ export class PickerExtension implements Extension<Seismogram> {
       throw new Error("Picker extension not initialized");
     }
     return this.picker;
+  }
+
+  activate(): void {
+    this.picker?.activate();
+  }
+
+  deactivate(): void {
+    this.picker?.deactivate();
+  }
+
+  isActive(): boolean {
+    return this.picker?.isActive() || false;
   }
 }
