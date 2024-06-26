@@ -9,7 +9,6 @@ import {
 import { FederatedPointerEvent } from 'pixi.js';
 import React, { useCallback, useEffect, useImperativeHandle, useRef } from 'react';
 import { debounce } from '../../shared/debounce';
-import SeismogramContextMenu, { ContextMenuRef } from './SeismogramContextMenu';
 
 export interface SeismogramChartProps {
   initOptions?: Partial<SeismogramChartOptions>;
@@ -21,9 +20,11 @@ export interface SeismogramChartProps {
   onMoveChannelUp?: (index: number) => void;
   onMoveChannelDown?: (index: number) => void;
   onTrackDoubleClick?: (index: number) => void;
+  onContextMenuRequested?: (e: FederatedPointerEvent) => void;
 }
 
 export interface SeismogramChartRef {
+  getInstance: () => Seismogram;
   setChannels: (channels: string[]) => void;
   addChannel: (channelId: string) => void;
   removeChannel: (index: number) => void;
@@ -51,7 +52,7 @@ export interface SeismogramChartRef {
 }
 
 const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & React.RefAttributes<SeismogramChartRef>> = React.forwardRef((props, ref) => {
-  const { initOptions, className, onFocus, onBlur, onExtentChange, onRemoveChannel, onMoveChannelUp, onMoveChannelDown, onTrackDoubleClick } = props;
+  const { initOptions, className, onFocus, onBlur, onExtentChange, onTrackDoubleClick, onContextMenuRequested } = props;
 
   const seisRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Seismogram | null>(null);
@@ -63,7 +64,7 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
   const zoomRectangleExtensionRef = useRef<ZoomRectangleExtension | null>(null);
   const axisPointerExtensionRef = useRef<AxisPointerExtension | null>(null);
   const eventManagerExtensionRef = useRef<SeismogramEventManagerExtension | null>(null);
-  const contextMenuRef = useRef<ContextMenuRef | null>(null);
+  // const contextMenuRef = useRef<ContextMenuRef | null>(null);
 
   const fetchDataDebounced = debounce(() => {
     webWorkerRef.current?.fetchAllChannelsData();
@@ -74,6 +75,7 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
   };
 
   useImperativeHandle(ref, () => ({
+    getInstance: () => chartRef.current!,
     setChannels: (channels: string[]) => {
       if (chartRef.current) {
         chartRef.current.setChannels(channels);
@@ -259,6 +261,13 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
     [onTrackDoubleClick]
   );
 
+  const handleContextMenuRequested = useCallback(
+    (e: FederatedPointerEvent) => {
+      onContextMenuRequested?.(e);
+    },
+    [onContextMenuRequested]
+  );
+
   useEffect(() => {
     async function init() {
       if (seisRef.current) {
@@ -275,13 +284,6 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
         chartRef.current.on('blur', handleBlur);
         chartRef.current.on('extentChanged', handleExtentChange);
         chartRef.current.on('trackDoubleClicked', handleTrackDoubleClick);
-        chartRef.current.app.stage.on('rightclick', (e: FederatedPointerEvent) => {
-          if (chartRef.current) {
-            contextMenuRef.current?.open(e, {
-              chart: chartRef.current,
-            });
-          }
-        });
 
         workerRef.current = new Worker(new URL('../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
         webWorkerRef.current = new SeismogramWebWorker(chartRef.current, workerRef.current);
@@ -347,10 +349,25 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    const handleContextMenu = (e: FederatedPointerEvent) => {
+      handleContextMenuRequested(e);
+    };
+
+    if (chartRef.current) {
+      chartRef.current.app.stage.on('rightclick', handleContextMenu);
+    }
+
+    return () => {
+      if (chartRef.current) {
+        chartRef.current.app.stage.off('rightclick', handleContextMenu);
+      }
+    };
+  }, [handleContextMenuRequested]);
+
   return (
     <div className={`absolute top-0 right-0 bottom-0 left-0 ${className ?? ''}`}>
       <canvas ref={seisRef} />
-      <SeismogramContextMenu onRemoveChannel={onRemoveChannel} onMoveChannelUp={onMoveChannelUp} onMoveChannelDown={onMoveChannelDown} ref={contextMenuRef} />
     </div>
   );
 });

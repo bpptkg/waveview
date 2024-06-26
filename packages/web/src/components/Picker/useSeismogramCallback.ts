@@ -16,6 +16,7 @@ export const useSeismogramCallback = (
     seismogramToolbarSetCheckedValues,
     removeSeismogramChannel,
     moveChannel,
+    setExpandMode,
   } = usePickerStore();
 
   return {
@@ -120,11 +121,13 @@ export const useSeismogramCallback = (
 
     handleTrackDoubleClicked: useCallback(() => {
       seisChartRef.current?.setChannels(['VG.MEPH.00.HHZ', 'VG.MEPH.00.HHN', 'VG.MEPH.00.HHE']);
-    }, [seisChartRef]),
+      setExpandMode(true);
+    }, [seisChartRef, setExpandMode]),
 
     handleRestoreChannels: useCallback(() => {
       seisChartRef.current?.setChannels(channels);
-    }, [seisChartRef, channels]),
+      setExpandMode(false);
+    }, [seisChartRef, channels, setExpandMode]),
 
     handleSeismogramFocus: useCallback(() => {
       heliChartRef.current?.blur();

@@ -38,6 +38,7 @@ import PickIcon from '../../Icons/PickIcon';
 export interface SeismogramToolbarProps {
   showEvent?: boolean;
   checkedValues?: Record<string, string[]>;
+  isExpandMode?: boolean;
   onChannelAdd?: (channelId: string) => void;
   onZoomIn?: () => void;
   onZoomOut?: () => void;
@@ -89,6 +90,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
   const {
     showEvent = true,
     checkedValues = {},
+    isExpandMode,
     onChannelAdd,
     onZoomIn,
     onZoomOut,
@@ -158,7 +160,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
       <Toolbar aria-label="Seismogram Toolbar" checkedValues={checkedValues} onCheckedValueChange={handleToolbarCheckedValueChange}>
         <Popover trapFocus open={open} onOpenChange={() => setOpen(!open)}>
           <PopoverTrigger disableButtonEnhancement>
-            <ToolbarButton appearance="primary" aria-label="Add Channel" icon={<Add20Regular />}>
+            <ToolbarButton appearance="primary" aria-label="Add Channel" icon={<Add20Regular />} disabled={!!isExpandMode}>
               <span className="font-normal">Add channel</span>
             </ToolbarButton>
           </PopoverTrigger>
@@ -212,7 +214,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
 
         <Menu>
           <MenuTrigger>
-            <ToolbarButton aria-label="Select Component" className={styles.btn}>
+            <ToolbarButton aria-label="Select Component" className={styles.btn} disabled={!!isExpandMode}>
               <span className="font-normal">{componentOptions.find((option) => option.value === 'Z')?.label}</span> <ChevronDown12Regular />
             </ToolbarButton>
           </MenuTrigger>

@@ -1,11 +1,13 @@
 import { Button, makeStyles } from '@fluentui/react-components';
 import { ArrowReply20Regular } from '@fluentui/react-icons';
-import { useRef } from 'react';
+import { FederatedPointerEvent } from 'pixi.js';
+import { useCallback, useRef } from 'react';
 import { useAppStore } from '../../stores/app';
 import { usePickerStore } from '../../stores/picker';
 import HelicorderChart, { HelicorderChartRef } from './HelicorderChart';
 import RealtimeClock from './RealtimeClock';
 import SeismogramChart, { SeismogramChartRef } from './SeismogramChart';
+import SeismogramContextMenu, { ContextMenuRef } from './SeismogramContextMenu';
 import TimeZoneSelector from './TimezoneSelector';
 import HelicorderToolbar from './Toolbar/HelicorderToolbar';
 import SeismogramToolbar from './Toolbar/SeismogramToolbar';
@@ -27,6 +29,7 @@ const useStyles = makeStyles({
 const HelicorderWorkspace = () => {
   const heliChartRef = useRef<HelicorderChartRef | null>(null);
   const seisChartRef = useRef<SeismogramChartRef | null>(null);
+  const contextMenuRef = useRef<ContextMenuRef | null>(null);
 
   const {
     useUTC,
@@ -40,6 +43,7 @@ const HelicorderWorkspace = () => {
     lastTrackExtent,
     lastSelection,
     seismogramToolbarCheckedValues,
+    isExpandMode,
   } = usePickerStore();
 
   const { darkMode } = useAppStore();
@@ -89,6 +93,17 @@ const HelicorderWorkspace = () => {
   useThemeEffect(heliChartRef, seisChartRef);
   useTimeZoneEffect(heliChartRef, seisChartRef);
 
+  const handleContextMenuRequested = useCallback(
+    (e: FederatedPointerEvent) => {
+      if (!isExpandMode && seisChartRef.current) {
+        contextMenuRef.current?.open(e, {
+          chart: seisChartRef.current?.getInstance(),
+        });
+      }
+    },
+    [isExpandMode]
+  );
+
   return (
     <>
       {selectedChart === 'helicorder' && (
@@ -114,6 +129,7 @@ const HelicorderWorkspace = () => {
         <SeismogramToolbar
           showEvent={showEvent}
           checkedValues={seismogramToolbarCheckedValues}
+          isExpandMode={isExpandMode}
           onChannelAdd={handleSeismogramChannelAdd}
           onZoomIn={handleSeismogramZoomIn}
           onZoomOut={handleSeismogramZoomOut}
@@ -176,12 +192,18 @@ const HelicorderWorkspace = () => {
               }}
               onFocus={handleSeismogramFocus}
               onExtentChange={handleSeismogramExtentChange}
+              onContextMenuRequested={handleContextMenuRequested}
+              onTrackDoubleClick={handleTrackDoubleClicked}
+            />
+            {isExpandMode && (
+              <Button className={styles.backButton} icon={<ArrowReply20Regular />} size="small" appearance="transparent" onClick={handleRestoreChannels} />
+            )}
+            <SeismogramContextMenu
               onRemoveChannel={handleSeismogramRemoveChannel}
               onMoveChannelUp={handleSeismogramMoveChannelUp}
               onMoveChannelDown={handleSeismogramMoveChannelDown}
-              onTrackDoubleClick={handleTrackDoubleClicked}
+              ref={contextMenuRef}
             />
-            <Button className={styles.backButton} icon={<ArrowReply20Regular />} size="small" appearance="transparent" onClick={handleRestoreChannels}></Button>
           </div>
         </div>
         <div className="bg-white dark:bg-black relative flex items-center justify-end gap-2 mr-2 h-[20px]">

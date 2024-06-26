@@ -64,6 +64,10 @@ export interface PickerState {
    * The toolbar items that are currently checked in the seismogram chart.
    */
   seismogramToolbarCheckedValues: Record<string, string[]>;
+  /**
+   * Whether the seismogram chart is in expand mode.
+   */
+  isExpandMode: boolean;
 }
 
 export interface PickerActions {
@@ -84,6 +88,7 @@ export interface PickerActions {
   addSeismogramChannel: (channelId: string) => void;
   removeSeismogramChannel: (index: number) => void;
   moveChannel: (fromIndex: number, toIndex: number) => void;
+  setExpandMode: (isExpandMode: boolean) => void;
 }
 
 export type PickerStore = PickerState & PickerActions;
@@ -124,6 +129,7 @@ const pickerStore = create<PickerStore, [['zustand/devtools', never]]>(
       seismogramToolbarCheckedValues: {
         options: [],
       },
+      isExpandMode: false,
       setWorkspace: (workspace) => set({ workspace }),
       setHelicorderChannel: (channel) => set({ channel }),
       setHelicorderDuration: (duration) => set({ duration }),
@@ -193,6 +199,8 @@ const pickerStore = create<PickerStore, [['zustand/devtools', never]]>(
             channels,
           };
         }),
+
+      setExpandMode: (isExpandMode) => set({ isExpandMode }),
     };
   })
 );
