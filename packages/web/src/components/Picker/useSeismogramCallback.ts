@@ -19,6 +19,7 @@ export const useSeismogramCallback = (
     setExpandMode,
     setComponent,
     getStationChannels,
+    setExpandedChannelIndex,
   } = usePickerStore();
 
   return {
@@ -134,8 +135,9 @@ export const useSeismogramCallback = (
         const channels = getStationChannels(index);
         seisChartRef.current?.setChannels(channels);
         setExpandMode(true);
+        setExpandedChannelIndex(index);
       },
-      [seisChartRef, setExpandMode, getStationChannels]
+      [seisChartRef, setExpandMode, getStationChannels, setExpandedChannelIndex]
     ),
 
     handleRestoreChannels: useCallback(() => {

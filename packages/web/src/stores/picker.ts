@@ -83,6 +83,10 @@ export interface PickerState {
    */
   isExpandMode: boolean;
   /**
+   * The index of the expanded channel in the seismogram chart.
+   */
+  expandedChannelIndex: number | null;
+  /**
    * The component type of the seismogram chart.
    */
   component: ComponentType;
@@ -109,6 +113,7 @@ export interface PickerActions {
   setExpandMode: (isExpandMode: boolean) => void;
   setComponent: (component: ComponentType) => void;
   getStationChannels: (index: number) => string[];
+  setExpandedChannelIndex: (index: number) => void;
 }
 
 export type PickerStore = PickerState & PickerActions;
@@ -168,6 +173,7 @@ const pickerStore = create<PickerStore, [['zustand/devtools', never]]>(
         options: [],
       },
       isExpandMode: false,
+      expandedChannelIndex: null,
       component: 'Z',
       setWorkspace: (workspace) => set({ workspace }),
       setHelicorderChannel: (channel) => set({ channel }),
@@ -280,6 +286,8 @@ const pickerStore = create<PickerStore, [['zustand/devtools', never]]>(
 
         return channels;
       },
+
+      setExpandedChannelIndex: (index) => set({ expandedChannelIndex: index }),
     };
   })
 );

@@ -2,7 +2,7 @@ import { Button, makeStyles } from '@fluentui/react-components';
 import { ArrowReply20Regular } from '@fluentui/react-icons';
 import { StreamIdentifier } from '@waveview/stream';
 import { FederatedPointerEvent } from 'pixi.js';
-import { useCallback, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { useAppStore } from '../../stores/app';
 import { usePickerStore } from '../../stores/picker';
 import HelicorderChart, { HelicorderChartRef } from './HelicorderChart';
@@ -45,8 +45,10 @@ const HelicorderWorkspace = () => {
     lastSelection,
     seismogramToolbarCheckedValues,
     isExpandMode,
+    expandedChannelIndex,
     availableChannels,
     component,
+    getStationChannels,
   } = usePickerStore();
 
   const { darkMode } = useAppStore();
@@ -107,6 +109,15 @@ const HelicorderWorkspace = () => {
     },
     [isExpandMode]
   );
+
+  const initialChannels = useMemo(() => {
+    if (isExpandMode && expandedChannelIndex !== null) {
+      return getStationChannels(expandedChannelIndex);
+    } else {
+      return channels;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -187,7 +198,7 @@ const HelicorderWorkspace = () => {
               ref={seisChartRef}
               className={selectedChart === 'seismogram' ? 'border border-brand-hosts-80' : 'border border-transparent'}
               initOptions={{
-                channels,
+                channels: initialChannels,
                 grid: {
                   top: 30,
                   right: 20,
