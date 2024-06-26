@@ -1,3 +1,5 @@
+import { Button, makeStyles } from '@fluentui/react-components';
+import { ArrowReply20Regular } from '@fluentui/react-icons';
 import { useCallback, useEffect, useRef } from 'react';
 import { useAppStore } from '../../stores/app';
 import { usePickerStore } from '../../stores/picker';
@@ -7,6 +9,15 @@ import SeismogramChart, { SeismogramChartRef } from './SeismogramChart';
 import TimeZoneSelector from './TimezoneSelector';
 import HelicorderToolbar from './Toolbar/HelicorderToolbar';
 import SeismogramToolbar from './Toolbar/SeismogramToolbar';
+
+const useStyles = makeStyles({
+  backButton: {
+    position: 'absolute',
+    left: '5px',
+    top: '5px',
+    zIndex: 10,
+  },
+});
 
 const HelicorderWorkspace = () => {
   const heliChartRef = useRef<HelicorderChartRef | null>(null);
@@ -43,6 +54,8 @@ const HelicorderWorkspace = () => {
   } = usePickerStore();
 
   const { darkMode } = useAppStore();
+
+  const styles = useStyles();
 
   // Helicorder Toolbar
   const handleHelicorderShiftViewUp = useCallback(() => {
@@ -273,6 +286,14 @@ const HelicorderWorkspace = () => {
     [moveChannel, channels]
   );
 
+  const handleTrackDoubleClicked = useCallback((index: number) => {
+    seisChartRef.current?.setChannels(['VG.MEPH.00.HHZ', 'VG.MEPH.00.HHN', 'VG.MEPH.00.HHE']);
+  }, []);
+
+  const handleRestoreChannels = useCallback(() => {
+    seisChartRef.current?.setChannels(channels);
+  }, [channels]);
+
   // Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -415,7 +436,9 @@ const HelicorderWorkspace = () => {
               onRemoveChannel={handleSeismogramRemoveChannel}
               onMoveChannelUp={handleSeismogramMoveChannelUp}
               onMoveChannelDown={handleSeismogramMoveChannelDown}
+              onTrackDoubleClick={handleTrackDoubleClicked}
             />
+            <Button className={styles.backButton} icon={<ArrowReply20Regular />} size="small" appearance="transparent" onClick={handleRestoreChannels}></Button>
           </div>
         </div>
         <div className="bg-white dark:bg-black relative flex items-center justify-end gap-2 mr-2 h-[20px]">
