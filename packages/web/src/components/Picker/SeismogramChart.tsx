@@ -20,9 +20,11 @@ export interface SeismogramChartProps {
   onRemoveChannel?: (index: number) => void;
   onMoveChannelUp?: (index: number) => void;
   onMoveChannelDown?: (index: number) => void;
+  onTrackDoubleClick?: (index: number) => void;
 }
 
 export interface SeismogramChartRef {
+  setChannels: (channels: string[]) => void;
   addChannel: (channelId: string) => void;
   removeChannel: (index: number) => void;
   moveChannelUp: (index: number) => void;
@@ -49,7 +51,7 @@ export interface SeismogramChartRef {
 }
 
 const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & React.RefAttributes<SeismogramChartRef>> = React.forwardRef((props, ref) => {
-  const { initOptions, className, onFocus, onBlur, onExtentChange, onRemoveChannel, onMoveChannelUp, onMoveChannelDown } = props;
+  const { initOptions, className, onFocus, onBlur, onExtentChange, onRemoveChannel, onMoveChannelUp, onMoveChannelDown, onTrackDoubleClick } = props;
 
   const seisRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Seismogram | null>(null);
@@ -72,6 +74,13 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
   };
 
   useImperativeHandle(ref, () => ({
+    setChannels: (channels: string[]) => {
+      if (chartRef.current) {
+        chartRef.current.setChannels(channels);
+        chartRef.current.render();
+        fetchDataDebounced();
+      }
+    },
     addChannel: (channelId: string) => {
       if (chartRef.current) {
         chartRef.current.addChannel(channelId);
@@ -243,10 +252,20 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
     [onExtentChange]
   );
 
+  const handleTrackDoubleClick = useCallback(
+    (index: number) => {
+      onTrackDoubleClick?.(index);
+    },
+    [onTrackDoubleClick]
+  );
+
   useEffect(() => {
     async function init() {
       if (seisRef.current) {
         seisRef.current.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+        });
+        seisRef.current.addEventListener('dblclick', (e) => {
           e.preventDefault();
         });
 
@@ -255,6 +274,7 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
         chartRef.current.on('focus', handleFocus);
         chartRef.current.on('blur', handleBlur);
         chartRef.current.on('extentChanged', handleExtentChange);
+        chartRef.current.on('trackDoubleClicked', handleTrackDoubleClick);
         chartRef.current.app.stage.on('rightclick', (e: FederatedPointerEvent) => {
           if (chartRef.current) {
             contextMenuRef.current?.open(e, {
