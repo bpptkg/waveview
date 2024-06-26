@@ -161,11 +161,8 @@ export class ZoomRectangle extends View<ZoomRectangleModel> {
 
     const rect = this.chart.getGrid().getRect();
 
-    const x1 = Math.max(Math.min(this._start.x, this._end.x), rect.x);
-    const x2 = Math.min(
-      Math.max(this._start.x, this._end.x),
-      rect.x + rect.width
-    );
+    const x1 = Math.min(this._start.x, this._end.x);
+    const x2 = Math.max(this._start.x, this._end.x);
 
     const isSelectionReasonablyWide = Math.abs(x2 - x1) > 5;
     if (!isSelectionReasonablyWide) {
