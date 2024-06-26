@@ -357,12 +357,6 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
     if (chartRef.current) {
       chartRef.current.app.stage.on('rightclick', handleContextMenu);
     }
-
-    return () => {
-      if (chartRef.current) {
-        chartRef.current.app.stage.off('rightclick', handleContextMenu);
-      }
-    };
   }, [handleContextMenuRequested]);
 
   return (
