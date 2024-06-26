@@ -84,9 +84,22 @@ export const useSeismogramCallback = (
       [seisChartRef, setShowEvent]
     ),
 
+    handleSeismogramPickModeChange: useCallback(
+      (active: boolean) => {
+        if (active) {
+          seisChartRef.current?.deactivateZoomRectangle();
+          seisChartRef.current?.activatePickMode();
+        } else {
+          seisChartRef.current?.deactivatePickMode();
+        }
+      },
+      [seisChartRef]
+    ),
+
     handleSeismogramZoomRectangleChange: useCallback(
       (active: boolean) => {
         if (active) {
+          seisChartRef.current?.deactivatePickMode();
           seisChartRef.current?.activateZoomRectangle();
         } else {
           seisChartRef.current?.deactivateZoomRectangle();

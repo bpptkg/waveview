@@ -85,6 +85,7 @@ const HelicorderWorkspace = () => {
     handleSeismogramComponentChange,
     handleSeismogramShowEvent,
     handleSeismogramZoomRectangleChange,
+    handleSeismogramPickModeChange,
     handleSeismogramCheckValueChange,
     handleSeismogramRemoveChannel,
     handleSeismogramMoveChannelUp,
@@ -163,6 +164,7 @@ const HelicorderWorkspace = () => {
           onZoomRectangleChange={handleSeismogramZoomRectangleChange}
           onCheckedValueChange={handleSeismogramCheckValueChange}
           onComponentChange={handleSeismogramComponentChange}
+          onPickModeChange={handleSeismogramPickModeChange}
         />
       )}
       <div className="flex-grow relative mt-1 flex flex-col h-full">

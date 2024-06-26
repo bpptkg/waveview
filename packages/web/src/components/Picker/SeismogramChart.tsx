@@ -1,5 +1,6 @@
 import {
   AxisPointerExtension,
+  PickerExtension,
   Seismogram,
   SeismogramChartOptions,
   SeismogramEventManagerExtension,
@@ -49,6 +50,9 @@ export interface SeismogramChartRef {
   blur(): void;
   isFocused(): boolean;
   setUseUTC: (useUTC: boolean) => void;
+  activatePickMode: () => void;
+  deactivatePickMode: () => void;
+  isPickModeActive: () => boolean;
 }
 
 const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & React.RefAttributes<SeismogramChartRef>> = React.forwardRef((props, ref) => {
@@ -64,7 +68,7 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
   const zoomRectangleExtensionRef = useRef<ZoomRectangleExtension | null>(null);
   const axisPointerExtensionRef = useRef<AxisPointerExtension | null>(null);
   const eventManagerExtensionRef = useRef<SeismogramEventManagerExtension | null>(null);
-  // const contextMenuRef = useRef<ContextMenuRef | null>(null);
+  const pickerExtensionRef = useRef<PickerExtension | null>(null);
 
   const fetchDataDebounced = debounce(() => {
     webWorkerRef.current?.fetchAllChannelsData();
@@ -229,6 +233,22 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
         chartRef.current.render();
       }
     },
+    activatePickMode: () => {
+      if (pickerExtensionRef.current) {
+        pickerExtensionRef.current.activate();
+      }
+    },
+    deactivatePickMode: () => {
+      if (pickerExtensionRef.current) {
+        pickerExtensionRef.current.deactivate();
+      }
+    },
+    isPickModeActive: () => {
+      if (pickerExtensionRef.current) {
+        return pickerExtensionRef.current.isActive();
+      }
+      return false;
+    },
   }));
 
   const handleZoomRectangle = (extent: [number, number]) => {
@@ -293,10 +313,12 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
           fetchData: fetchDataDebounced,
         });
         zoomRectangleExtensionRef.current = new ZoomRectangleExtension();
+        pickerExtensionRef.current = new PickerExtension();
 
         chartRef.current.use(axisPointerExtensionRef.current);
         chartRef.current.use(zoomRectangleExtensionRef.current);
         chartRef.current.use(eventManagerExtensionRef.current);
+        chartRef.current.use(pickerExtensionRef.current);
 
         zoomRectangleExtensionRef.current.getInstance().on('extentSelected', handleZoomRectangle);
 

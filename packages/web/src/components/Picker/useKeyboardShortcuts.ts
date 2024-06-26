@@ -21,6 +21,24 @@ export function useKeyboardShortcuts(seisChartRef: React.MutableRefObject<Seismo
             seisChartRef.current?.activateZoomRectangle();
             seismogramToolbarAddCheckedValue('options', 'zoom-rectangle');
           }
+
+          seisChartRef.current.deactivatePickMode();
+          seismogramToolbarRemoveCheckedValue('options', 'pick-mode');
+          break;
+        }
+
+        case 'p':
+        case 'P': {
+          if (seisChartRef.current.isPickModeActive()) {
+            seisChartRef.current.deactivatePickMode();
+            seismogramToolbarRemoveCheckedValue('options', 'pick-mode');
+          } else {
+            seisChartRef.current.activatePickMode();
+            seismogramToolbarAddCheckedValue('options', 'pick-mode');
+          }
+
+          seisChartRef.current.deactivateZoomRectangle();
+          seismogramToolbarRemoveCheckedValue('options', 'zoom-rectangle');
           break;
         }
       }
