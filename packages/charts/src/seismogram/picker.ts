@@ -1,10 +1,9 @@
 import * as PIXI from "pixi.js";
+import { FederatedPointerEvent } from "pixi.js";
 import { Model } from "../model/model";
 import { Extension, LayoutRect, ModelOptions } from "../util/types";
 import { View } from "../view/view";
 import { Seismogram } from "./seismogram";
-// @ts-ignore
-import { InteractionEvent } from "pixi.js";
 
 export interface PickerOptions extends ModelOptions {
   enable: boolean;
@@ -52,9 +51,9 @@ export class Picker extends View<PickerModel> {
   private readonly _rightArrow: PIXI.Graphics;
   private readonly _line: PIXI.Graphics;
 
-  private handlePointerDownBound: (event: InteractionEvent) => void;
-  private handlePointerMoveBound: (event: InteractionEvent) => void;
-  private handlePointerUpBound: (event: InteractionEvent) => void;
+  private handlePointerDownBound: (event: FederatedPointerEvent) => void;
+  private handlePointerMoveBound: (event: FederatedPointerEvent) => void;
+  private handlePointerUpBound: (event: FederatedPointerEvent) => void;
 
   constructor(chart: Seismogram, options?: Partial<PickerOptions>) {
     const model = new PickerModel(options);
@@ -105,16 +104,7 @@ export class Picker extends View<PickerModel> {
     return this._isActive;
   }
 
-  reset(): void {
-    this._clickCount = 0;
-    this._isDragging = false;
-    this._start = new PIXI.Point();
-    this._end = new PIXI.Point();
-    this._startValue = 0;
-    this._endValue = 0;
-  }
-
-  private handlePointerDown(event: InteractionEvent): void {
+  private handlePointerDown(event: FederatedPointerEvent): void {
     if (!this._isActive) {
       return;
     }
@@ -122,10 +112,10 @@ export class Picker extends View<PickerModel> {
 
     if (this._clickCount === 0) {
       this._isDragging = true;
-      this._start = event.data.getLocalPosition(this.chart.app.stage);
+      this._start = event.global.clone();
       this._startValue = xAxis.getValueForPixel(this._start.x);
     } else if (this._clickCount === 1) {
-      this._end = event.data.getLocalPosition(this.chart.app.stage);
+      this._end = event.global.clone();
       this._endValue = xAxis.getValueForPixel(this._end.x);
       this._clickCount = 0;
       this._isDragging = false;
@@ -133,25 +123,25 @@ export class Picker extends View<PickerModel> {
     }
   }
 
-  private handlePointerMove(event: InteractionEvent): void {
+  private handlePointerMove(event: FederatedPointerEvent): void {
     if (!this._isActive) {
       return;
     }
 
     if (this._isDragging) {
-      this._end = event.data.getLocalPosition(this.chart.app.stage);
+      this._end = event.global.clone();
       this._endValue = this.chart.getXAxis().getValueForPixel(this._end.x);
-      this.render({ drawLabel: true });
+      this.render();
     }
   }
 
-  private handlePointerUp(event: InteractionEvent): void {
+  private handlePointerUp(event: FederatedPointerEvent): void {
     if (!this._isActive) {
       return;
     }
 
     if (this._isDragging) {
-      this._end = event.data.getLocalPosition(this.chart.app.stage);
+      this._end = event.global.clone();
       this._endValue = this.chart.getXAxis().getValueForPixel(this._end.x);
       if (Math.abs(this._end.x - this._start.x) > 0) {
         this._isDragging = false;
@@ -170,7 +160,7 @@ export class Picker extends View<PickerModel> {
     this._rect = rect;
   }
 
-  override render({ drawLabel = false } = {}): void {
+  override render({ drawLabel = true } = {}): void {
     this._graphics.clear();
     this._label.text = "";
     this._leftArrow.clear();
@@ -181,22 +171,31 @@ export class Picker extends View<PickerModel> {
       return;
     }
 
+    // Check if the pick hasn't finished but the chart view has changed. So we
+    // need to update the end value basen on the current pointer position.
+    if (this._clickCount !== 2) {
+      this._endValue = this.chart.getXAxis().getValueForPixel(this._end.x);
+    }
+
+    const start = this._startValue;
+    const end = this._endValue;
+
     const theme = this.chart.getTheme();
     const { textColor, fontSize, fontFamily, foregroundColor } = theme;
     const { color, opacity, borderWidth } = theme.highlightStyle;
 
     const xAxis = this.chart.getXAxis();
-    const min = Math.min(this._startValue, this._endValue);
-    const max = Math.max(this._startValue, this._endValue);
+    const min = Math.min(start, end);
+    const max = Math.max(start, end);
     const duration = (max - min) / 1000; // in seconds
 
     let x1 = xAxis.getPixelForValue(min);
     let x2 = xAxis.getPixelForValue(max);
-    const length = x2 - x1;
 
     const { x, y, height, width } = this.chart.getGrid().getRect();
     x1 = Math.max(x1, x);
     x2 = Math.min(x2, x + width);
+    const length = x2 - x1;
 
     this._graphics
       .rect(x1, y, length, height)
