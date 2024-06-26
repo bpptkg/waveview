@@ -1,5 +1,6 @@
 import { Button, makeStyles } from '@fluentui/react-components';
 import { ArrowReply20Regular } from '@fluentui/react-icons';
+import { StreamIdentifier } from '@waveview/stream';
 import { FederatedPointerEvent } from 'pixi.js';
 import { useCallback, useRef } from 'react';
 import { useAppStore } from '../../stores/app';
@@ -44,6 +45,8 @@ const HelicorderWorkspace = () => {
     lastSelection,
     seismogramToolbarCheckedValues,
     isExpandMode,
+    availableChannels,
+    component,
   } = usePickerStore();
 
   const { darkMode } = useAppStore();
@@ -77,6 +80,7 @@ const HelicorderWorkspace = () => {
     handleSeismogramIncreaseAmplitude,
     handleSeismogramDecreaseAmplitude,
     handleSeismogramResetAmplitude,
+    handleSeismogramComponentChange,
     handleSeismogramShowEvent,
     handleSeismogramZoomRectangleChange,
     handleSeismogramCheckValueChange,
@@ -113,6 +117,7 @@ const HelicorderWorkspace = () => {
           duration={duration}
           showEvent={showEvent}
           offsetDate={new Date(offsetDate)}
+          availableChannels={availableChannels.filter((c) => c !== channel)}
           onShiftViewUp={handleHelicorderShiftViewUp}
           onShiftViewDown={handleHelicorderShiftViewDown}
           onShiftViewToNow={handleHelicorderShiftViewToNow}
@@ -130,6 +135,10 @@ const HelicorderWorkspace = () => {
           showEvent={showEvent}
           checkedValues={seismogramToolbarCheckedValues}
           isExpandMode={isExpandMode}
+          availableChannels={availableChannels.filter((c) => {
+            return !channels.includes(c) && StreamIdentifier.fromId(c).channel.includes(component);
+          })}
+          component={component}
           onChannelAdd={handleSeismogramChannelAdd}
           onZoomIn={handleSeismogramZoomIn}
           onZoomOut={handleSeismogramZoomOut}
@@ -142,6 +151,7 @@ const HelicorderWorkspace = () => {
           onShowEventChange={handleSeismogramShowEvent}
           onZoomRectangleChange={handleSeismogramZoomRectangleChange}
           onCheckedValueChange={handleSeismogramCheckValueChange}
+          onComponentChange={handleSeismogramComponentChange}
         />
       )}
       <div className="flex-grow relative mt-1 flex flex-col h-full">

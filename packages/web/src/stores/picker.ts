@@ -1,3 +1,4 @@
+import { StreamIdentifier } from '@waveview/stream';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { createSelectors } from '../shared/createSelectors';
@@ -5,6 +6,9 @@ import { createSelectors } from '../shared/createSelectors';
 export type PickerWorkspace = 'helicorder' | 'seismogram';
 export type PickerChart = 'helicorder' | 'seismogram';
 export type SeismogramCheckedValue = 'zoom-rectangle' | 'pick-mode';
+export type ComponentType = 'E' | 'N' | 'Z';
+
+const COMPONENTS = ['E', 'N', 'Z'];
 
 export interface PickerState {
   /**
@@ -12,9 +16,19 @@ export interface PickerState {
    */
   workspace: PickerWorkspace;
   /**
+   * The list of available channel IDs.
+   */
+  availableChannels: string[];
+  /**
    * The channel ID of the helicorder chart, e.g. `VG.MELAB.00.HHZ`.
    */
   channel: string;
+  /**
+   * The list of selected station IDs in the seismogram chart. It is used as
+   * metadata only. Any changes to the channels should also be reflected in this
+   * list.
+   */
+  stations: string[];
   /**
    * List of channel IDs to display in the seismogram chart.
    */
@@ -68,6 +82,10 @@ export interface PickerState {
    * Whether the seismogram chart is in expand mode.
    */
   isExpandMode: boolean;
+  /**
+   * The component type of the seismogram chart.
+   */
+  component: ComponentType;
 }
 
 export interface PickerActions {
@@ -89,6 +107,8 @@ export interface PickerActions {
   removeSeismogramChannel: (index: number) => void;
   moveChannel: (fromIndex: number, toIndex: number) => void;
   setExpandMode: (isExpandMode: boolean) => void;
+  setComponent: (component: ComponentType) => void;
+  getStationChannels: (index: number) => string[];
 }
 
 export type PickerStore = PickerState & PickerActions;
@@ -109,12 +129,30 @@ function getDefaultSeismogramExtent(now: number): [number, number] {
 }
 
 const pickerStore = create<PickerStore, [['zustand/devtools', never]]>(
-  devtools((set) => {
+  devtools((set, get) => {
     const now = Date.now();
 
     return {
       workspace: 'helicorder',
+      availableChannels: [
+        'VG.MEPAS.00.HHZ',
+        'VG.MEPAS.00.HHN',
+        'VG.MEPAS.00.HHE',
+        'VG.MEKAL.00.HHZ',
+        'VG.MEKAL.00.HHN',
+        'VG.MEKAL.00.HHE',
+        'VG.MELAB.00.HHZ',
+        'VG.MELAB.00.HHN',
+        'VG.MELAB.00.HHE',
+        'VG.MEPUS.00.HHZ',
+        'VG.MEPUS.00.HHN',
+        'VG.MEPUS.00.HHE',
+        'VG.MEPSL.00.HHZ',
+        'VG.MEPSL.00.HHN',
+        'VG.MEPSL.00.HHE',
+      ],
       channel: 'VG.MELAB.00.HHZ',
+      stations: ['MEPAS', 'MELAB'],
       channels: ['VG.MEPAS.00.HHZ', 'VG.MELAB.00.HHZ'],
       duration: 12,
       interval: 30,
@@ -130,6 +168,7 @@ const pickerStore = create<PickerStore, [['zustand/devtools', never]]>(
         options: [],
       },
       isExpandMode: false,
+      component: 'Z',
       setWorkspace: (workspace) => set({ workspace }),
       setHelicorderChannel: (channel) => set({ channel }),
       setHelicorderDuration: (duration) => set({ duration }),
@@ -176,8 +215,10 @@ const pickerStore = create<PickerStore, [['zustand/devtools', never]]>(
 
       addSeismogramChannel: (channelId) =>
         set((state) => {
+          const station = StreamIdentifier.fromId(channelId).station;
           return {
             channels: [...state.channels, channelId],
+            stations: [...state.stations, station],
           };
         }),
 
@@ -185,8 +226,12 @@ const pickerStore = create<PickerStore, [['zustand/devtools', never]]>(
         set((state) => {
           const channels = [...state.channels];
           channels.splice(index, 1);
+
+          const stations = [...state.stations];
+          stations.splice(index, 1);
           return {
             channels,
+            stations,
           };
         }),
 
@@ -195,12 +240,46 @@ const pickerStore = create<PickerStore, [['zustand/devtools', never]]>(
           const channels = [...state.channels];
           const [channel] = channels.splice(fromIndex, 1);
           channels.splice(toIndex, 0, channel);
+
+          const stations = [...state.stations];
+          const [station] = stations.splice(fromIndex, 1);
+          stations.splice(toIndex, 0, station);
           return {
             channels,
+            stations,
           };
         }),
 
       setExpandMode: (isExpandMode) => set({ isExpandMode }),
+
+      setComponent: (component) => {
+        const channels = get()
+          .stations.map((station) => {
+            return get().availableChannels.filter((channel) => {
+              const streamId = StreamIdentifier.fromId(channel);
+              return streamId.station === station && streamId.channel.includes(component);
+            });
+          })
+          .flat(1);
+
+        set({ component, channels });
+      },
+
+      getStationChannels: (index: number) => {
+        const station = get().stations[index];
+        const channels = get()
+          .availableChannels.filter((channel) => {
+            const streamId = StreamIdentifier.fromId(channel);
+            return streamId.station === station;
+          })
+          .sort((a, b) => {
+            const first = StreamIdentifier.fromId(a).channel;
+            const second = StreamIdentifier.fromId(b).channel;
+            return COMPONENTS.indexOf(first) - COMPONENTS.indexOf(second);
+          });
+
+        return channels;
+      },
     };
   })
 );

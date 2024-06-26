@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { usePickerStore } from '../../stores/picker';
+import { ComponentType, usePickerStore } from '../../stores/picker';
 import { HelicorderChartRef } from './HelicorderChart';
 import { SeismogramChartRef } from './SeismogramChart';
 
@@ -17,6 +17,8 @@ export const useSeismogramCallback = (
     removeSeismogramChannel,
     moveChannel,
     setExpandMode,
+    setComponent,
+    getStationChannels,
   } = usePickerStore();
 
   return {
@@ -59,6 +61,14 @@ export const useSeismogramCallback = (
     handleSeismogramResetAmplitude: useCallback(() => {
       seisChartRef.current?.resetAmplitude();
     }, [seisChartRef]),
+
+    handleSeismogramComponentChange: useCallback(
+      (component: string) => {
+        setComponent(component as ComponentType);
+        seisChartRef.current?.setChannels(channels);
+      },
+      [seisChartRef, setComponent, channels]
+    ),
 
     handleSeismogramShowEvent: useCallback(
       (showEvent: boolean) => {
@@ -119,10 +129,14 @@ export const useSeismogramCallback = (
       [seisChartRef, moveChannel, channels]
     ),
 
-    handleTrackDoubleClicked: useCallback(() => {
-      seisChartRef.current?.setChannels(['VG.MEPH.00.HHZ', 'VG.MEPH.00.HHN', 'VG.MEPH.00.HHE']);
-      setExpandMode(true);
-    }, [seisChartRef, setExpandMode]),
+    handleTrackDoubleClicked: useCallback(
+      (index: number) => {
+        const channels = getStationChannels(index);
+        seisChartRef.current?.setChannels(channels);
+        setExpandMode(true);
+      },
+      [seisChartRef, setExpandMode, getStationChannels]
+    ),
 
     handleRestoreChannels: useCallback(() => {
       seisChartRef.current?.setChannels(channels);

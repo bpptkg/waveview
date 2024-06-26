@@ -21,6 +21,7 @@ import {
 import {
   Add20Regular,
   AutoFitHeight20Regular,
+  Checkmark20Regular,
   ChevronDoubleRight20Regular,
   ChevronDown12Regular,
   ChevronDownUp20Regular,
@@ -32,13 +33,15 @@ import {
   ZoomIn20Regular,
   ZoomOut20Regular,
 } from '@fluentui/react-icons';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import PickIcon from '../../Icons/PickIcon';
 
 export interface SeismogramToolbarProps {
   showEvent?: boolean;
   checkedValues?: Record<string, string[]>;
   isExpandMode?: boolean;
+  component?: string;
+  availableChannels?: string[];
   onChannelAdd?: (channelId: string) => void;
   onZoomIn?: () => void;
   onZoomOut?: () => void;
@@ -91,6 +94,8 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
     showEvent = true,
     checkedValues = {},
     isExpandMode,
+    component = 'Z',
+    availableChannels = [],
     onChannelAdd,
     onZoomIn,
     onZoomOut,
@@ -109,8 +114,6 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
 
   const styles = useStyles();
 
-  const [component, setComponent] = useState('Z');
-
   const handleShowEventChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       onShowEventChange?.(event.currentTarget.checked);
@@ -120,10 +123,9 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
 
   const handleComponentChange = useCallback(
     (component: string) => {
-      setComponent(component);
       onComponentChange?.(component);
     },
-    [setComponent, onComponentChange]
+    [onComponentChange]
   );
 
   const handleToolbarCheckedValueChange = useCallback<NonNullable<ToolbarProps['onCheckedValueChange']>>(
@@ -160,7 +162,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
       <Toolbar aria-label="Seismogram Toolbar" checkedValues={checkedValues} onCheckedValueChange={handleToolbarCheckedValueChange}>
         <Popover trapFocus open={open} onOpenChange={() => setOpen(!open)}>
           <PopoverTrigger disableButtonEnhancement>
-            <ToolbarButton appearance="primary" aria-label="Add Channel" icon={<Add20Regular />} disabled={!!isExpandMode}>
+            <ToolbarButton appearance="primary" aria-label="Add channel" icon={<Add20Regular />} disabled={!!isExpandMode}>
               <span className="font-normal">Add channel</span>
             </ToolbarButton>
           </PopoverTrigger>
@@ -169,17 +171,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
               <SearchBox placeholder="Search channel" size="medium" className={styles.searchBox} />
             </Field>
             <MenuList>
-              {[
-                'VG.MEPAS.00.HHZ',
-                'VG.MEPAS.00.HHN',
-                'VG.MEPAS.00.HHE',
-                'VG.MEKAL.00.HHZ',
-                'VG.MEKAL.00.HHN',
-                'VG.MEKAL.00.HHE',
-                'VG.MELAB.00.HHZ',
-                'VG.MELAB.00.HHN',
-                'VG.MELAB.00.HHE',
-              ].map((channelId, index) => (
+              {availableChannels.map((channelId, index) => (
                 <MenuItem
                   key={index}
                   onClick={() => {
@@ -212,17 +204,21 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
         <ToolbarDivider />
         <ToolbarToggleButton aria-label="Pick mode" icon={<PickIcon className={styles.iconPick} />} name="options" value="pick-mode" appearance="subtle" />
 
-        <Menu>
+        <Menu hasIcons>
           <MenuTrigger>
             <ToolbarButton aria-label="Select Component" className={styles.btn} disabled={!!isExpandMode}>
-              <span className="font-normal">{componentOptions.find((option) => option.value === 'Z')?.label}</span> <ChevronDown12Regular />
+              <span className="font-normal">{componentOptions.find((option) => option.value === component)?.label}</span> <ChevronDown12Regular />
             </ToolbarButton>
           </MenuTrigger>
 
           <MenuPopover>
             <MenuList>
               {componentOptions.map((option) => (
-                <MenuItem key={option.value} onClick={() => handleComponentChange(option.value)}>
+                <MenuItem
+                  key={option.value}
+                  onClick={() => handleComponentChange(option.value)}
+                  icon={option.value === component ? <Checkmark20Regular /> : undefined}
+                >
                   {option.label}
                 </MenuItem>
               ))}

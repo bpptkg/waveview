@@ -37,6 +37,7 @@ export interface HelicorderToolbarProps {
   duration?: number;
   showEvent?: boolean;
   offsetDate?: Date;
+  availableChannels?: string[];
   onChannelChange?: (channelId: string) => void;
   onDurationChange?: (duration: number) => void;
   onIntervalChange?: (interval: number) => void;
@@ -82,6 +83,7 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
     duration = 12,
     showEvent,
     offsetDate,
+    availableChannels = [],
     onChannelChange,
     onDurationChange,
     onIntervalChange,
@@ -150,17 +152,7 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
               <SearchBox placeholder="Search channel" size="medium" className={styles.searchBox} />
             </Field>
             <MenuList>
-              {[
-                'VG.MEPAS.00.HHZ',
-                'VG.MEPAS.00.HHN',
-                'VG.MEPAS.00.HHE',
-                'VG.MEKAL.00.HHZ',
-                'VG.MEKAL.00.HHN',
-                'VG.MEKAL.00.HHE',
-                'VG.MELAB.00.HHZ',
-                'VG.MELAB.00.HHN',
-                'VG.MELAB.00.HHE',
-              ].map((id, index) => (
+              {availableChannels.map((id, index) => (
                 <MenuItem
                   key={index}
                   onClick={() => {
