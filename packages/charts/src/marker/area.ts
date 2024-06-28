@@ -149,7 +149,7 @@ export class AreaMarker extends View<AreaMarkerModel> {
       .rect(
         cx,
         cy,
-        this.axis.isVertical() ? length : width,
+        this.axis.isVertical() ? length : w,
         this.axis.isVertical() ? height : length
       )
       .fill({
