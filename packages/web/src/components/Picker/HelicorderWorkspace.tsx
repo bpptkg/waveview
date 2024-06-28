@@ -158,8 +158,10 @@ const HelicorderWorkspace = () => {
       if (pickStart && pickEnd) {
         addEvent(event);
 
+        const color = getRandomColor();
         const { startTime, endTime } = event;
-        seisChartRef.current?.addEventMarker(startTime, endTime, getRandomColor());
+        seisChartRef.current?.addEventMarker(startTime, endTime, color);
+        heliChartRef.current?.addEventMarker(startTime, color);
         seisChartRef.current?.clearPickRange();
         setPickRange([0, 0]);
       }

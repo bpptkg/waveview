@@ -32,6 +32,7 @@ export interface HelicorderChartRef {
   isFocused: () => boolean;
   selectTrack: (index: number) => void;
   setSelection: (value: number) => void;
+  addEventMarker: (date: number, color: string) => void;
 }
 
 const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & React.RefAttributes<HelicorderChartRef>> = React.forwardRef((props, ref) => {
@@ -127,6 +128,12 @@ const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & Re
     setSelection: (value: number) => {
       if (chartRef.current) {
         chartRef.current.getSelection().setValue(value);
+        chartRef.current.render();
+      }
+    },
+    addEventMarker: (date: number, color: string) => {
+      if (chartRef.current) {
+        chartRef.current.addEventMarker(date, { color });
         chartRef.current.render();
       }
     },
