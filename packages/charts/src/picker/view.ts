@@ -112,6 +112,11 @@ export class Picker extends View<PickerModel> {
     this.chart.off("extentChanged", this._handleExtentChangeBound);
   }
 
+  private _isOutsideBounds(x: number, y: number): boolean {
+    const rect = this.chart.getGrid().getRect();
+    return !rect.contains(x, y);
+  }
+
   private _handleExtentChange(): void {
     this._updateHandleHitArea();
   }
@@ -152,6 +157,11 @@ export class Picker extends View<PickerModel> {
   private _handlePointerDown(event: FederatedPointerEvent): void {
     const { enable } = this.model.options;
     if (!enable) {
+      return;
+    }
+
+    const { x, y } = event.global.clone();
+    if (this._isOutsideBounds(x, y)) {
       return;
     }
 
