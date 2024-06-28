@@ -130,3 +130,9 @@ export interface ThemeStyle {
   seriesStyle: SeriesStyle;
   highlightStyle: HighlightStyle;
 }
+
+export interface Channel {
+  id: string;
+  label?: string;
+  sublabel?: string;
+}
