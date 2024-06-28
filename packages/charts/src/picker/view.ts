@@ -34,6 +34,7 @@ export class Picker extends View<PickerModel> {
   private _onLeftHandleClickBound: (event: FederatedPointerEvent) => void;
   private _onRightHandleClickBound: (event: FederatedPointerEvent) => void;
   private _onSelectionClickBound: (event: FederatedPointerEvent) => void;
+  private _handleExtentChangeBound: () => void;
 
   constructor(chart: Seismogram, options?: Partial<PickerOptions>) {
     const model = new PickerModel(options);
@@ -72,6 +73,7 @@ export class Picker extends View<PickerModel> {
     this._onLeftHandleClickBound = this._onLeftHandleClick.bind(this);
     this._onRightHandleClickBound = this._onRightHandleClick.bind(this);
     this._onSelectionClickBound = this._handleSelectionClick.bind(this);
+    this._handleExtentChangeBound = this._handleExtentChange.bind(this);
   }
 
   setRange(range: [number, number]): void {
@@ -97,6 +99,7 @@ export class Picker extends View<PickerModel> {
     this._leftHandle.on("pointerdown", this._onLeftHandleClickBound);
     this._rightHandle.on("pointerdown", this._onRightHandleClickBound);
     this._graphics.on("pointerdown", this._onSelectionClickBound);
+    this.chart.on("extentChanged", this._handleExtentChangeBound);
   }
 
   detachEventListeners(): void {
@@ -106,6 +109,11 @@ export class Picker extends View<PickerModel> {
     this._leftHandle.off("pointerdown", this._onLeftHandleClickBound);
     this._rightHandle.off("pointerdown", this._onRightHandleClickBound);
     this._graphics.off("pointerdown", this._onSelectionClickBound);
+    this.chart.off("extentChanged", this._handleExtentChangeBound);
+  }
+
+  private _handleExtentChange(): void {
+    this._updateHandleHitArea();
   }
 
   private _handleSelectionClick(event: FederatedPointerEvent): void {
