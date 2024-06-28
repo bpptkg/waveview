@@ -65,10 +65,11 @@ export interface StreamRequestData {
   channelId: string;
   start: number;
   end: number;
-  mode: ResampleMode;
+  mode?: ResampleMode;
   width?: number;
   devicePixelRatio?: number;
   maxPoints?: number;
+  forceCenter?: boolean;
 }
 
 export interface StreamResponseData {
