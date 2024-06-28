@@ -40,7 +40,7 @@ export class AreaMarkerModel extends Model<AreaMarkerOptions> {
 
   static defaultOptions: AreaMarkerOptions = {
     show: true,
-    color: "red",
+    color: "transparent",
     opacity: 0.1,
     start: 0,
     end: 0,
@@ -148,7 +148,7 @@ export class AreaMarker extends View<AreaMarkerModel> {
     this._head
       .rect(
         cx,
-        cy,
+        this.axis.isVertical() ? cy : cy + height - length,
         this.axis.isVertical() ? length : w,
         this.axis.isVertical() ? height : length
       )
