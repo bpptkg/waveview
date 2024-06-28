@@ -44,7 +44,7 @@ export class Track extends View<TrackModel> {
     this.group.addChild(this._highlight);
 
     // Add the series to the masked content container.
-    this.chart.content.addChild(this._series.group);
+    this.chart.group.addChild(this._series.group);
   }
 
   applyThemeStyle(theme: ThemeStyle): void {

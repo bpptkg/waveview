@@ -57,7 +57,6 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
   readonly uid: number = uid();
   readonly dom: HTMLCanvasElement;
   readonly app: PIXI.Application = new PIXI.Application();
-  readonly content = new PIXI.Container();
 
   constructor(dom: HTMLCanvasElement, options?: T) {
     const model = new ChartModel(options);
@@ -101,7 +100,6 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
       resizeTo: options.resizeTo,
     });
 
-    this.app.stage.addChild(this.group);
     this.app.stage.interactive = true;
     this.app.stage.sortableChildren = true;
     this.app.stage.hitArea = new PIXI.Rectangle(
@@ -116,8 +114,8 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
       color: "0xfff",
     });
     this.app.stage.addChild(this._mask);
-    this.app.stage.addChild(this.content);
-    this.content.mask = this._mask;
+    this.app.stage.addChild(this.group);
+    this.group.mask = this._mask;
   }
 
   getRect(): LayoutRect {
@@ -139,14 +137,14 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
 
   addComponent(component: RenderableGroup): void {
     this._views.push(component);
-    this.group.addChild(component.group);
+    this.app.stage.addChild(component.group);
   }
 
   removeComponent(component: RenderableGroup): void {
     const index = this._views.indexOf(component);
     if (index >= 0) {
       this._views.splice(index, 1);
-      this.group.removeChild(component.group);
+      this.app.stage.removeChild(component.group);
     }
   }
 
@@ -171,7 +169,6 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
 
     // Destroy PIXI objects
     this.group.destroy({ children: true });
-    this.content.destroy({ children: true });
     this.app.destroy(true);
   }
 

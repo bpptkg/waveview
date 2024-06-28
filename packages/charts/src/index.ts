@@ -20,6 +20,8 @@ export { AreaMarker } from "./marker/area";
 export type { AreaMarkerOptions } from "./marker/area";
 export { LineMarker } from "./marker/line";
 export type { LineMarkerOptions } from "./marker/line";
+export { Picker, PickerExtension } from "./picker";
+export type { PickerOptions } from "./picker";
 export { AxisPointer, AxisPointerExtension } from "./seismogram/axisPointer";
 export type { AxisPointerOptions } from "./seismogram/axisPointer";
 export {
@@ -27,8 +29,6 @@ export {
   SeismogramEventManagerExtension,
 } from "./seismogram/eventManager";
 export type { SeismogramEventManagerConfig } from "./seismogram/eventManager";
-export { Picker, PickerExtension } from "./seismogram/picker";
-export type { PickerOptions } from "./seismogram/picker";
 export { Seismogram } from "./seismogram/seismogram";
 export type {
   SeismogramChartOptions,
