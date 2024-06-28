@@ -2,11 +2,16 @@ import { StreamIdentifier } from '@waveview/stream';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { createSelectors } from '../shared/createSelectors';
+import { SeismicEvent } from '../types/seismicEvent';
 
 export type PickerWorkspace = 'helicorder' | 'seismogram';
 export type PickerChart = 'helicorder' | 'seismogram';
 export type SeismogramCheckedValue = 'zoom-rectangle' | 'pick-mode';
 export type ComponentType = 'E' | 'N' | 'Z';
+export interface EventCode {
+  code: string;
+  name: string;
+}
 
 const COMPONENTS = ['E', 'N', 'Z'];
 
@@ -90,6 +95,11 @@ export interface PickerState {
    * The component type of the seismogram chart.
    */
   component: ComponentType;
+  pickStart: number;
+  pickEnd: number;
+  listStations: string[];
+  eventTypes: EventCode[];
+  events: SeismicEvent[];
 }
 
 export interface PickerActions {
@@ -114,6 +124,12 @@ export interface PickerActions {
   setComponent: (component: ComponentType) => void;
   getStationChannels: (index: number) => string[];
   setExpandedChannelIndex: (index: number) => void;
+  isPickEmpty: () => boolean;
+  clearPick: () => void;
+  setPickStart: (start: number) => void;
+  setPickEnd: (end: number) => void;
+  setPickRange: (range: [number, number]) => void;
+  addEvent: (event: SeismicEvent) => void;
 }
 
 export type PickerStore = PickerState & PickerActions;
@@ -175,6 +191,18 @@ const pickerStore = create<PickerStore, [['zustand/devtools', never]]>(
       isExpandMode: false,
       expandedChannelIndex: null,
       component: 'Z',
+      pickStart: 0,
+      pickEnd: 0,
+      listStations: ['MEPUS', 'MEPAS', 'MELAB'],
+      eventTypes: [
+        { code: 'earthquake', name: 'Earthquake' },
+        { code: 'explosion', name: 'Explosion' },
+        { code: 'quarry', name: 'Quarry' },
+        { code: 'mine', name: 'Mine' },
+        { code: 'sonic', name: 'Sonic' },
+        { code: 'other', name: 'Other' },
+      ],
+      events: [],
       setWorkspace: (workspace) => set({ workspace }),
       setHelicorderChannel: (channel) => set({ channel }),
       setHelicorderDuration: (duration) => set({ duration }),
@@ -288,6 +316,25 @@ const pickerStore = create<PickerStore, [['zustand/devtools', never]]>(
       },
 
       setExpandedChannelIndex: (index) => set({ expandedChannelIndex: index }),
+
+      isPickEmpty: () => get().pickStart === 0 && get().pickEnd === 0,
+      setPickStart: (start) => set({ pickStart: start }),
+      setPickEnd: (end) => set({ pickEnd: end }),
+      clearPick: () => {
+        set({ pickStart: 0, pickEnd: 0 });
+      },
+      setPickRange: (range) => {
+        const [pickStart, pickEnd] = range;
+        set({ pickStart, pickEnd });
+      },
+
+      addEvent: (event) => {
+        set((state) => {
+          return {
+            events: [...state.events, event],
+          };
+        });
+      },
     };
   })
 );

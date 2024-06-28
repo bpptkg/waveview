@@ -17,6 +17,10 @@ import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { useSeismogramCallback } from './useSeismogramCallback';
 import { useThemeEffect } from './useThemeEffect';
 import { useTimeZoneEffect } from './useTimeZoneEffect';
+import EventDrawer from './EventDrawer/EventDrawer';
+import PickEdit from './EventDrawer/PickEdit';
+import PickGuide from './EventDrawer/PickGuide';
+import { SeismicEvent } from '../../types/seismicEvent';
 
 const useStyles = makeStyles({
   backButton: {
@@ -48,7 +52,12 @@ const HelicorderWorkspace = () => {
     expandedChannelIndex,
     availableChannels,
     component,
+    pickEnd,
+    pickStart,
+    isPickEmpty,
+    setPickRange,
     getStationChannels,
+    addEvent,
   } = usePickerStore();
 
   const { darkMode } = useAppStore();
@@ -94,6 +103,7 @@ const HelicorderWorkspace = () => {
     handleRestoreChannels,
     handleSeismogramFocus,
     handleSeismogramExtentChange,
+    handleSeismogramPickChange,
   } = useSeismogramCallback(seisChartRef, heliChartRef);
 
   useKeyboardShortcuts(seisChartRef);
@@ -119,6 +129,43 @@ const HelicorderWorkspace = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handlePickDurationChange = useCallback(
+    (duration: number) => {
+      const end = pickStart + duration * 1000;
+      setPickRange([pickStart, end]);
+      seisChartRef.current?.setPickRange([pickStart, end]);
+    },
+    [pickStart, setPickRange]
+  );
+
+  const handlePickCancel = useCallback(() => {
+    setPickRange([0, 0]);
+    seisChartRef.current?.clearPickRange();
+  }, [setPickRange]);
+
+  function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  }
+
+  const handlePickConfirm = useCallback(
+    (event: SeismicEvent) => {
+      if (pickStart && pickEnd) {
+        addEvent(event);
+
+        const { startTime, endTime } = event;
+        seisChartRef.current?.addEventMarker(startTime, endTime, getRandomColor());
+        seisChartRef.current?.clearPickRange();
+        setPickRange([0, 0]);
+      }
+    },
+    [pickStart, pickEnd, setPickRange, addEvent]
+  );
 
   return (
     <>
@@ -168,8 +215,8 @@ const HelicorderWorkspace = () => {
         />
       )}
       <div className="flex-grow relative mt-1 flex flex-col h-full">
-        <div className="flex-1 flex relative">
-          <div className="relative w-1/3 h-full">
+        <div className="flex flex-1 relative">
+          <div className="relative w-1/4 h-full">
             <HelicorderChart
               ref={heliChartRef}
               className={selectedChart === 'helicorder' ? 'border border-brand-hosts-80' : 'border border-transparent'}
@@ -195,7 +242,7 @@ const HelicorderWorkspace = () => {
               onSelectionChange={handleHelicorderSelectionChange}
             />
           </div>
-          <div className="relative w-2/3 h-full">
+          <div className="relative flex-1 h-full">
             <SeismogramChart
               ref={seisChartRef}
               className={selectedChart === 'seismogram' ? 'border border-brand-hosts-80' : 'border border-transparent'}
@@ -217,6 +264,7 @@ const HelicorderWorkspace = () => {
               onExtentChange={handleSeismogramExtentChange}
               onContextMenuRequested={handleContextMenuRequested}
               onTrackDoubleClick={handleTrackDoubleClicked}
+              onPick={handleSeismogramPickChange}
             />
             {isExpandMode && (
               <Button className={styles.backButton} icon={<ArrowReply20Regular />} size="small" appearance="transparent" onClick={handleRestoreChannels} />
@@ -227,6 +275,20 @@ const HelicorderWorkspace = () => {
               onMoveChannelDown={handleSeismogramMoveChannelDown}
               ref={contextMenuRef}
             />
+          </div>
+          <div className="relative w-[300px] h-full">
+            <EventDrawer>
+              {isPickEmpty() && <PickGuide />}
+              {!isPickEmpty() && (
+                <PickEdit
+                  start={pickStart}
+                  duration={(pickEnd - pickStart) / 1000}
+                  onDurationChange={handlePickDurationChange}
+                  onCancel={handlePickCancel}
+                  onConfirm={handlePickConfirm}
+                />
+              )}
+            </EventDrawer>
           </div>
         </div>
         <div className="bg-white dark:bg-black relative flex items-center justify-end gap-2 mr-2 h-[20px]">

@@ -22,6 +22,7 @@ export interface SeismogramChartProps {
   onMoveChannelDown?: (index: number) => void;
   onTrackDoubleClick?: (index: number) => void;
   onContextMenuRequested?: (e: FederatedPointerEvent) => void;
+  onPick?: (range: [number, number]) => void;
 }
 
 export interface SeismogramChartRef {
@@ -53,10 +54,13 @@ export interface SeismogramChartRef {
   activatePickMode: () => void;
   deactivatePickMode: () => void;
   isPickModeActive: () => boolean;
+  setPickRange: (range: [number, number]) => void;
+  clearPickRange(): void;
+  addEventMarker: (start: number, end: number, color: string) => void;
 }
 
 const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & React.RefAttributes<SeismogramChartRef>> = React.forwardRef((props, ref) => {
-  const { initOptions, className, onFocus, onBlur, onExtentChange, onTrackDoubleClick, onContextMenuRequested } = props;
+  const { initOptions, className, onFocus, onBlur, onExtentChange, onTrackDoubleClick, onContextMenuRequested, onPick } = props;
 
   const seisRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Seismogram | null>(null);
@@ -249,6 +253,27 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
       }
       return false;
     },
+    setPickRange: (range: [number, number]) => {
+      if (pickerExtensionRef.current) {
+        pickerExtensionRef.current.getInstance().setRange(range);
+        chartRef.current?.render();
+      }
+    },
+    clearPickRange: () => {
+      if (pickerExtensionRef.current) {
+        pickerExtensionRef.current.getInstance().clearRange();
+        chartRef.current?.render();
+      }
+    },
+    addEventMarker: (start: number, end: number, color: string) => {
+      if (chartRef.current) {
+        chartRef.current.addAreaMarker(start, end, {
+          color,
+          pill: true,
+        });
+        chartRef.current.render();
+      }
+    },
   }));
 
   const handleZoomRectangle = (extent: [number, number]) => {
@@ -288,6 +313,13 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
     [onContextMenuRequested]
   );
 
+  const handlePickRangeChange = useCallback(
+    (range: [number, number]) => {
+      onPick?.(range);
+    },
+    [onPick]
+  );
+
   useEffect(() => {
     async function init() {
       if (seisRef.current) {
@@ -321,6 +353,7 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
         chartRef.current.use(pickerExtensionRef.current);
 
         zoomRectangleExtensionRef.current.getInstance().on('extentSelected', handleZoomRectangle);
+        pickerExtensionRef.current.getInstance().on('change', handlePickRangeChange);
 
         chartRef.current.refreshData();
         chartRef.current.render();

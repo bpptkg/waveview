@@ -20,6 +20,7 @@ export const useSeismogramCallback = (
     setComponent,
     getStationChannels,
     setExpandedChannelIndex,
+    setPickRange,
   } = usePickerStore();
 
   return {
@@ -168,6 +169,13 @@ export const useSeismogramCallback = (
         setLastTrackExtent(extent);
       },
       [setLastTrackExtent]
+    ),
+
+    handleSeismogramPickChange: useCallback(
+      (pick: [number, number]) => {
+        setPickRange(pick);
+      },
+      [setPickRange]
     ),
   };
 };
