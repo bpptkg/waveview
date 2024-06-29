@@ -11,11 +11,11 @@ export const AppBarTab: React.ForwardRefExoticComponent<AppBarTabProps & React.R
     const { onClick, context } = state;
 
     function handleTabClick() {
-      context?.handleTabClick(state.value as number);
+      context?.handleTabClick(state.value);
       onClick?.();
     }
 
-    const selected = state.value === state.context?.selected;
+    const selected = state.selected;
 
     return (
       <state.root className={styles.root} onClick={handleTabClick}>

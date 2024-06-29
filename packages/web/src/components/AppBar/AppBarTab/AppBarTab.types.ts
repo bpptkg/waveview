@@ -2,7 +2,7 @@ import React from 'react';
 import { TabContextValue } from '../AppBarContext';
 import { FluentIcon } from '@fluentui/react-icons';
 
-export type TabValue = unknown;
+export type TabValue = string;
 
 export interface AppBarTabProps {
   value: TabValue;
