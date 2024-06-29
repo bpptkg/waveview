@@ -127,6 +127,12 @@ const Login = () => {
     }
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && credentialsFilled) {
+      handleLogin();
+    }
+  };
+
   useEffect(() => {
     toggleTheme(theme);
   }, [theme, toggleTheme]);
@@ -146,10 +152,10 @@ const Login = () => {
                 <div className="flex flex-col w-full items-center gap-4">
                   {error && <label className="text-wrap text-red-500">{error}</label>}
                   <Field className="w-full">
-                    <Input placeholder="Username" type="text" tabIndex={0} value={username} onChange={handleUsernameChange} />
+                    <Input placeholder="Username" type="text" tabIndex={0} value={username} onChange={handleUsernameChange} onKeyDown={handleKeyPress} />
                   </Field>
                   <Field className="w-full">
-                    <Input placeholder="Password" type="password" value={password} onChange={handlePasswordChange} />
+                    <Input placeholder="Password" type="password" value={password} onChange={handlePasswordChange} onKeyDown={handleKeyPress} />
                   </Field>
                   <Button className="w-full" appearance="primary" onClick={handleLogin} disabled={loading || !credentialsFilled}>
                     Login

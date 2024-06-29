@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import App from '../App';
+import RequireAuth from '../components/Auth/RequireAuth';
 import About from '../views/about/About';
 import Admin from '../views/admin/Admin';
 import Catalog from '../views/catalog/Catalog';
@@ -11,7 +12,11 @@ import TermsOfService from '../views/tos/TermsOfService';
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <App />,
+    element: (
+      <RequireAuth>
+        <App />
+      </RequireAuth>
+    ),
     children: [
       {
         path: '/picker',
