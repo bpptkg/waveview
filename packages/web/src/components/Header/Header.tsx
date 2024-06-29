@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppStore } from '../../stores/app';
 import Account from './Account';
 import ArrowNavigation from './ArrowNavigation';
-import Logo from './Logo';
+import LogoImage from './LogoImage';
 import LogoText from './LogoText';
 import Notification from './Notification';
 import SearchBox from './SearchBox';
@@ -33,7 +33,7 @@ const Header = () => {
           }
         }}
       >
-        <Logo />
+        <LogoImage />
         <LogoText />
       </a>
       <div className="flex items-center gap-2">
