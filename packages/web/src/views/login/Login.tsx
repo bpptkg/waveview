@@ -9,7 +9,7 @@ const WelcomeText = () => {
 const Logo = () => {
   return (
     <div className="inline-flex gap-2 items-center">
-      <LogoImage size={40} />
+      <LogoImage size={32} />
       <LogoText />
     </div>
   );
