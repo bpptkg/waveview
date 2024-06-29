@@ -49,7 +49,7 @@ const Footer = () => {
 const Login = () => {
   return (
     <FluentProvider theme={webLightTheme}>
-      <div className="w-screen h-screen bg-cover bg-center flex items-center justify-center bg-[url('/images/gradient.svg')] p-2">
+      <div className="w-screen h-screen bg-cover bg-center flex items-center justify-center p-2 bg-brand-hosts-150">
         <div className="flex flex-col lg:w-1/2 min-h-[320px]">
           <div className="flex flex-grow lg:flex-row flex-col p-4 rounded-2xl bg-white dark:bg-neutral-grey-4">
             <div className="flex flex-col flex-grow gap-2">

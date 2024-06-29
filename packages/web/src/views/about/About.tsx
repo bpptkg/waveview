@@ -27,7 +27,7 @@ const Logo = () => {
 const About = () => {
   return (
     <FluentProvider theme={webLightTheme}>
-      <div className="w-screen h-screen bg-cover bg-center flex items-center justify-center bg-[url('/images/gradient.svg')] p-2">
+      <div className="w-screen h-screen bg-cover bg-center flex items-center justify-center p-2 bg-brand-hosts-150">
         <div className="flex flex-col gap-4 w-1/2 p-4 rounded-2xl bg-white dark:bg-neutral-grey-4">
           <Logo />
           <div className="flex">
