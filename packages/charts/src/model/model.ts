@@ -17,6 +17,10 @@ export class Model<T extends ModelOptions = ModelOptions> {
     return this._options;
   }
 
+  setOptions(options: T): void {
+    this._options = options;
+  }
+
   mergeOptions(options: DeepPartial<T>): void {
     this._options = merge(this._options, options, true) as T;
   }
