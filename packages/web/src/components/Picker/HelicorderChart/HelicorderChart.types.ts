@@ -1,4 +1,4 @@
-import { Channel, HelicorderChartOptions } from '@waveview/charts';
+import { Channel, Helicorder, HelicorderChartOptions } from '@waveview/charts';
 
 export interface HelicorderChartProps {
   /**
@@ -36,6 +36,7 @@ export interface HelicorderChartProps {
 }
 
 export interface HelicorderChartRef {
+  getInstance: () => Helicorder;
   shiftViewUp: (by: number) => void;
   shiftViewDown: (by: number) => void;
   shiftViewToNow: () => void;

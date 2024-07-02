@@ -21,6 +21,7 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
   }, 250);
 
   useImperativeHandle(ref, () => ({
+    getInstance: () => chartRef.current!,
     shiftViewUp: (by: number = 1) => {
       chartRef.current?.shiftViewUp(by);
     },
