@@ -95,7 +95,11 @@ export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
 };
 
-export type ThemeMode = "light" | "dark";
+export interface ThemeRegistry {
+  [key: string]: ThemeStyle;
+}
+
+export type ThemeName = keyof ThemeRegistry;
 
 export interface AxisStyle {
   axisLineColor: string;
@@ -132,7 +136,25 @@ export interface ThemeStyle {
 }
 
 export interface Channel {
+  /**
+   * Unique identifier for the channel.
+   */
   id: string;
+  /**
+   * Name of the channel.
+   */
   label?: string;
+  /**
+   * Sublabel of the channel.
+   */
   sublabel?: string;
+  /**
+   * Description of the channel.
+   */
+  color?: string;
+}
+
+export interface ResizeOptions {
+  width: number;
+  height: number;
 }
