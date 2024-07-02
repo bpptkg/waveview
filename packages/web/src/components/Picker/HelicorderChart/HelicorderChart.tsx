@@ -12,12 +12,13 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
   const chartRef = useRef<Helicorder | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const initialResizeCompleteRef = useRef<boolean | null>(null);
-  const webWorkerRef = useRef<HelicorderWebWorkerExtension | null>(null);
-  const eventManagerRef = useRef<HelicorderEventManagerExtension | null>(null);
+
   const workerRef = useRef<Worker | null>(null);
+  const webWorkerExtensionRef = useRef<HelicorderWebWorkerExtension | null>(null);
+  const eventManagerExtensionRef = useRef<HelicorderEventManagerExtension | null>(null);
 
   const fetchDataDebounced = debounce(() => {
-    webWorkerRef.current?.getInstance().fetchAllTracksData();
+    webWorkerExtensionRef.current?.getInstance().fetchAllTracksData();
   }, 250);
 
   useImperativeHandle(ref, () => ({
@@ -173,11 +174,11 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
         await chartRef.current.init();
 
         workerRef.current = new Worker(new URL('../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
-        webWorkerRef.current = new HelicorderWebWorkerExtension(workerRef.current);
-        eventManagerRef.current = new HelicorderEventManagerExtension();
+        webWorkerExtensionRef.current = new HelicorderWebWorkerExtension(workerRef.current);
+        eventManagerExtensionRef.current = new HelicorderEventManagerExtension();
 
-        chartRef.current.use(webWorkerRef.current);
-        chartRef.current.use(eventManagerRef.current);
+        chartRef.current.use(webWorkerExtensionRef.current);
+        chartRef.current.use(eventManagerExtensionRef.current);
 
         chartRef.current.render();
       }
@@ -210,7 +211,7 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
         }
       })
       .finally(() => {
-        webWorkerRef.current?.getInstance().fetchAllTracksData();
+        webWorkerExtensionRef.current?.getInstance().fetchAllTracksData();
       });
 
     return () => {
