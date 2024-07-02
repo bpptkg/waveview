@@ -77,13 +77,9 @@ export class Selection extends View<SelectionModel> {
     this.group.visible = false;
   }
 
-  focus(): void {
-    // TODO: Implement this method in the future
-  }
+  focus(): void {}
 
-  blur(): void {
-    // TODO: Implement this method in the future
-  }
+  blur(): void {}
 
   resize(): void {
     this._rect = this.axis.getRect().clone();
