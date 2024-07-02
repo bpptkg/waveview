@@ -11,8 +11,8 @@ export type {
   EventMarkerOptions,
   HelicorderChartOptions,
   HelicorderEventManagerConfig,
+  HelicorderEventMarkerOptions,
   SelectionOptions,
-  HelicorderMarkerOptions,
 } from "./helicorder";
 export { Picker, PickerExtension } from "./picker";
 export type { PickerOptions } from "./picker";
@@ -31,9 +31,9 @@ export type {
   AxisPointerOptions,
   SeismogramChartOptions,
   SeismogramEventManagerConfig,
-  ZoomRectangleOptions,
   SeismogramEventMarkerOptions,
   SeismogramLineMarkerOptions,
+  ZoomRectangleOptions,
 } from "./seismogram";
 export {
   ThemeManager,

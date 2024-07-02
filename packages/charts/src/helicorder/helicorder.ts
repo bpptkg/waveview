@@ -11,7 +11,7 @@ import { Channel, LayoutRect, ResizeOptions, SeriesData } from "../util/types";
 import { ChartView } from "../view";
 import {
   HelicorderChartOptions,
-  MarkerOptions,
+  HelicorderEventMarkerOptions,
   getDefaultOptions,
 } from "./chartOptions";
 import { HelicorderEventMap } from "./eventMap";
@@ -178,7 +178,7 @@ export class Helicorder extends ChartView<
     this._updateTrackLabels();
   }
 
-  addEventMarker(marker: MarkerOptions): void {
+  addEventMarker(marker: HelicorderEventMarkerOptions): void {
     const eventMarker = new EventMarker(this._xAxis, this, {
       ...marker,
     });
