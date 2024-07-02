@@ -1,58 +1,37 @@
 import * as PIXI from "pixi.js";
 import { Grid } from "../grid/grid";
 import { ChartModel, ChartOptions } from "../model/chartModel";
-import darkTheme from "../theme/dark";
-import lightTheme from "../theme/light";
+import { ThemeManager } from "../theme/themeManager";
 import {
+  EventMap,
   Extension,
   LayoutRect,
-  RenderableGroup,
-  ThemeMode,
+  ThemeName,
   ThemeStyle,
 } from "../util/types";
 import { uid } from "../util/uid";
 import { View } from "./view";
 
-export interface ChartType<T extends ChartOptions> {
-  type: string;
-  dom: HTMLCanvasElement;
-  app: PIXI.Application;
-  width: number;
-  height: number;
-  getOptions(): ChartOptions;
-  getModel(): ChartModel<T>;
-  getWidth(): number;
-  getHeight(): number;
-  init(): Promise<void>;
-  render(): void;
-  resize(width: number, height: number): void;
-  dispose(): void;
-  toDataURL(type?: string, quality?: number): string;
-  focus(): void;
-  blur(): void;
-  isFocused(): boolean;
-  getRect(): LayoutRect;
-  setRect(rect: LayoutRect): void;
-  addComponent(component: RenderableGroup): void;
-  removeComponent(component: RenderableGroup): void;
-  getGrid(): Grid;
-  use(extension: Extension<ChartType<T>>): void;
-  setTheme(theme: ThemeMode): void;
-  getTheme(): ThemeStyle;
+export interface ChartEventMap extends EventMap {
+  focus: () => void;
+  blur: () => void;
 }
 
-export abstract class ChartView<T extends ChartOptions = ChartOptions>
-  extends View<ChartModel<T>>
-  implements ChartType<T>
-{
+/**
+ * A base class for creating a chart view.
+ */
+export abstract class ChartView<
+  T extends ChartOptions = ChartOptions,
+  E extends ChartEventMap = ChartEventMap
+> extends View<ChartModel<T>, E> {
   override type = "chart";
 
   protected _rect: LayoutRect;
-  protected _views: RenderableGroup[] = [];
-  protected _isFocused = false;
   protected _mask = new PIXI.Graphics();
-  protected _currentTheme: ThemeStyle = lightTheme;
-  protected _extensions: Extension<ChartType<T>>[] = [];
+  protected _views: View[] = [];
+  protected _currentTheme: ThemeName = "light";
+  protected _isFocused = false;
+  protected _extensions: Extension<this>[] = [];
 
   readonly uid: number = uid();
   readonly dom: HTMLCanvasElement;
@@ -110,9 +89,7 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
     );
 
     const rect = this.getGrid().getRect();
-    this._mask.rect(rect.x, rect.y, rect.width, rect.height).fill({
-      color: "0xfff",
-    });
+    this._mask.rect(rect.x, rect.y, rect.width, rect.height);
     this.app.stage.addChild(this._mask);
     this.app.stage.addChild(this.group);
     this.group.mask = this._mask;
@@ -135,12 +112,12 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
     this.app.renderer.render(this.app.stage);
   }
 
-  addComponent(component: RenderableGroup): void {
+  addComponent(component: View): void {
     this._views.push(component);
     this.app.stage.addChild(component.group);
   }
 
-  removeComponent(component: RenderableGroup): void {
+  removeComponent(component: View): void {
     const index = this._views.indexOf(component);
     if (index >= 0) {
       this._views.splice(index, 1);
@@ -148,15 +125,12 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
     }
   }
 
-  abstract resize(width: number, height: number): void;
-
   dispose(): void {
     // Dispose all views
     for (const view of this._views) {
       view.dispose();
     }
     this._views = [];
-    this._mask.destroy({ children: true });
 
     // Dispose all extensions
     for (const extension of this._extensions) {
@@ -168,6 +142,7 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
     this.removeAllEventListeners();
 
     // Destroy PIXI objects
+    this._mask.destroy({ children: true });
     this.group.destroy({ children: true });
     this.app.destroy(true);
   }
@@ -196,20 +171,21 @@ export abstract class ChartView<T extends ChartOptions = ChartOptions>
   }
 
   getTheme(): ThemeStyle {
-    return this._currentTheme;
+    return ThemeManager.getInstance().getTheme(this._currentTheme);
   }
 
-  setTheme(theme: ThemeMode): void {
-    switch (theme) {
-      case "light":
-        this._currentTheme = lightTheme;
-        break;
-      case "dark":
-        this._currentTheme = darkTheme;
-        break;
+  setTheme(theme: ThemeName): void {
+    this._currentTheme = theme;
+    this.applyThemeStyle(this.getTheme());
+  }
+
+  override applyThemeStyle(theme: ThemeStyle): void {
+    this.model.mergeOptions({
+      backgroundColor: theme.backgroundColor,
+    } as Partial<T>);
+    for (const view of this._views) {
+      view.applyThemeStyle(theme);
     }
-    this.applyThemeStyles();
+    this.app.renderer.background.color = theme.backgroundColor;
   }
-
-  abstract applyThemeStyles(): void;
 }
