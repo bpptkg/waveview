@@ -1,16 +1,8 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { createSelectors } from '../shared/createSelectors';
-
-export type Theme = 'light' | 'dark' | 'system';
-
-export type AppState = {
-  darkMode: boolean;
-  theme: Theme;
-  toggleTheme: (theme: Theme) => void;
-};
-
-const THEME_KEY = 'wv:theme';
+import { createSelectors } from '../../shared/createSelectors';
+import { THEME_KEY } from './constants';
+import { AppStore, Theme } from './types';
 
 function getInitialTheme(): Theme {
   const theme = localStorage.getItem(THEME_KEY) as Theme | null;
@@ -32,10 +24,11 @@ function getInitialDarkMode(): boolean {
   return false;
 }
 
-const appStore = create<AppState, [['zustand/devtools', never]]>(
+const appStore = create<AppStore, [['zustand/devtools', never]]>(
   devtools((set, get) => ({
     darkMode: getInitialDarkMode(),
     theme: getInitialTheme(),
+
     toggleTheme: (theme?: Theme) => {
       if (!theme) {
         theme = theme ?? get().theme;
