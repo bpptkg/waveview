@@ -1,44 +1,14 @@
-import { Helicorder, HelicorderChartOptions, HelicorderEventManagerExtension, HelicorderWebWorkerExtension } from '@waveview/charts';
+import { Channel, Helicorder, HelicorderEventManagerExtension, HelicorderWebWorkerExtension } from '@waveview/charts';
 import React, { useCallback, useEffect, useImperativeHandle, useRef } from 'react';
-import { debounce } from '../../shared/debounce';
+import { debounce } from '../../../shared/debounce';
+import { HelicorderChartProps, HelicorderChartRef } from './HelicorderChart.types';
 
-export interface HelicorderChartProps {
-  className?: string;
-  initOptions?: Partial<HelicorderChartOptions>;
-  onTrackSelected?: (index: number) => void;
-  onTrackDeselected?: (index: number) => void;
-  onFocus?: () => void;
-  onBlur?: () => void;
-  onOffsetChange?: (date: number) => void;
-  onSelectionChange?: (value: number) => void;
-}
+export type HelicorderChartType = React.ForwardRefExoticComponent<HelicorderChartProps & React.RefAttributes<HelicorderChartRef>>;
 
-export interface HelicorderChartRef {
-  shiftViewUp: () => void;
-  shiftViewDown: () => void;
-  shiftViewToNow: () => void;
-  increaseAmplitude: (by: number) => void;
-  decreaseAmplitude: (by: number) => void;
-  resetAmplitude: () => void;
-  setChannel: (id: string) => void;
-  setUseUTC: (useUTC: boolean) => void;
-  setOffsetDate: (date: number) => void;
-  setInterval: (interval: number) => void;
-  setDuration: (duration: number) => void;
-  setTheme: (theme: 'light' | 'dark') => void;
-  getTrackExtent: (index: number) => [number, number];
-  focus: () => void;
-  blur: () => void;
-  isFocused: () => boolean;
-  selectTrack: (index: number) => void;
-  setSelection: (value: number) => void;
-  addEventMarker: (date: number, color: string) => void;
-}
-
-const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & React.RefAttributes<HelicorderChartRef>> = React.forwardRef((props, ref) => {
+export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref) => {
   const { initOptions, className, onTrackSelected, onTrackDeselected, onFocus, onBlur, onOffsetChange, onSelectionChange } = props;
 
-  const heliRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Helicorder | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const initialResizeCompleteRef = useRef<boolean | null>(null);
@@ -51,11 +21,11 @@ const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & Re
   }, 250);
 
   useImperativeHandle(ref, () => ({
-    shiftViewUp: () => {
-      chartRef.current?.shiftViewUp();
+    shiftViewUp: (by: number = 1) => {
+      chartRef.current?.shiftViewUp(by);
     },
-    shiftViewDown: () => {
-      chartRef.current?.shiftViewDown();
+    shiftViewDown: (by: number = 1) => {
+      chartRef.current?.shiftViewDown(by);
     },
     shiftViewToNow: () => {
       chartRef.current?.shiftViewToNow();
@@ -72,8 +42,8 @@ const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & Re
       chartRef.current?.resetAmplitude();
       chartRef.current?.render();
     },
-    setChannel: (id: string) => {
-      chartRef.current?.setChannel(id);
+    setChannel: (channel: Channel) => {
+      chartRef.current?.setChannel(channel);
       fetchDataDebounced();
     },
     setOffsetDate: (date: number) => {
@@ -131,27 +101,54 @@ const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & Re
         chartRef.current.render();
       }
     },
-    addEventMarker: (date: number, color: string) => {
+    addEventMarker: (value: number, color: string) => {
       if (chartRef.current) {
-        chartRef.current.addEventMarker(date, { color });
+        chartRef.current.addEventMarker({
+          value,
+          color,
+        });
         chartRef.current.render();
       }
+    },
+    removeEventMarker: (value: number) => {
+      if (chartRef.current) {
+        chartRef.current.removeEventMarker(value);
+        chartRef.current.render();
+      }
+    },
+    showAllEventMarkers: () => {
+      if (chartRef.current) {
+        chartRef.current.showAllEventMarkers();
+        chartRef.current.render();
+      }
+    },
+    hideAllEventMarkers: () => {
+      if (chartRef.current) {
+        chartRef.current.hideAllEventMarkers();
+        chartRef.current.render();
+      }
+    },
+    dispose: () => {
+      chartRef.current?.dispose();
+      workerRef.current?.terminate();
+      resizeObserverRef.current?.disconnect();
     },
   }));
 
   const handleTrackSelected = useCallback(
     (index: number) => {
       onTrackSelected?.(index);
+      if (chartRef.current) {
+        const value = chartRef.current.getSelection().getValue();
+        onSelectionChange?.(value);
+      }
     },
-    [onTrackSelected]
+    [onTrackSelected, onSelectionChange]
   );
 
-  const handleTrackDeselected = useCallback(
-    (index: number) => {
-      onTrackDeselected?.(index);
-    },
-    [onTrackDeselected]
-  );
+  const handleTrackDeselected = useCallback(() => {
+    onTrackDeselected?.();
+  }, [onTrackDeselected]);
 
   const handleFocus = useCallback(() => {
     onFocus?.();
@@ -168,24 +165,11 @@ const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & Re
     [onOffsetChange]
   );
 
-  const handleSelectionChange = useCallback(
-    (value: number) => {
-      onSelectionChange?.(value);
-    },
-    [onSelectionChange]
-  );
-
   useEffect(() => {
     async function init() {
-      if (heliRef.current) {
-        chartRef.current = new Helicorder(heliRef.current, initOptions);
+      if (canvasRef.current) {
+        chartRef.current = new Helicorder(canvasRef.current, initOptions);
         await chartRef.current.init();
-        chartRef.current.on('trackSelected', handleTrackSelected);
-        chartRef.current.on('trackDeselected', handleTrackDeselected);
-        chartRef.current.on('focus', handleFocus);
-        chartRef.current.on('blur', handleBlur);
-        chartRef.current.on('offsetChanged', handleOffsetChange);
-        chartRef.current.on('selectionChanged', handleSelectionChange);
 
         workerRef.current = new Worker(new URL('../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
         webWorkerRef.current = new HelicorderWebWorkerExtension(workerRef.current);
@@ -194,26 +178,19 @@ const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & Re
         chartRef.current.use(webWorkerRef.current);
         chartRef.current.use(eventManagerRef.current);
 
-        chartRef.current.refreshData();
         chartRef.current.render();
       }
     }
 
-    const onResizeDebounced = debounce((entries: ResizeObserverEntry[]) => {
-      for (const entry of entries) {
-        const { width, height } = entry.contentRect;
-        chartRef.current?.resize(width, height);
-        chartRef.current?.render();
-      }
-    }, 200);
-
     const onResize = (entries: ResizeObserverEntry[]) => {
       for (const entry of entries) {
         const { width, height } = entry.contentRect;
-        chartRef.current?.resize(width, height);
+        chartRef.current?.resize({ width, height });
         chartRef.current?.render();
       }
     };
+
+    const onResizeDebounced = debounce(onResize, 200);
 
     const handleResize = (entries: ResizeObserverEntry[]) => {
       if (!initialResizeCompleteRef.current) {
@@ -227,8 +204,8 @@ const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & Re
     init()
       .then(() => {
         resizeObserverRef.current = new ResizeObserver(handleResize);
-        if (heliRef.current) {
-          resizeObserverRef.current.observe(heliRef.current.parentElement!);
+        if (canvasRef.current) {
+          resizeObserverRef.current.observe(canvasRef.current.parentElement!);
         }
       })
       .finally(() => {
@@ -240,14 +217,29 @@ const HelicorderChart: React.ForwardRefExoticComponent<HelicorderChartProps & Re
       workerRef.current?.terminate();
       resizeObserverRef.current?.disconnect();
     };
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    chartRef.current?.on('trackSelected', handleTrackSelected);
+    chartRef.current?.on('trackDeselected', handleTrackDeselected);
+    chartRef.current?.on('focus', handleFocus);
+    chartRef.current?.on('blur', handleBlur);
+    chartRef.current?.on('offsetChanged', handleOffsetChange);
+
+    return () => {
+      chartRef.current?.off('trackSelected', handleTrackSelected);
+      chartRef.current?.off('trackDeselected', handleTrackDeselected);
+      chartRef.current?.off('focus', handleFocus);
+      chartRef.current?.off('blur', handleBlur);
+      chartRef.current?.off('offsetChanged', handleOffsetChange);
+    };
+  }, [handleTrackSelected, handleTrackDeselected, handleFocus, handleBlur, handleOffsetChange]);
+
   return (
     <div className={`absolute top-0 right-0 bottom-0 left-0 ${className ?? ''}`}>
-      <canvas ref={heliRef} />
+      <canvas ref={canvasRef} />
     </div>
   );
 });
-
-export default HelicorderChart;
