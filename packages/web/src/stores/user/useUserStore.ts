@@ -1,18 +1,11 @@
 import { create } from 'zustand';
-import { baseUrl } from '../services/api';
-import { createSelectors } from '../shared/createSelectors';
-import { User } from '../types/user';
-import { useAuthStore } from './auth';
+import { baseUrl } from '../../services/api';
+import { createSelectors } from '../../shared/createSelectors';
+import { User } from '../../types/user';
+import { useAuthStore } from '../auth/useAuthStore';
+import { UserStore } from './types';
 
-export interface UserState {
-  user: User | null;
-  setUser: (user: User) => void;
-  fetchUser: () => Promise<void>;
-}
-
-export type UserStore = UserState;
-
-const userStore = create<UserStore>((set) => ({
+const userStore = create<UserStore>((set, get) => ({
   user: null,
   setUser: (user) => set({ user }),
   fetchUser: async () => {
@@ -26,6 +19,8 @@ const userStore = create<UserStore>((set) => ({
     const user: User = await response.json();
     set({ user });
   },
+  isAdmin: () => get().user?.is_staff || get().user?.is_superuser || false,
+  isSuperuser: () => get().user?.is_superuser || false,
 }));
 
 export const useUserStore = createSelectors(userStore);

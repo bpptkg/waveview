@@ -3,6 +3,9 @@ export interface User {
   username: string;
   email: string;
   name: string;
+  bio: string;
+  is_staff: boolean;
+  is_superuser: boolean;
   date_joined: string;
-  avatar?: string;
+  avatar: string | null;
 }
