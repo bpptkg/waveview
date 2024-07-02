@@ -2,7 +2,7 @@ import { GridOptions } from "../grid/gridModel";
 import { ChartOptions } from "../model/chartModel";
 import { Channel } from "../util/types";
 
-export interface MarkerOptions {
+export interface HelicorderMarkerOptions {
   value: number;
   color: string;
   width?: number;
@@ -53,7 +53,7 @@ export interface HelicorderChartOptions extends ChartOptions {
   /**
    * Markers to be displayed in the helicorder chart.
    */
-  markers: MarkerOptions[];
+  markers: HelicorderMarkerOptions[];
 }
 
 export function getDefaultOptions(): HelicorderChartOptions {

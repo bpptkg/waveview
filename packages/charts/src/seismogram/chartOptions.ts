@@ -2,22 +2,22 @@ import { GridOptions } from "../grid";
 import { ChartOptions } from "../model";
 import { Channel } from "../util/types";
 
-export interface EventMarkerOptions {
+export interface SeismogramEventMarkerOptions {
   start: number;
   end: number;
   color: string;
   opacity?: number;
 }
 
-export interface LineMarkerOptions {
+export interface SeismogramLineMarkerOptions {
   value: number;
   color: string;
   width?: number;
 }
 
-export interface MarkerOptions {
+export interface SeismogramMarkerOptions {
   type: "event" | "line";
-  options: EventMarkerOptions | LineMarkerOptions;
+  options: SeismogramEventMarkerOptions | SeismogramLineMarkerOptions;
 }
 
 export interface SeismogramChartOptions extends ChartOptions {
@@ -62,7 +62,7 @@ export interface SeismogramChartOptions extends ChartOptions {
   /**
    * Markers to be displayed in the seismogram chart.
    */
-  markers: MarkerOptions[];
+  markers: SeismogramMarkerOptions[];
 }
 
 export function getDefaultOptions(): SeismogramChartOptions {
