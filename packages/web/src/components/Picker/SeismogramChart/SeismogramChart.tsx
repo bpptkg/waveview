@@ -1,68 +1,24 @@
 import {
   AxisPointerExtension,
+  Channel,
   PickerExtension,
   Seismogram,
-  SeismogramChartOptions,
   SeismogramEventManagerExtension,
+  SeismogramEventMarkerOptions,
   SeismogramWebWorker,
   ZoomRectangleExtension,
 } from '@waveview/charts';
 import { FederatedPointerEvent } from 'pixi.js';
 import React, { useCallback, useEffect, useImperativeHandle, useRef } from 'react';
-import { debounce } from '../../shared/debounce';
+import { debounce } from '../../../shared/debounce';
+import { SeismogramChartProps, SeismogramChartRef } from './SeismogramChart.types';
 
-export interface SeismogramChartProps {
-  initOptions?: Partial<SeismogramChartOptions>;
-  className?: string;
-  onFocus?: () => void;
-  onBlur?: () => void;
-  onExtentChange?: (extent: [number, number]) => void;
-  onRemoveChannel?: (index: number) => void;
-  onMoveChannelUp?: (index: number) => void;
-  onMoveChannelDown?: (index: number) => void;
-  onTrackDoubleClick?: (index: number) => void;
-  onContextMenuRequested?: (e: FederatedPointerEvent) => void;
-  onPick?: (range: [number, number]) => void;
-}
+export type SeismogramChartType = React.ForwardRefExoticComponent<SeismogramChartProps & React.RefAttributes<SeismogramChartRef>>;
 
-export interface SeismogramChartRef {
-  getInstance: () => Seismogram;
-  setChannels: (channels: string[]) => void;
-  addChannel: (channelId: string) => void;
-  removeChannel: (index: number) => void;
-  moveChannelUp: (index: number) => void;
-  moveChannelDown: (index: number) => void;
-  zoomIn: (by: number) => void;
-  zoomOut: (by: number) => void;
-  scrollLeft: (by: number) => void;
-  scrollRight: (by: number) => void;
-  scrollToNow: () => void;
-  increaseAmplitude: (by: number) => void;
-  decreaseAmplitude: (by: number) => void;
-  resetAmplitude: () => void;
-  showVisibleMarkers: () => void;
-  hideVisibleMarkers: () => void;
-  setExtent: (extent: [number, number]) => void;
-  setTheme: (theme: 'light' | 'dark') => void;
-  activateZoomRectangle: () => void;
-  deactivateZoomRectangle: () => void;
-  isZoomRectangleActive: () => boolean;
-  focus(): void;
-  blur(): void;
-  isFocused(): boolean;
-  setUseUTC: (useUTC: boolean) => void;
-  activatePickMode: () => void;
-  deactivatePickMode: () => void;
-  isPickModeActive: () => boolean;
-  setPickRange: (range: [number, number]) => void;
-  clearPickRange(): void;
-  addEventMarker: (start: number, end: number, color: string) => void;
-}
-
-const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & React.RefAttributes<SeismogramChartRef>> = React.forwardRef((props, ref) => {
+export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref) => {
   const { initOptions, className, onFocus, onBlur, onExtentChange, onTrackDoubleClick, onContextMenuRequested, onPick } = props;
 
-  const seisRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Seismogram | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const initialResizeCompleteRef = useRef<boolean | null>(null);
@@ -84,18 +40,18 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
 
   useImperativeHandle(ref, () => ({
     getInstance: () => chartRef.current!,
-    setChannels: (channels: string[]) => {
+    setChannels: (channels: Channel[]) => {
       if (chartRef.current) {
         chartRef.current.setChannels(channels);
         chartRef.current.render();
         fetchDataDebounced();
       }
     },
-    addChannel: (channelId: string) => {
+    addChannel: (channel: Channel) => {
       if (chartRef.current) {
-        chartRef.current.addChannel(channelId);
+        chartRef.current.addChannel(channel);
         chartRef.current.render();
-        fetchChannelData(channelId);
+        fetchChannelData(channel.id);
       }
     },
     removeChannel: (index: number) => {
@@ -170,18 +126,6 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
     resetAmplitude: () => {
       if (chartRef.current) {
         chartRef.current.resetAmplitude();
-        chartRef.current.render();
-      }
-    },
-    showVisibleMarkers: () => {
-      if (chartRef.current) {
-        chartRef.current.showVisibleMarkers();
-        chartRef.current.render();
-      }
-    },
-    hideVisibleMarkers: () => {
-      if (chartRef.current) {
-        chartRef.current.hideVisibleMarkers();
         chartRef.current.render();
       }
     },
@@ -265,24 +209,47 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
         chartRef.current?.render();
       }
     },
-    addEventMarker: (start: number, end: number, color: string) => {
+    showAllMarkers: () => {
       if (chartRef.current) {
-        chartRef.current.addAreaMarker(start, end, {
-          color,
-          pill: true,
-        });
+        chartRef.current.showAllMarkers();
         chartRef.current.render();
       }
     },
+    hideAllMarkers: () => {
+      if (chartRef.current) {
+        chartRef.current.hideAllMarkers();
+        chartRef.current.render();
+      }
+    },
+    addEventMarker: (marker: SeismogramEventMarkerOptions) => {
+      if (chartRef.current) {
+        chartRef.current.addEventMarker(marker);
+        chartRef.current.render();
+      }
+    },
+    removeEventMarker: (start: number, end: number) => {
+      if (chartRef.current) {
+        chartRef.current.removeEventMarker(start, end);
+        chartRef.current.render();
+      }
+    },
+    dispose: () => {
+      chartRef.current?.dispose();
+      workerRef.current?.terminate();
+      resizeObserverRef.current?.disconnect();
+    },
   }));
 
-  const handleZoomRectangle = (extent: [number, number]) => {
-    if (chartRef.current) {
-      chartRef.current.getXAxis().setExtent(extent);
-      chartRef.current.render();
-      fetchDataDebounced();
-    }
-  };
+  const handleZoomRectangle = useCallback(
+    (extent: [number, number]) => {
+      if (chartRef.current) {
+        chartRef.current.getXAxis().setExtent(extent);
+        chartRef.current.render();
+        fetchDataDebounced();
+      }
+    },
+    [fetchDataDebounced]
+  );
 
   const handleFocus = useCallback(() => {
     onFocus?.();
@@ -322,20 +289,16 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
 
   useEffect(() => {
     async function init() {
-      if (seisRef.current) {
-        seisRef.current.addEventListener('contextmenu', (e) => {
+      if (canvasRef.current) {
+        canvasRef.current.addEventListener('contextmenu', (e) => {
           e.preventDefault();
         });
-        seisRef.current.addEventListener('dblclick', (e) => {
+        canvasRef.current.addEventListener('dblclick', (e) => {
           e.preventDefault();
         });
 
-        chartRef.current = new Seismogram(seisRef.current, initOptions);
+        chartRef.current = new Seismogram(canvasRef.current, initOptions);
         await chartRef.current.init();
-        chartRef.current.on('focus', handleFocus);
-        chartRef.current.on('blur', handleBlur);
-        chartRef.current.on('extentChanged', handleExtentChange);
-        chartRef.current.on('trackDoubleClicked', handleTrackDoubleClick);
 
         workerRef.current = new Worker(new URL('../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
         webWorkerRef.current = new SeismogramWebWorker(chartRef.current, workerRef.current);
@@ -352,29 +315,19 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
         chartRef.current.use(eventManagerExtensionRef.current);
         chartRef.current.use(pickerExtensionRef.current);
 
-        zoomRectangleExtensionRef.current.getInstance().on('extentSelected', handleZoomRectangle);
-        pickerExtensionRef.current.getInstance().on('change', handlePickRangeChange);
-
-        chartRef.current.refreshData();
         chartRef.current.render();
       }
     }
 
-    const onResizeDebounced = debounce((entries: ResizeObserverEntry[]) => {
-      for (const entry of entries) {
-        const { width, height } = entry.contentRect;
-        chartRef.current?.resize(width, height);
-        chartRef.current?.render();
-      }
-    }, 200);
-
     const onResize = (entries: ResizeObserverEntry[]) => {
       for (const entry of entries) {
         const { width, height } = entry.contentRect;
-        chartRef.current?.resize(width, height);
+        chartRef.current?.resize({ width, height });
         chartRef.current?.render();
       }
     };
+
+    const onResizeDebounced = debounce(onResize, 200);
 
     const handleResize = (entries: ResizeObserverEntry[]) => {
       if (!initialResizeCompleteRef.current) {
@@ -388,8 +341,8 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
     init()
       .then(() => {
         resizeObserverRef.current = new ResizeObserver(handleResize);
-        if (seisRef.current) {
-          resizeObserverRef.current.observe(seisRef.current.parentElement!);
+        if (canvasRef.current) {
+          resizeObserverRef.current.observe(canvasRef.current.parentElement!);
         }
       })
       .finally(() => {
@@ -405,20 +358,21 @@ const SeismogramChart: React.ForwardRefExoticComponent<SeismogramChartProps & Re
   }, []);
 
   useEffect(() => {
-    const handleContextMenu = (e: FederatedPointerEvent) => {
-      handleContextMenuRequested(e);
-    };
-
     if (chartRef.current) {
-      chartRef.current.app.stage.on('rightclick', handleContextMenu);
+      chartRef.current.on('focus', handleFocus);
+      chartRef.current.on('blur', handleBlur);
+      chartRef.current.on('extentChange', handleExtentChange);
+      chartRef.current.on('trackDoubleClick', handleTrackDoubleClick);
+      chartRef.current.on('contextmenu', handleContextMenuRequested);
     }
-  }, [handleContextMenuRequested]);
+
+    zoomRectangleExtensionRef.current?.getInstance().on('extentSelected', handleZoomRectangle);
+    pickerExtensionRef.current?.getInstance().on('change', handlePickRangeChange);
+  }, [handleFocus, handleBlur, handleExtentChange, handleTrackDoubleClick, handleContextMenuRequested, handlePickRangeChange, handleZoomRectangle]);
 
   return (
     <div className={`absolute top-0 right-0 bottom-0 left-0 ${className ?? ''}`}>
-      <canvas ref={seisRef} />
+      <canvas ref={canvasRef} />
     </div>
   );
 });
-
-export default SeismogramChart;
