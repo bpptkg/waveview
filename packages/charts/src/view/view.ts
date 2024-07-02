@@ -1,20 +1,31 @@
 import * as PIXI from "pixi.js";
+import { EventEmitter } from "../event/eventEmitter";
 import { Model } from "../model/model";
-import { EventMap, LayoutRect } from "../util/types";
+import { EventMap, LayoutRect, ResizeOptions, ThemeStyle } from "../util/types";
 
-export abstract class View<T extends Model = Model> {
+/**
+ * View is the base class for all visual components in the chart.
+ */
+export abstract class View<
+  T extends Model = Model,
+  E extends EventMap = EventMap
+> extends EventEmitter<E> {
   type = "view";
   readonly model: T;
   readonly group: PIXI.Container = new PIXI.Container();
-  private listeners: { [K in keyof EventMap]?: EventMap[K][] } = {};
 
   constructor(model: T) {
+    super();
     this.model = model;
   }
 
   getModel(): T {
     return this.model;
   }
+
+  abstract show(): void;
+
+  abstract hide(): void;
 
   abstract getRect(): LayoutRect;
 
@@ -24,45 +35,11 @@ export abstract class View<T extends Model = Model> {
 
   abstract dispose(): void;
 
-  addEventListener<K extends keyof EventMap>(event: K, fn: EventMap[K]): void {
-    if (!this.listeners[event]) {
-      this.listeners[event] = [];
-    }
-    this.listeners[event]?.push(fn);
-  }
+  abstract resize(options?: ResizeOptions): void;
 
-  removeEventListener<K extends keyof EventMap>(
-    event: K,
-    fn: EventMap[K]
-  ): void {
-    if (this.listeners[event]) {
-      this.listeners[event] = this.listeners[event]?.filter((f) => f !== fn);
-    }
-  }
+  abstract focus(): void;
 
-  dispatchEvent<K extends keyof EventMap>(
-    event: K,
-    ...args: Parameters<EventMap[K]>
-  ): void {
-    this.listeners[event]?.forEach((fn) => fn.apply(this, args));
-  }
+  abstract blur(): void;
 
-  on<K extends keyof EventMap>(event: K, fn: EventMap[K]): void {
-    this.addEventListener(event, fn);
-  }
-
-  off<K extends keyof EventMap>(event: K, fn: EventMap[K]): void {
-    this.removeEventListener(event, fn);
-  }
-
-  emit<K extends keyof EventMap>(
-    event: K,
-    ...args: Parameters<EventMap[K]>
-  ): void {
-    this.dispatchEvent(event, ...args);
-  }
-
-  removeAllEventListeners(): void {
-    this.listeners = {};
-  }
+  abstract applyThemeStyle(theme: ThemeStyle): void;
 }
