@@ -1,12 +1,11 @@
 import * as PIXI from "pixi.js";
-// @ts-ignore
-import { InteractionEvent } from "pixi.js";
-import { Axis } from "../axis/axis";
-import { Model } from "../model/model";
-import { formatDate } from "../util/time";
-import { Extension, LayoutRect } from "../util/types";
-import { View } from "../view/view";
-import { Seismogram } from "./seismogram";
+import { FederatedPointerEvent } from "pixi.js";
+import { Axis } from "../../axis/axis";
+import { Model } from "../../model/model";
+import { formatDate } from "../../util/time";
+import { Extension, LayoutRect, ThemeStyle } from "../../util/types";
+import { View } from "../../view/view";
+import { Seismogram } from "../seismogram";
 
 export interface AxisPointerOptions {
   enabled: boolean;
@@ -42,7 +41,7 @@ export class AxisPointer extends View<AxisPointerModel> {
   private readonly _line: PIXI.Graphics;
   private readonly _label: PIXI.Text;
   private readonly _background: PIXI.Graphics;
-  private onPointerMoveBound: (event: InteractionEvent) => void;
+  private _onPointerMoveBound: (event: FederatedPointerEvent) => void;
 
   constructor(
     axis: Axis,
@@ -65,19 +64,19 @@ export class AxisPointer extends View<AxisPointerModel> {
     this.group.addChild(this._line);
     this.group.addChild(this._label);
 
-    this.onPointerMoveBound = this.onPointerMove.bind(this);
+    this._onPointerMoveBound = this._onPointerMove.bind(this);
   }
 
   attachEventListeners(): void {
-    this.chart.app.stage.on("pointermove", this.onPointerMoveBound);
+    this.chart.app.stage.on("pointermove", this._onPointerMoveBound);
   }
 
   detachEventListeners(): void {
-    this.chart.app.stage.off("pointermove", this.onPointerMoveBound);
+    this.chart.app.stage.off("pointermove", this._onPointerMoveBound);
   }
 
-  onPointerMove(event: InteractionEvent): void {
-    this._position = event.data.getLocalPosition(this.chart.app.stage);
+  private _onPointerMove(event: FederatedPointerEvent): void {
+    this._position = event.global;
     this.render();
   }
 
@@ -93,15 +92,33 @@ export class AxisPointer extends View<AxisPointerModel> {
     this.getModel().mergeOptions({ enabled: false });
   }
 
-  override getRect(): LayoutRect {
+  applyThemeStyle(_: ThemeStyle): void {}
+
+  show() {
+    this.group.visible = true;
+  }
+
+  hide() {
+    this.group.visible = false;
+  }
+
+  focus() {}
+
+  blur() {}
+
+  getRect(): LayoutRect {
     return this._rect;
   }
 
-  override setRect(rect: LayoutRect): void {
+  setRect(rect: LayoutRect): void {
     this._rect = rect;
   }
 
-  override render(): void {
+  resize(): void {
+    this._rect = this.axis.getRect();
+  }
+
+  render(): void {
     this._line.clear();
     this._background.clear();
     this._label.text = "";

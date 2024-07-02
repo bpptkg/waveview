@@ -1,10 +1,9 @@
 import * as PIXI from "pixi.js";
-import { Model } from "../model/model";
-import { EventMap, Extension, LayoutRect } from "../util/types";
-import { View } from "../view/view";
-import { Seismogram } from "./seismogram";
-// @ts-ignore
-import { InteractionEvent } from "pixi.js";
+import { FederatedPointerEvent } from "pixi.js";
+import { Model } from "../../model";
+import { EventMap, Extension, LayoutRect, ThemeStyle } from "../../util/types";
+import { View } from "../../view";
+import { Seismogram } from "../seismogram";
 
 export interface ZoomRectangleOptions {
   color: string;
@@ -30,7 +29,10 @@ export interface ZoomRectangleEventMap extends EventMap {
   extentSelected: (extent: [number, number]) => void;
 }
 
-export class ZoomRectangle extends View<ZoomRectangleModel> {
+export class ZoomRectangle extends View<
+  ZoomRectangleModel,
+  ZoomRectangleEventMap
+> {
   readonly chart: Seismogram;
   private _rect: LayoutRect;
   private readonly _graphics: PIXI.Graphics;
@@ -40,9 +42,9 @@ export class ZoomRectangle extends View<ZoomRectangleModel> {
   private _end: PIXI.Point = new PIXI.Point();
   private _isVisible: boolean = false;
 
-  private onPointerDownBound: (event: InteractionEvent) => void;
-  private onPointerMoveBound: (event: InteractionEvent) => void;
-  private onPointerUpBound: () => void;
+  private _onPointerDownBound: (event: FederatedPointerEvent) => void;
+  private _onPointerMoveBound: (event: FederatedPointerEvent) => void;
+  private _onPointerUpBound: () => void;
 
   constructor(chart: Seismogram, options?: Partial<ZoomRectangleOptions>) {
     const model = new ZoomRectangleModel(options);
@@ -54,21 +56,21 @@ export class ZoomRectangle extends View<ZoomRectangleModel> {
     this.chart = chart;
     this._rect = chart.getGrid().getRect().clone();
 
-    this.onPointerDownBound = this.onPointerDown.bind(this);
-    this.onPointerMoveBound = this.onPointerMove.bind(this);
-    this.onPointerUpBound = this.onPointerUp.bind(this);
+    this._onPointerDownBound = this._onPointerDown.bind(this);
+    this._onPointerMoveBound = this._onPointerMove.bind(this);
+    this._onPointerUpBound = this._onPointerUp.bind(this);
   }
 
   attachEventListeners(): void {
-    this.chart.app.stage.on("pointerdown", this.onPointerDownBound);
-    this.chart.app.stage.on("pointermove", this.onPointerMoveBound);
-    this.chart.app.stage.on("pointerup", this.onPointerUpBound);
+    this.chart.app.stage.on("pointerdown", this._onPointerDownBound);
+    this.chart.app.stage.on("pointermove", this._onPointerMoveBound);
+    this.chart.app.stage.on("pointerup", this._onPointerUpBound);
   }
 
   detachEventListeners(): void {
-    this.chart.app.stage.off("pointerdown", this.onPointerDownBound);
-    this.chart.app.stage.off("pointermove", this.onPointerMoveBound);
-    this.chart.app.stage.off("pointerup", this.onPointerUpBound);
+    this.chart.app.stage.off("pointerdown", this._onPointerDownBound);
+    this.chart.app.stage.off("pointermove", this._onPointerMoveBound);
+    this.chart.app.stage.off("pointerup", this._onPointerUpBound);
   }
 
   activate(): void {
@@ -83,15 +85,36 @@ export class ZoomRectangle extends View<ZoomRectangleModel> {
     return this._isActive;
   }
 
-  override getRect(): LayoutRect {
+  applyThemeStyle(theme: ThemeStyle): void {
+    const { color, opacity, borderWidth } = theme.highlightStyle;
+    this.getModel().mergeOptions({ color, opacity, borderWidth });
+  }
+
+  show() {
+    this._isVisible = true;
+  }
+
+  hide() {
+    this._isVisible = false;
+  }
+
+  focus(): void {}
+
+  blur(): void {}
+
+  getRect(): LayoutRect {
     return this._rect;
   }
 
-  override setRect(rect: LayoutRect): void {
+  setRect(rect: LayoutRect): void {
     this._rect = rect;
   }
 
-  override render(): void {
+  resize(): void {
+    this._rect = this.chart.getGrid().getRect();
+  }
+
+  render(): void {
     this._graphics.clear();
 
     if (!this._isVisible) {
@@ -130,7 +153,7 @@ export class ZoomRectangle extends View<ZoomRectangleModel> {
     this.group.destroy();
   }
 
-  private onPointerDown(event: InteractionEvent): void {
+  private _onPointerDown(event: FederatedPointerEvent): void {
     if (!this._isActive) {
       return;
     }
@@ -140,7 +163,7 @@ export class ZoomRectangle extends View<ZoomRectangleModel> {
     this._start = event.data.getLocalPosition(this.chart.app.stage);
   }
 
-  private onPointerMove(event: InteractionEvent): void {
+  private _onPointerMove(event: FederatedPointerEvent): void {
     if (!this._isActive || !this._isDragging) {
       return;
     }
@@ -149,7 +172,7 @@ export class ZoomRectangle extends View<ZoomRectangleModel> {
     this.render();
   }
 
-  private onPointerUp(): void {
+  private _onPointerUp(): void {
     if (!this._isActive || !this._isDragging) {
       return;
     }

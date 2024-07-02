@@ -4,7 +4,7 @@ import { Channel } from "../util/types";
 
 export interface MarkerOptions {
   value: number;
-  color?: string;
+  color: string;
   width?: number;
 }
 

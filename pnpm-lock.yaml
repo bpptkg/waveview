@@ -20,9 +20,6 @@ importers:
       '@waveview/ndarray':
         specifier: workspace:*
         version: link:../ndarray
-      '@waveview/stream':
-        specifier: workspace:*
-        version: link:../stream
       pixi.js:
         specifier: ^8.1.1
         version: 8.1.1

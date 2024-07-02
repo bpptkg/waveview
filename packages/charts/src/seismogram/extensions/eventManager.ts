@@ -1,7 +1,6 @@
-import { EventManager, EventManagerConfig, Extension } from "../util/types";
-// @ts-ignore
-import { InteractionEvent } from "pixi.js";
-import { Seismogram } from "./seismogram";
+import { FederatedPointerEvent, FederatedWheelEvent } from "pixi.js";
+import { EventManager, EventManagerConfig, Extension } from "../../util/types";
+import { Seismogram } from "../seismogram";
 
 export interface SeismogramEventManagerConfig extends EventManagerConfig {
   enableArrowLeft?: boolean;
@@ -19,8 +18,8 @@ export class SeismogramEventManager implements EventManager {
   private enabled: boolean;
   private config: SeismogramEventManagerConfig;
   private handleKeyDownBound: (event: KeyboardEvent) => void;
-  private onWheelBound: (event: InteractionEvent) => void;
-  private onPointerDownBound: (event: InteractionEvent) => void;
+  private onWheelBound: (event: FederatedWheelEvent) => void;
+  private onPointerDownBound: (event: FederatedPointerEvent) => void;
 
   constructor(chart: Seismogram, config: SeismogramEventManagerConfig = {}) {
     this.chart = chart;
@@ -71,7 +70,7 @@ export class SeismogramEventManager implements EventManager {
     this.chart.app.stage.off("pointerdown", this.onPointerDownBound);
   }
 
-  private onWheel(event: InteractionEvent): void {
+  private onWheel(event: FederatedWheelEvent): void {
     if (!this.enabled) {
       return;
     }
@@ -80,9 +79,8 @@ export class SeismogramEventManager implements EventManager {
       return;
     }
 
-    const { deltaX, deltaY, shiftKey, altKey } = event.data
-      .originalEvent as WheelEvent;
-    const { x, y } = event.data.getLocalPosition(this.chart.app.stage);
+    const { deltaX, deltaY, shiftKey, altKey } = event;
+    const { x, y } = event.global;
     const { x: x0, y: y0, width, height } = this.chart.getGrid().getRect();
     if (x < x0 || x > x0 + width || y < y0 || y > y0 + height) {
       return;
@@ -164,14 +162,14 @@ export class SeismogramEventManager implements EventManager {
     }
   }
 
-  private onPointerDown(event: InteractionEvent): void {
+  private onPointerDown(event: FederatedPointerEvent): void {
     if (!this.enabled) {
       return;
     }
     this.handleFocusBlur(event);
   }
 
-  private handleFocusBlur(event: InteractionEvent): void {
+  private handleFocusBlur(event: FederatedPointerEvent): void {
     const { x, y } = event.data.getLocalPosition(this.chart.app.stage);
     const rect = this.chart.getRect();
     if (

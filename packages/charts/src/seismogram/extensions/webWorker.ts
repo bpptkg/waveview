@@ -1,5 +1,5 @@
 import { Series } from "@waveview/ndarray";
-import { ONE_MINUTE } from "../util/time";
+import { ONE_MINUTE } from "../../util/time";
 import {
   Extension,
   ResampleMode,
@@ -7,8 +7,8 @@ import {
   StreamResponseData,
   WorkerRequestData,
   WorkerResponseData,
-} from "../util/types";
-import { Seismogram } from "./seismogram";
+} from "../../util/types";
+import { Seismogram } from "../seismogram";
 
 export interface SeismogramWebWorkerOptions {
   /**
@@ -22,60 +22,62 @@ export interface SeismogramWebWorkerOptions {
 }
 
 export class SeismogramWebWorker {
-  private worker: Worker;
-  private chart: Seismogram;
-  private options: SeismogramWebWorkerOptions;
+  private _worker: Worker;
+  private _chart: Seismogram;
+  private _options: SeismogramWebWorkerOptions;
+  private _onExtentChangedBound: () => void;
 
   constructor(
     chart: Seismogram,
     worker: Worker,
     options?: Partial<SeismogramWebWorkerOptions>
   ) {
-    this.worker = worker;
-    this.worker.addEventListener("message", this.onMessage.bind(this));
-    this.chart = chart;
+    this._worker = worker;
+    this._worker.addEventListener("message", this._onMessage.bind(this));
+    this._chart = chart;
 
-    this.options = {
+    this._options = {
       threshold: 4,
       maxPoints: 100 * 60,
       ...options,
     };
+    this._onExtentChangedBound = this._onExtentChanged.bind(this);
   }
 
   attachEventListeners(): void {
-    this.chart.on("extentChanged", this.onExtentChanged.bind(this));
+    this._chart.on("extentChanged", this._onExtentChangedBound);
   }
 
   detachEventListeners(): void {
-    this.chart.off("extentChanged", this.onExtentChanged.bind(this));
+    this._chart.off("extentChanged", this._onExtentChangedBound);
   }
 
-  onExtentChanged(): void {
+  private _onExtentChanged(): void {
     this.fetchAllChannelsData();
   }
 
   fetchAllChannelsData(): void {
-    const extent = this.chart.getXAxis().getExtent();
-    const channels = this.chart.getChannels();
+    const extent = this._chart.getXAxis().getExtent();
+    const channels = this._chart.getChannels();
 
-    channels.forEach((channelId) => {
-      this.postRequestMessage(channelId, extent);
+    channels.forEach((channel) => {
+      this.postRequestMessage(channel.id, extent);
     });
   }
 
   fetchChannelData(channelId: string): void {
-    const extent = this.chart.getXAxis().getExtent();
+    const extent = this._chart.getXAxis().getExtent();
     this.postRequestMessage(channelId, extent);
   }
 
   postRequestMessage(channelId: string, extent: [number, number]): void {
-    const { threshold, maxPoints } = this.options;
+    const { threshold, maxPoints } = this._options;
     const [start, end] = extent;
     const diffInMinutes = (end - start) / ONE_MINUTE;
     const mode: ResampleMode =
       diffInMinutes < threshold ? "max_points" : "match_width";
 
-    const width = this.chart.getWidth();
+    const width = this._chart.getWidth();
     const msg: WorkerRequestData<StreamRequestData> = {
       type: "stream.fetch",
       payload: {
@@ -91,12 +93,12 @@ export class SeismogramWebWorker {
     this.postMessage(msg);
   }
 
-  onMessage(event: MessageEvent<WorkerResponseData<unknown>>): void {
+  private _onMessage(event: MessageEvent<WorkerResponseData<unknown>>): void {
     const { type, payload } = event.data;
 
     switch (type) {
       case "stream.fetch":
-        this.onStreamFetch(payload as StreamResponseData);
+        this._onStreamFetch(payload as StreamResponseData);
         break;
       case "stream.fetch.error":
         break;
@@ -105,26 +107,26 @@ export class SeismogramWebWorker {
     }
   }
 
-  onStreamFetch(data: StreamResponseData): void {
+  private _onStreamFetch(data: StreamResponseData): void {
     const seriesData = new Series(data.data, {
       index: data.index,
       name: data.channelId,
     });
-    const index = this.chart.getTrackIndexByChannelId(data.channelId);
+    const index = this._chart.getTrackIndexByChannelId(data.channelId);
     if (index !== -1) {
-      this.chart.setChannelData(index, seriesData);
-      this.chart.refreshData();
-      this.chart.render();
+      this._chart.setChannelData(index, seriesData);
+      this._chart.refreshData();
+      this._chart.render();
     }
   }
 
   postMessage<T>(data: WorkerRequestData<T>): void {
-    this.worker.postMessage(data);
+    this._worker.postMessage(data);
   }
 
   dispose(): void {
     this.detachEventListeners();
-    this.worker.terminate();
+    this._worker.terminate();
   }
 }
 

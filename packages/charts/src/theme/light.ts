@@ -1,6 +1,6 @@
 import { ThemeStyle } from "../util/types";
 
-const lightTheme: ThemeStyle = {
+export const lightTheme: ThemeStyle = {
   backgroundColor: "#fff",
   foregroundColor: "#000",
   textColor: "#000",
@@ -25,5 +25,3 @@ const lightTheme: ThemeStyle = {
     borderWidth: 1,
   },
 };
-
-export default lightTheme;

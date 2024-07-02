@@ -1,7 +1,6 @@
-import { EventManager, EventManagerConfig, Extension } from "../util/types";
-import { Helicorder } from "./helicorder";
-// @ts-ignore
-import { InteractionEvent, Point } from "pixi.js";
+import { FederatedPointerEvent, Point } from "pixi.js";
+import { EventManager, EventManagerConfig, Extension } from "../../util/types";
+import { Helicorder } from "../helicorder";
 
 export interface HelicorderEventManagerConfig extends EventManagerConfig {
   enableArrowUp?: boolean;
@@ -15,7 +14,7 @@ export class HelicorderEventManager implements EventManager {
   private enabled: boolean;
   private config: HelicorderEventManagerConfig;
   private handleKeyDownBound: (event: KeyboardEvent) => void;
-  private onPointerDownBound: (event: InteractionEvent) => void;
+  private onPointerDownBound: (event: FederatedPointerEvent) => void;
 
   constructor(chart: Helicorder, config: HelicorderEventManagerConfig = {}) {
     this.chart = chart;
@@ -82,7 +81,7 @@ export class HelicorderEventManager implements EventManager {
     this.chart.render();
   }
 
-  private onPointerDown(event: InteractionEvent): void {
+  private onPointerDown(event: FederatedPointerEvent): void {
     if (!this.enabled) {
       return;
     }
@@ -90,8 +89,8 @@ export class HelicorderEventManager implements EventManager {
     this.handleFocusBlur(event);
   }
 
-  private handleTrackSelected(event: InteractionEvent): void {
-    const { x, y }: Point = event.data.getLocalPosition(this.chart.app.stage);
+  private handleTrackSelected(event: FederatedPointerEvent): void {
+    const { x, y }: Point = event.global;
     const rect = this.chart.getGrid().getRect();
     if (
       x < rect.x ||
@@ -106,8 +105,8 @@ export class HelicorderEventManager implements EventManager {
     this.chart.render();
   }
 
-  private handleFocusBlur(event: InteractionEvent): void {
-    const { x, y }: Point = event.data.getLocalPosition(this.chart.app.stage);
+  private handleFocusBlur(event: FederatedPointerEvent): void {
+    const { x, y }: Point = event.global;
     const rect = this.chart.getRect();
     if (
       x < rect.x ||

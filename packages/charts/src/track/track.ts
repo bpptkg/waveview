@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
 import { LineSeries } from "../series/line";
-import { LayoutRect, ThemeStyle } from "../util/types";
+import { LayoutRect, ResizeOptions, ThemeStyle } from "../util/types";
 import { ChartView } from "../view/chartView";
 import { View } from "../view/view";
 import { TrackModel, TrackOptions } from "./trackModel";
@@ -45,6 +45,24 @@ export class Track extends View<TrackModel> {
 
     // Add the series to the masked content container.
     this.chart.group.addChild(this._series.group);
+  }
+
+  show(): void {
+    this.group.visible = true;
+  }
+
+  hide(): void {
+    this.group.visible = false;
+  }
+
+  focus(): void {}
+
+  blur(): void {}
+
+  resize(options: ResizeOptions): void {
+    const { width, height } = options;
+    const { x, y } = this.getRect();
+    this.setRect(new PIXI.Rectangle(x, y, width, height));
   }
 
   applyThemeStyle(theme: ThemeStyle): void {
@@ -135,22 +153,22 @@ export class Track extends View<TrackModel> {
     );
   }
 
-  override getRect(): LayoutRect {
+  getRect(): LayoutRect {
     return this._rect;
   }
 
-  override setRect(rect: LayoutRect): void {
+  setRect(rect: LayoutRect): void {
     this._rect = rect;
     this.yAxis.setRect(rect);
   }
 
-  override render(): void {
+  render(): void {
     this._renderLabels();
     this._renderSeries();
     this._renderHighlight();
   }
 
-  override dispose(): void {
+  dispose(): void {
     this._series.dispose();
     this._leftText.destroy();
     this._rightText.destroy();

@@ -1,7 +1,12 @@
 import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
 import { Model } from "../model/model";
-import { LayoutRect, ModelOptions } from "../util/types";
+import {
+  LayoutRect,
+  ModelOptions,
+  ResizeOptions,
+  ThemeStyle,
+} from "../util/types";
 import { View } from "../view/view";
 
 export interface LineMarkerOptions extends ModelOptions {
@@ -59,15 +64,27 @@ export class LineMarker extends View<LineMarkerModel> {
     this.model.mergeOptions({ show: false });
   }
 
-  override getRect(): LayoutRect {
+  focus(): void {}
+
+  blur(): void {}
+
+  applyThemeStyle(_: ThemeStyle): void {}
+
+  getRect(): LayoutRect {
     return this._rect;
   }
 
-  override setRect(rect: LayoutRect): void {
+  setRect(rect: LayoutRect): void {
     this._rect = rect;
   }
 
-  override render() {
+  resize(options: ResizeOptions): void {
+    const { width, height } = options;
+    const { x, y } = this.getRect();
+    this.setRect(new PIXI.Rectangle(x, y, width, height));
+  }
+
+  render() {
     this._line.clear();
 
     const {

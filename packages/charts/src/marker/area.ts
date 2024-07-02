@@ -1,7 +1,12 @@
 import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
 import { Model } from "../model/model";
-import { LayoutRect, ModelOptions } from "../util/types";
+import {
+  LayoutRect,
+  ModelOptions,
+  ResizeOptions,
+  ThemeStyle,
+} from "../util/types";
 import { View } from "../view/view";
 
 export interface AreaMarkerOptions extends ModelOptions {
@@ -97,15 +102,27 @@ export class AreaMarker extends View<AreaMarkerModel> {
     this.model.mergeOptions({ show: false });
   }
 
-  override getRect(): LayoutRect {
+  applyThemeStyle(_: ThemeStyle): void {}
+
+  focus(): void {}
+
+  blur(): void {}
+
+  resize(options: ResizeOptions): void {
+    const { width, height } = options;
+    const { x, y } = this.getRect();
+    this.setRect(new PIXI.Rectangle(x, y, width, height));
+  }
+
+  getRect(): LayoutRect {
     return this._rect;
   }
 
-  override setRect(rect: LayoutRect): void {
+  setRect(rect: LayoutRect): void {
     this._rect = rect;
   }
 
-  override render(): void {
+  render(): void {
     this._head.clear();
     this._body.clear();
 

@@ -1,160 +1,46 @@
 import { Series } from "@waveview/ndarray";
-import { StreamIdentifier } from "@waveview/stream";
 import * as PIXI from "pixi.js";
-import { Axis } from "../axis/axis";
+import { Axis } from "../axis";
 import { DataStore } from "../data/dataStore";
-import { Grid } from "../grid/grid";
-import { GridOptions } from "../grid/gridModel";
-import { ChartOptions } from "../model/chartModel";
-import darkTheme from "../theme/dark";
-import { Track } from "../track/track";
-import { TrackOptions } from "../track/trackModel";
+import { Grid } from "../grid";
+import { Track, TrackOptions } from "../track";
 import { almostEquals } from "../util/math";
 import { merge } from "../util/merge";
 import { ONE_HOUR, ONE_MINUTE, formatDate } from "../util/time";
-import { EventMap, LayoutRect, SeriesData } from "../util/types";
-import { ChartType, ChartView } from "../view/chartView";
-import { EventMarker, EventMarkerOptions } from "./eventMarker";
+import { Channel, LayoutRect, ResizeOptions, SeriesData } from "../util/types";
+import { ChartView } from "../view";
+import {
+  HelicorderChartOptions,
+  MarkerOptions,
+  getDefaultOptions,
+} from "./chartOptions";
+import { HelicorderEventMap } from "./eventMap";
+import { EventMarker } from "./eventMarker";
 import { Selection } from "./selection";
+import { createTrackId } from "./util";
 
-export interface HelicorderChartOptions extends ChartOptions {
-  /**
-   * Channel ID of the helicorder chart, e.g. ``IU.ANMO.00.BHZ``.
-   */
-  channel: string;
-  /**
-   * Interval of the helicorder chart in minutes.
-   */
-  interval: number;
-  /**
-   * Duration of the helicorder chart in hours.
-   */
-  duration: number;
-  /**
-   * Offset date of the helicorder chart.
-   */
-  offsetDate: number;
-  /**
-   * Force center the signal in the helicorder chart.
-   */
-  forceCenter: boolean;
-  /**
-   * Use UTC time for the helicorder chart.
-   */
-  useUTC: boolean;
-  /**
-   * Vertical scaling of the helicorder chart. ``local`` scales each track
-   * independently, while ``global`` scales all tracks together.
-   */
-  verticalScaling: "local" | "global";
-  /**
-   * Grid options for the helicorder chart.
-   */
-  grid: Partial<GridOptions>;
-  /**
-   * Local timezone of the helicorder chart.
-   */
-  timezone: string;
-  /**
-   * The timestamp of the last selection in the helicorder chart.
-   */
-  selection: number;
-}
-
-function getDefaultOptions(): HelicorderChartOptions {
-  return {
-    channel: "",
-    interval: 30,
-    duration: 12,
-    offsetDate: Date.now(),
-    forceCenter: true,
-    useUTC: false,
-    verticalScaling: "global",
-    grid: {
-      top: 50,
-      right: 50,
-      bottom: 50,
-      left: 80,
-    },
-    timezone: "UTC",
-    selection: 0,
-  };
-}
-
-export interface HelicorderChartType extends ChartType<HelicorderChartOptions> {
-  getTrackCount(): number;
-  setChannel(id: string): void;
-  getChannel(): string;
-  increaseAmplitude(by: number): void;
-  decreaseAmplitude(by: number): void;
-  resetAmplitude(): void;
-  shiftViewUp(): [number, number];
-  shiftViewDown(): [number, number];
-  shiftViewToNow(): void;
-  setOffsetDate(date: number): void;
-  addEventMarker(value: number, options?: Partial<EventMarkerOptions>): void;
-  removeEventMarker(value: number): void;
-  showVisibleMarkers(): void;
-  hideVisibleMarkers(): void;
-  selectTrack(index: number): void;
-  deselectTrack(): void;
-  moveSelectionUp(): void;
-  moveSelectionDown(): void;
-  getTrackIndexAtPosition(y: number): number;
-  getTrackIndexAtTime(time: number): number;
-  rowToTrackIndex(row: number): number;
-  trackIndexToRow(index: number): number;
-  timeToOffset(index: number, time: number): number;
-  getTracks(): Track[];
-  getTrackAt(index: number): Track | undefined;
-  getTrackExtentAt(index: number): [number, number];
-  getTrackExtents(): [number, number][];
-  getTrackData(start: number, end: number): SeriesData | undefined;
-  setTrackData(data: SeriesData, start: number, end: number): void;
-  refreshData(): void;
-  getXAxis(): Axis;
-  getYExtent(): [number, number];
-  getChartExtent(): [number, number];
-  getDataStore(): DataStore<SeriesData>;
-  getTrackId(extent: [number, number]): string;
-  setInterval(interval: number): void;
-  setDuration(duration: number): void;
-  setUseUTC(useUTC: boolean): void;
-  getSelection(): Selection;
-}
-
-export interface HelicorderEventMap extends EventMap {
-  channelChanged: (id: string) => void;
-  offsetChanged: (offset: number) => void;
-  intervalChanged: (interval: number) => void;
-  durationChanged: (duration: number) => void;
-  amplitudeChanged: (range: [number, number]) => void;
-  trackSelected: (index: number) => void;
-  trackDeselected: () => void;
-  viewShiftedUp: (range: [number, number]) => void;
-  viewShiftedDown: (range: [number, number]) => void;
-  viewShiftedToNow: () => void;
-  viewShiftedToTime: (time: number) => void;
-  focus: () => void;
-  blur: () => void;
-  selectionChanged: (value: number) => void;
-}
-
-export function createTrackId(start: number, end: number): string {
-  return `${start}-${end}`;
-}
-
-export class Helicorder
-  extends ChartView<HelicorderChartOptions>
-  implements HelicorderChartType
-{
+/**
+ * A helicorder is a type of chart used primarily in seismology to display a
+ * continuous record of ground motion or seismic data. This chart is designed to
+ * mimic the appearance of traditional drum-based seismographs, which would use
+ * paper rolls inked by a stylus to record seismic events over time.
+ *
+ * The track index is the index of the track in the helicorder chart, where the
+ * bottom track has an index of 0 measured from the offset date and the top
+ * track has an index of n - 1, where n is the total number of tracks in the
+ * chart.
+ */
+export class Helicorder extends ChartView<
+  HelicorderChartOptions,
+  HelicorderEventMap
+> {
   override readonly type = "helicorder";
 
   private readonly _xAxis: Axis;
   private readonly _grid: Grid;
   private readonly _selection: Selection;
   private _tracks: Track[] = [];
-  private _channel: StreamIdentifier;
+  private _channel: Channel;
   private _markers: EventMarker[] = [];
   private _dataStore = new DataStore<SeriesData>();
   private _yExtent: [number, number] = [-1, 1];
@@ -164,14 +50,13 @@ export class Helicorder
     options?: Partial<HelicorderChartOptions>
   ) {
     const opts = merge(
-      Object.assign({}, getDefaultOptions()),
+      { ...getDefaultOptions() },
       options || {},
       true
     ) as HelicorderChartOptions;
-
     super(dom, opts);
 
-    this._channel = new StreamIdentifier({ id: opts.channel });
+    this._channel = opts.channel;
 
     this._grid = new Grid(this.getRect(), opts.grid);
     this.addComponent(this._grid);
@@ -183,7 +68,7 @@ export class Helicorder
     this._xAxis.setExtent([0, opts.interval]);
     this.addComponent(this._xAxis);
 
-    this.updateTracks();
+    this._updateTracks();
 
     this._selection = new Selection(this._xAxis, this, {
       value: opts.selection || 0,
@@ -191,21 +76,24 @@ export class Helicorder
     this.addComponent(this._selection);
 
     if (opts.darkMode) {
-      this._currentTheme = darkTheme;
+      this._currentTheme = "dark";
+      const theme = this.getTheme();
+      this.model.mergeOptions({
+        backgroundColor: theme.backgroundColor,
+      });
+      for (const view of this._views) {
+        view.applyThemeStyle(theme);
+      }
     }
-    this.applyComponentThemeStyles();
   }
 
-  setChannel(id: string): void {
-    if (this._channel.equals(id)) {
-      return;
-    }
-    this._channel.update({ id });
-    this.emit("channelChanged", id);
+  setChannel(channel: Channel): void {
+    this._channel = channel;
+    this.emit("channelChanged", channel);
   }
 
-  getChannel(): string {
-    return this._channel.id;
+  getChannel(): Channel {
+    return this._channel;
   }
 
   increaseAmplitude(by: number): void {
@@ -233,10 +121,10 @@ export class Helicorder
     this.emit("amplitudeChanged", this._yExtent);
   }
 
-  shiftViewUp(): [number, number] {
+  shiftViewUp(by: number = 1): [number, number] {
     const { interval } = this.model.getOptions();
     const offsetDate =
-      this.model.getOptions().offsetDate - interval * ONE_MINUTE;
+      this.model.getOptions().offsetDate - interval * ONE_MINUTE * by;
     this.setOffsetDate(offsetDate);
 
     const trackIndex = this.getTrackIndexAtTime(offsetDate);
@@ -245,10 +133,10 @@ export class Helicorder
     return extent;
   }
 
-  shiftViewDown(): [number, number] {
+  shiftViewDown(by: number = 1): [number, number] {
     const { interval } = this.model.getOptions();
     const offsetDate =
-      this.model.getOptions().offsetDate + interval * ONE_MINUTE;
+      this.model.getOptions().offsetDate + interval * ONE_MINUTE * by;
     this.setOffsetDate(offsetDate);
 
     const trackIndex = this.getTrackIndexAtTime(offsetDate);
@@ -269,34 +157,33 @@ export class Helicorder
   }
 
   setOffsetDate(date: number): void {
-    this.model.mergeOptions({ offsetDate: date, forceCenter: false });
-    this.updateTrackLabels();
+    this.model.mergeOptions({ offsetDate: date });
+    this._updateTrackLabels();
     this.emit("offsetChanged", date);
   }
 
   setInterval(interval: number): void {
     this.model.mergeOptions({ interval });
     this._xAxis.setExtent([0, interval]);
-    this.updateTracks();
+    this._updateTracks();
   }
 
   setDuration(duration: number): void {
     this.model.mergeOptions({ duration });
-    this.updateTracks();
+    this._updateTracks();
   }
 
   setUseUTC(useUTC: boolean): void {
     this.model.mergeOptions({ useUTC });
-    this.updateTrackLabels();
+    this._updateTrackLabels();
   }
 
-  addEventMarker(value: number, options?: Partial<EventMarkerOptions>): void {
-    const marker = new EventMarker(this._xAxis, this, {
-      value: value,
-      ...options,
+  addEventMarker(marker: MarkerOptions): void {
+    const eventMarker = new EventMarker(this._xAxis, this, {
+      ...marker,
     });
-    this._markers.push(marker);
-    this.addComponent(marker);
+    this._markers.push(eventMarker);
+    this.addComponent(eventMarker);
   }
 
   removeEventMarker(value: number): void {
@@ -309,7 +196,7 @@ export class Helicorder
     }
   }
 
-  getVisibleMarkers(): EventMarker[] {
+  getVisibleEventMarkers(): EventMarker[] {
     const [start, end] = this.getChartExtent();
     return this._markers.filter((marker) => {
       const value = marker.getValue();
@@ -317,12 +204,12 @@ export class Helicorder
     });
   }
 
-  showVisibleMarkers(): void {
-    this.getVisibleMarkers().forEach((marker) => marker.show());
+  showAllEventMarkers(): void {
+    this._markers.forEach((marker) => marker.show());
   }
 
-  hideVisibleMarkers(): void {
-    this.getVisibleMarkers().forEach((marker) => marker.hide());
+  hideAllEventMarkers(): void {
+    this._markers.forEach((marker) => marker.hide());
   }
 
   selectTrack(index: number): void {
@@ -334,7 +221,6 @@ export class Helicorder
     }
     this._selection.setValue((start + end) / 2);
     this.emit("trackSelected", index);
-    this.emit("selectionChanged", value);
   }
 
   deselectTrack(): void {
@@ -352,6 +238,10 @@ export class Helicorder
     this.emit("trackSelected", this._selection.getTrackIndex());
   }
 
+  getSelection(): Selection {
+    return this._selection;
+  }
+
   setTrackData(data: SeriesData, start: number, end: number): void {
     const key = createTrackId(start, end);
     this._dataStore.set(key, data);
@@ -361,15 +251,6 @@ export class Helicorder
     const key = createTrackId(start, end);
     const data = this._dataStore.get(key);
     return data || Series.empty();
-  }
-
-  getTrackExtents(): [number, number][] {
-    const extents: [number, number][] = [];
-    for (let i = 0; i < this._tracks.length; i++) {
-      const [start, end] = this.getTrackExtentAt(i);
-      extents.push([start, end]);
-    }
-    return extents;
   }
 
   refreshData(): void {
@@ -400,53 +281,21 @@ export class Helicorder
     }
   }
 
-  getXAxis(): Axis {
-    return this._xAxis;
-  }
-
-  getYExtent(): [number, number] {
-    return this._yExtent;
+  getDataStore(): DataStore<SeriesData> {
+    return this._dataStore;
   }
 
   getTracks(): Track[] {
     return this._tracks;
   }
 
-  getDataStore(): DataStore<SeriesData> {
-    return this._dataStore;
-  }
-
   getTrackId(extent: [number, number]): string {
     return createTrackId(extent[0], extent[1]);
-  }
-
-  getSelection(): Selection {
-    return this._selection;
   }
 
   getTrackCount() {
     const { interval, duration } = this.model.getOptions();
     return Math.ceil((duration * 60) / interval) + 1;
-  }
-
-  getTrackExtentAt(index: number): [number, number] {
-    const { interval, offsetDate } = this.model.getOptions();
-
-    const segment = interval * ONE_MINUTE;
-    const startOf = (value: number) => value - (value % segment);
-    const endOf = (value: number) => value + segment - (value % segment);
-
-    return [
-      startOf(offsetDate - index * interval * ONE_MINUTE),
-      endOf(offsetDate - index * interval * ONE_MINUTE),
-    ];
-  }
-
-  getChartExtent(): [number, number] {
-    const { duration, offsetDate } = this.model.getOptions();
-    const start = offsetDate - duration * ONE_HOUR;
-    const end = offsetDate;
-    return [start, end];
   }
 
   rowToTrackIndex(row: number): number {
@@ -484,58 +333,83 @@ export class Helicorder
     return ((time - start) / (end - start)) * interval;
   }
 
-  override getGrid(): Grid {
+  getChartExtent(): [number, number] {
+    const { duration, offsetDate } = this.model.getOptions();
+    const start = offsetDate - duration * ONE_HOUR;
+    const end = offsetDate;
+    return [start, end];
+  }
+
+  getTrackExtents(): [number, number][] {
+    const extents: [number, number][] = [];
+    for (let i = 0; i < this._tracks.length; i++) {
+      const [start, end] = this.getTrackExtentAt(i);
+      extents.push([start, end]);
+    }
+    return extents;
+  }
+
+  getTrackExtentAt(index: number): [number, number] {
+    const { interval, offsetDate } = this.model.getOptions();
+
+    const segment = interval * ONE_MINUTE;
+    const startOf = (value: number) => value - (value % segment);
+    const endOf = (value: number) => value + segment - (value % segment);
+
+    return [
+      startOf(offsetDate - index * interval * ONE_MINUTE),
+      endOf(offsetDate - index * interval * ONE_MINUTE),
+    ];
+  }
+
+  getYExtent(): [number, number] {
+    return this._yExtent;
+  }
+
+  getXAxis(): Axis {
+    return this._xAxis;
+  }
+
+  getGrid(): Grid {
     return this._grid;
   }
 
-  override resize(width: number, height: number): void {
+  show(): void {
+    this.app.stage.visible = true;
+  }
+
+  hide(): void {
+    this.app.stage.visible = false;
+  }
+
+  resize(options?: ResizeOptions): void {
+    const { width = this.dom.width, height = this.dom.height } = options || {};
     this._rect.width = width;
     this._rect.height = height;
     this._grid.setRect(this.getRect());
     this._xAxis.setRect(this._grid.getRect());
     for (let i = 0; i < this._tracks.length; i++) {
       const track = this._tracks[i];
-      track.setRect(this.getRectForTrack(i, this.getTrackCount()));
+      track.setRect(this._getRectForTrack(i, this.getTrackCount()));
     }
     this._selection.setRect(this._xAxis.getRect());
     const rect = this._grid.getRect();
     this._mask.clear();
-    this._mask.rect(rect.x, rect.y, rect.width, rect.height).fill({
-      color: "0xfff",
-    });
+    this._mask.rect(rect.x, rect.y, rect.width, rect.height);
     this.app.stage.hitArea = new PIXI.Rectangle(0, 0, width, height);
     this.app.renderer.resize(width, height);
   }
 
-  private applyComponentThemeStyles(): void {
-    const theme = this.getTheme();
-    this.model.mergeOptions({
-      backgroundColor: theme.backgroundColor,
-    });
-    this._xAxis.applyThemeStyle(theme);
-    this._grid.applyThemeStyle(theme);
-    this._selection.applyThemeStyle(theme);
-    for (const track of this._tracks) {
-      track.applyThemeStyle(theme);
-    }
-  }
-
-  override applyThemeStyles(): void {
-    this.applyComponentThemeStyles();
-    const theme = this.getTheme();
-    this.app.renderer.background.color = theme.backgroundColor;
-  }
-
-  private createTrack(index: number, options?: Partial<TrackOptions>): Track {
+  private _createTrack(index: number, options?: Partial<TrackOptions>): Track {
     const trackCount = this.getTrackCount();
-    const rect = this.getRectForTrack(index, trackCount);
+    const rect = this._getRectForTrack(index, trackCount);
     const yAxis = new Axis(rect, { position: "left" });
     yAxis.setExtent(this.getYExtent());
     const track = new Track(rect, this._xAxis, yAxis, this, options);
     return track;
   }
 
-  private getRectForTrack(index: number, count: number): LayoutRect {
+  private _getRectForTrack(index: number, count: number): LayoutRect {
     const rect = this.getGrid().getRect();
     if (count === 0) {
       return rect;
@@ -548,32 +422,32 @@ export class Helicorder
     return new PIXI.Rectangle(x, trackY, width, trackHeight);
   }
 
-  private updateTracks(): void {
+  private _updateTracks(): void {
     const requiredTrackCount = this.getTrackCount();
     const currentTrackCount = this._tracks.length;
 
     if (requiredTrackCount <= currentTrackCount) {
       this._tracks.slice(0, requiredTrackCount).forEach((track, index) => {
-        track.setRect(this.getRectForTrack(index, requiredTrackCount));
+        track.setRect(this._getRectForTrack(index, requiredTrackCount));
       });
       this._tracks
         .slice(requiredTrackCount)
-        .forEach((track) => this.removeTrack(track));
+        .forEach((track) => this._removeTrack(track));
     } else {
       this._tracks.forEach((track, index) => {
-        track.setRect(this.getRectForTrack(index, requiredTrackCount));
+        track.setRect(this._getRectForTrack(index, requiredTrackCount));
       });
       for (let i = currentTrackCount; i < requiredTrackCount; i++) {
-        const track = this.createTrack(i);
+        const track = this._createTrack(i);
         this._tracks.push(track);
         this.addComponent(track);
       }
     }
 
-    this.updateTrackLabels();
+    this._updateTrackLabels();
   }
 
-  private updateTrackLabels(): void {
+  private _updateTrackLabels(): void {
     const { useUTC } = this.getOptions();
     const requiredTrackCount = this.getTrackCount();
     const repeat = Math.max(Math.ceil(requiredTrackCount / 25), 1);
@@ -613,7 +487,7 @@ export class Helicorder
     }
   }
 
-  private removeTrack(track: Track): void {
+  private _removeTrack(track: Track): void {
     this.removeComponent(track);
     const index = this._tracks.indexOf(track);
     if (index !== -1) {

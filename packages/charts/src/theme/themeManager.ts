@@ -1,6 +1,6 @@
 import { ThemeName, ThemeRegistry, ThemeStyle } from "../util/types";
-import darkTheme from "./dark";
-import lightTheme from "./light";
+import { darkTheme } from "./dark";
+import { lightTheme } from "./light";
 
 export class ThemeManager {
   private static _instance: ThemeManager;

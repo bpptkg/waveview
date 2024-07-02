@@ -2,7 +2,12 @@ import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
 import { SeriesModel } from "../model/series";
 import { merge } from "../util/merge";
-import { LayoutRect, SeriesOptions, ThemeStyle } from "../util/types";
+import {
+  LayoutRect,
+  ResizeOptions,
+  SeriesOptions,
+  ThemeStyle,
+} from "../util/types";
 import { ChartView } from "../view/chartView";
 import { View } from "../view/view";
 
@@ -55,6 +60,18 @@ export class LineSeries extends View<LineSeriesModel> {
     this.group.addChild(this._graphics);
   }
 
+  show(): void {
+    this.group.visible = true;
+  }
+
+  hide(): void {
+    this.group.visible = false;
+  }
+
+  focus(): void {}
+
+  blur(): void {}
+
   applyThemeStyle(theme: ThemeStyle): void {
     const { seriesStyle } = theme;
     this.model.mergeOptions({
@@ -63,15 +80,21 @@ export class LineSeries extends View<LineSeriesModel> {
     });
   }
 
-  override getRect(): LayoutRect {
+  getRect(): LayoutRect {
     return this._rect;
   }
 
-  override setRect(rect: LayoutRect): void {
+  setRect(rect: LayoutRect): void {
     this._rect = rect;
   }
 
-  override render(): void {
+  resize(options: ResizeOptions): void {
+    const { width, height } = options;
+    const { x, y } = this.getRect();
+    this.setRect(new PIXI.Rectangle(x, y, width, height));
+  }
+
+  render(): void {
     this._graphics.clear();
 
     const model = this.getModel();
@@ -102,7 +125,7 @@ export class LineSeries extends View<LineSeriesModel> {
     });
   }
 
-  override dispose(): void {
+  dispose(): void {
     this._graphics.destroy();
     this.group.destroy();
   }

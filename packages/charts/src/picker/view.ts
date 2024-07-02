@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { FederatedPointerEvent } from "pixi.js";
 import { Seismogram } from "../seismogram/seismogram";
-import { EventMap, LayoutRect } from "../util/types";
+import { EventMap, LayoutRect, ThemeStyle } from "../util/types";
 import { View } from "../view/view";
 import { PickerModel, PickerOptions } from "./model";
 import { createArrowPoints } from "./util";
@@ -74,6 +74,27 @@ export class Picker extends View<PickerModel> {
     this._onRightHandleClickBound = this._onRightHandleClick.bind(this);
     this._onSelectionClickBound = this._handleSelectionClick.bind(this);
     this._handleExtentChangeBound = this._handleExtentChange.bind(this);
+  }
+
+  show(): void {
+    this.group.visible = true;
+  }
+
+  hide(): void {
+    this.group.visible = false;
+  }
+
+  focus(): void {}
+
+  blur(): void {}
+
+  applyThemeStyle(theme: ThemeStyle): void {
+    const { highlightStyle } = theme;
+    this.model.mergeOptions({
+      color: highlightStyle.color,
+      opacity: highlightStyle.opacity,
+      borderWidth: highlightStyle.borderWidth,
+    });
   }
 
   setRange(range: [number, number]): void {

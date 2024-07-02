@@ -2,7 +2,13 @@ import * as PIXI from "pixi.js";
 import { AreaMarker, AreaMarkerOptions } from "../marker/area";
 import { LineMarker, LineMarkerOptions } from "../marker/line";
 import { drawDash } from "../util/dashline";
-import { EventMap, LayoutRect, ScaleTick, ThemeStyle } from "../util/types";
+import {
+  EventMap,
+  LayoutRect,
+  ResizeOptions,
+  ScaleTick,
+  ThemeStyle,
+} from "../util/types";
 import { View } from "../view/view";
 import { AxisModel, AxisOptions } from "./axisModel";
 
@@ -17,7 +23,7 @@ export interface AxisEventMap extends EventMap {
   extentChanged: (extent: [number, number]) => void;
 }
 
-export class Axis extends View<AxisModel> {
+export class Axis extends View<AxisModel, AxisEventMap> {
   override readonly type = "axis";
   private _rect: LayoutRect;
   private _markers: MarkerView[] = [];
@@ -40,6 +46,28 @@ export class Axis extends View<AxisModel> {
     this.group.addChild(this._majorTicks);
     this.group.addChild(this._minorTicks);
     this.group.addChild(this._splitLine);
+  }
+
+  show(): void {
+    this.model.mergeOptions({ show: true });
+  }
+
+  hide(): void {
+    this.model.mergeOptions({ show: false });
+  }
+
+  focus(): void {
+    this.group.zIndex = 1;
+  }
+
+  blur(): void {
+    this.group.zIndex = 0;
+  }
+
+  resize(options: ResizeOptions): void {
+    const { width, height } = options;
+    const { x, y } = this.getRect();
+    this.setRect(new PIXI.Rectangle(x, y, width, height));
   }
 
   applyThemeStyle(style: ThemeStyle): void {
@@ -270,27 +298,23 @@ export class Axis extends View<AxisModel> {
     return markers;
   }
 
-  showVisibleMarkers(): void {
-    for (const marker of this.getVisibleMarkers()) {
-      marker.show();
-    }
+  showAllMarkers(): void {
+    this._markers.forEach((marker) => marker.show());
   }
 
-  hideVisibleMarkers(): void {
-    for (const marker of this.getVisibleMarkers()) {
-      marker.hide();
-    }
+  hideAllMarkers(): void {
+    this._markers.forEach((marker) => marker.hide());
   }
 
-  override getRect() {
+  getRect() {
     return this._rect;
   }
 
-  override setRect(rect: LayoutRect) {
+  setRect(rect: LayoutRect) {
     this._rect = rect;
   }
 
-  override render(): void {
+  render(): void {
     this._axisLine.clear();
     this._majorTicks.clear();
     this._minorTicks.clear();

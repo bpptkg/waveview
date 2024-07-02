@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
 import { Model } from "../model/model";
-import { LayoutRect, ModelOptions } from "../util/types";
+import { LayoutRect, ModelOptions, ThemeStyle } from "../util/types";
 import { View } from "../view/view";
 import { Helicorder } from "./helicorder";
 
@@ -56,6 +56,8 @@ export class EventMarker extends View<EventMarkerModel> {
     this.model.mergeOptions({ value });
   }
 
+  applyThemeStyle(_: ThemeStyle): void {}
+
   show(): void {
     this.model.mergeOptions({ show: true });
   }
@@ -64,15 +66,23 @@ export class EventMarker extends View<EventMarkerModel> {
     this.model.mergeOptions({ show: false });
   }
 
-  override getRect(): LayoutRect {
+  focus(): void {}
+
+  blur(): void {}
+
+  getRect(): LayoutRect {
     return this._rect;
   }
 
-  override setRect(rect: LayoutRect): void {
+  setRect(rect: LayoutRect): void {
     this._rect = rect;
   }
 
-  override render() {
+  resize(): void {
+    this._rect = this.axis.getRect().clone();
+  }
+
+  render() {
     this._graphics.clear();
 
     const {

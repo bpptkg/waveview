@@ -6,8 +6,8 @@ import {
   StreamResponseData,
   WorkerRequestData,
   WorkerResponseData,
-} from "../util/types";
-import { Helicorder } from "./helicorder";
+} from "../../util/types";
+import { Helicorder } from "../helicorder";
 
 export class HelicorderWebWorker {
   private worker: Worker;
@@ -74,11 +74,11 @@ export class HelicorderWebWorker {
   postRequestMessage(extent: [number, number]): void {
     const [start, end] = extent;
     const width = this.chart.getWidth();
-    const channelId = this.chart.getChannel();
+    const channel = this.chart.getChannel();
     const msg: WorkerRequestData<StreamRequestData> = {
       type: "stream.fetch",
       payload: {
-        channelId,
+        channelId: channel.id,
         start,
         end,
         width,

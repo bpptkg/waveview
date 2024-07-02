@@ -70,11 +70,23 @@ export class Selection extends View<SelectionModel> {
   }
 
   show(): void {
-    this.model.mergeOptions({ show: true });
+    this.group.visible = true;
   }
 
   hide(): void {
-    this.model.mergeOptions({ show: false });
+    this.group.visible = false;
+  }
+
+  focus(): void {
+    // TODO: Implement this method in the future
+  }
+
+  blur(): void {
+    // TODO: Implement this method in the future
+  }
+
+  resize(): void {
+    this._rect = this.axis.getRect().clone();
   }
 
   moveUp(): void {
@@ -93,15 +105,15 @@ export class Selection extends View<SelectionModel> {
     this.model.mergeOptions({ value: 0 });
   }
 
-  override getRect(): LayoutRect {
+  getRect(): LayoutRect {
     return this._rect;
   }
 
-  override setRect(rect: LayoutRect): void {
+  setRect(rect: LayoutRect): void {
     this._rect = rect;
   }
 
-  override render() {
+  render() {
     this._graphics.clear();
 
     const { value, color, opacity, borderWidth } = this.model.getOptions();

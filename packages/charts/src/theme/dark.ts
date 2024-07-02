@@ -1,6 +1,6 @@
 import { ThemeStyle } from "../util/types";
 
-const darkTheme: ThemeStyle = {
+export const darkTheme: ThemeStyle = {
   backgroundColor: "#000",
   foregroundColor: "#fff",
   textColor: "#fff",
@@ -26,4 +26,3 @@ const darkTheme: ThemeStyle = {
   },
 };
 
-export default darkTheme;
