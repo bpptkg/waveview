@@ -187,8 +187,8 @@ export class Helicorder extends ChartView<
   }
 
   removeEventMarker(value: number): void {
-    const index = this._markers.findIndex(
-      (marker) => marker.getValue() === value
+    const index = this._markers.findIndex((marker) =>
+      almostEquals(marker.getValue(), value, 1)
     );
     if (index !== -1) {
       const marker = this._markers.splice(index, 1)[0];

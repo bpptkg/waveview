@@ -2,6 +2,7 @@ import * as PIXI from "pixi.js";
 import { AreaMarker, AreaMarkerOptions } from "../marker/area";
 import { LineMarker, LineMarkerOptions } from "../marker/line";
 import { drawDash } from "../util/dashline";
+import { almostEquals } from "../util/math";
 import {
   EventMap,
   LayoutRect,
@@ -269,8 +270,8 @@ export class Axis extends View<AxisModel, AxisEventMap> {
     const index = this._markers.findIndex(
       (marker) =>
         marker.type === "areaMarker" &&
-        (marker as AreaMarker).getStart() === start &&
-        (marker as AreaMarker).getEnd() === end
+        almostEquals((marker as AreaMarker).getStart(), start, 1) &&
+        almostEquals((marker as AreaMarker).getEnd(), end, 1)
     );
     if (index >= 0) {
       this._markers.splice(index, 1);
