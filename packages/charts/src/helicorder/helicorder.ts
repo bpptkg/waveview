@@ -450,7 +450,8 @@ export class Helicorder extends ChartView<
   private _updateTrackLabels(): void {
     const { useUTC } = this.getOptions();
     const requiredTrackCount = this.getTrackCount();
-    const repeat = Math.max(Math.ceil(requiredTrackCount / 25), 1);
+    const maxLabelCount = 25;
+    const repeat = Math.max(Math.ceil(requiredTrackCount / maxLabelCount), 1);
 
     const isMidnightLocal = (time: number) => {
       const date = new Date(time);
