@@ -37,8 +37,8 @@ export interface HelicorderChartProps {
 
 export interface HelicorderChartRef {
   getInstance: () => Helicorder;
-  shiftViewUp: (by: number) => void;
-  shiftViewDown: (by: number) => void;
+  shiftViewUp: (by?: number) => void;
+  shiftViewDown: (by?: number) => void;
   shiftViewToNow: () => void;
   increaseAmplitude: (by: number) => void;
   decreaseAmplitude: (by: number) => void;
