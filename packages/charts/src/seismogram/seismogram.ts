@@ -9,9 +9,9 @@ import { ONE_MINUTE } from "../util/time";
 import { Channel, LayoutRect, ResizeOptions, SeriesData } from "../util/types";
 import { ChartView } from "../view";
 import {
-  EventMarkerOptions,
-  LineMarkerOptions,
   SeismogramChartOptions,
+  SeismogramEventMarkerOptions,
+  SeismogramLineMarkerOptions,
   getDefaultOptions,
 } from "./chartOptions";
 import { SeismogramEventMap } from "./eventMap";
@@ -140,7 +140,7 @@ export class Seismogram extends ChartView<
     this.getXAxis().getModel().getScale().mergeOptions({ useUTC });
   }
 
-  addLineMarker(marker: LineMarkerOptions): void {
+  addLineMarker(marker: SeismogramLineMarkerOptions): void {
     const { value, ...options } = marker;
     this._xAxis.addLineMarker(value, options || {});
   }
@@ -149,7 +149,7 @@ export class Seismogram extends ChartView<
     this._xAxis.removeLineMarker(value);
   }
 
-  addEventMarker(marker: EventMarkerOptions): void {
+  addEventMarker(marker: SeismogramEventMarkerOptions): void {
     const { start, end, ...options } = marker;
     this._xAxis.addAreaMarker(start, end, options || {});
   }
