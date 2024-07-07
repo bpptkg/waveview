@@ -12,6 +12,10 @@ module.exports = {
       fontFamily: {
         sans: ['Inter', ...defaultTheme.fontFamily.sans],
       },
+      backgroundImage: {
+        'gradient-matcha': 'linear-gradient(to top left, #EBB9B9, #D0B9EB, #74C6F8)',
+        'gradient-matcha-dark': 'linear-gradient(to top left, #3D3D3D, #0F548C, #0F6CBD)',
+      },
       colors: {
         neutral: {
           grey: {
