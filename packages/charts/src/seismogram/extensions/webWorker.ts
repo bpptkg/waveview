@@ -149,7 +149,7 @@ export class SeismogramWebWorkerExtension implements Extension<Seismogram> {
     }
   }
 
-  getInstance(): SeismogramWebWorker {
+  getAPI(): SeismogramWebWorker {
     if (!this.seismogramWebWorker) {
       throw new Error("SeismogramWebWorker extension is not installed");
     }

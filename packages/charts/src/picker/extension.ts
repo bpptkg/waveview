@@ -23,7 +23,7 @@ export class PickerExtension implements Extension<Seismogram> {
     }
   }
 
-  getInstance(): Picker {
+  getAPI(): Picker {
     if (!this.picker) {
       throw new Error("Picker extension not initialized");
     }

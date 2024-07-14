@@ -205,7 +205,7 @@ export class AxisPointerExtension implements Extension<Seismogram> {
     }
   }
 
-  getInstance(): AxisPointer {
+  getAPI(): AxisPointer {
     if (!this.axisPointer) {
       throw new Error("AxisPointer extension is not installed");
     }

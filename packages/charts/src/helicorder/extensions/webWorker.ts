@@ -157,7 +157,7 @@ export class HelicorderWebWorkerExtension implements Extension<Helicorder> {
     }
   }
 
-  getInstance(): HelicorderWebWorker {
+  getAPI(): HelicorderWebWorker {
     if (!this.instance) {
       throw new Error("HelicorderWebWorker extension is not installed");
     }

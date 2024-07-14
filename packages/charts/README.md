@@ -34,5 +34,5 @@ helicorder.use(webWorker);
 helicorder.render();
 
 // Fetch all tracks data from the server asynchronously
-webWorker.getInstance().fetchAllTracksData();
+webWorker.getAPI().fetchAllTracksData();
 ```

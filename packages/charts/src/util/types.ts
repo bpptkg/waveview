@@ -43,6 +43,7 @@ export interface EventMap {
 export interface Extension<T> {
   install(target: T): void;
   uninstall(target: T): void;
+  getAPI(version: string): any;
 }
 
 export type ExtensionConstructor<T> = new (config?: any) => Extension<T>;

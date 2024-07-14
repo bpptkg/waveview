@@ -236,7 +236,7 @@ export class ZoomRectangleExtension implements Extension<Seismogram> {
     this._zoomRectangle?.dispose();
   }
 
-  getInstance(): ZoomRectangle {
+  getAPI(): ZoomRectangle {
     if (!this._zoomRectangle) {
       throw new Error("ZoomRectangle extension not initialized");
     }

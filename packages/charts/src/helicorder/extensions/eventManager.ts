@@ -148,7 +148,7 @@ export class HelicorderEventManagerExtension implements Extension<Helicorder> {
     }
   }
 
-  getInstance(): HelicorderEventManager {
+  getAPI(): HelicorderEventManager {
     if (!this.eventManager) {
       throw new Error("Extension not installed");
     }

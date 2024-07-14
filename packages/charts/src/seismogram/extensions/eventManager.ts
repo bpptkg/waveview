@@ -215,7 +215,7 @@ export class SeismogramEventManagerExtension implements Extension<Seismogram> {
     }
   }
 
-  getInstance(): SeismogramEventManager {
+  getAPI(): SeismogramEventManager {
     if (!this.instance) {
       throw new Error("Extension not installed");
     }
