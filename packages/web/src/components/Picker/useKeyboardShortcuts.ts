@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { SeismogramChartRef } from './SeismogramChart';
 import { usePickerStore } from '../../stores/picker';
+import { SeismogramChartRef } from './SeismogramChart';
 
 export function useKeyboardShortcuts(seisChartRef: React.MutableRefObject<SeismogramChartRef | null>) {
   const { seismogramToolbarAddCheckedValue, seismogramToolbarRemoveCheckedValue } = usePickerStore();

@@ -155,7 +155,7 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
     },
     isZoomRectangleActive: () => {
       if (zoomRectangleExtensionRef.current) {
-        return zoomRectangleExtensionRef.current.getInstance().isActive();
+        return zoomRectangleExtensionRef.current.getAPI().isActive();
       }
       return false;
     },
@@ -199,13 +199,13 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
     },
     setPickRange: (range: [number, number]) => {
       if (pickerExtensionRef.current) {
-        pickerExtensionRef.current.getInstance().setRange(range);
+        pickerExtensionRef.current.getAPI().setRange(range);
         chartRef.current?.render();
       }
     },
     clearPickRange: () => {
       if (pickerExtensionRef.current) {
-        pickerExtensionRef.current.getInstance().clearRange();
+        pickerExtensionRef.current.getAPI().clearRange();
         chartRef.current?.render();
       }
     },
@@ -300,7 +300,7 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
         chartRef.current = new Seismogram(canvasRef.current, initOptions);
         await chartRef.current.init();
 
-        workerRef.current = new Worker(new URL('../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
+        workerRef.current = new Worker(new URL('../../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
         webWorkerRef.current = new SeismogramWebWorker(chartRef.current, workerRef.current);
         axisPointerExtensionRef.current = new AxisPointerExtension();
         eventManagerExtensionRef.current = new SeismogramEventManagerExtension({
@@ -366,8 +366,8 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
       chartRef.current.on('contextmenu', handleContextMenuRequested);
     }
 
-    zoomRectangleExtensionRef.current?.getInstance().on('extentSelected', handleZoomRectangle);
-    pickerExtensionRef.current?.getInstance().on('change', handlePickRangeChange);
+    zoomRectangleExtensionRef.current?.getAPI().on('extentSelected', handleZoomRectangle);
+    pickerExtensionRef.current?.getAPI().on('change', handlePickRangeChange);
   }, [handleFocus, handleBlur, handleExtentChange, handleTrackDoubleClick, handleContextMenuRequested, handlePickRangeChange, handleZoomRectangle]);
 
   return (

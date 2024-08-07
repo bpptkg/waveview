@@ -6,4 +6,5 @@ export interface Channel {
   code: string;
   name: string;
   description: string;
+  stream_id: string;
 }

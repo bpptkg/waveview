@@ -18,7 +18,7 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
   const eventManagerExtensionRef = useRef<HelicorderEventManagerExtension | null>(null);
 
   const fetchDataDebounced = debounce(() => {
-    webWorkerExtensionRef.current?.getInstance().fetchAllTracksData();
+    webWorkerExtensionRef.current?.getAPI().fetchAllTracksData();
   }, 250);
 
   useImperativeHandle(ref, () => ({
@@ -173,7 +173,7 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
         chartRef.current = new Helicorder(canvasRef.current, initOptions);
         await chartRef.current.init();
 
-        workerRef.current = new Worker(new URL('../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
+        workerRef.current = new Worker(new URL('../../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
         webWorkerExtensionRef.current = new HelicorderWebWorkerExtension(workerRef.current);
         eventManagerExtensionRef.current = new HelicorderEventManagerExtension();
 
@@ -211,7 +211,7 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
         }
       })
       .finally(() => {
-        webWorkerExtensionRef.current?.getInstance().fetchAllTracksData();
+        webWorkerExtensionRef.current?.getAPI().fetchAllTracksData();
       });
 
     return () => {

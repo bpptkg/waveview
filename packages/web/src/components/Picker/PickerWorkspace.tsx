@@ -1,13 +1,15 @@
 import { Button, makeStyles } from '@fluentui/react-components';
 import { ArrowReply20Regular } from '@fluentui/react-icons';
-import { StreamIdentifier } from '@waveview/stream';
 import { FederatedPointerEvent } from 'pixi.js';
 import { useCallback, useMemo, useRef } from 'react';
 import { useAppStore } from '../../stores/app';
-import { usePickerStore } from '../../stores/picker';
-import HelicorderChart, { HelicorderChartRef } from './HelicorderChart';
+import { PickedEvent, usePickerStore } from '../../stores/picker';
+import EventDrawer from './EventDrawer/EventDrawer';
+import PickEdit from './EventDrawer/PickEdit';
+import PickGuide from './EventDrawer/PickGuide';
+import { HelicorderChart, HelicorderChartRef } from './HelicorderChart';
 import RealtimeClock from './RealtimeClock';
-import SeismogramChart, { SeismogramChartRef } from './SeismogramChart';
+import { SeismogramChart, SeismogramChartRef } from './SeismogramChart';
 import SeismogramContextMenu, { ContextMenuRef } from './SeismogramContextMenu';
 import TimeZoneSelector from './TimezoneSelector';
 import HelicorderToolbar from './Toolbar/HelicorderToolbar';
@@ -17,10 +19,6 @@ import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { useSeismogramCallback } from './useSeismogramCallback';
 import { useThemeEffect } from './useThemeEffect';
 import { useTimeZoneEffect } from './useTimeZoneEffect';
-import EventDrawer from './EventDrawer/EventDrawer';
-import PickEdit from './EventDrawer/PickEdit';
-import PickGuide from './EventDrawer/PickGuide';
-import { SeismicEvent } from '../../types/seismicEvent';
 
 const useStyles = makeStyles({
   backButton: {
@@ -31,33 +29,33 @@ const useStyles = makeStyles({
   },
 });
 
-const HelicorderWorkspace = () => {
+const PickerWorkspace = () => {
   const heliChartRef = useRef<HelicorderChartRef | null>(null);
   const seisChartRef = useRef<SeismogramChartRef | null>(null);
   const contextMenuRef = useRef<ContextMenuRef | null>(null);
 
   const {
-    useUTC,
+    availableChannels,
     channel,
     channels,
-    offsetDate,
-    interval,
-    duration,
-    showEvent,
-    selectedChart,
-    lastTrackExtent,
-    lastSelection,
-    seismogramToolbarCheckedValues,
-    isExpandMode,
-    expandedChannelIndex,
-    availableChannels,
     component,
+    duration,
+    expandedChannelIndex,
+    interval,
+    isExpandMode,
+    lastSelection,
+    lastTrackExtent,
+    offsetDate,
     pickEnd,
     pickStart,
+    seismogramToolbarCheckedValues,
+    selectedChart,
+    showEvent,
+    useUTC,
     isPickEmpty,
     setPickRange,
-    getStationChannels,
-    addEvent,
+    getChannelsByStationIndex,
+    savePickedEvent,
   } = usePickerStore();
 
   const { darkMode } = useAppStore();
@@ -123,7 +121,7 @@ const HelicorderWorkspace = () => {
 
   const initialChannels = useMemo(() => {
     if (isExpandMode && expandedChannelIndex !== null) {
-      return getStationChannels(expandedChannelIndex);
+      return getChannelsByStationIndex(expandedChannelIndex);
     } else {
       return channels;
     }
@@ -154,31 +152,39 @@ const HelicorderWorkspace = () => {
   }
 
   const handlePickConfirm = useCallback(
-    (event: SeismicEvent) => {
+    (event: PickedEvent) => {
       if (pickStart && pickEnd) {
-        addEvent(event);
+        savePickedEvent(event);
 
         const color = getRandomColor();
-        const { startTime, endTime } = event;
-        seisChartRef.current?.addEventMarker(startTime, endTime, color);
-        heliChartRef.current?.addEventMarker(startTime, color);
+        const { time, duration } = event;
+        const start = time;
+        const end = time + duration;
+        seisChartRef.current?.addEventMarker({
+          start,
+          end,
+          color,
+        });
+        heliChartRef.current?.addEventMarker(start, color);
         seisChartRef.current?.clearPickRange();
         setPickRange([0, 0]);
       }
     },
-    [pickStart, pickEnd, setPickRange, addEvent]
+    [pickStart, pickEnd, setPickRange, savePickedEvent]
   );
 
   return (
     <>
       {selectedChart === 'helicorder' && (
         <HelicorderToolbar
-          channel={channel}
+          channel={{
+            id: channel?.id || '',
+          }}
           interval={interval}
           duration={duration}
           showEvent={showEvent}
           offsetDate={new Date(offsetDate)}
-          availableChannels={availableChannels.filter((c) => c !== channel)}
+          availableChannels={availableChannels.filter((c) => c.id !== channel?.id).map((c) => ({ id: c.id }))}
           onShiftViewUp={handleHelicorderShiftViewUp}
           onShiftViewDown={handleHelicorderShiftViewDown}
           onShiftViewToNow={handleHelicorderShiftViewToNow}
@@ -196,9 +202,7 @@ const HelicorderWorkspace = () => {
           showEvent={showEvent}
           checkedValues={seismogramToolbarCheckedValues}
           isExpandMode={isExpandMode}
-          availableChannels={availableChannels.filter((c) => {
-            return !channels.includes(c) && StreamIdentifier.fromId(c).channel.includes(component);
-          })}
+          availableChannels={availableChannels.filter((c) => c.id !== channel?.id).map((c) => ({ id: c.id }))}
           component={component}
           onChannelAdd={handleSeismogramChannelAdd}
           onZoomIn={handleSeismogramZoomIn}
@@ -225,7 +229,9 @@ const HelicorderWorkspace = () => {
               initOptions={{
                 interval,
                 duration,
-                channel,
+                channel: {
+                  id: channel?.id || '',
+                },
                 darkMode,
                 offsetDate,
                 selection: lastSelection,
@@ -283,7 +289,7 @@ const HelicorderWorkspace = () => {
               {isPickEmpty() && <PickGuide />}
               {!isPickEmpty() && (
                 <PickEdit
-                  start={pickStart}
+                  time={pickStart}
                   duration={(pickEnd - pickStart) / 1000}
                   onDurationChange={handlePickDurationChange}
                   onCancel={handlePickCancel}
@@ -302,4 +308,4 @@ const HelicorderWorkspace = () => {
   );
 };
 
-export default HelicorderWorkspace;
+export default PickerWorkspace;

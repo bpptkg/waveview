@@ -1,3 +1,4 @@
+import { Channel } from '@waveview/charts';
 import { useCallback } from 'react';
 import { ComponentType, usePickerStore } from '../../stores/picker';
 import { HelicorderChartRef } from './HelicorderChart';
@@ -18,18 +19,22 @@ export const useSeismogramCallback = (
     moveChannel,
     setExpandMode,
     setComponent,
-    getStationChannels,
     setExpandedChannelIndex,
     setPickRange,
+    getChannelByStreamId,
+    getChannelsByStationIndex,
   } = usePickerStore();
 
   return {
     handleSeismogramChannelAdd: useCallback(
-      (channelId: string) => {
-        addSeismogramChannel(channelId);
-        seisChartRef.current?.addChannel(channelId);
+      (channel: Channel) => {
+        const chan = getChannelByStreamId(channel.id);
+        if (chan) {
+          addSeismogramChannel(chan);
+          seisChartRef.current?.addChannel(channel);
+        }
       },
-      [seisChartRef, addSeismogramChannel]
+      [seisChartRef, addSeismogramChannel, getChannelByStreamId]
     ),
 
     handleSeismogramZoomIn: useCallback(() => {
@@ -75,10 +80,10 @@ export const useSeismogramCallback = (
     handleSeismogramShowEvent: useCallback(
       (showEvent: boolean) => {
         if (showEvent) {
-          seisChartRef.current?.showVisibleMarkers();
+          seisChartRef.current?.showAllMarkers();
           setShowEvent(true);
         } else {
-          seisChartRef.current?.hideVisibleMarkers();
+          seisChartRef.current?.hideAllMarkers();
           setShowEvent(false);
         }
       },
@@ -146,12 +151,12 @@ export const useSeismogramCallback = (
 
     handleTrackDoubleClicked: useCallback(
       (index: number) => {
-        const channels = getStationChannels(index);
+        const channels = getChannelsByStationIndex(index);
         seisChartRef.current?.setChannels(channels);
         setExpandMode(true);
         setExpandedChannelIndex(index);
       },
-      [seisChartRef, setExpandMode, getStationChannels, setExpandedChannelIndex]
+      [seisChartRef, setExpandMode, getChannelsByStationIndex, setExpandedChannelIndex]
     ),
 
     handleRestoreChannels: useCallback(() => {

@@ -34,14 +34,15 @@ import {
 } from '@fluentui/react-icons';
 import React, { useCallback } from 'react';
 import PickIcon from '../../Icons/PickIcon';
+import { Channel } from '@waveview/charts';
 
 export interface SeismogramToolbarProps {
   showEvent?: boolean;
   checkedValues?: Record<string, string[]>;
   isExpandMode?: boolean;
   component?: string;
-  availableChannels?: string[];
-  onChannelAdd?: (channelId: string) => void;
+  availableChannels?: Channel[];
+  onChannelAdd?: (trace: Channel) => void;
   onZoomIn?: () => void;
   onZoomOut?: () => void;
   onScrollLeft?: () => void;
@@ -149,8 +150,8 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
   );
 
   const handleChannelAdd = useCallback(
-    (channelId: string) => {
-      onChannelAdd?.(channelId);
+    (trace: Channel) => {
+      onChannelAdd?.(trace);
     },
     [onChannelAdd]
   );
@@ -171,15 +172,15 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
               <SearchBox placeholder="Search channel" size="medium" className={styles.searchBox} />
             </Field>
             <MenuList>
-              {availableChannels.map((channelId, index) => (
+              {availableChannels.map((trace, index) => (
                 <MenuItem
                   key={index}
                   onClick={() => {
-                    handleChannelAdd(channelId);
+                    handleChannelAdd(trace);
                     setOpen(false);
                   }}
                 >
-                  {channelId}
+                  {trace.id}
                 </MenuItem>
               ))}
             </MenuList>

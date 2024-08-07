@@ -1,4 +1,4 @@
-import HelicorderWorkspace from '../../components/Picker/HelicorderWorkspace';
+import HelicorderWorkspace from '../../components/Picker/PickerWorkspace';
 import PickerMenu from '../../components/Picker/PickerMenu/PickerMenu';
 
 const Picker = () => {

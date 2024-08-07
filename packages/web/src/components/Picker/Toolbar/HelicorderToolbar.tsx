@@ -29,16 +29,17 @@ import {
   MoreHorizontal24Filled,
   Search20Regular,
 } from '@fluentui/react-icons';
+import { Channel } from '@waveview/charts';
 import React, { useCallback } from 'react';
 
 export interface HelicorderToolbarProps {
-  channel: string;
+  channel: Channel;
   interval?: number;
   duration?: number;
   showEvent?: boolean;
   offsetDate?: Date;
-  availableChannels?: string[];
-  onChannelChange?: (channelId: string) => void;
+  availableChannels?: Channel[];
+  onChannelChange?: (channel: Channel) => void;
   onDurationChange?: (duration: number) => void;
   onIntervalChange?: (interval: number) => void;
   onShiftViewDown?: () => void;
@@ -100,8 +101,8 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
   const styles = useStyles();
 
   const handleChannelChange = useCallback(
-    (id: string) => {
-      onChannelChange?.(id);
+    (channel: Channel) => {
+      onChannelChange?.(channel);
     },
     [onChannelChange]
   );
@@ -144,7 +145,7 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
         <Popover trapFocus open={open} onOpenChange={() => setOpen(!open)}>
           <PopoverTrigger disableButtonEnhancement>
             <ToolbarButton appearance="primary" aria-label="Select Channel ID" icon={<Search20Regular />} className={styles.btn}>
-              <span className="font-normal">{channel}</span>
+              <span className="font-normal">{channel.id}</span>
             </ToolbarButton>
           </PopoverTrigger>
           <PopoverSurface>
@@ -152,17 +153,17 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
               <SearchBox placeholder="Search channel" size="medium" className={styles.searchBox} />
             </Field>
             <MenuList>
-              {availableChannels.map((id, index) => (
+              {availableChannels.map((chan, index) => (
                 <MenuItem
                   key={index}
                   onClick={() => {
-                    if (channel !== id) {
-                      handleChannelChange(id);
+                    if (channel.id !== chan.id) {
+                      handleChannelChange(chan);
                     }
                     setOpen(false);
                   }}
                 >
-                  {id}
+                  {chan.id}
                 </MenuItem>
               ))}
             </MenuList>

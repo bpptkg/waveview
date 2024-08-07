@@ -1,3 +1,4 @@
+import { Channel } from '@waveview/charts';
 import { useCallback, useRef } from 'react';
 import { usePickerStore } from '../../stores/picker';
 import { HelicorderChartRef } from './HelicorderChart';
@@ -16,8 +17,11 @@ export function useHelicorderCallback(
     seismogramToolbarRemoveCheckedValue,
     setSelectedChart,
     setLastSelection,
+    getChannelById,
   } = usePickerStore();
+
   const selectingTrackRef = useRef<boolean | null>(null);
+
   return {
     handleHelicorderShiftViewUp: useCallback(() => {
       heliChartRef.current?.shiftViewUp();
@@ -46,11 +50,14 @@ export function useHelicorderCallback(
     }, [heliChartRef]),
 
     handleHelicorderChannelChange: useCallback(
-      (channelId: string) => {
-        setHelicorderChannel(channelId);
-        heliChartRef.current?.setChannel(channelId);
+      (channel: Channel) => {
+        const chan = getChannelById(channel.id);
+        if (chan) {
+          setHelicorderChannel(chan);
+          heliChartRef.current?.setChannel(channel);
+        }
       },
-      [heliChartRef, setHelicorderChannel]
+      [heliChartRef, setHelicorderChannel, getChannelById]
     ),
 
     handleHelicorderChangeInterval: useCallback(

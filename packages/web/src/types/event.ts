@@ -1,4 +1,5 @@
 export interface EventType {
+  id: string;
   code: string;
   name: string;
 }

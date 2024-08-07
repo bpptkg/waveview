@@ -10,6 +10,7 @@ export function useThemeEffect(
   const { darkMode } = useAppStore();
 
   const initialRenderCompleteRef = useRef<boolean | null>(null);
+
   useEffect(() => {
     if (!initialRenderCompleteRef.current) {
       initialRenderCompleteRef.current = true;

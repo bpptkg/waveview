@@ -1,24 +1,42 @@
 import { Button, Dropdown, Field, Input, Option, Textarea } from '@fluentui/react-components';
 import { formatDate } from '@waveview/charts';
 import { useCallback, useEffect, useState } from 'react';
-import { usePickerStore } from '../../../stores/picker';
-import { SeismicEvent } from '../../../types/seismicEvent';
+import { PickedEvent, usePickerStore } from '../../../stores/picker';
 
 export interface EventDrawerProps {
-  start: number;
+  time: number;
   duration: number;
   useUTC?: boolean;
-  onStartChange?: (start: number) => void;
+  onTimeChange?: (time: number) => void;
   onDurationChange?: (duration: number) => void;
-  onClose?: () => void;
   onCancel?: () => void;
-  onConfirm?: (event: SeismicEvent) => void;
+  onConfirm?: (event: PickedEvent) => void;
 }
 
+const formatTime = (time: number, useUTC: boolean) => {
+  const date = new Date(time);
+  return formatDate(date, '{yyyy}-{MM}-{dd} {HH}:{mm}:{ss}', useUTC);
+};
+
 const PickEdit: React.FC<EventDrawerProps> = (props) => {
-  const { start, duration, useUTC = false, onDurationChange, onCancel, onConfirm } = props;
-  const [startValue, setStartValue] = useState(start);
+  const { time, duration, useUTC = false, onTimeChange, onDurationChange, onCancel, onConfirm } = props;
+  const [timeValue, setTimeValue] = useState(time);
   const [durationValue, setDurationValue] = useState(duration);
+  const [eventType, setEventType] = useState('');
+  const [stationOfFirstArrival, setStationOfFirstArrival] = useState('');
+  const [note, setNote] = useState('');
+
+  const handleTimeChange = useCallback(
+    (value: string) => {
+      if (!value.length) {
+        return;
+      }
+      const parsedValue = new Date(value).getTime();
+      setTimeValue(parsedValue);
+      onTimeChange?.(parsedValue);
+    },
+    [onTimeChange]
+  );
 
   const handleDurationChange = useCallback(
     (value: string) => {
@@ -32,65 +50,78 @@ const PickEdit: React.FC<EventDrawerProps> = (props) => {
     [onDurationChange]
   );
 
+  const handleStationChange = useCallback((value: string) => {
+    setStationOfFirstArrival(value);
+  }, []);
+
+  const handleEventTypeChange = useCallback((value: string) => {
+    setEventType(value);
+  }, []);
+
+  const handleNoteChange = useCallback((value: string) => {
+    setNote(value);
+  }, []);
+
   useEffect(() => {
-    setStartValue(start);
+    setTimeValue(time);
     setDurationValue(duration);
-  }, [start, duration]);
+  }, [time, duration]);
 
-  const formatTime = (time: number) => {
-    const date = new Date(time);
-    return formatDate(date, '{yyyy}-{MM}-{dd} {HH}:{mm}:{ss}', useUTC);
-  };
+  const { stations, eventTypes } = usePickerStore();
 
-  const { listStations, eventTypes } = usePickerStore();
-
-  const handleSave = useCallback(() => {
+  const handleConfirm = useCallback(() => {
     onConfirm?.({
-      id: '',
-      startTime: startValue,
-      endTime: startValue + durationValue * 1000,
-      stationOfFirstArrival: '',
-      eventType: '',
-      note: '',
+      time: timeValue,
+      duration: durationValue,
+      stationOfFirstArrival: stationOfFirstArrival,
+      eventType: eventType,
+      note: note,
     });
-  }, [durationValue, onConfirm, startValue]);
+  }, [timeValue, durationValue, stationOfFirstArrival, eventType, note, onConfirm]);
+
+  const handleCancel = useCallback(() => {
+    onCancel?.();
+  }, [onCancel]);
 
   return (
     <div className="p-2">
       <div className="flex p-2 items-center justify-between h-[60px]">
         <h1 className="font-bold">Pick New Event</h1>
         <div className="flex gap-1 items-center">
-          <Button size="small" appearance="outline" onClick={() => onCancel?.()}>
+          <Button size="small" appearance="outline" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button size="small" appearance="primary" onClick={handleSave}>
+          <Button size="small" appearance="primary" onClick={handleConfirm}>
             Save
           </Button>
         </div>
       </div>
-
       <Field label="Time">
-        <Input appearance="outline" value={formatTime(startValue)} />
+        <Input appearance="outline" value={formatTime(timeValue, useUTC)} onChange={(_, data) => handleTimeChange(data.value)} />
       </Field>
       <Field label="Duration (s)">
-        <Input appearance="outline" value={`${durationValue.toFixed(2)}`} type="number" onChange={(e, data) => handleDurationChange(data.value)} />
+        <Input appearance="outline" value={`${durationValue.toFixed(2)}`} type="number" onChange={(_, data) => handleDurationChange(data.value)} />
       </Field>
       <Field label="Event type">
         <Dropdown placeholder="Select event type">
           {eventTypes.map((event) => (
-            <Option key={event.code}>{event.name}</Option>
+            <Option key={event.code} onClick={() => handleEventTypeChange(event.code)}>
+              {event.name}
+            </Option>
           ))}
         </Dropdown>
       </Field>
       <Field label="Station of first arrival">
         <Dropdown placeholder="Select station name">
-          {listStations.map((station) => (
-            <Option key={station}>{station}</Option>
+          {stations.map((station) => (
+            <Option key={station.id} onClick={() => handleStationChange(station.code)}>
+              {station.code}
+            </Option>
           ))}
         </Dropdown>
       </Field>
       <Field label="Note">
-        <Textarea resize="vertical" size="large" />
+        <Textarea value={note} resize="vertical" size="large" onChange={(_, data) => handleNoteChange(data.value)} />
       </Field>
     </div>
   );
