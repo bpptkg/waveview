@@ -8,4 +8,7 @@ export default {
   createOrganization: {
     v1: '/api/v1/organizations/',
   },
+  getInventory: {
+    v1: (organizationId: string) => `/api/v1/organizations/${organizationId}/inventory/`,
+  },
 };

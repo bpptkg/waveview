@@ -5,5 +5,5 @@ export interface OrganizationStore {
   organizations: Organization[];
   setOrganizations: (organizations: Organization[]) => void;
   setOrganization: (organization: Organization) => void;
-  fetchOrganizations: () => void;
+  fetchOrganizations: () => Promise<void>;
 }

@@ -5,6 +5,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AppBar, AppBarTab } from './components/AppBar';
 import Header from './components/Header/Header';
 import { useAppStore } from './stores/app';
+import { useInventoryStore } from './stores/inventory';
 import { useOrganizationStore } from './stores/org';
 
 const PickerIcon = CursorHover24Regular;
@@ -24,8 +25,11 @@ function App() {
   }, []);
 
   const { fetchOrganizations } = useOrganizationStore();
+  const { fetchInventory } = useInventoryStore();
   useEffect(() => {
-    fetchOrganizations();
+    fetchOrganizations().then(() => {
+      fetchInventory();
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

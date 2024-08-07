@@ -1,10 +1,29 @@
-import { Station } from './station';
 
 export interface Channel {
   id: string;
-  station: Station;
+  station_id: string;
   code: string;
-  name: string;
+  alternate_code: string;
+  start_date: string;
+  end_date: string;
+  historical_code: string;
+  location_code: string;
+  latitude: number;
+  longitude: number;
+  elevation: number;
+  depth: number;
+  restricted_status: string;
   description: string;
-  stream_id: string;
+  azimuth: number;
+  dip: number;
+  water_level: number;
+  sample_rate: number;
+  sample_rate_ratio_number_samples: number;
+  sample_rate_ratio_number_seconds: number;
+  clock_drift: number;
+  calibration_units: string;
+  calibration_units_description: string;
+  created_at: string;
+  updated_at: string;
+  author_id: string;
 }
