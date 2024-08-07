@@ -12,7 +12,7 @@ import {
   webDarkTheme,
   webLightTheme,
 } from '@fluentui/react-components';
-import { Checkmark20Regular } from '@fluentui/react-icons';
+import { Checkmark20Regular, Eye20Regular, EyeOff20Regular } from '@fluentui/react-icons';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LogoImage from '../../components/Header/LogoImage';
@@ -81,6 +81,7 @@ const Login = () => {
   const [password, setPassword] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(e.target.value);
@@ -97,7 +98,7 @@ const Login = () => {
   const handleLogin = async () => {
     setLoading(true);
 
-    const url = `${baseUrl}/api/v1/login/`;
+    const url = `${baseUrl}/api/v1/auth/token/`;
     try {
       const response = await fetch(url, {
         method: 'POST',
@@ -137,6 +138,10 @@ const Login = () => {
     toggleTheme(theme);
   }, [theme, toggleTheme]);
 
+  const toggleShowPassword = () => {
+    setShowPassword((prev) => !prev);
+  };
+
   return (
     <FluentProvider theme={darkMode ? webDarkTheme : webLightTheme}>
       <div className="w-screen h-screen bg-cover bg-center flex items-center justify-center bg-gradient-matcha dark:bg-gradient-matcha-dark">
@@ -155,7 +160,20 @@ const Login = () => {
                     <Input placeholder="Username" type="text" tabIndex={0} value={username} onChange={handleUsernameChange} onKeyDown={handleKeyPress} />
                   </Field>
                   <Field className="w-full">
-                    <Input placeholder="Password" type="password" value={password} onChange={handlePasswordChange} onKeyDown={handleKeyPress} />
+                    <Input
+                      placeholder="Password"
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={handlePasswordChange}
+                      onKeyDown={handleKeyPress}
+                      contentAfter={
+                        showPassword ? (
+                          <Button appearance="transparent" icon={<Eye20Regular />} onClick={toggleShowPassword} />
+                        ) : (
+                          <Button appearance="transparent" icon={<EyeOff20Regular />} onClick={toggleShowPassword} />
+                        )
+                      }
+                    />
                   </Field>
                   <Button className="w-full" appearance="primary" onClick={handleLogin} disabled={loading || !credentialsFilled}>
                     Login
