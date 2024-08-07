@@ -29,5 +29,8 @@
   "files": [
     "dist",
     "src"
-  ]
+  ],
+  "dependencies": {
+    "@kitware/vtk.js": "^31.0.0"
+  }
 }
