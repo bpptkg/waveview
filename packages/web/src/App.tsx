@@ -7,6 +7,7 @@ import Header from './components/Header/Header';
 import { useAppStore } from './stores/app';
 import { useInventoryStore } from './stores/inventory';
 import { useOrganizationStore } from './stores/org';
+import { useUserStore } from './stores/user';
 
 const PickerIcon = CursorHover24Regular;
 const CatalogIcon = Folder24Regular;
@@ -26,10 +27,14 @@ function App() {
 
   const { fetchOrganizations } = useOrganizationStore();
   const { fetchInventory } = useInventoryStore();
+  const { fetchUser } = useUserStore();
+
   useEffect(() => {
     fetchOrganizations().then(() => {
       fetchInventory();
     });
+
+    fetchUser();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

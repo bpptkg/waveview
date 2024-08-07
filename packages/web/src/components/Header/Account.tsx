@@ -1,7 +1,9 @@
 import { Avatar } from '@fluentui/react-components';
+import { useUserStore } from '../../stores/user';
 
 const Account = () => {
-  return <Avatar color="colorful" name="Indra Rudianto" />;
+  const { user } = useUserStore();
+  return <Avatar color="colorful" name={user?.name ?? user?.username} />;
 };
 
 export default Account;

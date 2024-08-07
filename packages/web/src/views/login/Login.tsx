@@ -20,7 +20,6 @@ import LogoText from '../../components/Header/LogoText';
 import { baseUrl } from '../../services/api';
 import { useAppStore } from '../../stores/app';
 import { useAuthStore } from '../../stores/auth';
-import { useUserStore } from '../../stores/user';
 
 const WelcomeText = () => {
   return <h1 className="text-lg font-bold text-gray-800 dark:text-neutral-grey-84">Login to continue</h1>;
@@ -75,7 +74,6 @@ const Login = () => {
 
   const navigate = useNavigate();
   const { setToken } = useAuthStore();
-  const { fetchUser } = useUserStore();
 
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -114,9 +112,7 @@ const Login = () => {
       const token: LoginSucessResponse = await response.json();
       setToken(token);
 
-      await fetchUser().then(() => {
-        navigate('/');
-      });
+      navigate('/');
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
