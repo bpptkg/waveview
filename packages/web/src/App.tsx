@@ -5,6 +5,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AppBar, AppBarTab } from './components/AppBar';
 import Header from './components/Header/Header';
 import { useAppStore } from './stores/app';
+import { useOrganizationStore } from './stores/org';
 
 const PickerIcon = CursorHover24Regular;
 const CatalogIcon = Folder24Regular;
@@ -19,6 +20,12 @@ function App() {
 
   useEffect(() => {
     toggleTheme(theme);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const { fetchOrganizations } = useOrganizationStore();
+  useEffect(() => {
+    fetchOrganizations();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
