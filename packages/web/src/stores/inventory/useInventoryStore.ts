@@ -11,11 +11,11 @@ export const inventoryStore = create<InventoryStore>((set, get) => {
     inventory: null,
     setInventory: (inventory) => set({ inventory }),
     fetchInventory: async () => {
-      const { organization } = useOrganizationStore.getState();
-      if (!organization) {
+      const currentOrganization = useOrganizationStore.getState().currentOrganization;
+      if (!currentOrganization) {
         return;
       }
-      const url = apiVersion.getInventory.v1(organization.id);
+      const url = apiVersion.getInventory.v1(currentOrganization.id);
       const inventory = await api<Inventory>(url);
       set({ inventory });
     },
