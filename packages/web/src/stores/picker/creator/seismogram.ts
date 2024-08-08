@@ -1,5 +1,7 @@
 import { StateCreator } from 'zustand';
-import { SeismogramSlice, PickerStore } from '../slices';
+import { Channel } from '../../../types/channel';
+import { useInventoryStore } from '../../inventory';
+import { PickerStore, SeismogramSlice } from '../slices';
 
 export const createSeismogramSlice: StateCreator<PickerStore, [], [], SeismogramSlice> = (set, get) => {
   return {
@@ -10,8 +12,7 @@ export const createSeismogramSlice: StateCreator<PickerStore, [], [], Seismogram
     isExpandMode: false,
     expandedChannelIndex: -1,
     component: 'Z',
-    channels: [],
-    stations: [],
+    selectedChannels: [],
 
     setLastSeismogramExtent: (extent) => set({ lastSeismogramExtent: extent }),
 
@@ -47,72 +48,74 @@ export const createSeismogramSlice: StateCreator<PickerStore, [], [], Seismogram
         };
       }),
 
-    addSeismogramChannel: (channel) =>
+    addSeismogramChannel: (channel) => {
       set((state) => {
         return {
-          channels: [...state.channels, channel],
-          stations: [...state.stations, channel.station],
+          selectedChannels: [...state.selectedChannels, channel],
         };
-      }),
+      });
+    },
 
     removeSeismogramChannel: (index) =>
       set((state) => {
-        const channels = [...state.channels];
-        channels.splice(index, 1);
+        const selectedChannels = [...state.selectedChannels];
+        selectedChannels.splice(index, 1);
 
-        const stations = [...state.stations];
-        stations.splice(index, 1);
         return {
-          channels,
-          stations,
+          selectedChannels,
         };
       }),
 
     moveChannel: (fromIndex, toIndex) =>
       set((state) => {
-        const channels = [...state.channels];
-        const [channel] = channels.splice(fromIndex, 1);
-        channels.splice(toIndex, 0, channel);
+        const selectedChannels = [...state.selectedChannels];
+        const [channel] = selectedChannels.splice(fromIndex, 1);
+        selectedChannels.splice(toIndex, 0, channel);
 
-        const stations = [...state.stations];
-        const [station] = stations.splice(fromIndex, 1);
-        stations.splice(toIndex, 0, station);
         return {
-          channels,
-          stations,
+          selectedChannels,
         };
       }),
+
+    setSelectedChannels: (channels) => set({ selectedChannels: channels }),
 
     setExpandMode: (isExpandMode) => set({ isExpandMode }),
 
     setComponent: (component) => {
-      const channels = get()
-        .stations.map((station) => {
-          return get().availableChannels.filter((channel) => {
-            return channel.station.code === station.code && channel.code.includes(component);
-          });
+      const oldChannels = get().selectedChannels;
+      const selectedStationIds = oldChannels.map((channel) => channel.station_id);
+      const channels = useInventoryStore.getState().channels();
+      const filteredChannels = channels.filter((channel) => channel.code.includes(component));
+      const newChannels = selectedStationIds
+        .map((stationId) => {
+          return filteredChannels.find((channel) => channel.station_id === stationId);
         })
-        .flat(1);
+        .filter((channel) => channel !== undefined) as Channel[];
 
-      set({ component, channels });
+      set({ component, selectedChannels: newChannels });
     },
 
     getChannelsByStationIndex: (index: number) => {
-      const station = get().stations[index];
-      const channels = get().availableChannels.filter((channel) => {
-        return channel.station.code === station.code;
-      });
-      return channels;
+      const stationId = get().selectedChannels[index].station_id;
+      const channels = useInventoryStore.getState().channels();
+      const filteredChannels = channels.filter((channel) => channel.station_id === stationId);
+      return filteredChannels;
     },
 
     setExpandedChannelIndex: (index) => set({ expandedChannelIndex: index }),
 
     getChannelByStreamId: (streamId: string) => {
-      return get().channels.find((channel) => channel.stream_id === streamId);
+      return get().selectedChannels.find((channel) => channel.stream_id === streamId);
     },
 
     getChannelById: (id) => {
-      return get().channels.find((channel) => channel.id === id);
+      return get().selectedChannels.find((channel) => channel.id === id);
+    },
+
+    getSelectedStations: () => {
+      const selectedStationIds = get().selectedChannels.map((channel) => channel.station_id);
+      const stations = useInventoryStore.getState().stations();
+      return stations.filter((station) => selectedStationIds.includes(station.id));
     },
   };
 };

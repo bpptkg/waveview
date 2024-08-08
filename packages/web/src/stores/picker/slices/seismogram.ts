@@ -1,5 +1,5 @@
 import { Channel } from '../../../types/channel';
-import { Station } from '../../../types/station';
+import { StationWithChannel } from '../../../types/station';
 import { ComponentType } from '../types';
 
 export interface SeismogramSlice {
@@ -24,15 +24,10 @@ export interface SeismogramSlice {
    */
   component: ComponentType;
   /**
-   * The list of selected station IDs in the seismogram chart. It is used as
-   * metadata only. Any changes to the channels should also be reflected in this
-   * list.
-   */
-  stations: Station[];
-  /**
    * List of channels to display in the seismogram chart.
    */
-  channels: Channel[];
+  selectedChannels: Channel[];
+  setSelectedChannels: (channels: Channel[]) => void;
   setLastSeismogramExtent: (extent: [number, number]) => void;
   seismogramToolbarSetCheckedValues: (name: string, checkedValues: string[]) => void;
   seismogramToolbarAddCheckedValue: (name: string, item: string) => void;
@@ -46,4 +41,5 @@ export interface SeismogramSlice {
   setExpandedChannelIndex: (index: number) => void;
   getChannelByStreamId: (streamId: string) => Channel | undefined;
   getChannelById: (id: string) => Channel | undefined;
+  getSelectedStations: () => StationWithChannel[];
 }

@@ -28,10 +28,10 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const { fetchOrganizations, organizationSettings } = useOrganizationStore();
+  const { fetchOrganizations } = useOrganizationStore();
   const { fetchInventory } = useInventoryStore();
   const { fetchUser } = useUserStore();
-  const { setHelicorderChannelId } = usePickerStore();
+  const { setHelicorderChannelId, setSelectedChannels } = usePickerStore();
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -40,6 +40,19 @@ function App() {
       await fetchUser();
 
       setIsInitialized(true);
+
+      const organizationSettings = useOrganizationStore.getState().organizationSettings!;
+
+      const defaultHelicorderChannelId = organizationSettings.data.default_helicorder_channel_id ?? '';
+      setHelicorderChannelId(defaultHelicorderChannelId);
+
+      const channels = useInventoryStore.getState().channels();
+      const defaultSeismogramStationIds = organizationSettings.data.default_seismogram_station_ids ?? [];
+      const component = organizationSettings.data.default_seismogram_component ?? 'Z';
+      const selectedChannels = channels
+        .filter((channel) => defaultSeismogramStationIds.includes(channel.station_id))
+        .filter((channel) => channel.code.includes(component));
+      setSelectedChannels(selectedChannels);
     };
 
     initializeApp().catch(() => {
@@ -48,13 +61,6 @@ function App() {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (organizationSettings) {
-      const defaultHelicorderChannelId = organizationSettings.data.default_helicorder_channel_id ?? '';
-      setHelicorderChannelId(defaultHelicorderChannelId);
-    }
-  }, [organizationSettings, setHelicorderChannelId]);
 
   if (error) {
     return (

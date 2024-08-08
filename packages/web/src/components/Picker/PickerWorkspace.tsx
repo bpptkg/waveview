@@ -52,6 +52,7 @@ const PickerWorkspace = () => {
     selectedChart,
     showEvent,
     useUTC,
+    selectedChannels,
     isPickEmpty,
     setPickRange,
     savePickedEvent,
@@ -243,7 +244,7 @@ const PickerWorkspace = () => {
               ref={seisChartRef}
               className={selectedChart === 'seismogram' ? 'border border-brand-hosts-80' : 'border border-transparent'}
               initOptions={{
-                channels: channels().map((channel) => ({
+                channels: selectedChannels.map((channel) => ({
                   id: channel.id,
                   label: channel.network_station_code,
                 })),

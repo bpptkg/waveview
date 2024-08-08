@@ -9,7 +9,7 @@ export const useSeismogramCallback = (
   heliChartRef: React.MutableRefObject<HelicorderChartRef | null>
 ) => {
   const {
-    channels,
+    selectedChannels,
     addSeismogramChannel,
     setShowEvent,
     setLastTrackExtent,
@@ -72,9 +72,9 @@ export const useSeismogramCallback = (
     handleSeismogramComponentChange: useCallback(
       (component: string) => {
         setComponent(component as ComponentType);
-        seisChartRef.current?.setChannels(channels);
+        seisChartRef.current?.setChannels(selectedChannels);
       },
-      [seisChartRef, setComponent, channels]
+      [seisChartRef, setComponent, selectedChannels]
     ),
 
     handleSeismogramShowEvent: useCallback(
@@ -141,12 +141,12 @@ export const useSeismogramCallback = (
 
     handleSeismogramMoveChannelDown: useCallback(
       (index: number) => {
-        if (index < channels.length - 1) {
+        if (index < selectedChannels.length - 1) {
           moveChannel(index, index + 1);
           seisChartRef.current?.moveChannelDown(index);
         }
       },
-      [seisChartRef, moveChannel, channels]
+      [seisChartRef, moveChannel, selectedChannels]
     ),
 
     handleTrackDoubleClicked: useCallback(
@@ -160,9 +160,9 @@ export const useSeismogramCallback = (
     ),
 
     handleRestoreChannels: useCallback(() => {
-      seisChartRef.current?.setChannels(channels);
+      seisChartRef.current?.setChannels(selectedChannels);
       setExpandMode(false);
-    }, [seisChartRef, channels, setExpandMode]),
+    }, [seisChartRef, selectedChannels, setExpandMode]),
 
     handleSeismogramFocus: useCallback(() => {
       heliChartRef.current?.blur();

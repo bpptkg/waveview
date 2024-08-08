@@ -67,7 +67,7 @@ const PickEdit: React.FC<EventDrawerProps> = (props) => {
     setDurationValue(duration);
   }, [time, duration]);
 
-  const { stations, eventTypes } = usePickerStore();
+  const { getSelectedStations, eventTypes } = usePickerStore();
 
   const handleConfirm = useCallback(() => {
     onConfirm?.({
@@ -113,8 +113,8 @@ const PickEdit: React.FC<EventDrawerProps> = (props) => {
       </Field>
       <Field label="Station of first arrival">
         <Dropdown placeholder="Select station name">
-          {stations.map((station) => (
-            <Option key={station.id} onClick={() => handleStationChange(station.code)}>
+          {getSelectedStations().map((station) => (
+            <Option key={station.id} onClick={() => handleStationChange(station.id)}>
               {station.code}
             </Option>
           ))}
