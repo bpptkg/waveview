@@ -11,10 +11,31 @@ export default {
   getOrganization: {
     v1: (id: string) => `/api/v1/organizations/${id}/`,
   },
+  updateOrganization: {
+    v1: (id: string) => `/api/v1/organizations/${id}/`,
+  },
+  deleteOrganization: {
+    v1: (id: string) => `/api/v1/organizations/${id}/`,
+  },
   getOrganizationSettings: {
     v1: (id: string) => `/api/v1/organizations/${id}/settings/`,
   },
   getInventory: {
     v1: (organizationId: string) => `/api/v1/organizations/${organizationId}/inventory/`,
+  },
+  listVolcano: {
+    v1: (organizationId: string) => `/api/v1/organizations/${organizationId}/volcanoes/`,
+  },
+  createVolcano: {
+    v1: (organizationId: string) => `/api/v1/organizations/${organizationId}/volcanoes/`,
+  },
+  getVolcano: {
+    v1: (organizationId: string, id: string) => `/api/v1/organizations/${organizationId}/volcanoes/${id}/`,
+  },
+  updateVolcano: {
+    v1: (organizationId: string, id: string) => `/api/v1/organizations/${organizationId}/volcanoes/${id}/`,
+  },
+  deleteVolcano: {
+    v1: (organizationId: string, id: string) => `/api/v1/organizations/${organizationId}/volcanoes/${id}/`,
   },
 };

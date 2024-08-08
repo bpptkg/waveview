@@ -28,27 +28,27 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const { fetchOrganizations } = useOrganizationStore();
+  const { fetchAllOrganizations } = useOrganizationStore();
   const { fetchInventory } = useInventoryStore();
   const { fetchUser } = useUserStore();
   const { setHelicorderChannelId, setSelectedChannels } = usePickerStore();
 
   useEffect(() => {
     const initializeApp = async () => {
-      await fetchOrganizations();
+      await fetchAllOrganizations();
       await fetchInventory();
       await fetchUser();
 
       setIsInitialized(true);
 
-      const organizationSettings = useOrganizationStore.getState().organizationSettings!;
+      const currentOrgSettings = useOrganizationStore.getState().currentOrganizationSettings!;
 
-      const defaultHelicorderChannelId = organizationSettings.data.default_helicorder_channel_id ?? '';
+      const defaultHelicorderChannelId = currentOrgSettings.data.default_helicorder_channel_id ?? '';
       setHelicorderChannelId(defaultHelicorderChannelId);
 
       const channels = useInventoryStore.getState().channels();
-      const defaultSeismogramStationIds = organizationSettings.data.default_seismogram_station_ids ?? [];
-      const component = organizationSettings.data.default_seismogram_component ?? 'Z';
+      const defaultSeismogramStationIds = currentOrgSettings.data.default_seismogram_station_ids ?? [];
+      const component = currentOrgSettings.data.default_seismogram_component ?? 'Z';
       const selectedChannels = channels
         .filter((channel) => defaultSeismogramStationIds.includes(channel.station_id))
         .filter((channel) => channel.code.includes(component));
