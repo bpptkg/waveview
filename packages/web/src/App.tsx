@@ -6,7 +6,7 @@ import { AppBar, AppBarTab } from './components/AppBar';
 import Header from './components/Header/Header';
 import { useAppStore } from './stores/app';
 import { useInventoryStore } from './stores/inventory';
-import { useOrganizationStore } from './stores/org';
+import { useOrganizationStore } from './stores/organization';
 import { usePickerStore } from './stores/picker';
 import { useUserStore } from './stores/user';
 

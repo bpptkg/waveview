@@ -3,7 +3,7 @@ import { api } from '../../services/api';
 import apiVersion from '../../services/apiVersion';
 import { createSelectors } from '../../shared/createSelectors';
 import { Volcano } from '../../types/volcano';
-import { useOrganizationStore } from '../org';
+import { useOrganizationStore } from '../organization';
 import { VolcanoStore } from './types';
 
 const volcanoStore = create<VolcanoStore>((set, get) => ({

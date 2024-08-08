@@ -3,7 +3,7 @@ import { api } from '../../services/api';
 import apiVersion from '../../services/apiVersion';
 import { createSelectors } from '../../shared/createSelectors';
 import { Inventory } from '../../types/inventory';
-import { useOrganizationStore } from '../org';
+import { useOrganizationStore } from '../organization';
 import { InventoryStore } from './types';
 
 export const inventoryStore = create<InventoryStore>((set, get) => {
