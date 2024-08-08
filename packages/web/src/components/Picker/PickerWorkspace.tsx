@@ -1,7 +1,7 @@
 import { Button, makeStyles } from '@fluentui/react-components';
 import { ArrowReply20Regular } from '@fluentui/react-icons';
 import { FederatedPointerEvent } from 'pixi.js';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { useAppStore } from '../../stores/app';
 import { PickedEvent, usePickerStore } from '../../stores/picker';
 import EventDrawer from './EventDrawer/EventDrawer';
@@ -19,6 +19,7 @@ import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { useSeismogramCallback } from './useSeismogramCallback';
 import { useThemeEffect } from './useThemeEffect';
 import { useTimeZoneEffect } from './useTimeZoneEffect';
+import { useInventoryStore } from '../../stores/inventory';
 
 const useStyles = makeStyles({
   backButton: {
@@ -34,13 +35,12 @@ const PickerWorkspace = () => {
   const seisChartRef = useRef<SeismogramChartRef | null>(null);
   const contextMenuRef = useRef<ContextMenuRef | null>(null);
 
+  const { channels } = useInventoryStore();
+
   const {
-    availableChannels,
-    channel,
-    channels,
+    channelId,
     component,
     duration,
-    expandedChannelIndex,
     interval,
     isExpandMode,
     lastSelection,
@@ -54,7 +54,6 @@ const PickerWorkspace = () => {
     useUTC,
     isPickEmpty,
     setPickRange,
-    getChannelsByStationIndex,
     savePickedEvent,
   } = usePickerStore();
 
@@ -119,15 +118,6 @@ const PickerWorkspace = () => {
     [isExpandMode]
   );
 
-  const initialChannels = useMemo(() => {
-    if (isExpandMode && expandedChannelIndex !== null) {
-      return getChannelsByStationIndex(expandedChannelIndex);
-    } else {
-      return channels;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const handlePickDurationChange = useCallback(
     (duration: number) => {
       const end = pickStart + duration * 1000;
@@ -177,14 +167,12 @@ const PickerWorkspace = () => {
     <>
       {selectedChart === 'helicorder' && (
         <HelicorderToolbar
-          channel={{
-            id: channel?.id || '',
-          }}
+          channelId={channelId}
           interval={interval}
           duration={duration}
           showEvent={showEvent}
           offsetDate={new Date(offsetDate)}
-          availableChannels={availableChannels.filter((c) => c.id !== channel?.id).map((c) => ({ id: c.id }))}
+          availableChannels={channels()}
           onShiftViewUp={handleHelicorderShiftViewUp}
           onShiftViewDown={handleHelicorderShiftViewDown}
           onShiftViewToNow={handleHelicorderShiftViewToNow}
@@ -202,7 +190,7 @@ const PickerWorkspace = () => {
           showEvent={showEvent}
           checkedValues={seismogramToolbarCheckedValues}
           isExpandMode={isExpandMode}
-          availableChannels={availableChannels.filter((c) => c.id !== channel?.id).map((c) => ({ id: c.id }))}
+          availableChannels={channels()}
           component={component}
           onChannelAdd={handleSeismogramChannelAdd}
           onZoomIn={handleSeismogramZoomIn}
@@ -230,7 +218,7 @@ const PickerWorkspace = () => {
                 interval,
                 duration,
                 channel: {
-                  id: channel?.id || '',
+                  id: channelId,
                 },
                 darkMode,
                 offsetDate,
@@ -255,7 +243,10 @@ const PickerWorkspace = () => {
               ref={seisChartRef}
               className={selectedChart === 'seismogram' ? 'border border-brand-hosts-80' : 'border border-transparent'}
               initOptions={{
-                channels: initialChannels,
+                channels: channels().map((channel) => ({
+                  id: channel.id,
+                  label: channel.network_station_code,
+                })),
                 grid: {
                   top: 30,
                   right: 20,

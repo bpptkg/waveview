@@ -29,11 +29,11 @@ import {
   MoreHorizontal24Filled,
   Search20Regular,
 } from '@fluentui/react-icons';
-import { Channel } from '@waveview/charts';
 import React, { useCallback } from 'react';
+import { Channel } from '../../../types/channel';
 
 export interface HelicorderToolbarProps {
-  channel: Channel;
+  channelId: string;
   interval?: number;
   duration?: number;
   showEvent?: boolean;
@@ -79,7 +79,7 @@ const useStyles = makeStyles({
 
 const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
   const {
-    channel,
+    channelId,
     interval = 30,
     duration = 12,
     showEvent,
@@ -145,7 +145,7 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
         <Popover trapFocus open={open} onOpenChange={() => setOpen(!open)}>
           <PopoverTrigger disableButtonEnhancement>
             <ToolbarButton appearance="primary" aria-label="Select Channel ID" icon={<Search20Regular />} className={styles.btn}>
-              <span className="font-normal">{channel.id}</span>
+              <span className="font-normal">{availableChannels.find((channel) => channel.id === channelId)?.stream_id}</span>
             </ToolbarButton>
           </PopoverTrigger>
           <PopoverSurface>
@@ -153,19 +153,21 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
               <SearchBox placeholder="Search channel" size="medium" className={styles.searchBox} />
             </Field>
             <MenuList>
-              {availableChannels.map((chan, index) => (
-                <MenuItem
-                  key={index}
-                  onClick={() => {
-                    if (channel.id !== chan.id) {
-                      handleChannelChange(chan);
-                    }
-                    setOpen(false);
-                  }}
-                >
-                  {chan.id}
-                </MenuItem>
-              ))}
+              {availableChannels
+                .filter((channel) => channel.id !== channelId)
+                .map((channel, index) => (
+                  <MenuItem
+                    key={index}
+                    onClick={() => {
+                      if (channelId !== channel.id) {
+                        handleChannelChange(channel);
+                      }
+                      setOpen(false);
+                    }}
+                  >
+                    {channel.stream_id}
+                  </MenuItem>
+                ))}
             </MenuList>
           </PopoverSurface>
         </Popover>

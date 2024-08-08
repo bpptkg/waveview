@@ -1,8 +1,8 @@
-import { Channel } from '@waveview/charts';
 import { useCallback, useRef } from 'react';
 import { usePickerStore } from '../../stores/picker';
 import { HelicorderChartRef } from './HelicorderChart';
 import { SeismogramChartRef } from './SeismogramChart';
+import { Channel } from '../../types/channel';
 
 export function useHelicorderCallback(
   heliChartRef: React.MutableRefObject<HelicorderChartRef | null>,
@@ -10,14 +10,13 @@ export function useHelicorderCallback(
 ) {
   const {
     setHelicorderOffsetDate,
-    setHelicorderChannel,
+    setHelicorderChannelId,
     setHelicorderInterval,
     setHelicorderDuration,
     setLastTrackExtent,
     seismogramToolbarRemoveCheckedValue,
     setSelectedChart,
     setLastSelection,
-    getChannelById,
   } = usePickerStore();
 
   const selectingTrackRef = useRef<boolean | null>(null);
@@ -51,13 +50,10 @@ export function useHelicorderCallback(
 
     handleHelicorderChannelChange: useCallback(
       (channel: Channel) => {
-        const chan = getChannelById(channel.id);
-        if (chan) {
-          setHelicorderChannel(chan);
-          heliChartRef.current?.setChannel(channel);
-        }
+          setHelicorderChannelId(channel.id);
+          heliChartRef.current?.setChannel({id: channel.id, label: channel.stream_id});
       },
-      [heliChartRef, setHelicorderChannel, getChannelById]
+      [heliChartRef, setHelicorderChannelId]
     ),
 
     handleHelicorderChangeInterval: useCallback(

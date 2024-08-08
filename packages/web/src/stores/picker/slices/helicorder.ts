@@ -1,10 +1,8 @@
-import { Channel } from '../../../types/channel';
-
 export interface HelicorderSlice {
   /**
    * The selected channel of the helicorder chart, e.g. `VG.MELAB.00.HHZ`.
    */
-  channel: Channel | null;
+  channelId: string;
   /**
    * The duration of the helicorder chart in hours.
    */
@@ -26,7 +24,7 @@ export interface HelicorderSlice {
    * helicorder chart.
    */
   lastSelection: number;
-  setHelicorderChannel: (channel: Channel) => void;
+  setHelicorderChannelId: (channelId: string) => void;
   setHelicorderDuration: (duration: number) => void;
   setHelicorderInterval: (interval: number) => void;
   setHelicorderOffsetDate: (offsetDate: number) => void;

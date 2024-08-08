@@ -34,7 +34,7 @@ import {
 } from '@fluentui/react-icons';
 import React, { useCallback } from 'react';
 import PickIcon from '../../Icons/PickIcon';
-import { Channel } from '@waveview/charts';
+import { Channel } from '../../../types/channel';
 
 export interface SeismogramToolbarProps {
   showEvent?: boolean;
@@ -172,17 +172,19 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
               <SearchBox placeholder="Search channel" size="medium" className={styles.searchBox} />
             </Field>
             <MenuList>
-              {availableChannels.map((trace, index) => (
-                <MenuItem
-                  key={index}
-                  onClick={() => {
-                    handleChannelAdd(trace);
-                    setOpen(false);
-                  }}
-                >
-                  {trace.id}
-                </MenuItem>
-              ))}
+              {availableChannels
+                .filter((channel) => channel.code.includes(component))
+                .map((channel, index) => (
+                  <MenuItem
+                    key={index}
+                    onClick={() => {
+                      handleChannelAdd(channel);
+                      setOpen(false);
+                    }}
+                  >
+                    {channel.stream_id}
+                  </MenuItem>
+                ))}
             </MenuList>
           </PopoverSurface>
         </Popover>

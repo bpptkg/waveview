@@ -2,13 +2,14 @@ import { create } from 'zustand';
 import { api } from '../../services/api';
 import apiVersion from '../../services/apiVersion';
 import { createSelectors } from '../../shared/createSelectors';
-import { Organization } from '../../types/organization';
+import { Organization, OrganizationSettings } from '../../types/organization';
 import { OrganizationStore } from './types';
 
-const organizationStore = create<OrganizationStore>((set) => {
+const organizationStore = create<OrganizationStore>((set, get) => {
   return {
     organization: null,
     organizations: [],
+    organizationSettings: null,
     setOrganizations: (organizations) => set({ organizations }),
     setOrganization: (organization) => set({ organization }),
     fetchOrganizations: async () => {
@@ -16,8 +17,20 @@ const organizationStore = create<OrganizationStore>((set) => {
       const data = await api<Organization[]>(url);
       set({ organizations: data });
       if (data.length) {
-        set({ organization: data[0] });
+        const org = data[0];
+        set({ organization: org });
+        await get().fetchOrganizationSettings(org.id);
       }
+    },
+    fetchOrganization: async (id: string) => {
+      const url = apiVersion.getOrganization.v1(id);
+      const data = await api<Organization>(url);
+      set({ organization: data });
+    },
+    fetchOrganizationSettings: async (id: string) => {
+      const url = apiVersion.getOrganizationSettings.v1(id);
+      const data = await api<OrganizationSettings>(url);
+      set({ organizationSettings: data });
     },
   };
 });

@@ -1,12 +1,13 @@
-import { FluentProvider, webDarkTheme, webLightTheme } from '@fluentui/react-components';
+import { Button, FluentProvider, Spinner, webDarkTheme, webLightTheme } from '@fluentui/react-components';
 import { ChatHelp24Regular, CursorHover24Regular, Folder24Regular, PeopleTeam24Regular } from '@fluentui/react-icons';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AppBar, AppBarTab } from './components/AppBar';
 import Header from './components/Header/Header';
 import { useAppStore } from './stores/app';
 import { useInventoryStore } from './stores/inventory';
 import { useOrganizationStore } from './stores/org';
+import { usePickerStore } from './stores/picker';
 import { useUserStore } from './stores/user';
 
 const PickerIcon = CursorHover24Regular;
@@ -19,24 +20,64 @@ function App() {
   const location = useLocation();
 
   const { darkMode, theme, toggleTheme } = useAppStore();
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     toggleTheme(theme);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const { fetchOrganizations } = useOrganizationStore();
+  const { fetchOrganizations, organizationSettings } = useOrganizationStore();
   const { fetchInventory } = useInventoryStore();
   const { fetchUser } = useUserStore();
+  const { setHelicorderChannelId } = usePickerStore();
 
   useEffect(() => {
-    fetchOrganizations().then(() => {
-      fetchInventory();
+    const initializeApp = async () => {
+      await fetchOrganizations();
+      await fetchInventory();
+      await fetchUser();
+
+      setIsInitialized(true);
+    };
+
+    initializeApp().catch(() => {
+      setError('Failed to initialize app. Please check your internet connection and try again.');
     });
 
-    fetchUser();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (organizationSettings) {
+      const defaultHelicorderChannelId = organizationSettings.data.default_helicorder_channel_id ?? '';
+      setHelicorderChannelId(defaultHelicorderChannelId);
+    }
+  }, [organizationSettings, setHelicorderChannelId]);
+
+  if (error) {
+    return (
+      <FluentProvider theme={darkMode ? webDarkTheme : webLightTheme}>
+        <div className="bg-neutral-grey-94 dark:bg-neutral-grey-4 flex flex-col min-h-screen justify-center items-center gap-2">
+          <div className="text-red-600 dark:text-red-400">{error}</div>
+          <Button appearance="transparent" onClick={() => window.location.reload()}>
+            Retry
+          </Button>
+        </div>
+      </FluentProvider>
+    );
+  }
+
+  if (!isInitialized) {
+    return (
+      <FluentProvider theme={darkMode ? webDarkTheme : webLightTheme}>
+        <div className="bg-neutral-grey-94 dark:bg-neutral-grey-4 flex flex-col min-h-screen justify-center items-center">
+          <Spinner label="Initializing app, please wait..." />
+        </div>
+      </FluentProvider>
+    );
+  }
 
   return (
     <FluentProvider theme={darkMode ? webDarkTheme : webLightTheme}>

@@ -3,13 +3,13 @@ import { HelicorderSlice, PickerStore } from '../slices';
 
 export const createHelicorderSlice: StateCreator<PickerStore, [], [], HelicorderSlice> = (set) => {
   return {
-    channel: null,
+    channelId: '',
     duration: 12,
     interval: 30,
     offsetDate: Date.now(),
     lastTrackExtent: [0, 0],
     lastSelection: 0,
-    setHelicorderChannel: (channel) => set({ channel }),
+    setHelicorderChannelId: (channelId) => set({ channelId }),
     setHelicorderDuration: (duration) => set({ duration }),
     setHelicorderInterval: (interval) => set({ interval }),
     setHelicorderOffsetDate: (offsetDate) => set({ offsetDate }),
