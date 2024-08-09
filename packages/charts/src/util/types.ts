@@ -63,6 +63,7 @@ export interface WorkerResponseData<T> {
 export type ResampleMode = "match_width" | "max_points" | "none" | "auto";
 
 export interface StreamRequestData {
+  requestId: string;
   channelId: string;
   start: number;
   end: number;
@@ -74,6 +75,7 @@ export interface StreamRequestData {
 }
 
 export interface StreamResponseData {
+  requestId: string;
   index: Float64Array;
   data: Float64Array;
   extent: [number, number];

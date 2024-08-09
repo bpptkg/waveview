@@ -2,17 +2,21 @@ import { StreamResponseData } from "./types";
 
 export async function readStream(blob: Blob): Promise<StreamResponseData> {
   const buffer = await blob.arrayBuffer();
-  const channelId = new TextDecoder("utf-8")
+  const requestId = new TextDecoder("utf-8")
     .decode(new Uint8Array(buffer, 0, 64))
     .replace(/\0+$/, "")
     .trim();
-  const header = new BigUint64Array(buffer, 64, 8);
+  const channelId = new TextDecoder("utf-8")
+    .decode(new Uint8Array(buffer, 64, 128))
+    .replace(/\0+$/, "")
+    .trim();
+  const header = new BigUint64Array(buffer, 128, 8);
   const start = Number(header[0]);
   const end = Number(header[1]);
   const length = Number(header[2]);
 
-  const index = new Float64Array(buffer, 64 * 2, length);
-  const data = new Float64Array(buffer, 64 * 2 + length * 8, length);
+  const index = new Float64Array(buffer, 64 * 3, length);
+  const data = new Float64Array(buffer, 64 * 3 + length * 8, length);
 
   const extent = data.reduce(
     (acc, val) => {
@@ -24,6 +28,7 @@ export async function readStream(blob: Blob): Promise<StreamResponseData> {
   ) as [number, number];
 
   return {
+    requestId,
     index,
     data,
     extent,
