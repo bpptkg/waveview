@@ -45,6 +45,7 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
       chartRef.current?.render();
     },
     setChannel: (channel: Channel) => {
+      chartRef.current?.clearData();
       chartRef.current?.setChannel(channel);
       fetchDataDebounced();
     },

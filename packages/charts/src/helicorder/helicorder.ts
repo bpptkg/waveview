@@ -281,6 +281,13 @@ export class Helicorder extends ChartView<
     }
   }
 
+  clearData(): void {
+    this._dataStore.clear();
+    for (const track of this._tracks) {
+      track.getSeries().getModel().setData(Series.empty());
+    }
+  }
+
   getDataStore(): DataStore<SeriesData> {
     return this._dataStore;
   }
