@@ -23,6 +23,7 @@ export const useSeismogramCallback = (
     setPickRange,
     getChannelByStreamId,
     getChannelsByStationIndex,
+    deactivatePickMode,
   } = usePickerStore();
 
   return {
@@ -101,6 +102,11 @@ export const useSeismogramCallback = (
       },
       [seisChartRef]
     ),
+
+    handleSeismogramDeactivatePickMode: useCallback(() => {
+      seisChartRef.current?.deactivatePickMode();
+      deactivatePickMode();
+    }, [seisChartRef, deactivatePickMode]),
 
     handleSeismogramZoomRectangleChange: useCallback(
       (active: boolean) => {

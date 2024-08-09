@@ -103,6 +103,7 @@ const PickerWorkspace = () => {
     handleSeismogramFocus,
     handleSeismogramExtentChange,
     handleSeismogramPickChange,
+    handleSeismogramDeactivatePickMode,
   } = useSeismogramCallback(seisChartRef, heliChartRef);
 
   useKeyboardShortcuts(seisChartRef);
@@ -280,7 +281,7 @@ const PickerWorkspace = () => {
           {isPickModeActive() && (
             <div className="relative w-[300px] h-full">
               <EventDrawer>
-                {isPickEmpty() && <PickGuide />}
+                {isPickEmpty() && <PickGuide onClose={handleSeismogramDeactivatePickMode} />}
                 {!isPickEmpty() && (
                   <PickEdit
                     time={pickStart}

@@ -121,5 +121,16 @@ export const createSeismogramSlice: StateCreator<PickerStore, [], [], Seismogram
     isPickModeActive() {
       return get().seismogramToolbarCheckedValues.options.includes('pick-mode');
     },
+
+    deactivatePickMode() {
+      set((state) => {
+        return {
+          seismogramToolbarCheckedValues: {
+            ...state.seismogramToolbarCheckedValues,
+            options: state.seismogramToolbarCheckedValues.options.filter((value) => value !== 'pick-mode'),
+          },
+        };
+      });
+    },
   };
 };

@@ -43,4 +43,5 @@ export interface SeismogramSlice {
   getChannelById: (id: string) => Channel | undefined;
   getSelectedStations: () => StationWithChannel[];
   isPickModeActive(): boolean;
+  deactivatePickMode(): void;
 }
