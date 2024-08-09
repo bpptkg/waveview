@@ -334,10 +334,9 @@ export class Helicorder extends ChartView<
   }
 
   getChartExtent(): [number, number] {
-    const { duration, offsetDate } = this.model.getOptions();
-    const start = offsetDate - duration * ONE_HOUR;
-    const end = offsetDate;
-    return [start, end];
+    const last = this.getTrackExtentAt(0)[1];
+    const first = this.getTrackExtentAt(this.getTrackCount() - 1)[0];
+    return [first, last];
   }
 
   getTrackExtents(): [number, number][] {
