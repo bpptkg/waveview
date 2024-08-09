@@ -7,7 +7,7 @@ export async function readStream(blob: Blob): Promise<StreamResponseData> {
     .replace(/\0+$/, "")
     .trim();
   const channelId = new TextDecoder("utf-8")
-    .decode(new Uint8Array(buffer, 64, 128))
+    .decode(new Uint8Array(buffer, 64, 64))
     .replace(/\0+$/, "")
     .trim();
   const header = new BigUint64Array(buffer, 128, 8);
