@@ -73,7 +73,12 @@ export const useSeismogramCallback = (
     handleSeismogramComponentChange: useCallback(
       (component: string) => {
         setComponent(component as ComponentType);
-        seisChartRef.current?.setChannels(selectedChannels);
+        seisChartRef.current?.setChannels(
+          selectedChannels.map((channel) => ({
+            id: channel.id,
+            label: channel.network_station_code,
+          }))
+        );
       },
       [seisChartRef, setComponent, selectedChannels]
     ),
