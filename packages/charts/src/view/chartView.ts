@@ -89,10 +89,12 @@ export abstract class ChartView<
     );
 
     const rect = this.getGrid().getRect();
-    this._mask.rect(rect.x, rect.y, rect.width, rect.height);
+    this._mask
+      .rect(rect.x, rect.y, rect.width, rect.height)
+      .fill({ color: "transparent" });
     this.app.stage.addChild(this._mask);
     this.app.stage.addChild(this.group);
-    // this.group.mask = this._mask;
+    this.group.mask = this._mask;
   }
 
   getRect(): LayoutRect {

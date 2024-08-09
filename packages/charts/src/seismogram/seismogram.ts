@@ -377,7 +377,9 @@ export class Seismogram extends ChartView<
     this._updateTracksRect();
     const rect = this._grid.getRect();
     this._mask.clear();
-    this._mask.rect(rect.x, rect.y, rect.width, rect.height);
+    this._mask
+      .rect(rect.x, rect.y, rect.width, rect.height)
+      .fill({ color: "transparent" });
     this.app.stage.hitArea = new PIXI.Rectangle(0, 0, width, height);
     this.app.renderer.resize(width, height);
     this.emit("resize", width, height);
