@@ -1,4 +1,5 @@
 import { Series } from "@waveview/ndarray";
+import { v4 as uuid4 } from "uuid";
 import { ONE_MINUTE } from "../../util/time";
 import {
   Extension,
@@ -78,9 +79,11 @@ export class SeismogramWebWorker {
       diffInMinutes < threshold ? "max_points" : "match_width";
 
     const width = this._chart.getWidth();
+    const requestId = uuid4();
     const msg: WorkerRequestData<StreamRequestData> = {
       type: "stream.fetch",
       payload: {
+        requestId,
         channelId,
         start,
         end,
@@ -107,14 +110,15 @@ export class SeismogramWebWorker {
     }
   }
 
-  private _onStreamFetch(data: StreamResponseData): void {
-    const seriesData = new Series(data.data, {
-      index: data.index,
-      name: data.channelId,
+  private _onStreamFetch(payload: StreamResponseData): void {
+    const { data, index, channelId } = payload;
+    const seriesData = new Series(data, {
+      index: index,
+      name: channelId,
     });
-    const index = this._chart.getTrackIndexByChannelId(data.channelId);
-    if (index !== -1) {
-      this._chart.setChannelData(index, seriesData);
+    const idx = this._chart.getTrackIndexByChannelId(channelId);
+    if (idx !== -1) {
+      this._chart.setChannelData(idx, seriesData);
       this._chart.refreshData();
       this._chart.render();
     }
