@@ -56,6 +56,7 @@ const PickerWorkspace = () => {
     isPickEmpty,
     setPickRange,
     savePickedEvent,
+    isPickModeActive,
   } = usePickerStore();
 
   const { darkMode } = useAppStore();
@@ -276,20 +277,22 @@ const PickerWorkspace = () => {
               ref={contextMenuRef}
             />
           </div>
-          <div className="relative w-[300px] h-full">
-            <EventDrawer>
-              {isPickEmpty() && <PickGuide />}
-              {!isPickEmpty() && (
-                <PickEdit
-                  time={pickStart}
-                  duration={(pickEnd - pickStart) / 1000}
-                  onDurationChange={handlePickDurationChange}
-                  onCancel={handlePickCancel}
-                  onConfirm={handlePickConfirm}
-                />
-              )}
-            </EventDrawer>
-          </div>
+          {isPickModeActive() && (
+            <div className="relative w-[300px] h-full">
+              <EventDrawer>
+                {isPickEmpty() && <PickGuide />}
+                {!isPickEmpty() && (
+                  <PickEdit
+                    time={pickStart}
+                    duration={(pickEnd - pickStart) / 1000}
+                    onDurationChange={handlePickDurationChange}
+                    onCancel={handlePickCancel}
+                    onConfirm={handlePickConfirm}
+                  />
+                )}
+              </EventDrawer>
+            </div>
+          )}
         </div>
         <div className="bg-white dark:bg-black relative flex items-center justify-end gap-2 mr-2 h-[20px]">
           <RealtimeClock />

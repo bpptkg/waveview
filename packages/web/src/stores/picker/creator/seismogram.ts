@@ -117,5 +117,9 @@ export const createSeismogramSlice: StateCreator<PickerStore, [], [], Seismogram
       const stations = useInventoryStore.getState().stations();
       return stations.filter((station) => selectedStationIds.includes(station.id));
     },
+
+    isPickModeActive() {
+      return get().seismogramToolbarCheckedValues.options.includes('pick-mode');
+    },
   };
 };
