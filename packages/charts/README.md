@@ -36,3 +36,7 @@ helicorder.render();
 // Fetch all tracks data from the server asynchronously
 webWorker.getAPI().fetchAllTracksData();
 ```
+
+## License
+
+MIT
