@@ -12,7 +12,7 @@ const VersionInfo = () => {
       <span className="text-gray-800 dark:text-neutral-grey-84">Version 1.0.0</span>
       <span className="text-gray-800 dark:text-neutral-grey-84">Build: 123456</span>
       <span className="text-gray-800 dark:text-neutral-grey-84">Date: {buildDate.toISOString()}</span>
-      <span className="text-gray-800 dark:text-neutral-grey-84">Copyright © {thisYear} BPPTKG</span>
+      <span className="text-gray-800 dark:text-neutral-grey-84">Copyright © {thisYear} WaveView Developers</span>
     </div>
   );
 };
