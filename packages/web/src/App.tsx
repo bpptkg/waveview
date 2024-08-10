@@ -10,6 +10,7 @@ import { useInventoryStore } from './stores/inventory';
 import { useOrganizationStore } from './stores/organization';
 import { usePickerStore } from './stores/picker';
 import { useUserStore } from './stores/user';
+import { useVolcanoStore } from './stores/volcano/useVolcanoStore';
 
 const PickerIcon = CursorHover24Regular;
 const CatalogIcon = Folder24Regular;
@@ -34,13 +35,15 @@ function App() {
   const { fetchUser } = useUserStore();
   const { setHelicorderChannelId, setSelectedChannels } = usePickerStore();
   const { fetchEventTypes } = useEventTypeStore();
+  const { fetchAllVolcanoes } = useVolcanoStore();
 
   useEffect(() => {
     const initializeApp = async () => {
+      await fetchUser();
       await fetchAllOrganizations();
       await fetchInventory();
-      await fetchUser();
       await fetchEventTypes();
+      await fetchAllVolcanoes();
 
       setIsInitialized(true);
 
