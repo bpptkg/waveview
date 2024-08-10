@@ -186,6 +186,7 @@ const PickerWorkspace = () => {
           onIntervalChange={handleHelicorderChangeInterval}
           onDurationChange={handleHelicorderChangeDuration}
           onOffsetDateChange={handleHelicorderSelectOffsetDate}
+          onShowEventChange={handleSeismogramShowEvent}
         />
       )}
       {selectedChart === 'seismogram' && (
