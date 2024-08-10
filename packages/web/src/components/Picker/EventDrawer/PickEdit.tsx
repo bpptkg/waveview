@@ -1,6 +1,7 @@
 import { Button, Dropdown, Field, Input, Option, Textarea } from '@fluentui/react-components';
 import { formatDate } from '@waveview/charts';
 import { useCallback, useEffect, useState } from 'react';
+import { useEventTypeStore } from '../../../stores/eventType';
 import { PickedEvent, usePickerStore } from '../../../stores/picker';
 
 export interface EventDrawerProps {
@@ -67,7 +68,8 @@ const PickEdit: React.FC<EventDrawerProps> = (props) => {
     setDurationValue(duration);
   }, [time, duration]);
 
-  const { getSelectedStations, eventTypes } = usePickerStore();
+  const { getSelectedStations } = usePickerStore();
+  const { eventTypes } = useEventTypeStore();
 
   const handleConfirm = useCallback(() => {
     onConfirm?.({

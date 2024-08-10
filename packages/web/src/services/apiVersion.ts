@@ -38,4 +38,19 @@ export default {
   deleteVolcano: {
     v1: (organizationId: string, id: string) => `/api/v1/organizations/${organizationId}/volcanoes/${id}/`,
   },
+  listEventType: {
+    v1: (organizationId: string) => `/api/v1/organizations/${organizationId}/event-types/`,
+  },
+  createEventType: {
+    v1: (organizationId: string) => `/api/v1/organizations/${organizationId}/event-types/`,
+  },
+  getEventType: {
+    v1: (organizationId: string, id: string) => `/api/v1/organizations/${organizationId}/event-types/${id}/`,
+  },
+  updateEventType: {
+    v1: (organizationId: string, id: string) => `/api/v1/organizations/${organizationId}/event-types/${id}/`,
+  },
+  deleteEventType: {
+    v1: (organizationId: string, id: string) => `/api/v1/organizations/${organizationId}/event-types/${id}/`,
+  },
 };

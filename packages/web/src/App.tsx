@@ -5,6 +5,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AppBar, AppBarTab } from './components/AppBar';
 import Header from './components/Header/Header';
 import { useAppStore } from './stores/app';
+import { useEventTypeStore } from './stores/eventType';
 import { useInventoryStore } from './stores/inventory';
 import { useOrganizationStore } from './stores/organization';
 import { usePickerStore } from './stores/picker';
@@ -32,12 +33,14 @@ function App() {
   const { fetchInventory } = useInventoryStore();
   const { fetchUser } = useUserStore();
   const { setHelicorderChannelId, setSelectedChannels } = usePickerStore();
+  const { fetchEventTypes } = useEventTypeStore();
 
   useEffect(() => {
     const initializeApp = async () => {
       await fetchAllOrganizations();
       await fetchInventory();
       await fetchUser();
+      await fetchEventTypes();
 
       setIsInitialized(true);
 
