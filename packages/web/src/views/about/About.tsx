@@ -5,13 +5,16 @@ import LogoText from '../../components/Header/LogoText';
 import { useAppStore } from '../../stores/app';
 
 const VersionInfo = () => {
-  const buildDate = new Date();
-  const thisYear = buildDate.getFullYear();
+  const thisYear = new Date().getFullYear();
+  const commitHash = import.meta.env.__COMMIT__HASH__;
+  const buildDate = import.meta.env.__BUILD__DATE__;
+  const packageVersion = import.meta.env.__PACKAGE__VERSION__;
+
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-gray-800 dark:text-neutral-grey-84">Version 1.0.0</span>
-      <span className="text-gray-800 dark:text-neutral-grey-84">Build: 123456</span>
-      <span className="text-gray-800 dark:text-neutral-grey-84">Date: {buildDate.toISOString()}</span>
+      <span className="text-gray-800 dark:text-neutral-grey-84">Version: {packageVersion}</span>
+      <span className="text-gray-800 dark:text-neutral-grey-84">Commit: {commitHash}</span>
+      <span className="text-gray-800 dark:text-neutral-grey-84">Date: {buildDate}</span>
       <span className="text-gray-800 dark:text-neutral-grey-84">Copyright © {thisYear} WaveView Developers</span>
     </div>
   );
