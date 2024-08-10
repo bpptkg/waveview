@@ -28,7 +28,6 @@ import {
   ChevronDownUp20Regular,
   ChevronUp20Regular,
   ChevronUpDown20Regular,
-  MoreHorizontal24Filled,
   Search20Regular,
 } from '@fluentui/react-icons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -253,17 +252,6 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
         <ToolbarButton aria-label="Reset Amplitude" icon={<AutoFitHeight20Regular />} onClick={onResetAmplitude} />
         <ToolbarDivider />
         <Switch checked={showEvent} label={showEvent ? 'Hide Event' : 'Show Event'} onChange={handleShowEventChange} />
-        <ToolbarDivider />
-        <Menu>
-          <MenuTrigger>
-            <ToolbarButton aria-label="More" icon={<MoreHorizontal24Filled />} />
-          </MenuTrigger>
-          <MenuPopover>
-            <MenuList>
-              <MenuItem>More</MenuItem>
-            </MenuList>
-          </MenuPopover>
-        </Menu>
       </Toolbar>
     </div>
   );
