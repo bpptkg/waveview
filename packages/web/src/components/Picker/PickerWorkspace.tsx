@@ -15,7 +15,6 @@ import TimeZoneSelector from './TimezoneSelector';
 import HelicorderToolbar from './Toolbar/HelicorderToolbar';
 import SeismogramToolbar from './Toolbar/SeismogramToolbar';
 import { useHelicorderCallback } from './useHelicorderCallback';
-import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { useSeismogramCallback } from './useSeismogramCallback';
 import { useThemeEffect } from './useThemeEffect';
 import { useTimeZoneEffect } from './useTimeZoneEffect';
@@ -98,7 +97,6 @@ const PickerWorkspace = () => {
     handleSeismogramRemoveChannel,
     handleSeismogramMoveChannelUp,
     handleSeismogramMoveChannelDown,
-    handleTrackDoubleClicked,
     handleRestoreChannels,
     handleSeismogramFocus,
     handleSeismogramExtentChange,
@@ -106,20 +104,16 @@ const PickerWorkspace = () => {
     handleSeismogramDeactivatePickMode,
   } = useSeismogramCallback(seisChartRef, heliChartRef);
 
-  useKeyboardShortcuts(seisChartRef);
   useThemeEffect(heliChartRef, seisChartRef);
   useTimeZoneEffect(heliChartRef, seisChartRef);
 
-  const handleContextMenuRequested = useCallback(
-    (e: FederatedPointerEvent) => {
-      if (!isExpandMode && seisChartRef.current) {
-        contextMenuRef.current?.open(e, {
-          chart: seisChartRef.current?.getInstance(),
-        });
-      }
-    },
-    [isExpandMode]
-  );
+  const handleContextMenuRequested = useCallback((e: FederatedPointerEvent) => {
+    if (seisChartRef.current) {
+      contextMenuRef.current?.open(e, {
+        chart: seisChartRef.current?.getInstance(),
+      });
+    }
+  }, []);
 
   const handlePickDurationChange = useCallback(
     (duration: number) => {
@@ -195,6 +189,7 @@ const PickerWorkspace = () => {
           checkedValues={seismogramToolbarCheckedValues}
           isExpandMode={isExpandMode}
           availableChannels={channels()}
+          selectedChannels={selectedChannels}
           component={component}
           onChannelAdd={handleSeismogramChannelAdd}
           onZoomIn={handleSeismogramZoomIn}
@@ -266,7 +261,6 @@ const PickerWorkspace = () => {
               onFocus={handleSeismogramFocus}
               onExtentChange={handleSeismogramExtentChange}
               onContextMenuRequested={handleContextMenuRequested}
-              onTrackDoubleClick={handleTrackDoubleClicked}
               onPick={handleSeismogramPickChange}
             />
             {isExpandMode && (

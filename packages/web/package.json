@@ -16,6 +16,7 @@
     "@waveview/charts": "workspace:*",
     "@waveview/stream": "workspace:*",
     "date-fns": "^3.6.0",
+    "fuse.js": "^7.0.0",
     "i18next": "^23.11.5",
     "pixi.js": "^8.1.1",
     "react": "^18.2.0",

@@ -1,6 +1,7 @@
 import { Calendar } from '@fluentui/react-calendar-compat';
 import {
   Field,
+  InputOnChangeData,
   Menu,
   MenuItem,
   MenuList,
@@ -10,6 +11,7 @@ import {
   PopoverSurface,
   PopoverTrigger,
   SearchBox,
+  SearchBoxChangeEvent,
   Switch,
   Toolbar,
   ToolbarButton,
@@ -29,8 +31,9 @@ import {
   MoreHorizontal24Filled,
   Search20Regular,
 } from '@fluentui/react-icons';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Channel } from '../../../types/channel';
+import Fuse from 'fuse.js';
 
 export interface HelicorderToolbarProps {
   channelId: string;
@@ -136,8 +139,35 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
     [onOffsetDateChange]
   );
 
-  const [open, setOpen] = React.useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(false);
   const [offsetDatePickerOpen, setOffsetDatePickerOpen] = React.useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const fuseRef = useRef<Fuse<Channel> | null>(null);
+
+  const candidateChannels = useMemo(() => availableChannels.filter((channel) => channel.id !== channelId), [availableChannels, channelId]);
+
+  useEffect(() => {
+    fuseRef.current = new Fuse(candidateChannels, {
+      keys: ['stream_id'],
+      threshold: 0.3,
+    });
+
+    return () => {
+      fuseRef.current = null;
+    };
+  }, [candidateChannels]);
+
+  const handleSearchChange = useCallback((_: SearchBoxChangeEvent, data: InputOnChangeData) => {
+    setSearchQuery(data.value);
+  }, []);
+
+  const filterableChannels = useMemo(() => {
+    if (!searchQuery || !fuseRef.current) {
+      return candidateChannels;
+    }
+
+    return searchQuery ? fuseRef.current.search(searchQuery).map((item) => item.item) : candidateChannels;
+  }, [searchQuery, candidateChannels]);
 
   return (
     <div className="bg-white dark:bg-black mx-2 drop-shadow rounded">
@@ -150,24 +180,22 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
           </PopoverTrigger>
           <PopoverSurface>
             <Field className={styles.searchBoxWrapper}>
-              <SearchBox placeholder="Search channel" size="medium" className={styles.searchBox} />
+              <SearchBox placeholder="Search channel" size="medium" className={styles.searchBox} value={searchQuery} onChange={handleSearchChange} />
             </Field>
             <MenuList>
-              {availableChannels
-                .filter((channel) => channel.id !== channelId)
-                .map((channel, index) => (
-                  <MenuItem
-                    key={index}
-                    onClick={() => {
-                      if (channelId !== channel.id) {
-                        handleChannelChange(channel);
-                      }
-                      setOpen(false);
-                    }}
-                  >
-                    {channel.stream_id}
-                  </MenuItem>
-                ))}
+              {filterableChannels.map((channel, index) => (
+                <MenuItem
+                  key={index}
+                  onClick={() => {
+                    if (channelId !== channel.id) {
+                      handleChannelChange(channel);
+                    }
+                    setOpen(false);
+                  }}
+                >
+                  {channel.stream_id}
+                </MenuItem>
+              ))}
             </MenuList>
           </PopoverSurface>
         </Popover>

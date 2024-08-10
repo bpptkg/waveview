@@ -1,5 +1,6 @@
 import {
   Field,
+  InputOnChangeData,
   Menu,
   MenuItem,
   MenuList,
@@ -9,6 +10,7 @@ import {
   PopoverSurface,
   PopoverTrigger,
   SearchBox,
+  SearchBoxChangeEvent,
   Switch,
   Toolbar,
   ToolbarButton,
@@ -28,13 +30,13 @@ import {
   ChevronRight20Regular,
   ChevronUpDown20Regular,
   FullScreenMaximize20Regular,
-  MoreHorizontal24Filled,
   ZoomIn20Regular,
   ZoomOut20Regular,
 } from '@fluentui/react-icons';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import PickIcon from '../../Icons/PickIcon';
 import { Channel } from '../../../types/channel';
+import Fuse from 'fuse.js';
 
 export interface SeismogramToolbarProps {
   showEvent?: boolean;
@@ -42,6 +44,7 @@ export interface SeismogramToolbarProps {
   isExpandMode?: boolean;
   component?: string;
   availableChannels?: Channel[];
+  selectedChannels?: Channel[];
   onChannelAdd?: (trace: Channel) => void;
   onZoomIn?: () => void;
   onZoomOut?: () => void;
@@ -96,6 +99,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
     isExpandMode,
     component = 'Z',
     availableChannels = [],
+    selectedChannels = [],
     onChannelAdd,
     onZoomIn,
     onZoomOut,
@@ -150,13 +154,43 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
   );
 
   const handleChannelAdd = useCallback(
-    (trace: Channel) => {
-      onChannelAdd?.(trace);
+    (channel: Channel) => {
+      onChannelAdd?.(channel);
     },
     [onChannelAdd]
   );
 
-  const [open, setOpen] = React.useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const fuseRef = useRef<Fuse<Channel> | null>(null);
+
+  const candidateChannels = useMemo(
+    () => availableChannels.filter((channel) => !selectedChannels.map((c) => c.id).includes(channel.id) && channel.code.includes(component)),
+    [availableChannels, selectedChannels, component]
+  );
+
+  const filterableChannels = useMemo(() => {
+    if (!searchQuery || !fuseRef.current) {
+      return candidateChannels;
+    }
+
+    return searchQuery ? fuseRef.current.search(searchQuery).map((item) => item.item) : candidateChannels;
+  }, [searchQuery, candidateChannels]);
+
+  useEffect(() => {
+    fuseRef.current = new Fuse(candidateChannels, {
+      keys: ['stream_id'],
+      threshold: 0.3,
+    });
+
+    return () => {
+      fuseRef.current = null;
+    };
+  }, [candidateChannels]);
+
+  const handleSearchChange = useCallback((_: SearchBoxChangeEvent, data: InputOnChangeData) => {
+    setSearchQuery(data.value);
+  }, []);
 
   return (
     <div className="bg-white dark:bg-black mx-2 drop-shadow rounded">
@@ -169,22 +203,20 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
           </PopoverTrigger>
           <PopoverSurface>
             <Field className={styles.searchBoxWrapper}>
-              <SearchBox placeholder="Search channel" size="medium" className={styles.searchBox} />
+              <SearchBox placeholder="Search channel" size="medium" className={styles.searchBox} value={searchQuery} onChange={handleSearchChange} />
             </Field>
             <MenuList>
-              {availableChannels
-                .filter((channel) => channel.code.includes(component))
-                .map((channel, index) => (
-                  <MenuItem
-                    key={index}
-                    onClick={() => {
-                      handleChannelAdd(channel);
-                      setOpen(false);
-                    }}
-                  >
-                    {channel.stream_id}
-                  </MenuItem>
-                ))}
+              {filterableChannels.map((channel, index) => (
+                <MenuItem
+                  key={index}
+                  onClick={() => {
+                    handleChannelAdd(channel);
+                    setOpen(false);
+                  }}
+                >
+                  {channel.stream_id}
+                </MenuItem>
+              ))}
             </MenuList>
           </PopoverSurface>
         </Popover>
@@ -231,20 +263,6 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
         <ToolbarDivider />
 
         <Switch checked={showEvent} label={showEvent ? 'Hide Event' : 'Show Event'} onChange={handleShowEventChange} />
-
-        <ToolbarDivider />
-
-        <Menu>
-          <MenuTrigger>
-            <ToolbarButton aria-label="More" icon={<MoreHorizontal24Filled />} />
-          </MenuTrigger>
-
-          <MenuPopover>
-            <MenuList>
-              <MenuItem>More</MenuItem>
-            </MenuList>
-          </MenuPopover>
-        </Menu>
       </Toolbar>
     </div>
   );

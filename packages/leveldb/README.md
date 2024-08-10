@@ -32,7 +32,6 @@ const data = layer.getDataPointsInRange(
   segment.timestamp,
   segment.timestamp + layer.size * 60_000
 );
-console.log(data);
 ```
 
 ## License

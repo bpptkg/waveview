@@ -105,11 +105,13 @@ export const createSeismogramSlice: StateCreator<PickerStore, [], [], Seismogram
     setExpandedChannelIndex: (index) => set({ expandedChannelIndex: index }),
 
     getChannelByStreamId: (streamId: string) => {
-      return get().selectedChannels.find((channel) => channel.stream_id === streamId);
+      const channels = useInventoryStore.getState().channels();
+      return channels.find((channel) => channel.stream_id === streamId);
     },
 
     getChannelById: (id) => {
-      return get().selectedChannels.find((channel) => channel.id === id);
+      const channels = useInventoryStore.getState().channels();
+      return channels.find((channel) => channel.id === id);
     },
 
     getSelectedStations: () => {

@@ -305,6 +305,7 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
         axisPointerExtensionRef.current = new AxisPointerExtension();
         eventManagerExtensionRef.current = new SeismogramEventManagerExtension({
           refreshDataAfterEvent: true,
+          enableNKey: false,
           fetchData: fetchDataDebounced,
         });
         zoomRectangleExtensionRef.current = new ZoomRectangleExtension();
@@ -363,7 +364,7 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
       chartRef.current.on('blur', handleBlur);
       chartRef.current.on('extentChange', handleExtentChange);
       chartRef.current.on('trackDoubleClick', handleTrackDoubleClick);
-      chartRef.current.on('contextmenu', handleContextMenuRequested);
+      chartRef.current.app.stage.on('rightclick', handleContextMenuRequested);
     }
 
     zoomRectangleExtensionRef.current?.getAPI().on('extentSelected', handleZoomRectangle);

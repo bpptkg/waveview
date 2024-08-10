@@ -1,9 +1,9 @@
 import { MenuDivider, MenuItem, MenuList, makeStyles, tokens } from '@fluentui/react-components';
 import { ArrowDown20Regular, ArrowUp20Regular, Delete20Regular } from '@fluentui/react-icons';
 import { Seismogram } from '@waveview/charts';
-import { StreamIdentifier } from '@waveview/stream';
 import { FederatedPointerEvent } from 'pixi.js';
-import React, { useCallback, useEffect, useImperativeHandle, useRef } from 'react';
+import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
+import { usePickerStore } from '../../stores/picker';
 
 export interface ContextMenuProps {
   onRemoveChannel?: (index: number) => void;
@@ -40,7 +40,6 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & 
   const styles = useStyles();
 
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const [channelId, setChannelId] = React.useState<string | null>(null);
   const [channelIndex, setChannelIndex] = React.useState<number | null>(null);
 
   useImperativeHandle(ref, () => ({
@@ -58,9 +57,7 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & 
         }
 
         const index = chart.getChannelIndexAtPosition(y);
-        const channelId = chart.getChannelAt(index);
         setChannelIndex(index);
-        setChannelId(channelId);
 
         if (e.pageX > window.innerWidth - width) {
           x -= width;
@@ -125,9 +122,12 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & 
     handleClose();
   }, [channelIndex, handleClose, onMoveChannelDown]);
 
+  const { selectedChannels } = usePickerStore();
+  const channel = useMemo(() => selectedChannels[channelIndex ?? 0], [selectedChannels, channelIndex]);
+
   return (
     <div className={styles.root} ref={menuRef}>
-      <span className="px-2 py-4 font-semibold">{channelId && StreamIdentifier.fromId(channelId).shortName()}</span>
+      <span className="px-2 py-4 font-semibold">{channel && channel.stream_id}</span>
       <MenuList hasIcons>
         <MenuItem onClick={handleMoveChannelUp} icon={<ArrowUp20Regular />} aria-label="Move Channel Up">
           Move Channel Up

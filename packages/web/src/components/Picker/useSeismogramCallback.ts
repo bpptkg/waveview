@@ -21,7 +21,7 @@ export const useSeismogramCallback = (
     setComponent,
     setExpandedChannelIndex,
     setPickRange,
-    getChannelByStreamId,
+    getChannelById,
     getChannelsByStationIndex,
     deactivatePickMode,
   } = usePickerStore();
@@ -29,13 +29,13 @@ export const useSeismogramCallback = (
   return {
     handleSeismogramChannelAdd: useCallback(
       (channel: Channel) => {
-        const chan = getChannelByStreamId(channel.id);
+        const chan = getChannelById(channel.id);
         if (chan) {
           addSeismogramChannel(chan);
-          seisChartRef.current?.addChannel(channel);
+          seisChartRef.current?.addChannel({ id: chan.id, label: chan.network_station_code });
         }
       },
-      [seisChartRef, addSeismogramChannel, getChannelByStreamId]
+      [seisChartRef, addSeismogramChannel, getChannelById]
     ),
 
     handleSeismogramZoomIn: useCallback(() => {
