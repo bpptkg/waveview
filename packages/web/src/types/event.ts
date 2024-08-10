@@ -1,7 +1,13 @@
 export interface EventType {
   id: string;
+  organization_id: string;
   code: string;
   name: string;
+  description: string;
+  color_light: string;
+  color_dark: string;
+  created_at: number;
+  updated_at: number;
 }
 
 export interface SeismicEvent {
