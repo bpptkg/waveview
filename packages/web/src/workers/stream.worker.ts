@@ -2,9 +2,9 @@ import { StreamRequestData, StreamResponseData, WorkerRequestData, WorkerRespons
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { WebSocketRequest } from '../types/websocket';
 
-import { websockerUrl } from '../services/api';
+import { wsUrl } from '../services/api';
 
-const url = `${websockerUrl}/ws/stream/`;
+const url = `${wsUrl}/ws/stream/`;
 const socket = new ReconnectingWebSocket(url);
 
 socket.addEventListener('open', () => {});

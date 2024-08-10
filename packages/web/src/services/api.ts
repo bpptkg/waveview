@@ -1,7 +1,7 @@
 import { AUTH_KEY } from '../stores/auth';
 
 export const baseUrl = import.meta.env.VITE_API_URL as string;
-export const websockerUrl = import.meta.env.VITE_WS_URL as string;
+export const wsUrl = import.meta.env.VITE_WS_URL as string;
 
 export const api = async <T = any>(url: string, method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET', body?: any): Promise<T> => {
   const auth = typeof window !== 'undefined' ? window.localStorage.getItem(AUTH_KEY) : null;

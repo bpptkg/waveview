@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import WebSocketContext from './WebSocketContext';
 import ReconnectingWebSocket from 'reconnecting-websocket';
+import { wsUrl } from '../services/api';
+import WebSocketContext from './WebSocketContext';
 
 interface WebSocketProviderProps {
   children: React.ReactNode;
@@ -11,7 +12,8 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = (props) => {
   const [webSocket, setWebSocket] = useState<ReconnectingWebSocket | null>(null);
 
   useEffect(() => {
-    const ws = new ReconnectingWebSocket('ws://127.0.0.1:8000/ws/stream/');
+    const url = `${wsUrl}/ws/stream/`;
+    const ws = new ReconnectingWebSocket(url);
     setWebSocket(ws);
 
     return () => {
