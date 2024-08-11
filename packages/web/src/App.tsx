@@ -50,20 +50,21 @@ function App() {
       setIsInitialized(true);
 
       const currentOrgSettings = useOrganizationStore.getState().currentOrganizationSettings!;
-      const defaultHelicorderChannelId = currentOrgSettings.data.default_helicorder_channel_id ?? '';
+      const { default_helicorder_channel_id, default_seismogram_station_ids, default_seismogram_component } = currentOrgSettings.data;
+      const defaultHelicorderChannelId = default_helicorder_channel_id ?? '';
       setHelicorderChannelId(defaultHelicorderChannelId);
 
       const channels = useInventoryStore.getState().channels();
-      const defaultSeismogramStationIds = currentOrgSettings.data.default_seismogram_station_ids ?? [];
-      const component = currentOrgSettings.data.default_seismogram_component ?? 'Z';
+      const defaultSeismogramStationIds = default_seismogram_station_ids ?? [];
+      const component = default_seismogram_component ?? 'Z';
       const selectedChannels = channels
         .filter((channel) => defaultSeismogramStationIds.includes(channel.station_id))
         .filter((channel) => channel.code.includes(component));
       setSelectedChannels(selectedChannels);
     };
 
-    initializeApp().catch(() => {
-      setError('Failed to initialize app. Please check your internet connection and try again.');
+    initializeApp().catch((error: Error) => {
+      setError(`Failed to initialize app. ${error.message}`);
     });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
