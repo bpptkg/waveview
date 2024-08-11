@@ -114,18 +114,6 @@ export class Index<T extends NDFrameArray = NDFrameArray> {
   }
 
   /**
-   * Map a function to each value in the index.
-   */
-  map<U extends NDFrameArray>(
-    fn: (value: number, index: number, array: T) => number
-  ): Index<U> {
-    const data = this.values.map((value, index) =>
-      fn(value, index, this.values)
-    ) as U;
-    return new Index(data) as Index<U>;
-  }
-
-  /**
    * Get the minimum value in the index.
    */
   min(): number {
@@ -151,6 +139,35 @@ export class Index<T extends NDFrameArray = NDFrameArray> {
       }
     }
     return max;
+  }
+
+  /**
+   * Map a function to each value in the index.
+   */
+  map<U extends NDFrameArray>(
+    fn: (value: number, index: number, array: T) => number
+  ): Index<U> {
+    const data = this.values.map((value, index) =>
+      fn(value, index, this.values)
+    ) as U;
+    return new Index(data) as Index<U>;
+  }
+
+  /**
+   * Filter the index values.
+   */
+  filter(fn: (value: number, index: number, array: T) => boolean): Index<T> {
+    const data = this.values.filter((value, index) =>
+      fn(value, index, this.values)
+    ) as T;
+    return new Index(data) as Index<T>;
+  }
+
+  /**
+   * Iterate over the index and apply a function to each value.
+   */
+  forEach(fn: (value: number, index: number, array: T) => void): void {
+    this.values.forEach((value, index) => fn(value, index, this.values));
   }
 
   /**

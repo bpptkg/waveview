@@ -137,18 +137,6 @@ export class Series<
   }
 
   /**
-   * Slice the Series by given start and end index values and return a new
-   * Series.
-   */
-  slice(start: number, end: number): Series<D, I> {
-    const beginPos = this.index.findNearestPosition(start);
-    const endPos = this.index.findNearestPosition(end);
-    const data = this.values.slice(beginPos, endPos) as D;
-    const index = this.index.slice(start, end);
-    return new Series(data, { name: this.name, index: index });
-  }
-
-  /**
    * Iterate over the Series and return an iterator of [index, value] pairs.
    */
   *iterIndexValuePairs(): Iterable<[number, number]> {
@@ -199,6 +187,42 @@ export class Series<
       fn(value, this.index.getValueAtPosition(index))
     ) as U;
     return new Series(data, { name: this.name, index: this.index });
+  }
+
+  /**
+   * Slice the Series by given start and end index values and return a new
+   * Series.
+   */
+  slice(start: number, end: number): Series<D, I> {
+    const beginPos = this.index.findNearestPosition(start);
+    const endPos = this.index.findNearestPosition(end);
+    const data = this.values.slice(beginPos, endPos) as D;
+    const index = this.index.slice(start, end);
+    return new Series(data, { name: this.name, index: index });
+  }
+
+  /**
+   * Filter the Series by a function and return a new Series.
+   */
+  filter(
+    fn: (value: number, index: number, series: Series) => boolean
+  ): Series<D, I> {
+    const data = this.values.filter((value, index) =>
+      fn(value, this.index.getValueAtPosition(index), this)
+    ) as D;
+    const index = this.index.filter((value, index) =>
+      fn(this.getValueAt(index), value, this)
+    );
+    return new Series(data, { name: this.name, index });
+  }
+
+  /**
+   * Iterate over the Series and apply a function to each value.
+   */
+  forEach(fn: (value: number, index: number, series: Series) => void): void {
+    this.values.forEach((value, index) => {
+      fn(value, this.index.getValueAtPosition(index), this);
+    });
   }
 
   /**
@@ -270,6 +294,78 @@ export class Series<
       }
     }
     return Math.sqrt(sum / this.length);
+  }
+
+  /**
+   * Add two Series together and return a new Series.
+   */
+  add(other: Series<D, I>): Series<D, I> {
+    const data = this.values.map(
+      (value, index) => value + other.getValueAt(index)
+    ) as D;
+    return new Series(data, { name: this.name, index: this.index });
+  }
+
+  /**
+   * Subtract two Series and return a new Series.
+   */
+  subtract(other: Series<D, I>): Series<D, I> {
+    const data = this.values.map(
+      (value, index) => value - other.getValueAt(index)
+    ) as D;
+    return new Series(data, { name: this.name, index: this.index });
+  }
+
+  /**
+   * Multiply two Series and return a new Series.
+   */
+  multiply(other: Series<D, I>): Series<D, I> {
+    const data = this.values.map(
+      (value, index) => value * other.getValueAt(index)
+    ) as D;
+    return new Series(data, { name: this.name, index: this.index });
+  }
+
+  /**
+   * Divide two Series and return a new Series.
+   */
+  divide(other: Series<D, I>): Series<D, I> {
+    const data = this.values.map(
+      (value, index) => value / other.getValueAt(index)
+    ) as D;
+    return new Series(data, { name: this.name, index: this.index });
+  }
+
+  /**
+   * Add a scalar value to the Series and return a new Series.
+   */
+  scalarAdd(value: number): Series<D, I> {
+    const data = (this.values as any).map(
+      (v: number | bigint): number | bigint => {
+        if (typeof v === "bigint") {
+          return BigInt(v) + BigInt(value);
+        } else {
+          return v + value;
+        }
+      }
+    ) as D;
+    return new Series(data, { name: this.name, index: this.index });
+  }
+
+  /**
+   * Subtract a scalar value from the Series and return a new Series.
+   */
+  scalarSubtract(value: number): Series<D, I> {
+    const data = (this.values as any).map(
+      (v: number | bigint): number | bigint => {
+        if (typeof v === "bigint") {
+          return BigInt(v) - BigInt(value);
+        } else {
+          return v - value;
+        }
+      }
+    ) as D;
+    return new Series(data, { name: this.name, index: this.index });
   }
 
   /**
