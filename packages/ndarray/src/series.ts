@@ -1,5 +1,5 @@
-import { Index, parseIndex } from "./indexing";
 import { NDFrame, NDFrameArray } from "./generic";
+import { Index, parseIndex } from "./indexing";
 
 export interface SeriesOptions<I extends NDFrameArray> {
   name: string;
@@ -20,6 +20,9 @@ export class Series<
     this.setAxis(0, index);
   }
 
+  /**
+   * Create an empty Series.
+   */
   static empty<D extends NDFrameArray, I extends NDFrameArray>(): Series<D, I> {
     return new Series(new Float32Array(), { index: Index.empty() }) as Series<
       D,
@@ -27,79 +30,180 @@ export class Series<
     >;
   }
 
+  /**
+   * Create a Series from an array of values.
+   */
+  static from<D extends NDFrameArray, I extends NDFrameArray>(
+    data: D,
+    options: Partial<SeriesOptions<I>> = {}
+  ): Series<D, I> {
+    return new Series(data, options) as Series<D, I>;
+  }
+
+  /**
+   * Create a Series with default values.
+   */
+  static defaults<D extends NDFrameArray, I extends NDFrameArray>(
+    length: number,
+    value: number
+  ): Series<D, I> {
+    const data = new Float32Array(length) as D;
+    for (let i = 0; i < length; i++) {
+      data[i] = value;
+    }
+    return new Series(data, { index: Index.defaults(length) }) as Series<D, I>;
+  }
+
+  /**
+   * Create a Series with zeros as values.
+   */
+  static zeros<D extends NDFrameArray, I extends NDFrameArray>(
+    length: number
+  ): Series<D, I> {
+    return Series.defaults(length, 0);
+  }
+
+  /**
+   * Create a Series with ones as values.
+   */
+  static ones<D extends NDFrameArray, I extends NDFrameArray>(
+    length: number
+  ): Series<D, I> {
+    return Series.defaults(length, 1);
+  }
+
+  /**
+   * Get the values of the Series.
+   */
   get values(): D {
     return this._values;
   }
 
+  /**
+   * Get the index of the Series.
+   */
   get index(): Index<I> {
     return this.getAxis(0);
   }
 
+  /**
+   * Get the name of the Series
+   */
   get name(): string {
     return this._name;
   }
 
+  /**
+   * Get the length of the Series.
+   */
   get length(): number {
     return this.values.length;
   }
 
+  /**
+   * Get the data type of the Series.
+   */
   get dtype(): string {
     return this.values.constructor.name;
   }
 
+  /**
+   * Get the number of bytes in the Series.
+   */
   get nbytes(): number {
     return this.values.length * this.values.BYTES_PER_ELEMENT;
   }
 
+  /**
+   * Check if the Series is empty.
+   */
   isEmpty(): boolean {
     return this.length === 0;
   }
 
-  at(label: number): number {
-    const index = this.index.at(label);
+  /**
+   * Get the nearest value at the index.
+   */
+  getNearestValueAt(index: number): number {
+    const idx = this.index.findNearestPosition(index);
+    return Number(this.values[idx]);
+  }
+
+  /**
+   * Get the value at the exact index.
+   */
+  getValueAt(index: number): number {
     return Number(this.values[index]);
   }
 
-  iat(index: number): number {
-    return Number(this.values[index]);
-  }
-
+  /**
+   * Slice the Series by given start and end index values and return a new
+   * Series.
+   */
   slice(start: number, end: number): Series<D, I> {
-    const beginPos = this.index.at(start);
-    const endPos = this.index.at(end);
+    const beginPos = this.index.findNearestPosition(start);
+    const endPos = this.index.findNearestPosition(end);
     const data = this.values.slice(beginPos, endPos) as D;
     const index = this.index.slice(start, end);
     return new Series(data, { name: this.name, index: index });
   }
 
-  *items(): Iterable<[number, number]> {
-    for (const v of this.index.values) {
-      const label = Number(v);
-      yield [label, this.at(label)];
+  /**
+   * Iterate over the Series and return an iterator of [index, value] pairs.
+   */
+  *iterIndexValuePairs(): Iterable<[number, number]> {
+    for (const [pos, value] of this.index.iterPositionValuePairs()) {
+      const index = Number(value);
+      yield [index, this.getValueAt(pos)];
     }
   }
 
+  /**
+   * Iterate over the Series and return an iterator of values in the Series in
+   * order.
+   */
+  *iterValues(): Iterable<number> {
+    for (let i = 0; i < this.length; i++) {
+      yield this.getValueAt(i);
+    }
+  }
+
+  /**
+   * Get the first value in the Series.
+   */
   first(): number {
-    return this.iat(0);
+    return this.getValueAt(0);
   }
 
+  /**
+   * Get the last value in the Series.
+   */
   last(): number {
-    return this.iat(this.length - 1);
+    return this.getValueAt(this.length - 1);
   }
 
+  /**
+   * Set the index of the Series.
+   */
   setIndex(index: Index<I>): void {
     this.setAxis(0, index);
   }
 
+  /**
+   * Map a function to each value in the Series.
+   */
   map<U extends NDFrameArray>(
     fn: (value: number, index: number) => number
   ): Series<U, I> {
     const data = this.values.map((value, index) =>
-      fn(value, this.index.iat(index))
+      fn(value, this.index.getValueAtPosition(index))
     ) as U;
     return new Series(data, { name: this.name, index: this.index });
   }
 
+  /**
+   * Get the minimum value in the Series.
+   */
   min(): number {
     let min = Infinity;
     for (let i = 0; i < this.length; i++) {
@@ -111,6 +215,9 @@ export class Series<
     return min;
   }
 
+  /**
+   * Get the maximum value in the Series.
+   */
   max(): number {
     let max = -Infinity;
     for (let i = 0; i < this.length; i++) {
@@ -122,6 +229,9 @@ export class Series<
     return max;
   }
 
+  /**
+   * Get the mean value of the Series.
+   */
   mean(): number {
     let sum = 0;
     for (let i = 0; i < this.length; i++) {
@@ -133,6 +243,9 @@ export class Series<
     return sum / this.length;
   }
 
+  /**
+   * Get the sum of the Series.
+   */
   sum(): number {
     let sum = 0;
     for (let i = 0; i < this.length; i++) {
@@ -144,6 +257,9 @@ export class Series<
     return sum;
   }
 
+  /**
+   * Get the standard deviation of the Series.
+   */
   std(): number {
     const mean = this.mean();
     let sum = 0;
@@ -156,6 +272,9 @@ export class Series<
     return Math.sqrt(sum / this.length);
   }
 
+  /**
+   * Multiply the Series by a scalar value and return a new Series.
+   */
   scalarMultiply(value: number): Series<D, I> {
     const data = (this.values as any).map(
       (v: number | bigint): number | bigint => {
@@ -169,6 +288,9 @@ export class Series<
     return new Series(data, { name: this.name, index: this.index });
   }
 
+  /**
+   * Divide the Series by a scalar value and return a new Series.
+   */
   scalarDivide(value: number): Series<D, I> {
     const data = (this.values as any).map(
       (v: number | bigint): number | bigint => {

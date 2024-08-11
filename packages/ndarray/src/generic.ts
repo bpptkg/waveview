@@ -29,6 +29,9 @@ export class NDFrame<
     this._values = data;
   }
 
+  /**
+   * Get the shape of the NDFrame.
+   */
   get shape(): number[] {
     const shape: number[] = [];
     for (const [key, value] of this._axes) {

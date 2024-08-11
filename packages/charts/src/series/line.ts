@@ -105,7 +105,7 @@ export class LineSeries extends View<LineSeriesModel> {
     const { xAxis, yAxis } = this;
     const data = model.getData();
     let first = false;
-    for (const [px, py] of data.items()) {
+    for (const [px, py] of data.iterIndexValuePairs()) {
       const cx = xAxis.getPixelForValue(px);
       const cy = yAxis.getPixelForValue(py);
 

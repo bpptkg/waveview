@@ -1,6 +1,6 @@
 {
   "name": "@waveview/ndarray",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "N dimensional array library for WaveView",
   "type": "module",
   "main": "./src/index.ts",
@@ -13,9 +13,13 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "jest"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.4",
     "typescript": "^5.2.2",
     "vite": "^5.2.0",
     "vite-plugin-dts": "^3.9.1"
