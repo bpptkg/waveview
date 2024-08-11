@@ -5,6 +5,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AppBar, AppBarTab } from './components/AppBar';
 import Header from './components/Header/Header';
 import { useAppStore } from './stores/app';
+import { useCatalogStore } from './stores/catalog';
 import { useEventTypeStore } from './stores/eventType';
 import { useInventoryStore } from './stores/inventory';
 import { useOrganizationStore } from './stores/organization';
@@ -35,6 +36,7 @@ function App() {
   const { setHelicorderChannelId, setSelectedChannels } = usePickerStore();
   const { fetchEventTypes } = useEventTypeStore();
   const { fetchAllVolcanoes } = useVolcanoStore();
+  const { fetchAllCatalogs } = useCatalogStore();
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -43,11 +45,11 @@ function App() {
       await fetchInventory();
       await fetchEventTypes();
       await fetchAllVolcanoes();
+      await fetchAllCatalogs();
 
       setIsInitialized(true);
 
       const currentOrgSettings = useOrganizationStore.getState().currentOrganizationSettings!;
-
       const defaultHelicorderChannelId = currentOrgSettings.data.default_helicorder_channel_id ?? '';
       setHelicorderChannelId(defaultHelicorderChannelId);
 

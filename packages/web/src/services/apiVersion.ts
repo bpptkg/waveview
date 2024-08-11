@@ -53,4 +53,19 @@ export default {
   deleteEventType: {
     v1: (organizationId: string, id: string) => `/api/v1/organizations/${organizationId}/event-types/${id}/`,
   },
+  listCatalog: {
+    v1: (organizationId: string, volcanoId: string) => `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/`,
+  },
+  createCatalog: {
+    v1: (organizationId: string, volcanoId: string) => `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/`,
+  },
+  getCatalog: {
+    v1: (organizationId: string, volcanoId: string, id: string) => `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/${id}/`,
+  },
+  updateCatalog: {
+    v1: (organizationId: string, volcanoId: string, id: string) => `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/${id}/`,
+  },
+  deleteCatalog: {
+    v1: (organizationId: string, volcanoId: string, id: string) => `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/${id}/`,
+  },
 };
