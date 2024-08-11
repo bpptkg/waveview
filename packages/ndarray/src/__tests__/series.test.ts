@@ -407,4 +407,57 @@ describe("Series", () => {
       new Float32Array([1, 2, 3, 4, 5])
     );
   });
+
+  it("should correctly check if every value in the series meets the condition", () => {
+    const data = new Float32Array([2, 4, 6, 8, 10]);
+    const index = new Float32Array([0, 1, 2, 3, 4]);
+    const options = {
+      name: "Series",
+      index,
+    };
+    const series = new Series(data, options);
+
+    expect(series.every((value) => value % 2 === 0)).toBe(true);
+    expect(series.every((value) => value > 5)).toBe(false);
+  });
+
+  it("should correctly check if some values in the series meet the condition", () => {
+    const data = new Float32Array([2, 4, 6, 8, 10]);
+    const index = new Float32Array([0, 1, 2, 3, 4]);
+    const options = {
+      name: "Series",
+      index,
+    };
+    const series = new Series(data, options);
+
+    expect(series.some((value) => value % 2 === 0)).toBe(true);
+    expect(series.some((value) => value > 5)).toBe(true);
+    expect(series.some((value) => value > 10)).toBe(false);
+  });
+
+  it("should correctly get the cumulative sum of the series", () => {
+    const data = new Float32Array([1, 2, 3, 4, 5]);
+    const index = new Float32Array([0, 1, 2, 3, 4]);
+    const options = {
+      name: "Series",
+      index,
+    };
+    const series = new Series(data, options);
+    const cumsum = series.cumsum();
+
+    expect(cumsum.values).toEqual(new Float32Array([1, 3, 6, 10, 15]));
+  });
+
+  it("should correctly calculate the difference of the series", () => {
+    const data = new Float32Array([1, 2, 4, 7, 11]);
+    const index = new Float32Array([0, 1, 2, 3, 4]);
+    const options = {
+      name: "Series",
+      index,
+    };
+    const series = new Series(data, options);
+    const diff = series.diff();
+
+    expect(diff.values).toEqual(new Float32Array([NaN, 1, 2, 3, 4]));
+  });
 });

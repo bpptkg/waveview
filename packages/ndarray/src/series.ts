@@ -94,6 +94,13 @@ export class Series<
   }
 
   /**
+   * Set the name of the Series.
+   */
+  set name(value: string) {
+    this._name = value;
+  }
+
+  /**
    * Get the length of the Series.
    */
   get length(): number {
@@ -226,6 +233,26 @@ export class Series<
   }
 
   /**
+   * Check if all values in the Series pass a given function.
+   */
+  every(
+    fn: (value: number, index: number, series: Series) => boolean
+  ): boolean {
+    return this.values.every((value, index) =>
+      fn(value, this.index.getValueAtPosition(index), this)
+    );
+  }
+
+  /**
+   * Check if any value in the Series passes a given function.
+   */
+  some(fn: (value: number, index: number, series: Series) => boolean): boolean {
+    return this.values.some((value, index) =>
+      fn(value, this.index.getValueAtPosition(index), this)
+    );
+  }
+
+  /**
    * Get the minimum value in the Series.
    */
   min(): number {
@@ -294,6 +321,29 @@ export class Series<
       }
     }
     return Math.sqrt(sum / this.length);
+  }
+
+  /**
+   * Get the cumulative sum of the Series.
+   */
+  cumsum(): Series<D, I> {
+    let sum = 0;
+    const data = this.values.map((value) => {
+      sum += value;
+      return sum;
+    }) as D;
+    return new Series(data, { name: this.name, index: this.index });
+  }
+
+  /**
+   * Get the difference of the Series.
+   */
+  diff(): Series<D, I> {
+    const data = this.values.map((value, index) => {
+      const prevValue = this.getValueAt(index - 1);
+      return value - prevValue;
+    }) as D;
+    return new Series(data, { name: this.name, index: this.index });
   }
 
   /**
