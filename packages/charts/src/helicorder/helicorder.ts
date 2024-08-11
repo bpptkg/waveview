@@ -6,7 +6,7 @@ import { Grid } from "../grid";
 import { Track, TrackOptions } from "../track";
 import { almostEquals } from "../util/math";
 import { merge } from "../util/merge";
-import { ONE_HOUR, ONE_MINUTE, formatDate } from "../util/time";
+import { ONE_MINUTE, formatDate } from "../util/time";
 import { Channel, LayoutRect, ResizeOptions, SeriesData } from "../util/types";
 import { ChartView } from "../view";
 import {

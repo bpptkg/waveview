@@ -22,6 +22,7 @@
     "noImplicitOverride": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
+    "esModuleInterop": true,
   },
   "include": [
     "src"
