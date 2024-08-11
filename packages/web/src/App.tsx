@@ -49,18 +49,21 @@ function App() {
 
       setIsInitialized(true);
 
-      const currentOrgSettings = useOrganizationStore.getState().currentOrganizationSettings!;
-      const { default_helicorder_channel_id, default_seismogram_station_ids, default_seismogram_component } = currentOrgSettings.data;
-      const defaultHelicorderChannelId = default_helicorder_channel_id ?? '';
-      setHelicorderChannelId(defaultHelicorderChannelId);
+      const currentOrganizationSettings = useOrganizationStore.getState().currentOrganizationSettings!;
+      const { default_helicorder_channel_id, default_seismogram_station_ids, default_seismogram_component } = currentOrganizationSettings.data;
 
-      const channels = useInventoryStore.getState().channels();
-      const defaultSeismogramStationIds = default_seismogram_station_ids ?? [];
-      const component = default_seismogram_component ?? 'Z';
-      const selectedChannels = channels
-        .filter((channel) => defaultSeismogramStationIds.includes(channel.station_id))
-        .filter((channel) => channel.code.includes(component));
-      setSelectedChannels(selectedChannels);
+      const helicorderChannelId = default_helicorder_channel_id ?? '';
+      setHelicorderChannelId(helicorderChannelId);
+
+      const availableChannels = useInventoryStore.getState().channels();
+      const seismogramStationIds = default_seismogram_station_ids ?? [];
+      const seismogramComponent = default_seismogram_component ?? 'Z';
+
+      const filteredChannels = availableChannels
+        .filter((channel) => seismogramStationIds.includes(channel.station_id))
+        .filter((channel) => channel.code.includes(seismogramComponent));
+
+      setSelectedChannels(filteredChannels);
     };
 
     initializeApp().catch((error: Error) => {
