@@ -1,6 +1,6 @@
 {
   "name": "@waveview/hypocenter",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Hypocenter visualization library for WaveView",
   "type": "module",
   "main": "./src/index.ts",

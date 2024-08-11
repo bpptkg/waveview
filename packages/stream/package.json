@@ -1,6 +1,6 @@
 {
   "name": "@waveview/stream",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "A stream management library for WaveView",
   "type": "module",
   "main": "./src/index.ts",
