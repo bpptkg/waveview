@@ -12,7 +12,6 @@ const EventTable = () => {
       <Table aria-label="Event Table">
         <TableHeader>
           <TableRow>
-            <TableHeaderCell>Event ID</TableHeaderCell>
             <TableHeaderCell>Time</TableHeaderCell>
             <TableHeaderCell>Duration (s)</TableHeaderCell>
             <TableHeaderCell>Type</TableHeaderCell>
@@ -25,7 +24,6 @@ const EventTable = () => {
         </TableHeader>
         <TableBody>
           <TableRow>
-            <TableCell>1</TableCell>
             <TableCell>2021-01-01 00:00:00</TableCell>
             <TableCell>10</TableCell>
             <TableCell>Earthquake</TableCell>
