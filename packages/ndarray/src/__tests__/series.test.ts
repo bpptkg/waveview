@@ -476,4 +476,28 @@ describe("Series", () => {
 
     expect(diff.values).toEqual(new Float32Array([NaN, 1, 2, 3, 4]));
   });
+
+  it("should correctly return string representation of the series", () => {
+    const data = new Float32Array([1, 2, 3]);
+    const index = new Float32Array([0, 1, 2]);
+    const options = {
+      name: "Series",
+      index,
+    };
+    const series = new Series(data, options);
+
+    expect(series.toString()).toBe("Series([1, 2, 3])");
+  });
+
+  it("should correctly return array of values", () => {
+    const data = new Float32Array([1, 2, 3, 4, 5]);
+    const index = new Float32Array([0, 1, 2, 3, 4]);
+    const options = {
+      name: "Series",
+      index,
+    };
+    const series = new Series(data, options);
+
+    expect(series.toArray()).toEqual([1, 2, 3, 4, 5]);
+  });
 });

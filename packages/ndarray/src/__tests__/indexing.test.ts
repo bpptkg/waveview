@@ -148,4 +148,18 @@ describe("Indexing", () => {
 
     expect(values).toEqual([1, 2, 3]);
   });
+
+  it("should correctly return string representation of the index", () => {
+    const data = new Float32Array([1, 2, 3]);
+    const index = new Index(data);
+
+    expect(index.toString()).toBe("Index([1, 2, 3])");
+  });
+
+  it("should correctly return array of values", () => {
+    const data = new Float32Array([1, 2, 3]);
+    const index = new Index(data);
+
+    expect(index.toArray()).toEqual([1, 2, 3]);
+  });
 });

@@ -198,6 +198,23 @@ export class Index<T extends NDFrameArray = NDFrameArray> {
       yield this.getValueByPosition(i);
     }
   }
+
+  /**
+   * Return a string representation of the index.
+   */
+  toString(): string {
+    if (this.length > 10) {
+      return `Index([${this.values.slice(0, 10).join(", ")}, ...])`;
+    }
+    return `Index([${this.values.join(", ")}])`;
+  }
+
+  /**
+   * Return an array representation of the index.
+   */
+  toArray(): number[] {
+    return Array.from(this.values);
+  }
 }
 
 export function parseIndex<

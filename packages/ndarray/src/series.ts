@@ -478,4 +478,21 @@ export class Series<
     ) as D;
     return new Series(data, { name: this.name, index: this.index });
   }
+
+  /**
+   * Get a string representation of the Series.
+   */
+  toString(): string {
+    if (this.length > 10) {
+      return `Series([${this.values.slice(0, 10).join(", ")}, ...])`;
+    }
+    return `Series([${this.values.join(", ")}])`;
+  }
+
+  /**
+   * Return an array representation of the Series.
+   */
+  toArray(): number[] {
+    return Array.from(this.values);
+  }
 }
