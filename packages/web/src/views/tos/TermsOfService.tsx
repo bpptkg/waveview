@@ -53,7 +53,11 @@ const TermsOfService = () => {
             </p>
 
             <p className="text-gray-800 dark:text-neutral-grey-84">
-              If you have any questions or concerns, please contact us at <Link href="mailto:bpptkg@esdm.go.id">bpptkg@esdm.go.id</Link>.
+              If you have any questions or concerns, please contact us at{' '}
+              <Link href="https://github.com/bpptkg/waveview" target="_blank">
+                GitHub
+              </Link>
+              .
             </p>
 
             <Link href="/">Back to Home</Link>
