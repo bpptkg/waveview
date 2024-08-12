@@ -8,7 +8,7 @@ const VolcanoPicker = () => {
   return (
     <Menu>
       <MenuTrigger disableButtonEnhancement>
-        <MenuButton size="small" appearance="transparent">
+        <MenuButton size="medium" appearance="transparent">
           <span className="text-nowrap">{currentVolcano?.name ?? 'Select Volcano'}</span>
         </MenuButton>
       </MenuTrigger>
