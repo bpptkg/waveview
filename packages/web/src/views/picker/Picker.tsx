@@ -1,9 +1,9 @@
-import HelicorderWorkspace from '../../components/Picker/PickerWorkspace';
+import PickerWorkspace from '../../components/Picker/PickerWorkspace';
 
 const Picker = () => {
   return (
     <>
-      <HelicorderWorkspace />
+      <PickerWorkspace />
     </>
   );
 };
