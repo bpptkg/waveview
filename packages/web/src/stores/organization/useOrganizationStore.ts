@@ -5,7 +5,7 @@ import { createSelectors } from '../../shared/createSelectors';
 import { Organization, OrganizationSettings } from '../../types/organization';
 import { OrganizationStore } from './types';
 
-const organizationStore = create<OrganizationStore>((set, get) => {
+const organizationStore = create<OrganizationStore>((set) => {
   return {
     currentOrganization: null,
     allOrganizations: [],
@@ -18,7 +18,6 @@ const organizationStore = create<OrganizationStore>((set, get) => {
       if (data.length) {
         const org = data[0];
         set({ currentOrganization: org });
-        await get().fetchOrganizationSettings(org.id);
       } else {
         throw new Error('You are not a member of any organization.');
       }

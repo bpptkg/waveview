@@ -33,7 +33,7 @@ function App() {
   const { fetchAllOrganizations } = useOrganizationStore();
   const { fetchInventory } = useInventoryStore();
   const { fetchUser } = useUserStore();
-  const { setHelicorderChannelId, setSelectedChannels } = usePickerStore();
+  const { setHelicorderChannelId, setSelectedChannels, fetchPickerConfig } = usePickerStore();
   const { fetchEventTypes } = useEventTypeStore();
   const { fetchAllVolcanoes } = useVolcanoStore();
   const { fetchAllCatalogs } = useCatalogStore();
@@ -43,27 +43,29 @@ function App() {
       await fetchUser();
       await fetchAllOrganizations();
       await fetchInventory();
+      await fetchPickerConfig();
       await fetchEventTypes();
       await fetchAllVolcanoes();
       await fetchAllCatalogs();
 
       setIsInitialized(true);
 
-      const currentOrganizationSettings = useOrganizationStore.getState().currentOrganizationSettings!;
-      const { default_helicorder_channel_id, default_seismogram_station_ids, default_seismogram_component } = currentOrganizationSettings.data;
+      const { pickerConfig } = usePickerStore.getState();
+      if (!pickerConfig) {
+        throw new Error('Picker configuration is not available.');
+      }
 
-      const helicorderChannelId = default_helicorder_channel_id ?? '';
-      setHelicorderChannelId(helicorderChannelId);
-
+      setHelicorderChannelId(pickerConfig.helicorder_config.channel.id);
+      const seismogramComponent = pickerConfig.seismogram_config.component;
       const availableChannels = useInventoryStore.getState().channels();
-      const seismogramStationIds = default_seismogram_station_ids ?? [];
-      const seismogramComponent = default_seismogram_component ?? 'Z';
-
-      const filteredChannels = availableChannels
-        .filter((channel) => seismogramStationIds.includes(channel.station_id))
-        .filter((channel) => channel.code.includes(seismogramComponent));
-
-      setSelectedChannels(filteredChannels);
+      const selectedChannels = pickerConfig.seismogram_config.station_configs.map((stationConfig) => {
+        const channel = availableChannels.find((channel) => channel.station_id === stationConfig.station.id && channel.code.includes(seismogramComponent));
+        if (!channel) {
+          throw new Error(`Channel for station ${stationConfig.station.id} not found.`);
+        }
+        return channel;
+      });
+      setSelectedChannels(selectedChannels);
     };
 
     initializeApp().catch((error: Error) => {

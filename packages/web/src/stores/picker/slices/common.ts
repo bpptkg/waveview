@@ -1,3 +1,4 @@
+import { PickerConfig } from '../../../types/picker';
 import { PickerChart } from '../types';
 
 export interface CommonSlice {
@@ -17,7 +18,9 @@ export interface CommonSlice {
    * Whether to show the event marker in the helicorder or seismogram chart.
    */
   showEvent: boolean;
+  pickerConfig: PickerConfig | null;
   setShowEvent: (showEvent: boolean) => void;
   setUseUTC: (useUTC: boolean) => void;
   setSelectedChart: (chart: PickerChart) => void;
+  fetchPickerConfig: () => Promise<void>;
 }

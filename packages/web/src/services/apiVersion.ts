@@ -68,4 +68,7 @@ export default {
   deleteCatalog: {
     v1: (organizationId: string, volcanoId: string, id: string) => `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/${id}/`,
   },
+  getPickerConfig: {
+    v1: (organizationId: string) => `/api/v1/organizations/${organizationId}/picker-config/`,
+  },
 };
