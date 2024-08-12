@@ -129,18 +129,47 @@ export class Series<
   }
 
   /**
-   * Get the nearest value at the index.
+   * Get Series value at the given index.
    */
-  getNearestValueAt(index: number): number {
+  getValueByIndex(index: number): number {
     const idx = this.index.findNearestPosition(index);
     return Number(this.values[idx]);
   }
 
   /**
-   * Get the value at the exact index.
+   * Get Series value at the given position.
    */
-  getValueAt(index: number): number {
+  getValueByPosition(index: number): number {
     return Number(this.values[index]);
+  }
+
+  /**
+   * Set Series value at the given index.
+   */
+  setValueByIndex(index: number, value: number): void {
+    const idx = this.index.findNearestPosition(index);
+    this.values[idx] = value;
+  }
+
+  /**
+   * Set Series value at the given position.
+   */
+  setValueByPosition(index: number, value: number): void {
+    this.values[index] = value;
+  }
+
+  /**
+   * Get Series value at the given index. Alias for `getValueByIndex`.
+   */
+  get(index: number): number {
+    return this.getValueByIndex(index);
+  }
+
+  /**
+   * Set Series value at the given index. Alias for `setValueByIndex`.
+   */
+  set(index: number, value: number): void {
+    this.setValueByIndex(index, value);
   }
 
   /**
@@ -149,7 +178,7 @@ export class Series<
   *iterIndexValuePairs(): Iterable<[number, number]> {
     for (const [pos, value] of this.index.iterPositionValuePairs()) {
       const index = Number(value);
-      yield [index, this.getValueAt(pos)];
+      yield [index, this.getValueByPosition(pos)];
     }
   }
 
@@ -159,7 +188,7 @@ export class Series<
    */
   *iterValues(): Iterable<number> {
     for (let i = 0; i < this.length; i++) {
-      yield this.getValueAt(i);
+      yield this.getValueByPosition(i);
     }
   }
 
@@ -167,14 +196,14 @@ export class Series<
    * Get the first value in the Series.
    */
   first(): number {
-    return this.getValueAt(0);
+    return this.getValueByPosition(0);
   }
 
   /**
    * Get the last value in the Series.
    */
   last(): number {
-    return this.getValueAt(this.length - 1);
+    return this.getValueByPosition(this.length - 1);
   }
 
   /**
@@ -218,7 +247,7 @@ export class Series<
       fn(value, this.index.getValueAtPosition(index), this)
     ) as D;
     const index = this.index.filter((value, index) =>
-      fn(this.getValueAt(index), value, this)
+      fn(this.getValueByPosition(index), value, this)
     );
     return new Series(data, { name: this.name, index });
   }
@@ -340,7 +369,7 @@ export class Series<
    */
   diff(): Series<D, I> {
     const data = this.values.map((value, index) => {
-      const prevValue = this.getValueAt(index - 1);
+      const prevValue = this.getValueByPosition(index - 1);
       return value - prevValue;
     }) as D;
     return new Series(data, { name: this.name, index: this.index });
@@ -351,7 +380,7 @@ export class Series<
    */
   add(other: Series<D, I>): Series<D, I> {
     const data = this.values.map(
-      (value, index) => value + other.getValueAt(index)
+      (value, index) => value + other.getValueByPosition(index)
     ) as D;
     return new Series(data, { name: this.name, index: this.index });
   }
@@ -361,7 +390,7 @@ export class Series<
    */
   subtract(other: Series<D, I>): Series<D, I> {
     const data = this.values.map(
-      (value, index) => value - other.getValueAt(index)
+      (value, index) => value - other.getValueByPosition(index)
     ) as D;
     return new Series(data, { name: this.name, index: this.index });
   }
@@ -371,7 +400,7 @@ export class Series<
    */
   multiply(other: Series<D, I>): Series<D, I> {
     const data = this.values.map(
-      (value, index) => value * other.getValueAt(index)
+      (value, index) => value * other.getValueByPosition(index)
     ) as D;
     return new Series(data, { name: this.name, index: this.index });
   }
@@ -381,7 +410,7 @@ export class Series<
    */
   divide(other: Series<D, I>): Series<D, I> {
     const data = this.values.map(
-      (value, index) => value / other.getValueAt(index)
+      (value, index) => value / other.getValueByPosition(index)
     ) as D;
     return new Series(data, { name: this.name, index: this.index });
   }

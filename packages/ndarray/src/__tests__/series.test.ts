@@ -125,7 +125,7 @@ describe("Series", () => {
     };
     const series = new Series(data, options);
 
-    expect(series.getValueAt(2)).toBe(3);
+    expect(series.getValueByPosition(2)).toBe(3);
   });
 
   it("should correctly set the value at a nearest index", () => {
@@ -137,9 +137,25 @@ describe("Series", () => {
     };
     const series = new Series(data, options);
 
-    expect(series.getNearestValueAt(4)).toBe(2);
-    expect(series.getNearestValueAt(6)).toBe(3);
-    expect(series.getNearestValueAt(10)).toBe(4);
+    expect(series.getValueByIndex(4)).toBe(2);
+    expect(series.getValueByIndex(6)).toBe(3);
+    expect(series.getValueByIndex(10)).toBe(4);
+  });
+
+  it("should correctly set the value at a specific index", () => {
+    const data = new Float32Array([1, 2, 3, 4, 5]);
+    const index = new Float32Array([0, 3, 7, 11, 13]);
+    const options = {
+      name: "Series",
+      index,
+    };
+    const series = new Series(data, options);
+
+    series.setValueByIndex(4, 10);
+    series.setValueByPosition(0, 3);
+
+    expect(series.getValueByIndex(4)).toBe(10);
+    expect(series.getValueByPosition(0)).toBe(3);
   });
 
   it("should correctly map the series", () => {

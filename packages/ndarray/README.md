@@ -19,7 +19,10 @@ const series = new Series(new Float64Array([1, 2, 3, 4, 5]), {
 });
 
 // Access the value at specific index.
-const a = series.getValueAt(0);
+const a = series.get(0);
+
+// Set the value at specific index.
+series.set(2, 5);
 
 // Slice the series from index 1 to 3.
 const b = series.slice(1, 3);
