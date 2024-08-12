@@ -2,6 +2,7 @@ import { Switch } from '@fluentui/react-components';
 import React, { useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppStore } from '../../stores/app';
+import VolcanoPicker from '../Volcano/VolcanoPicker';
 import Account from './Account';
 import ArrowNavigation from './ArrowNavigation';
 import LogoImage from './LogoImage';
@@ -25,17 +26,22 @@ const Header = () => {
 
   return (
     <div className="flex h-[48px] items-center justify-between px-2">
-      <a
-        className="flex items-center gap-3 cursor-pointer"
-        onClick={() => {
-          if (location.pathname !== '/' && location.pathname !== '/picker') {
-            navigate('/');
-          }
-        }}
-      >
-        <LogoImage />
-        <LogoText />
-      </a>
+      <div className="flex items-center gap-2">
+        <a
+          className="flex items-center gap-3 cursor-pointer"
+          onClick={() => {
+            if (location.pathname !== '/' && location.pathname !== '/picker') {
+              navigate('/');
+            }
+          }}
+        >
+          <LogoImage />
+          <LogoText />
+        </a>
+
+        <VolcanoPicker />
+      </div>
+
       <div className="flex items-center gap-2">
         <ArrowNavigation />
         <SearchBox />

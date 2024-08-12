@@ -24,9 +24,13 @@ const volcanoStore = create<VolcanoStore>((set, get) => ({
     }
     const data = await api<Volcano[]>(apiVersion.listVolcano.v1(currentOrganization.id));
     set({ allVolcanoes: data });
-    if (data.length) {
-      const volcano = data[0];
-      set({ currentVolcano: volcano });
+
+    const defaultVolcano = data.find((v) => v.is_default);
+    const volcano = defaultVolcano || data[0];
+    if (volcano) {
+      set({ currentVolcano: defaultVolcano });
+    } else {
+      throw new Error('No default volcano found');
     }
   },
 }));
