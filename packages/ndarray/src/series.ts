@@ -132,7 +132,7 @@ export class Series<
    * Get Series value at the given index.
    */
   getValueByIndex(index: number): number {
-    const idx = this.index.findNearestPosition(index);
+    const idx = this.index.getPositionByValue(index);
     return Number(this.values[idx]);
   }
 
@@ -147,7 +147,7 @@ export class Series<
    * Set Series value at the given index.
    */
   setValueByIndex(index: number, value: number): void {
-    const idx = this.index.findNearestPosition(index);
+    const idx = this.index.getPositionByValue(index);
     this.values[idx] = value;
   }
 
@@ -220,7 +220,7 @@ export class Series<
     fn: (value: number, index: number) => number
   ): Series<U, I> {
     const data = this.values.map((value, index) =>
-      fn(value, this.index.getValueAtPosition(index))
+      fn(value, this.index.getValueByPosition(index))
     ) as U;
     return new Series(data, { name: this.name, index: this.index });
   }
@@ -230,8 +230,8 @@ export class Series<
    * Series.
    */
   slice(start: number, end: number): Series<D, I> {
-    const beginPos = this.index.findNearestPosition(start);
-    const endPos = this.index.findNearestPosition(end);
+    const beginPos = this.index.getPositionByValue(start);
+    const endPos = this.index.getPositionByValue(end);
     const data = this.values.slice(beginPos, endPos) as D;
     const index = this.index.slice(start, end);
     return new Series(data, { name: this.name, index: index });
@@ -244,7 +244,7 @@ export class Series<
     fn: (value: number, index: number, series: Series) => boolean
   ): Series<D, I> {
     const data = this.values.filter((value, index) =>
-      fn(value, this.index.getValueAtPosition(index), this)
+      fn(value, this.index.getValueByPosition(index), this)
     ) as D;
     const index = this.index.filter((value, index) =>
       fn(this.getValueByPosition(index), value, this)
@@ -257,7 +257,7 @@ export class Series<
    */
   forEach(fn: (value: number, index: number, series: Series) => void): void {
     this.values.forEach((value, index) => {
-      fn(value, this.index.getValueAtPosition(index), this);
+      fn(value, this.index.getValueByPosition(index), this);
     });
   }
 
@@ -268,7 +268,7 @@ export class Series<
     fn: (value: number, index: number, series: Series) => boolean
   ): boolean {
     return this.values.every((value, index) =>
-      fn(value, this.index.getValueAtPosition(index), this)
+      fn(value, this.index.getValueByPosition(index), this)
     );
   }
 
@@ -277,7 +277,7 @@ export class Series<
    */
   some(fn: (value: number, index: number, series: Series) => boolean): boolean {
     return this.values.some((value, index) =>
-      fn(value, this.index.getValueAtPosition(index), this)
+      fn(value, this.index.getValueByPosition(index), this)
     );
   }
 

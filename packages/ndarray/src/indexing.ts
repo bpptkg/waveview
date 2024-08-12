@@ -61,9 +61,9 @@ export class Index<T extends NDFrameArray = NDFrameArray> {
   }
 
   /**
-   * Fint the nearest position of the index value.
+   * Get the position of the value in the index.
    */
-  findNearestPosition(value: number): number {
+  getPositionByValue(value: number): number {
     // Binary search
     let left = 0;
     let right = this.values.length - 1;
@@ -95,7 +95,7 @@ export class Index<T extends NDFrameArray = NDFrameArray> {
   /**
    * Get the value at the specified position.
    */
-  getValueAtPosition(pos: number): number {
+  getValueByPosition(pos: number): number {
     return Number(this.values[pos]);
   }
 
@@ -103,14 +103,14 @@ export class Index<T extends NDFrameArray = NDFrameArray> {
    * Get the first value.
    */
   first(): number {
-    return this.getValueAtPosition(0);
+    return this.getValueByPosition(0);
   }
 
   /**
    * Get the last value.
    */
   last(): number {
-    return this.getValueAtPosition(this.length - 1);
+    return this.getValueByPosition(this.length - 1);
   }
 
   /**
@@ -174,8 +174,8 @@ export class Index<T extends NDFrameArray = NDFrameArray> {
    * Slice the index from start to end and return a new Index.
    */
   slice(start: number, end: number): Index<T> {
-    const beginPos = this.findNearestPosition(start);
-    const endPos = this.findNearestPosition(end);
+    const beginPos = this.getPositionByValue(start);
+    const endPos = this.getPositionByValue(end);
     return new Index(this._values.slice(beginPos, endPos)) as Index<T>;
   }
 
@@ -185,7 +185,7 @@ export class Index<T extends NDFrameArray = NDFrameArray> {
    */
   *iterPositionValuePairs(): Iterable<[number, number]> {
     for (let i = 0; i < this.length; i++) {
-      yield [i, this.getValueAtPosition(i)];
+      yield [i, this.getValueByPosition(i)];
     }
   }
 
@@ -195,7 +195,7 @@ export class Index<T extends NDFrameArray = NDFrameArray> {
    */
   *iterValues(): Iterable<number> {
     for (let i = 0; i < this.length; i++) {
-      yield this.getValueAtPosition(i);
+      yield this.getValueByPosition(i);
     }
   }
 }

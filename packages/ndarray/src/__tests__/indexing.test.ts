@@ -45,14 +45,14 @@ describe("Indexing", () => {
     const data = new Float32Array([1, 2, 3, 4, 5]);
     const index = new Index(data);
 
-    expect(index.findNearestPosition(3)).toBe(2);
+    expect(index.getPositionByValue(3)).toBe(2);
   });
 
   it("should get the value at a specific index", () => {
     const data = new Float32Array([1, 2, 3]);
     const index = new Index(data);
 
-    expect(index.getValueAtPosition(1)).toBe(2);
+    expect(index.getValueByPosition(1)).toBe(2);
   });
 
   it("should get the first value", () => {
