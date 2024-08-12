@@ -71,4 +71,19 @@ export default {
   getPickerConfig: {
     v1: (organizationId: string) => `/api/v1/organizations/${organizationId}/picker-config/`,
   },
+  listEvent: {
+    v1: (organizationId: string, catalogId: string) => `/api/v1/organizations/${organizationId}/catalogs/${catalogId}/events/`,
+  },
+  createEvent: {
+    v1: (organizationId: string, catalogId: string) => `/api/v1/organizations/${organizationId}/catalogs/${catalogId}/events/`,
+  },
+  getEvent: {
+    v1: (organizationId: string, catalogId: string, id: string) => `/api/v1/organizations/${organizationId}/catalogs/${catalogId}/events/${id}/`,
+  },
+  updateEvent: {
+    v1: (organizationId: string, catalogId: string, id: string) => `/api/v1/organizations/${organizationId}/catalogs/${catalogId}/events/${id}/`,
+  },
+  deleteEvent: {
+    v1: (organizationId: string, catalogId: string, id: string) => `/api/v1/organizations/${organizationId}/catalogs/${catalogId}/events/${id}/`,
+  },
 };

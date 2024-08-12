@@ -19,7 +19,7 @@ const organizationStore = create<OrganizationStore>((set) => {
         const org = data[0];
         set({ currentOrganization: org });
       } else {
-        throw new Error('You are not a member of any organization.');
+        throw new Error('You are not a member of any organization');
       }
     },
     fetchOrganizationSettings: async (id: string) => {

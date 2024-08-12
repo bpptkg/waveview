@@ -1,6 +1,6 @@
 import { Tab, TabList, TabListProps } from '@fluentui/react-components';
 import { Outlet, useNavigate } from 'react-router-dom';
-import CatalogPicker from '../../components/Picker/PickerMenu/CatalogPicker';
+import CatalogPicker from '../../components/Catalog/CatalogPicker';
 
 const Catalog = () => {
   const navigate = useNavigate();

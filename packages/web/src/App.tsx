@@ -52,7 +52,7 @@ function App() {
 
       const { pickerConfig } = usePickerStore.getState();
       if (!pickerConfig) {
-        throw new Error('Picker configuration is not available.');
+        throw new Error('Picker configuration is not available');
       }
 
       setHelicorderChannelId(pickerConfig.helicorder_config.channel.id);
@@ -61,7 +61,7 @@ function App() {
       const selectedChannels = pickerConfig.seismogram_config.station_configs.map((stationConfig) => {
         const channel = availableChannels.find((channel) => channel.station_id === stationConfig.station.id && channel.code.includes(seismogramComponent));
         if (!channel) {
-          throw new Error(`Channel for station ${stationConfig.station.id} not found.`);
+          throw new Error(`Channel for station ${stationConfig.station.id} not found`);
         }
         return channel;
       });
@@ -69,7 +69,7 @@ function App() {
     };
 
     initializeApp().catch((error: Error) => {
-      setError(`Failed to initialize app. ${error.message}`);
+      setError(`Failed to initialize app (${error.message})`);
     });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -1,4 +1,4 @@
-import CatalogPicker from './CatalogPicker';
+import CatalogPicker from '../../Catalog/CatalogPicker';
 import FileMenu from './FileMenu';
 import HelpMenu from './HelpMenu';
 import NavigationMenu from './NavigationMenu';
