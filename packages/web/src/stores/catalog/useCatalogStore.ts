@@ -31,8 +31,7 @@ const catalogStore = create<CatalogStore>((set) => {
       if (defaultCatalog) {
         set({ currentCatalog: defaultCatalog });
       } else {
-        const firstCatalog = data[0];
-        set({ currentCatalog: firstCatalog });
+        throw new Error('No default catalog found.');
       }
     },
   };
