@@ -1,12 +1,13 @@
-import { SeismicEvent } from '../../types/event';
+import { SeismicEventDetail } from '../../types/event';
 
 export interface EventDetailStore {
   eventId: string;
-  event: SeismicEvent | null;
+  event: SeismicEventDetail | null;
   loading: boolean;
   error: string | null;
   setEventId: (eventId: string) => void;
   hasEventId: (eventId: string) => boolean;
   fetchEvent: (eventId: string) => Promise<void>;
   getStationOfFirstArrival: () => string;
+  bookmarkEvent: () => Promise<void>;
 }

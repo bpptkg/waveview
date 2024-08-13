@@ -86,7 +86,6 @@ export interface SeismicEvent {
   method: string;
   evaluation_mode: string;
   evaluation_status: string;
-  attachments: Attachment[];
   created_at: string;
   updated_at: string;
   author: User;
@@ -96,6 +95,14 @@ export interface SeismicEvent {
   preferred_origin: Origin | null;
   preferred_magnitude: Magnitude | null;
   preferred_amplitude: Amplitude | null;
+  is_bookmarked: boolean;
+}
+
+export interface SeismicEventDetail extends SeismicEvent {
+  attachments: Attachment[];
+  amplitudes: Amplitude[];
+  magnitudes: Magnitude[];
+  origins: Origin[];
 }
 
 export interface PaginatedSeismicEvents {
@@ -105,3 +112,7 @@ export interface PaginatedSeismicEvents {
   results: SeismicEvent[];
 }
 
+export interface EventBookmarkResponse {
+  event_id: string;
+  is_bookmarked: boolean;
+}

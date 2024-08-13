@@ -1,7 +1,8 @@
-import { Button, Tab, TabList, TabListProps } from '@fluentui/react-components';
-import { Dismiss20Regular, Edit20Regular, MoreHorizontal20Regular, ShareIos20Regular, Star20Regular } from '@fluentui/react-icons';
-import React from 'react';
+import { Button, Tab, TabList, TabListProps, Toast, Toaster, ToastTitle, useId, useToastController } from '@fluentui/react-components';
+import { Dismiss20Regular, Edit20Regular, MoreHorizontal20Regular, ShareIos20Regular, Star20Filled, Star20Regular } from '@fluentui/react-icons';
+import React, { useCallback } from 'react';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useEventDetailStore } from '../../stores/eventDetail';
 
 export interface EventDetailProps {}
 
@@ -18,12 +19,28 @@ const EventDetail: React.FC<EventDetailProps> = () => {
     navigate('/catalog/events');
   };
 
+  const toasterId = useId('event-detail');
+  const { dispatchToast } = useToastController(toasterId);
+
+  const { event, bookmarkEvent } = useEventDetailStore();
+
+  const handleToggleBookmark = useCallback(() => {
+    bookmarkEvent().catch(() => {
+      dispatchToast(
+        <Toast>
+          <ToastTitle>Failed to bookmark the event.</ToastTitle>
+        </Toast>,
+        { intent: 'error' }
+      );
+    });
+  }, [bookmarkEvent, dispatchToast]);
+
   return (
     <>
       <div className="flex items-center justify-between">
         <h2 className="text-md font-semibold p-4">Event Detail</h2>
         <div className="flex items-center">
-          <Button icon={<Star20Regular />} appearance="transparent" />
+          <Button icon={event?.is_bookmarked ? <Star20Filled color="orange" /> : <Star20Regular />} appearance="transparent" onClick={handleToggleBookmark} />
           <Button icon={<Edit20Regular />} appearance="transparent" />
           <Button icon={<ShareIos20Regular />} appearance="transparent" />
           <Button icon={<MoreHorizontal20Regular />} appearance="transparent" />
@@ -40,6 +57,7 @@ const EventDetail: React.FC<EventDetailProps> = () => {
         <Tab value={`/catalog/events/${eventId}/attachments`}>Attachments</Tab>
       </TabList>
       <Outlet />
+      <Toaster toasterId={toasterId} />
     </>
   );
 };
