@@ -4,6 +4,12 @@ import RequireAuth from '../components/Auth/RequireAuth';
 import About from '../views/about/About';
 import Admin from '../views/admin/Admin';
 import Catalog from '../views/catalog/Catalog';
+import EventDetailAmplitude from '../views/catalog/EventDetailAmplitude';
+import EventDetailAttachments from '../views/catalog/EventDetailAttachments';
+import EventDetailLocation from '../views/catalog/EventDetailLocation';
+import EventDetailMagnitude from '../views/catalog/EventDetailMagnitude';
+import EventDetailSummary from '../views/catalog/EventDetailSummary';
+import EventDetailWaveform from '../views/catalog/EventDetailWaveform';
 import EventTable from '../views/catalog/EventTable';
 import Hypocenter from '../views/catalog/Hypocenter';
 import Seismicity from '../views/catalog/Seismicity';
@@ -32,6 +38,36 @@ const router = createBrowserRouter([
           {
             path: 'events',
             element: <EventTable />,
+            children: [
+              {
+                path: ':eventId/summary',
+                element: <EventDetailSummary />,
+              },
+              {
+                path: ':eventId/amplitude',
+                element: <EventDetailAmplitude />,
+              },
+              {
+                path: ':eventId/magnitude',
+                element: <EventDetailMagnitude />,
+              },
+              {
+                path: ':eventId/location',
+                element: <EventDetailLocation />,
+              },
+              {
+                path: ':eventId/waveform',
+                element: <EventDetailWaveform />,
+              },
+              {
+                path: ':eventId/attachments',
+                element: <EventDetailAttachments />,
+              },
+              {
+                path: ':eventId',
+                element: <Navigate to="summary" replace />,
+              },
+            ],
           },
           {
             path: 'seismicity',

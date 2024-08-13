@@ -11,7 +11,7 @@ const Catalog = () => {
   };
 
   return (
-    <div>
+    <>
       <TabList onTabSelect={handleTabSelect} defaultSelectedValue={location.pathname}>
         <div className="flex justify-between items-center w-full">
           <div className="flex">
@@ -25,7 +25,7 @@ const Catalog = () => {
         </div>
       </TabList>
       <Outlet />
-    </div>
+    </>
   );
 };
 

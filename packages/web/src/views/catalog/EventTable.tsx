@@ -14,12 +14,16 @@ import {
   TableRow,
   Tooltip,
   useTableFeatures,
+  useTableSelection,
   useTableSort,
 } from '@fluentui/react-components';
 import { MoreHorizontal20Regular } from '@fluentui/react-icons';
 import React, { useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useCatalogStore } from '../../stores/catalog';
 import { SeismicEvent } from '../../types/event';
+import EventDetail from './EventDetail';
+import EventDetailDrawer from './EventDetailDrawer';
 
 const useEventTableStyles = makeStyles({
   table: {
@@ -45,6 +49,8 @@ const columns: TableColumnDefinition<Item>[] = [
 ];
 
 const EventTable = () => {
+  const navigate = useNavigate();
+  const { eventId } = useParams();
   const { events, fetchEvents, fetchNextEvents, hasNextEvents } = useCatalogStore();
 
   useEffect(() => {
@@ -56,6 +62,7 @@ const EventTable = () => {
   const {
     getRows,
     sort: { getSortDirection, toggleColumnSort, sort },
+    selection: { toggleRow, isRowSelected },
   } = useTableFeatures<Item>(
     {
       columns,
@@ -65,6 +72,9 @@ const EventTable = () => {
       useTableSort({
         defaultSortState: { sortColumn: 'time', sortDirection: 'descending' },
       }),
+      useTableSelection({
+        selectionMode: 'single',
+      }),
     ]
   );
 
@@ -73,10 +83,29 @@ const EventTable = () => {
     sortDirection: getSortDirection(columnId),
   });
 
-  const rows = sort(getRows());
+  const rows = sort(
+    getRows((row) => {
+      const selected = isRowSelected(row.rowId);
+      return {
+        ...row,
+        onClick: (e: React.MouseEvent) => {
+          toggleRow(e, row.rowId);
+          navigate(`/catalog/events/${row.item.id}/summary`);
+        },
+        onKeyDown: (e: React.KeyboardEvent) => {
+          if (e.key === ' ') {
+            e.preventDefault();
+            toggleRow(e, row.rowId);
+          }
+        },
+        selected,
+        appearance: selected ? ('brand' as const) : ('none' as const),
+      };
+    })
+  );
 
   return (
-    <div className="p-2">
+    <div className="p-2 relative h-full">
       <Table aria-label="Event Table" className={styles.table} sortable>
         <TableHeader>
           <TableRow>
@@ -92,8 +121,8 @@ const EventTable = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rows.map(({ item }) => (
-            <TableRow key={item.id}>
+          {rows.map(({ item, onClick, onKeyDown, selected, appearance }) => (
+            <TableRow key={item.id} onClick={onClick} onKeyDown={onKeyDown} aria-selected={selected} appearance={appearance}>
               <TableCell>{item.time}</TableCell>
               <TableCell>{item.duration}</TableCell>
               <TableCell>{item.type.code}</TableCell>
@@ -123,6 +152,11 @@ const EventTable = () => {
             Load more
           </Button>
         </div>
+      )}
+      {eventId && (
+        <EventDetailDrawer>
+          <EventDetail />
+        </EventDetailDrawer>
       )}
     </div>
   );
