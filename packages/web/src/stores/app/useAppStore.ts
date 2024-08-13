@@ -28,7 +28,8 @@ const appStore = create<AppStore, [['zustand/devtools', never]]>(
   devtools((set, get) => ({
     darkMode: getInitialDarkMode(),
     theme: getInitialTheme(),
-
+    currentLanguage: { value: 'en', label: 'English' },
+    supportedLanguages: [{ value: 'en', label: 'English' }],
     toggleTheme: (theme?: Theme) => {
       if (!theme) {
         theme = theme ?? get().theme;
@@ -55,6 +56,7 @@ const appStore = create<AppStore, [['zustand/devtools', never]]>(
         document.documentElement.classList.add('light');
       }
     },
+    setLanguage: (language) => set({ currentLanguage: language }),
   }))
 );
 
