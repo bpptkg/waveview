@@ -1,6 +1,6 @@
-import { Avatar, Divider, Tooltip } from '@fluentui/react-components';
+import { Avatar, Divider, Image, Tooltip } from '@fluentui/react-components';
 import { formatDistanceToNow } from 'date-fns';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import EventDetailErrorMessage from '../../components/Loading/EventDetailErrorMessage';
 import EventDetailLoadingIndicator from '../../components/Loading/EventDetailLoadingIndicator';
@@ -17,6 +17,7 @@ const EventDetailSummary = () => {
   }, [eventId, fetchEvent, hasEventId]);
 
   const firstArrivalStation = getStationOfFirstArrival();
+  const attachments = useMemo(() => event?.attachments.filter((attachment) => attachment.media_type === 'photo'), [event]);
 
   if (loading) {
     return <EventDetailLoadingIndicator message="Loading event details..." />;
@@ -61,42 +62,61 @@ const EventDetailSummary = () => {
       <Divider />
       <div className="flex flex-col gap-2">
         <div className="font-semibold">Amplitude</div>
-        <div className="flex items-center justify-between">
-          <div>Amplitude</div>
-          <div>
-            {event?.preferred_amplitude?.amplitude} {event?.preferred_amplitude?.unit}
+        {event?.preferred_amplitude ? (
+          <div className="flex items-center justify-between">
+            <div>{event.preferred_amplitude.type}</div>
+            <div>
+              {event.preferred_amplitude.amplitude} {event.preferred_amplitude.unit}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div>No data</div>
+        )}
       </div>
 
       <Divider />
       <div className="flex flex-col gap-2">
         <div className="font-semibold">Magnitude</div>
-        <div className="flex items-center justify-between">
-          <div>Magnitude</div>
-          <div>{event?.preferred_magnitude?.magnitude}</div>
-        </div>
+        {event?.preferred_magnitude ? (
+          <div className="flex items-center justify-between">
+            <div>{event.preferred_magnitude.type}</div>
+            <div>{event.preferred_magnitude.magnitude}</div>
+          </div>
+        ) : (
+          <div>No data</div>
+        )}
       </div>
       <Divider />
       <div className="flex flex-col gap-2">
         <div className="font-semibold">Location</div>
         <div className="flex items-center justify-between">
           <div>Latitude</div>
-          <div>{event?.preferred_origin?.latitude}</div>
+          {event?.preferred_origin ? <div>{event.preferred_origin?.latitude} deg</div> : <div>No data</div>}
         </div>
         <div className="flex items-center justify-between">
           <div>Longitude</div>
-          <div>{event?.preferred_origin?.longitude}</div>
+          {event?.preferred_origin ? <div>{event.preferred_origin?.longitude} deg</div> : <div>No data</div>}
         </div>
         <div className="flex items-center justify-between">
           <div>Depth</div>
-          <div>{event?.preferred_origin?.depth}</div>
+          {event?.preferred_origin ? <div>{event.preferred_origin?.depth} km</div> : <div>No data</div>}
         </div>
       </div>
       <Divider />
       <div className="flex flex-col gap-2">
         <div className="font-semibold">Attachments</div>
-        <div>TODO</div>
+        {attachments && attachments.length ? (
+          <div className="flex flex-row gap-1">
+            {attachments.slice(0, 5).map((attachment) => (
+              <div key={attachment.id} className="w-[80px] h-[80px]">
+                <Image src={attachment.file} alt={attachment.name} fit="cover" shape="rounded" />
+              </div>
+            ))}
+            {attachments.length > 5 && <div className="flex items-center justify-center w-[80px] h-[80px]">and {attachments.length - 5} more</div>}
+          </div>
+        ) : (
+          <div>No attachments</div>
+        )}
       </div>
       <Divider />
       <div className="flex flex-col gap-2">

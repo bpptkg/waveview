@@ -15,7 +15,7 @@ export interface EventType {
 export interface Attachment {
   id: string;
   event_id: string;
-  media_type: string;
+  media_type: 'photo' | 'video' | 'audio' | 'document';
   file: string;
   name: string;
   size: number;
