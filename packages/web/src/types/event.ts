@@ -37,6 +37,7 @@ export interface Origin {
   created_at: string;
   updated_at: string;
   author_id: string;
+  is_preferred: boolean;
 }
 
 export interface Magnitude {
