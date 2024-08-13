@@ -108,6 +108,10 @@ const EventDetailAmplitude = () => {
               <div>{currentAmplitude.evaluation_mode}</div>
             </div>
             <div className="flex items-center justify-between">
+              <div>Is Preferred</div>
+              <div>{currentAmplitude.is_preferred ? 'yes' : 'no'}</div>
+            </div>
+            <div className="flex items-center justify-between">
               <div>Last updated</div>
               <div>
                 <Tooltip content={currentAmplitude.updated_at} relationship="label">

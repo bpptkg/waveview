@@ -86,6 +86,10 @@ const EventDetailLocation = () => {
               <div>{currentOrigin.evaluation_status}</div>
             </div>
             <div className="flex items-center justify-between">
+              <div>Is Preferred</div>
+              <div>{currentOrigin.is_preferred ? 'yes' : 'no'}</div>
+            </div>
+            <div className="flex items-center justify-between">
               <div>Last updated</div>
               <div>
                 <Tooltip content={currentOrigin.updated_at} relationship="label">
