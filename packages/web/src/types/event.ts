@@ -58,7 +58,7 @@ export interface Amplitude {
   id: string;
   amplitude: number;
   type: string;
-  period: number;
+  duration: number;
   category: string;
   time: string;
   begin: string;

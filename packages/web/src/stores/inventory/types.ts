@@ -8,4 +8,6 @@ export interface InventoryStore {
   fetchInventory: () => Promise<void>;
   stations: () => StationWithChannel[];
   channels: () => Channel[];
+  getChannelById: (channelId: string) => Channel | undefined;
+  getStationById: (stationId: string) => StationWithChannel | undefined;
 }

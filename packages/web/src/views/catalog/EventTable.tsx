@@ -110,7 +110,7 @@ const EventTable = () => {
         <TableHeader>
           <TableRow>
             <TableHeaderCell {...headerSortProps('time')}>Time</TableHeaderCell>
-            <TableHeaderCell>Duration (s)</TableHeaderCell>
+            <TableHeaderCell>Duration</TableHeaderCell>
             <TableHeaderCell>Type</TableHeaderCell>
             <TableHeaderCell>Amplitude</TableHeaderCell>
             <TableHeaderCell>Magnitude</TableHeaderCell>
@@ -124,9 +124,11 @@ const EventTable = () => {
           {rows.map(({ item, onClick, onKeyDown, selected, appearance }) => (
             <TableRow key={item.id} onClick={onClick} onKeyDown={onKeyDown} aria-selected={selected} appearance={appearance}>
               <TableCell>{item.time}</TableCell>
-              <TableCell>{item.duration}</TableCell>
+              <TableCell>{item.duration} sec</TableCell>
               <TableCell>{item.type.code}</TableCell>
-              <TableCell>{item.preferred_amplitude?.amplitude}</TableCell>
+              <TableCell>
+                {item.preferred_amplitude?.amplitude} {item.preferred_amplitude?.unit}
+              </TableCell>
               <TableCell>{item.preferred_magnitude?.magnitude}</TableCell>
               <TableCell>
                 <TableCellLayout

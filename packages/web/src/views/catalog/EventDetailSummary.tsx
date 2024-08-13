@@ -46,8 +46,8 @@ const EventDetailSummary = () => {
           <div>{event?.time}</div>
         </div>
         <div className="flex items-center justify-between">
-          <div>Duration (s)</div>
-          <div>{event?.duration}</div>
+          <div>Duration</div>
+          <div>{event?.duration} sec</div>
         </div>
         <div className="flex items-center justify-between">
           <div>Event type</div>

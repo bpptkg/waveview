@@ -30,6 +30,14 @@ export const inventoryStore = create<InventoryStore>((set, get) => {
       const stations = get().stations();
       return stations.flatMap((station) => station.channels);
     },
+    getChannelById: (channelId) => {
+      const channels = get().channels();
+      return channels.find((channel) => channel.id === channelId);
+    },
+    getStationById: (stationId) => {
+      const stations = get().stations();
+      return stations.find((station) => station.id === stationId);
+    },
   };
 });
 
