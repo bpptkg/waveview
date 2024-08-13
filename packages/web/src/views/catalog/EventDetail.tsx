@@ -1,4 +1,4 @@
-import { Button, Tab, TabList, TabListProps, Toast, Toaster, ToastTitle, useId, useToastController } from '@fluentui/react-components';
+import { Button, Divider, Tab, TabList, TabListProps, Toast, Toaster, ToastTitle, useId, useToastController } from '@fluentui/react-components';
 import { Dismiss20Regular, Edit20Regular, MoreHorizontal20Regular, ShareIos20Regular, Star20Filled, Star20Regular } from '@fluentui/react-icons';
 import React, { useCallback } from 'react';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -47,7 +47,7 @@ const EventDetail: React.FC<EventDetailProps> = () => {
           <Button icon={<Dismiss20Regular />} appearance="transparent" onClick={handleClose} />
         </div>
       </div>
-      <hr />
+      <Divider />
       <TabList onTabSelect={handleTabSelect} selectedValue={location.pathname}>
         <Tab value={`/catalog/events/${eventId}/summary`}>Summary</Tab>
         <Tab value={`/catalog/events/${eventId}/amplitude`}>Amplitude</Tab>
