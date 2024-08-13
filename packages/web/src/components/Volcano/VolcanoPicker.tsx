@@ -39,7 +39,7 @@ const VolcanoPicker = () => {
                 }}
                 icon={volcano.id === currentVolcano?.id ? <Checkmark20Regular /> : undefined}
               >
-                <span className="font-semibold">{volcano.name}</span>
+                <span className="font-normal">{volcano.name}</span>
               </MenuItem>
             ))}
           </MenuList>

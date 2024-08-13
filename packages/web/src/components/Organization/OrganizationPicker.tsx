@@ -66,7 +66,7 @@ const OrganizationPicker = () => {
                         </div>
                       )}
                       <div className="flex gap-2">
-                        <span className="font-semibold">{org.name}</span>
+                        <span className="font-normal">{org.name}</span>
                       </div>
                     </div>
                   </div>
