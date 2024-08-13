@@ -27,10 +27,9 @@ function App() {
 
   useEffect(() => {
     toggleTheme(theme);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [toggleTheme, theme]);
 
-  const { fetchAllOrganizations } = useOrganizationStore();
+  const { currentOrganization, fetchAllOrganizations } = useOrganizationStore();
   const { fetchInventory } = useInventoryStore();
   const { fetchUser } = useUserStore();
   const { setHelicorderChannelId, setSelectedChannels, fetchPickerConfig } = usePickerStore();
@@ -100,6 +99,8 @@ function App() {
 
   return (
     <FluentProvider theme={darkMode ? webDarkTheme : webLightTheme}>
+      <title>{currentOrganization?.name}</title>
+
       <div className="bg-neutral-grey-94 dark:bg-neutral-grey-4 flex flex-col min-h-screen">
         <Header />
 
