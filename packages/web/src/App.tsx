@@ -1,5 +1,5 @@
 import { Button, FluentProvider, Spinner, webDarkTheme, webLightTheme } from '@fluentui/react-components';
-import { CursorHover24Regular, Folder24Regular, PeopleTeam24Regular } from '@fluentui/react-icons';
+import { ArrowClockwise20Regular, CursorHover24Regular, Folder24Regular, PeopleTeam24Regular } from '@fluentui/react-icons';
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AppBar, AppBarTab } from './components/AppBar';
@@ -80,7 +80,7 @@ function App() {
       <FluentProvider theme={darkMode ? webDarkTheme : webLightTheme}>
         <div className="bg-neutral-grey-94 dark:bg-neutral-grey-4 flex flex-col min-h-screen justify-center items-center gap-2">
           <div className="text-red-600 dark:text-red-400">{error}</div>
-          <Button appearance="transparent" onClick={() => window.location.reload()}>
+          <Button appearance="transparent" onClick={() => window.location.reload()} icon={<ArrowClockwise20Regular />}>
             Retry
           </Button>
         </div>

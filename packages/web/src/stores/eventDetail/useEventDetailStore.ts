@@ -1,0 +1,48 @@
+import { create } from 'zustand';
+import { api } from '../../services/api';
+import apiVersion from '../../services/apiVersion';
+import { createSelectors } from '../../shared/createSelectors';
+import { SeismicEvent } from '../../types/event';
+import { useCatalogStore } from '../catalog';
+import { useInventoryStore } from '../inventory';
+import { useOrganizationStore } from '../organization';
+import { EventDetailStore } from './types';
+
+const eventDetailStore = create<EventDetailStore>((set, get) => ({
+  eventId: '',
+  event: null,
+  loading: false,
+  error: null,
+  setEventId: (eventId) => set({ eventId }),
+  hasEventId: (eventId) => get().eventId === eventId,
+  fetchEvent: async (eventId) => {
+    set({ error: null });
+
+    try {
+      const { currentOrganization } = useOrganizationStore.getState();
+      if (!currentOrganization) {
+        throw new Error('Organization is not set');
+      }
+      const { currentCatalog } = useCatalogStore.getState();
+      if (!currentCatalog) {
+        throw new Error('Catalog is not set');
+      }
+
+      set({ loading: true });
+      const data = await api<SeismicEvent>(apiVersion.getEvent.v1(currentOrganization.id, currentCatalog.id, eventId));
+      set({ eventId, event: data, loading: false });
+    } catch (error) {
+      set({ loading: false, error: (error as Error).message });
+    }
+  },
+  getStationOfFirstArrival: () => {
+    const { event } = get();
+    if (!event) {
+      return '';
+    }
+    const { stations } = useInventoryStore.getState();
+    return stations().find((station) => station.id === event.station_of_first_arrival_id)?.code || '';
+  },
+}));
+
+export const useEventDetailStore = createSelectors(eventDetailStore);
