@@ -17,7 +17,6 @@ import {
   useTableSelection,
   useTableSort,
 } from '@fluentui/react-components';
-import { MoreHorizontal20Regular } from '@fluentui/react-icons';
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useCatalogStore } from '../../stores/catalog';
@@ -117,7 +116,6 @@ const EventTable = () => {
             <TableHeaderCell>Author</TableHeaderCell>
             <TableHeaderCell>Evaluation Mode</TableHeaderCell>
             <TableHeaderCell>Evaluation Status</TableHeaderCell>
-            <TableHeaderCell></TableHeaderCell>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -141,9 +139,6 @@ const EventTable = () => {
               </TableCell>
               <TableCell>{item.evaluation_mode}</TableCell>
               <TableCell>{item.evaluation_status}</TableCell>
-              <TableCell>
-                <Button icon={<MoreHorizontal20Regular />} appearance="transparent" />
-              </TableCell>
             </TableRow>
           ))}
         </TableBody>
