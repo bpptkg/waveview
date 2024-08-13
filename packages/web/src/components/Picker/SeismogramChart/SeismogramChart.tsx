@@ -16,7 +16,7 @@ import { SeismogramChartProps, SeismogramChartRef } from './SeismogramChart.type
 export type SeismogramChartType = React.ForwardRefExoticComponent<SeismogramChartProps & React.RefAttributes<SeismogramChartRef>>;
 
 export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref) => {
-  const { initOptions, className, onFocus, onBlur, onExtentChange, onTrackDoubleClick, onContextMenuRequested, onPick } = props;
+  const { initOptions, className, onFocus, onBlur, onExtentChange, onTrackDoubleClick, onContextMenuRequested, onPick, onReady } = props;
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Seismogram | null>(null);
@@ -348,6 +348,7 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
       })
       .finally(() => {
         webWorkerRef.current?.fetchAllChannelsData();
+        onReady?.();
       });
 
     return () => {

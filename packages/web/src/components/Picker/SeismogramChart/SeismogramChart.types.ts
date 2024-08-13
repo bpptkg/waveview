@@ -46,6 +46,10 @@ export interface SeismogramChartProps {
    * Callback fired when the user picks a range.
    */
   onPick?: (range: [number, number]) => void;
+  /**
+   * Callback fired when the chart is ready.
+   */
+  onReady?: () => void;
 }
 
 export interface SeismogramChartRef {
