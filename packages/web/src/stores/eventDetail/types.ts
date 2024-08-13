@@ -10,4 +10,5 @@ export interface EventDetailStore {
   fetchEvent: (eventId: string) => Promise<void>;
   getStationOfFirstArrival: () => string;
   bookmarkEvent: () => Promise<void>;
+  clearCache: () => void;
 }

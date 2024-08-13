@@ -8,6 +8,8 @@ import { useInventoryStore } from '../inventory';
 import { useOrganizationStore } from '../organization';
 import { EventDetailStore } from './types';
 
+const cache = new Map<string, SeismicEventDetail>();
+
 const eventDetailStore = create<EventDetailStore>((set, get) => ({
   eventId: '',
   event: null,
@@ -16,6 +18,11 @@ const eventDetailStore = create<EventDetailStore>((set, get) => ({
   setEventId: (eventId) => set({ eventId }),
   hasEventId: (eventId) => get().eventId === eventId,
   fetchEvent: async (eventId) => {
+    if (cache.has(eventId)) {
+      set({ eventId, event: cache.get(eventId) });
+      return;
+    }
+
     set({ error: null });
 
     try {
@@ -31,6 +38,7 @@ const eventDetailStore = create<EventDetailStore>((set, get) => ({
       set({ loading: true });
       const data = await api<SeismicEventDetail>(apiVersion.getEvent.v1(currentOrganization.id, currentCatalog.id, eventId));
       set({ eventId, event: data, loading: false });
+      cache.set(eventId, data);
     } catch (error) {
       set({ loading: false, error: (error as Error).message });
     }
@@ -61,6 +69,9 @@ const eventDetailStore = create<EventDetailStore>((set, get) => ({
       method: 'POST',
     });
     set((state) => ({ event: state.event ? { ...state.event, is_bookmarked: data.is_bookmarked } : null }));
+  },
+  clearCache: () => {
+    cache.clear();
   },
 }));
 

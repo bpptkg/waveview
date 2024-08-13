@@ -20,6 +20,7 @@ import {
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useCatalogStore } from '../../stores/catalog';
+import { useEventDetailStore } from '../../stores/eventDetail';
 import { SeismicEvent } from '../../types/event';
 import EventDetail from './EventDetail';
 import EventDetailDrawer from './EventDetailDrawer';
@@ -51,10 +52,15 @@ const EventTable = () => {
   const navigate = useNavigate();
   const { eventId } = useParams();
   const { events, fetchEvents, fetchNextEvents, hasNextEvents } = useCatalogStore();
+  const { clearCache } = useEventDetailStore();
 
   useEffect(() => {
     fetchEvents();
-  }, [fetchEvents]);
+
+    return () => {
+      clearCache();
+    };
+  }, [fetchEvents, clearCache]);
 
   const styles = useEventTableStyles();
 
