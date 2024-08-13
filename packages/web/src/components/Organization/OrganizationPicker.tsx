@@ -19,10 +19,10 @@ const OrganizationPicker = () => {
   const handleOpenChange: PopoverProps['onOpenChange'] = (_, data) => setOpen(data.open || false);
 
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex items-center gap-2">
+    <div className="flex items-center">
+      <div className="flex items-center justify-center w-[68px]">
         <a
-          className="flex items-center gap-3 cursor-pointer"
+          className="flex items-center cursor-pointer"
           onClick={() => {
             if (location.pathname !== '/' && location.pathname !== '/picker') {
               navigate('/');

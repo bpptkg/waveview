@@ -20,7 +20,7 @@ const Header = () => {
   );
 
   return (
-    <div className="flex h-[48px] items-center justify-between px-2">
+    <div className="flex h-[48px] items-center justify-between">
       <div className="flex items-center">
         <OrganizationPicker />
         <VolcanoPicker />
