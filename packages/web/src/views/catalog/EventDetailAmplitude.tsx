@@ -1,5 +1,6 @@
-import { Button, makeStyles, Table, TableBody, TableHeader, TableHeaderCell, TableRow } from '@fluentui/react-components';
+import { Button, makeStyles, Table, TableBody, TableHeader, TableHeaderCell, TableRow, Tooltip } from '@fluentui/react-components';
 import { ArrowLeft20Regular, Checkmark16Regular } from '@fluentui/react-icons';
+import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import EventDetailErrorMessage from '../../components/Loading/EventDetailErrorMessage';
@@ -105,6 +106,14 @@ const EventDetailAmplitude = () => {
             <div className="flex items-center justify-between">
               <div>Evaluation Mode</div>
               <div>{currentAmplitude.evaluation_mode}</div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div>Last updated</div>
+              <div>
+                <Tooltip content={currentAmplitude.updated_at} relationship="label">
+                  <span>{formatDistanceToNow(new Date(currentAmplitude.updated_at), { addSuffix: true })}</span>
+                </Tooltip>
+              </div>
             </div>
           </div>
         </div>
