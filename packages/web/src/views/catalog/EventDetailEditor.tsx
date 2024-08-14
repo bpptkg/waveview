@@ -15,7 +15,7 @@ const EventDetailEditor: React.FC<EventDetailEditorProps> = (props) => {
 
   return ReactDOM.createPortal(
     <FluentProvider theme={darkMode ? webDarkTheme : webLightTheme}>
-      <div className="w-screen h-screen absolute top-0 right-0 bottom-0 left-0 z-[9999] bg-white dark:bg-black flex flex-col">
+      <div className="w-screen h-screen absolute top-0 right-0 bottom-0 left-0 z-[9999] bg-neutral-grey-98 dark:bg-neutral-grey-12 flex flex-col">
         <div className="flex items-center justify-end p-1 relative">
           <Button icon={<Dismiss20Regular />} appearance="secondary" onClick={onClose}>
             Close
