@@ -17,6 +17,7 @@ export interface Attachment {
   event_id: string;
   media_type: 'photo' | 'video' | 'audio' | 'document';
   file: string;
+  thumbnail: string;
   name: string;
   size: number;
   uploaded_at: string;
