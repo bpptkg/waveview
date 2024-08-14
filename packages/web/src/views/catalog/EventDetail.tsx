@@ -28,6 +28,7 @@ import React, { useCallback, useState } from 'react';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useEventDetailStore } from '../../stores/eventDetail';
 import { CustomError } from '../../types/response';
+import EventDetailEditor from './EventDetailEditor';
 
 export interface EventDetailProps {}
 
@@ -55,6 +56,8 @@ const EventDetail: React.FC<EventDetailProps> = () => {
   const { dispatchToast } = useToastController(toasterId);
 
   const { event, bookmarkEvent, deleteEvent, fetchEvent } = useEventDetailStore();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [showEditor, setShowEditor] = useState(false);
 
   const showErrorToast = useCallback(
     (error: CustomError) => {
@@ -73,8 +76,6 @@ const EventDetail: React.FC<EventDetailProps> = () => {
       showErrorToast(error);
     });
   }, [bookmarkEvent, showErrorToast]);
-
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const handleDelete = useCallback(() => {
     deleteEvent()
@@ -114,7 +115,7 @@ const EventDetail: React.FC<EventDetailProps> = () => {
         <h2 className="text-md font-semibold p-4">Event Detail</h2>
         <div className="flex items-center">
           <Button icon={event?.is_bookmarked ? <Star20Filled color="orange" /> : <Star20Regular />} appearance="transparent" onClick={handleToggleBookmark} />
-          <Button icon={<Edit20Regular />} appearance="transparent" />
+          <Button icon={<Edit20Regular />} appearance="transparent" onClick={() => setShowEditor(true)} />
           <Menu>
             <MenuTrigger disableButtonEnhancement>
               <Button icon={<MoreHorizontal20Regular />} appearance="transparent" />
@@ -169,6 +170,14 @@ const EventDetail: React.FC<EventDetailProps> = () => {
           </DialogBody>
         </DialogSurface>
       </Dialog>
+
+      {showEditor && (
+        <EventDetailEditor
+          onClose={() => {
+            setShowEditor(false);
+          }}
+        />
+      )}
     </>
   );
 };
