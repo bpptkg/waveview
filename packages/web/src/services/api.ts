@@ -67,6 +67,8 @@ export const api = async <T = any>(url: string, options: APIOptions = {}): Promi
     if (response.status === 401) {
       await refreshToken();
       return tryFetch();
+    } else if (response.status === 404) {
+      window.location.href = '/404';
     }
 
     return response;
