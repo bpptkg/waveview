@@ -22,7 +22,12 @@ const eventDetailStore = create<EventDetailStore>((set, get) => ({
    * Fetches the event details from the API. If the event is already in the
    * cache, it will be used instead.
    */
-  fetchEvent: async (eventId) => {
+  fetchEvent: async (eventId, options = {}) => {
+    const { clearCache } = options;
+    if (clearCache) {
+      cache.delete(eventId);
+    }
+
     if (cache.has(eventId)) {
       set({ eventId, event: cache.get(eventId) });
       return;

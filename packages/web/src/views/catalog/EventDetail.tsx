@@ -23,7 +23,7 @@ import {
   useId,
   useToastController,
 } from '@fluentui/react-components';
-import { Dismiss20Regular, Edit20Regular, MoreHorizontal20Regular, ShareIos20Regular, Star20Filled, Star20Regular } from '@fluentui/react-icons';
+import { Dismiss20Regular, Edit20Regular, MoreHorizontal20Regular, Star20Filled, Star20Regular } from '@fluentui/react-icons';
 import React, { useCallback, useState } from 'react';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useEventDetailStore } from '../../stores/eventDetail';
@@ -54,18 +54,25 @@ const EventDetail: React.FC<EventDetailProps> = () => {
   const toasterId = useId('event-detail');
   const { dispatchToast } = useToastController(toasterId);
 
-  const { event, bookmarkEvent, deleteEvent } = useEventDetailStore();
+  const { event, bookmarkEvent, deleteEvent, fetchEvent } = useEventDetailStore();
 
-  const handleToggleBookmark = useCallback(() => {
-    bookmarkEvent().catch(() => {
+  const showErrorToast = useCallback(
+    (error: CustomError) => {
       dispatchToast(
         <Toast>
-          <ToastTitle>Failed to bookmark the event.</ToastTitle>
+          <ToastTitle>{error.message}</ToastTitle>
         </Toast>,
         { intent: 'error' }
       );
+    },
+    [dispatchToast]
+  );
+
+  const handleToggleBookmark = useCallback(() => {
+    bookmarkEvent().catch((error: CustomError) => {
+      showErrorToast(error);
     });
-  }, [bookmarkEvent, dispatchToast]);
+  }, [bookmarkEvent, showErrorToast]);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
@@ -75,17 +82,31 @@ const EventDetail: React.FC<EventDetailProps> = () => {
         navigate('/catalog/events');
       })
       .catch((error: CustomError) => {
-        dispatchToast(
-          <Toast>
-            <ToastTitle>{error.message}</ToastTitle>
-          </Toast>,
-          { intent: 'error' }
-        );
+        showErrorToast(error);
       })
       .finally(() => {
         setDeleteDialogOpen(false);
       });
-  }, [deleteEvent, dispatchToast, navigate]);
+  }, [deleteEvent, navigate, showErrorToast]);
+
+  const handleRefresh = useCallback(() => {
+    if (!eventId) {
+      return;
+    }
+    fetchEvent(eventId, { clearCache: true }).catch((error: CustomError) => {
+      showErrorToast(error);
+    });
+  }, [fetchEvent, showErrorToast, eventId]);
+
+  const handleCopyPermalink = useCallback(() => {
+    const permalink = `${window.location.origin}/catalog/events/${eventId}`;
+    navigator.clipboard
+      .writeText(permalink)
+      .then(() => {})
+      .catch((error) => {
+        showErrorToast(error);
+      });
+  }, [eventId, showErrorToast]);
 
   return (
     <>
@@ -94,13 +115,14 @@ const EventDetail: React.FC<EventDetailProps> = () => {
         <div className="flex items-center">
           <Button icon={event?.is_bookmarked ? <Star20Filled color="orange" /> : <Star20Regular />} appearance="transparent" onClick={handleToggleBookmark} />
           <Button icon={<Edit20Regular />} appearance="transparent" />
-          <Button icon={<ShareIos20Regular />} appearance="transparent" />
           <Menu>
             <MenuTrigger disableButtonEnhancement>
               <Button icon={<MoreHorizontal20Regular />} appearance="transparent" />
             </MenuTrigger>
             <MenuPopover>
               <MenuList>
+                <MenuItem onClick={handleRefresh}>Refresh</MenuItem>
+                <MenuItem onClick={handleCopyPermalink}>Copy Permalink</MenuItem>
                 <MenuItem
                   onClick={() => {
                     setDeleteDialogOpen(true);
