@@ -95,7 +95,15 @@ const Account = () => {
               </div>
             </div>
             <Divider />
-            <MenuItem icon={<Person20Regular />}>Your profile</MenuItem>
+            <MenuItem
+              icon={<Person20Regular />}
+              onClick={() => {
+                navigate('/profile');
+                setOpen(false);
+              }}
+            >
+              Your profile
+            </MenuItem>
             <MenuItem icon={<WeatherMoon20Regular />} secondaryContent={<ChevronRight20Regular />} onClick={() => handleViewChange('theme')}>
               Appearance: {theme === 'light' ? 'Light' : theme === 'dark' ? 'Dark' : 'Auto'}
             </MenuItem>

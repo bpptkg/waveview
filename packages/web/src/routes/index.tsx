@@ -17,6 +17,7 @@ import ForgotYourPassword from '../views/help/ForgotYourPassword';
 import Help from '../views/help/Help';
 import Login from '../views/login/Login';
 import Picker from '../views/picker/Picker';
+import Profile from '../views/profile/Profile';
 import TermsOfService from '../views/tos/TermsOfService';
 
 const router = createBrowserRouter([
@@ -91,6 +92,10 @@ const router = createBrowserRouter([
       {
         path: '/help',
         element: <Help />,
+      },
+      {
+        path: '/profile',
+        element: <Profile />,
       },
       {
         index: true,
