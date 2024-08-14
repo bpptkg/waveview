@@ -1,7 +1,8 @@
-import { Avatar, Divider, Image, Tooltip } from '@fluentui/react-components';
+import { Avatar, Divider, Tooltip } from '@fluentui/react-components';
 import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
+import AttachmentGallery from '../../components/Gallery/AttachmentGallery';
 import EventDetailErrorMessage from '../../components/Loading/EventDetailErrorMessage';
 import EventDetailLoadingIndicator from '../../components/Loading/EventDetailLoadingIndicator';
 import { useEventDetailStore } from '../../stores/eventDetail';
@@ -110,18 +111,7 @@ const EventDetailSummary = () => {
       <Divider />
       <div className="flex flex-col gap-2">
         <div className="font-semibold">Attachments</div>
-        {attachments && attachments.length ? (
-          <div className="flex flex-row gap-1">
-            {attachments.slice(0, 5).map((attachment) => (
-              <div key={attachment.id} className="w-[80px] h-[80px]">
-                <Image src={attachment.file} alt={attachment.name} fit="cover" shape="rounded" />
-              </div>
-            ))}
-            {attachments.length > 5 && <div className="flex items-center justify-center w-[80px] h-[80px]">and {attachments.length - 5} more</div>}
-          </div>
-        ) : (
-          <div>No attachments</div>
-        )}
+        {attachments && attachments.length ? <AttachmentGallery attachments={attachments} maxShown={5} /> : <div>No attachments</div>}
       </div>
       <Divider />
       <div className="flex flex-col gap-2">
