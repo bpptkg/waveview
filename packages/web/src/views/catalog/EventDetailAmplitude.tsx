@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import EventDetailErrorMessage from '../../components/Loading/EventDetailErrorMessage';
 import EventDetailLoadingIndicator from '../../components/Loading/EventDetailLoadingIndicator';
+import { formatNumber, formatTime } from '../../shared/formatting';
+import { useAppStore } from '../../stores/app';
 import { useEventDetailStore } from '../../stores/eventDetail';
 import { useInventoryStore } from '../../stores/inventory';
 import { Amplitude } from '../../types/event';
@@ -17,6 +19,7 @@ const useEventDetailAmplitudeStyles = makeStyles({
 
 const EventDetailAmplitude = () => {
   const { eventId } = useParams();
+  const { useUTC } = useAppStore();
   const { loading, event, error, fetchEvent, hasEventId } = useEventDetailStore();
   const { getChannelById } = useInventoryStore();
   const styles = useEventDetailAmplitudeStyles();
@@ -73,19 +76,19 @@ const EventDetailAmplitude = () => {
             </div>
             <div className="flex items-center justify-between">
               <div>Time</div>
-              <div>{currentAmplitude.time}</div>
+              <div>{formatTime(currentAmplitude.time, { useUTC })}</div>
             </div>
             <div className="flex items-center justify-between">
               <div>Begin</div>
-              <div>{currentAmplitude.begin} sec</div>
+              <div>{formatNumber(currentAmplitude.begin, { unit: ' sec' })}</div>
             </div>
             <div className="flex items-center justify-between">
               <div>End</div>
-              <div>{currentAmplitude.end} sec</div>
+              <div>{formatNumber(currentAmplitude.end, { unit: ' sec' })}</div>
             </div>
             <div className="flex items-center justify-between">
               <div>Duration</div>
-              <div>{currentAmplitude.duration} sec</div>
+              <div>{formatNumber(currentAmplitude.duration, { unit: ' sec' })}</div>
             </div>
             <div className="flex items-center justify-between">
               <div>SNR</div>

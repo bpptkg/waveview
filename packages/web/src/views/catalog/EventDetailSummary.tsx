@@ -5,10 +5,13 @@ import { useParams } from 'react-router-dom';
 import AttachmentGallery from '../../components/Gallery/AttachmentGallery';
 import EventDetailErrorMessage from '../../components/Loading/EventDetailErrorMessage';
 import EventDetailLoadingIndicator from '../../components/Loading/EventDetailLoadingIndicator';
+import { formatNumber, formatTime } from '../../shared/formatting';
+import { useAppStore } from '../../stores/app';
 import { useEventDetailStore } from '../../stores/eventDetail';
 
 const EventDetailSummary = () => {
   const { eventId } = useParams();
+  const { useUTC } = useAppStore();
   const { loading, event, error, fetchEvent, hasEventId, getStationOfFirstArrival } = useEventDetailStore();
 
   useEffect(() => {
@@ -50,11 +53,11 @@ const EventDetailSummary = () => {
         </div>
         <div className="flex items-center justify-between">
           <div>Time</div>
-          <div>{event?.time}</div>
+          <div>{formatTime(event?.time, { useUTC })}</div>
         </div>
         <div className="flex items-center justify-between">
           <div>Duration</div>
-          <div>{event?.duration} sec</div>
+          <div>{formatNumber(event?.duration, { unit: ' sec' })}</div>
         </div>
         <div className="flex items-center justify-between">
           <div>Event type</div>
@@ -71,9 +74,7 @@ const EventDetailSummary = () => {
         {event?.preferred_amplitude ? (
           <div className="flex items-center justify-between">
             <div>{event.preferred_amplitude.type}</div>
-            <div>
-              {event.preferred_amplitude.amplitude} {event.preferred_amplitude.unit}
-            </div>
+            <div>{formatNumber(event.preferred_amplitude?.amplitude, { unit: event.preferred_amplitude?.unit })}</div>
           </div>
         ) : (
           <div>No data</div>
@@ -97,15 +98,15 @@ const EventDetailSummary = () => {
         <div className="font-semibold">Location</div>
         <div className="flex items-center justify-between">
           <div>Latitude</div>
-          {event?.preferred_origin ? <div>{event.preferred_origin?.latitude} deg</div> : <div>No data</div>}
+          {event?.preferred_origin ? <div>{formatNumber(event.preferred_origin?.latitude, { unit: '°' })}</div> : <div>No data</div>}
         </div>
         <div className="flex items-center justify-between">
           <div>Longitude</div>
-          {event?.preferred_origin ? <div>{event.preferred_origin?.longitude} deg</div> : <div>No data</div>}
+          {event?.preferred_origin ? <div>{formatNumber(event.preferred_origin?.longitude, { unit: '°' })}</div> : <div>No data</div>}
         </div>
         <div className="flex items-center justify-between">
           <div>Depth</div>
-          {event?.preferred_origin ? <div>{event.preferred_origin?.depth} km</div> : <div>No data</div>}
+          {event?.preferred_origin ? <div>{formatNumber(event.preferred_origin?.depth, { unit: ' km' })}</div> : <div>No data</div>}
         </div>
       </div>
       <Divider />

@@ -1,9 +1,9 @@
 import { formatDate } from '@waveview/charts';
 import { useEffect, useState } from 'react';
-import { usePickerStore } from '../../stores/picker';
+import { useAppStore } from '../../stores/app';
 
 const RealtimeClock = () => {
-  const { useUTC } = usePickerStore();
+  const { useUTC } = useAppStore();
 
   const [time, setTime] = useState(new Date());
 

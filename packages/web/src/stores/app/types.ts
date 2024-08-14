@@ -10,6 +10,9 @@ export type AppStore = {
   theme: Theme;
   currentLanguage: LanguageItem;
   supportedLanguages: LanguageItem[];
+  useUTC: boolean;
+  timeZone: string;
   toggleTheme: (theme: Theme) => void;
   setLanguage: (language: LanguageItem) => void;
+  setUseUTC: (useUTC: boolean) => void;
 };

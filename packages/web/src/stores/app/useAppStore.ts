@@ -30,6 +30,8 @@ const appStore = create<AppStore, [['zustand/devtools', never]]>(
     theme: getInitialTheme(),
     currentLanguage: { value: 'en', label: 'English' },
     supportedLanguages: [{ value: 'en', label: 'English' }],
+    useUTC: false,
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     toggleTheme: (theme?: Theme) => {
       if (!theme) {
         theme = theme ?? get().theme;
@@ -57,6 +59,7 @@ const appStore = create<AppStore, [['zustand/devtools', never]]>(
       }
     },
     setLanguage: (language) => set({ currentLanguage: language }),
+    setUseUTC: (useUTC) => set({ useUTC }),
   }))
 );
 

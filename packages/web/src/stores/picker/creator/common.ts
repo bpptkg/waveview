@@ -1,18 +1,15 @@
 import { StateCreator } from 'zustand';
-import { CommonSlice, PickerStore } from '../slices';
-import { useOrganizationStore } from '../../organization';
 import { api } from '../../../services/api';
-import { PickerConfig } from '../../../types/picker';
 import apiVersion from '../../../services/apiVersion';
+import { PickerConfig } from '../../../types/picker';
+import { useOrganizationStore } from '../../organization';
+import { CommonSlice, PickerStore } from '../slices';
 
 export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> = (set) => {
   return {
-    useUTC: false,
-    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     selectedChart: 'helicorder',
     showEvent: true,
     pickerConfig: null,
-    setUseUTC: (useUTC) => set({ useUTC }),
     setSelectedChart: (selectedChart) => set({ selectedChart }),
     setShowEvent: (showEvent) => set({ showEvent }),
     fetchPickerConfig: async () => {

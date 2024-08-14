@@ -15,6 +15,7 @@ import {
 } from '@fluentui/react-components';
 import {
   ChevronRight20Regular,
+  Globe20Regular,
   Info20Regular,
   Person20Regular,
   QuestionCircle20Regular,
@@ -31,6 +32,7 @@ import { useAuthStore } from '../../stores/auth';
 import { useUserStore } from '../../stores/user';
 import LanguageSelector from './LanguageSelector';
 import ThemeSelector from './ThemeSelector';
+import TimezoneSelector from './TimezoneSelector';
 
 const useAccountStyles = makeStyles({
   popoverSuface: {
@@ -40,12 +42,12 @@ const useAccountStyles = makeStyles({
   },
 });
 
-type View = 'default' | 'theme' | 'language';
+type View = 'default' | 'theme' | 'language' | 'timezone';
 
 const Account = () => {
   const navigate = useNavigate();
   const { user } = useUserStore();
-  const { currentLanguage, theme } = useAppStore();
+  const { currentLanguage, theme, timeZone, useUTC } = useAppStore();
   const styles = useAccountStyles();
   const [open, setOpen] = useState(false);
   const handleOpenChange: PopoverProps['onOpenChange'] = (_, data) => {
@@ -84,6 +86,8 @@ const Account = () => {
         return <ThemeSelector onBack={() => handleViewChange('default')} />;
       case 'language':
         return <LanguageSelector onBack={() => handleViewChange('default')} />;
+      case 'timezone':
+        return <TimezoneSelector onBack={() => handleViewChange('default')} />;
       default:
         return (
           <MenuList>
@@ -104,11 +108,15 @@ const Account = () => {
             >
               Your profile
             </MenuItem>
+            <Divider />
             <MenuItem icon={<WeatherMoon20Regular />} secondaryContent={<ChevronRight20Regular />} onClick={() => handleViewChange('theme')}>
               Appearance: {theme === 'light' ? 'Light' : theme === 'dark' ? 'Dark' : 'Auto'}
             </MenuItem>
             <MenuItem icon={<Translate20Regular />} secondaryContent={<ChevronRight20Regular />} onClick={() => handleViewChange('language')}>
               Language: {currentLanguage.label}
+            </MenuItem>
+            <MenuItem icon={<Globe20Regular />} secondaryContent={<ChevronRight20Regular />} onClick={() => handleViewChange('timezone')}>
+              Timezone: {useUTC ? 'UTC' : timeZone}
             </MenuItem>
             <Divider />
             <MenuItem

@@ -1,6 +1,6 @@
 import { Menu, MenuButton, MenuItem, MenuList, MenuPopover, MenuTrigger, makeStyles } from '@fluentui/react-components';
 import { Checkmark20Regular } from '@fluentui/react-icons';
-import { usePickerStore } from '../../stores/picker';
+import { useAppStore } from '../../stores/app';
 
 const useStyles = makeStyles({
   btn: {
@@ -12,7 +12,7 @@ const useStyles = makeStyles({
 const UTC = 'UTC';
 
 const TimeZoneSelector = () => {
-  const { timeZone, useUTC, setUseUTC } = usePickerStore();
+  const { timeZone, useUTC, setUseUTC } = useAppStore();
 
   const options = [
     { label: timeZone, value: false },

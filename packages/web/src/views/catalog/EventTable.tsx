@@ -19,6 +19,8 @@ import {
 } from '@fluentui/react-components';
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { formatNumber, formatTime } from '../../shared/formatting';
+import { useAppStore } from '../../stores/app';
 import { useCatalogStore } from '../../stores/catalog';
 import { useEventDetailStore } from '../../stores/eventDetail';
 import { SeismicEvent } from '../../types/event';
@@ -51,6 +53,7 @@ const columns: TableColumnDefinition<Item>[] = [
 const EventTable = () => {
   const navigate = useNavigate();
   const { eventId } = useParams();
+  const { useUTC } = useAppStore();
   const { events, fetchEvents, fetchNextEvents, hasNextEvents } = useCatalogStore();
   const { clearCache } = useEventDetailStore();
 
@@ -119,21 +122,27 @@ const EventTable = () => {
             <TableHeaderCell>Type</TableHeaderCell>
             <TableHeaderCell>Amplitude</TableHeaderCell>
             <TableHeaderCell>Magnitude</TableHeaderCell>
-            <TableHeaderCell>Author</TableHeaderCell>
+            <TableHeaderCell>Latitude</TableHeaderCell>
+            <TableHeaderCell>Longitude</TableHeaderCell>
+            <TableHeaderCell>Depth</TableHeaderCell>
             <TableHeaderCell>Evaluation Mode</TableHeaderCell>
             <TableHeaderCell>Evaluation Status</TableHeaderCell>
+            <TableHeaderCell>Author</TableHeaderCell>
           </TableRow>
         </TableHeader>
         <TableBody>
           {rows.map(({ item, onClick, onKeyDown, selected, appearance }) => (
             <TableRow key={item.id} onClick={onClick} onKeyDown={onKeyDown} aria-selected={selected} appearance={appearance}>
-              <TableCell>{item.time}</TableCell>
-              <TableCell>{item.duration} sec</TableCell>
+              <TableCell>{formatTime(item.time, { useUTC })}</TableCell>
+              <TableCell>{formatNumber(item.duration, { unit: ' sec' })}</TableCell>
               <TableCell>{item.type.code}</TableCell>
-              <TableCell>
-                {item.preferred_amplitude?.amplitude} {item.preferred_amplitude?.unit}
-              </TableCell>
+              <TableCell>{formatNumber(item.preferred_amplitude?.amplitude, { unit: item.preferred_amplitude?.unit })}</TableCell>
               <TableCell>{item.preferred_magnitude?.magnitude}</TableCell>
+              <TableCell>{formatNumber(item.preferred_origin?.latitude, { unit: '°' })}</TableCell>
+              <TableCell>{formatNumber(item.preferred_origin?.longitude, { unit: '°' })}</TableCell>
+              <TableCell>{formatNumber(item.preferred_origin?.depth, { unit: ' km' })}</TableCell>
+              <TableCell>{item.evaluation_mode}</TableCell>
+              <TableCell>{item.evaluation_status}</TableCell>
               <TableCell>
                 <TableCellLayout
                   media={
@@ -143,8 +152,6 @@ const EventTable = () => {
                   }
                 />
               </TableCell>
-              <TableCell>{item.evaluation_mode}</TableCell>
-              <TableCell>{item.evaluation_status}</TableCell>
             </TableRow>
           ))}
         </TableBody>

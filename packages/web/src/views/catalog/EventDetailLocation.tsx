@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import EventDetailErrorMessage from '../../components/Loading/EventDetailErrorMessage';
 import EventDetailLoadingIndicator from '../../components/Loading/EventDetailLoadingIndicator';
+import { formatNumber, formatTime } from '../../shared/formatting';
+import { useAppStore } from '../../stores/app';
 import { useEventDetailStore } from '../../stores/eventDetail';
 import { Origin } from '../../types/event';
 
@@ -16,6 +18,7 @@ const useEventDetailLocationStyles = makeStyles({
 
 const EventDetailLocation = () => {
   const { eventId } = useParams();
+  const { useUTC } = useAppStore();
   const { loading, event, error, fetchEvent, hasEventId } = useEventDetailStore();
   const styles = useEventDetailLocationStyles();
   const [currentOrigin, setCurrentOrigin] = useState<Origin | null>(null);
@@ -59,19 +62,19 @@ const EventDetailLocation = () => {
             </div>
             <div className="flex items-center justify-between">
               <div>Time</div>
-              <div>{currentOrigin.time}</div>
+              <div>{formatTime(currentOrigin.time, { useUTC })}</div>
             </div>
             <div className="flex items-center justify-between">
               <div>Latitude</div>
-              <div>{currentOrigin.latitude} deg</div>
+              <div>{formatNumber(currentOrigin.latitude, { unit: '°' })}</div>
             </div>
             <div className="flex items-center justify-between">
               <div>Longitude</div>
-              <div>{currentOrigin.longitude} deg</div>
+              <div>{formatNumber(currentOrigin.longitude, { unit: '°' })}</div>
             </div>
             <div className="flex items-center justify-between">
               <div>Depth</div>
-              <div>{currentOrigin.depth} km</div>
+              <div>{formatNumber(currentOrigin.depth, { unit: 'km' })}</div>
             </div>
             <div className="flex items-center justify-between">
               <div>Earth model</div>
@@ -121,10 +124,10 @@ const EventDetailLocation = () => {
                   }}
                 >
                   <TableHeaderCell>{origin.is_preferred ? <Checkmark16Regular /> : null}</TableHeaderCell>
-                  <TableHeaderCell>{origin.time}</TableHeaderCell>
-                  <TableHeaderCell>{origin.latitude} deg</TableHeaderCell>
-                  <TableHeaderCell>{origin.longitude} deg</TableHeaderCell>
-                  <TableHeaderCell>{origin.depth} km</TableHeaderCell>
+                  <TableHeaderCell>{formatTime(origin.time, { useUTC })}</TableHeaderCell>
+                  <TableHeaderCell>{formatNumber(origin.latitude, { unit: '°' })}</TableHeaderCell>
+                  <TableHeaderCell>{formatNumber(origin.longitude, { unit: '°' })}</TableHeaderCell>
+                  <TableHeaderCell>{formatNumber(origin.depth, { unit: ' km' })}</TableHeaderCell>
                   <TableHeaderCell>{origin.method}</TableHeaderCell>
                 </TableRow>
               ))

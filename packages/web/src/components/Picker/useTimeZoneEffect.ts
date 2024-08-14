@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { usePickerStore } from '../../stores/picker';
+import { useAppStore } from '../../stores/app';
 import { HelicorderChartRef } from './HelicorderChart';
 import { SeismogramChartRef } from './SeismogramChart';
 
@@ -7,7 +7,7 @@ export function useTimeZoneEffect(
   heliChartRef: React.MutableRefObject<HelicorderChartRef | null>,
   seisChartRef: React.MutableRefObject<SeismogramChartRef | null>
 ) {
-  const { useUTC } = usePickerStore();
+  const { useUTC } = useAppStore();
 
   const initialRenderCompleteRef = useRef<boolean | null>(null);
 

@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import EventDetailErrorMessage from '../../components/Loading/EventDetailErrorMessage';
 import EventDetailLoadingIndicator from '../../components/Loading/EventDetailLoadingIndicator';
+import { formatNumber } from '../../shared/formatting';
 import { useEventDetailStore } from '../../stores/eventDetail';
 import { Magnitude } from '../../types/event';
 
@@ -71,7 +72,7 @@ const EventDetailMagnitude = () => {
             </div>
             <div className="flex items-center justify-between">
               <div>Azimuthal gap</div>
-              <div>{currentMagnitude.azimuthal_gap}</div>
+              <div>{formatNumber(currentMagnitude.azimuthal_gap, { unit: '°' })}</div>
             </div>
             <div className="flex items-center justify-between">
               <div>Evaluation status</div>

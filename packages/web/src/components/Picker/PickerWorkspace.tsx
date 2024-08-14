@@ -3,6 +3,7 @@ import { ArrowReply20Regular } from '@fluentui/react-icons';
 import { FederatedPointerEvent } from 'pixi.js';
 import { useCallback, useRef } from 'react';
 import { useAppStore } from '../../stores/app';
+import { useInventoryStore } from '../../stores/inventory';
 import { PickedEvent, usePickerStore } from '../../stores/picker';
 import EventDrawer from './EventDrawer/EventDrawer';
 import PickEdit from './EventDrawer/PickEdit';
@@ -18,7 +19,6 @@ import { useHelicorderCallback } from './useHelicorderCallback';
 import { useSeismogramCallback } from './useSeismogramCallback';
 import { useThemeEffect } from './useThemeEffect';
 import { useTimeZoneEffect } from './useTimeZoneEffect';
-import { useInventoryStore } from '../../stores/inventory';
 
 const useStyles = makeStyles({
   backButton: {
@@ -35,6 +35,8 @@ const PickerWorkspace = () => {
   const contextMenuRef = useRef<ContextMenuRef | null>(null);
 
   const { channels } = useInventoryStore();
+  const { darkMode, useUTC } = useAppStore();
+  const styles = useStyles();
 
   const {
     channelId,
@@ -50,17 +52,12 @@ const PickerWorkspace = () => {
     seismogramToolbarCheckedValues,
     selectedChart,
     showEvent,
-    useUTC,
     selectedChannels,
     isPickEmpty,
     setPickRange,
     savePickedEvent,
     isPickModeActive,
   } = usePickerStore();
-
-  const { darkMode } = useAppStore();
-
-  const styles = useStyles();
 
   const {
     handleHelicorderShiftViewUp,
