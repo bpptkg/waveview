@@ -39,9 +39,10 @@ const CatalogPicker = () => {
                 }}
                 icon={catalog.id === currentCatalog?.id ? <Checkmark20Regular /> : undefined}
               >
-                <span className="font-normal">
-                  {catalog.name} {catalog.is_default ? '(Default)' : ''}
-                </span>
+                <div className="flex items-center gap-1">
+                  <span className="font-normal">{catalog.name}</span>
+                  {catalog.is_default && <span className="text-xs bg-blue-500 text-white px-2 rounded-full">Default</span>}
+                </div>
               </MenuItem>
             ))}
           </MenuList>
