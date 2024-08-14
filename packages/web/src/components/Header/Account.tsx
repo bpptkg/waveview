@@ -1,4 +1,18 @@
-import { Avatar, Divider, MenuItem, MenuList, Popover, PopoverProps, PopoverSurface, PopoverTrigger, makeStyles } from '@fluentui/react-components';
+import {
+  Avatar,
+  Divider,
+  MenuItem,
+  MenuList,
+  Popover,
+  PopoverProps,
+  PopoverSurface,
+  PopoverTrigger,
+  Toast,
+  ToastTitle,
+  makeStyles,
+  useId,
+  useToastController,
+} from '@fluentui/react-components';
 import {
   ChevronRight20Regular,
   Info20Regular,
@@ -6,12 +20,14 @@ import {
   QuestionCircle20Regular,
   Scales20Regular,
   SignOut20Regular,
+  Target20Regular,
   Translate20Regular,
   WeatherMoon20Regular,
 } from '@fluentui/react-icons';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../../stores/app';
+import { useAuthStore } from '../../stores/auth';
 import { useUserStore } from '../../stores/user';
 import LanguageSelector from './LanguageSelector';
 import ThemeSelector from './ThemeSelector';
@@ -42,6 +58,26 @@ const Account = () => {
     setView(view);
   };
 
+  const { blacklistToken } = useAuthStore();
+
+  const toasterId = useId('account');
+  const { dispatchToast } = useToastController(toasterId);
+
+  const handleLogout = useCallback(() => {
+    blacklistToken()
+      .then(() => {
+        navigate('/login');
+      })
+      .catch(() => {
+        dispatchToast(
+          <Toast>
+            <ToastTitle>Failed to logout. Please try again later.</ToastTitle>
+          </Toast>,
+          { intent: 'error' }
+        );
+      });
+  }, [blacklistToken, dispatchToast, navigate]);
+
   const renderView = () => {
     switch (view) {
       case 'theme':
@@ -70,7 +106,16 @@ const Account = () => {
             <MenuItem
               icon={<QuestionCircle20Regular />}
               onClick={() => {
-                window.open('https://github.com/bpptkg/waveview', '_blank');
+                navigate('/help');
+                setOpen(false);
+              }}
+            >
+              Help
+            </MenuItem>
+            <MenuItem
+              icon={<Target20Regular />}
+              onClick={() => {
+                window.open('https://github.com/bpptkg/waveview/issues', '_blank');
               }}
             >
               Report an issue
@@ -79,6 +124,7 @@ const Account = () => {
               icon={<Scales20Regular />}
               onClick={() => {
                 navigate('/terms-of-service');
+                setOpen(false);
               }}
             >
               Term of Services
@@ -87,12 +133,15 @@ const Account = () => {
               icon={<Info20Regular />}
               onClick={() => {
                 navigate('/about');
+                setOpen(false);
               }}
             >
               About WaveView
             </MenuItem>
             <Divider />
-            <MenuItem icon={<SignOut20Regular />}>Logout</MenuItem>
+            <MenuItem icon={<SignOut20Regular />} onClick={handleLogout}>
+              Logout
+            </MenuItem>
           </MenuList>
         );
     }

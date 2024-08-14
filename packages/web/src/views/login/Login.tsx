@@ -17,7 +17,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LogoImage from '../../components/Header/LogoImage';
 import LogoText from '../../components/Header/LogoText';
-import { baseUrl } from '../../services/api';
 import { useAppStore } from '../../stores/app';
 import { useAuthStore } from '../../stores/auth';
 
@@ -64,16 +63,11 @@ const Footer = () => {
   );
 };
 
-interface LoginSucessResponse {
-  access: string;
-  refresh: string;
-}
-
 const Login = () => {
   const { darkMode, theme, toggleTheme } = useAppStore();
 
   const navigate = useNavigate();
-  const { setToken } = useAuthStore();
+  const { fetchToken } = useAuthStore();
 
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -96,29 +90,12 @@ const Login = () => {
   const handleLogin = async () => {
     setLoading(true);
 
-    const url = `${baseUrl}/api/v1/auth/token/`;
     try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
-      if (!response.ok) {
-        throw new Error('The username and password you entered did not match our records. Please double-check and try again.');
-      }
-
-      const token: LoginSucessResponse = await response.json();
-      setToken(token);
+      await fetchToken({ username, password });
 
       navigate('/');
     } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError('Unknown error');
-      }
+      setError('The username and password you entered did not match our records. Please double-check and try again.');
     } finally {
       setLoading(false);
     }

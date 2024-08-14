@@ -2,6 +2,15 @@ export default {
   login: {
     v1: '/api/v1/auth/token/',
   },
+  logout: {
+    v1: '/api/v1/auth/token/blacklist/',
+  },
+  refreshToken: {
+    v1: '/api/v1/auth/token/refresh/',
+  },
+  verifyToken: {
+    v1: '/api/v1/auth/token/verify/',
+  },
   listOrganization: {
     v1: '/api/v1/organizations/',
   },

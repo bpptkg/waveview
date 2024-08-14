@@ -1,5 +1,5 @@
 import { Button, FluentProvider, Spinner, webDarkTheme, webLightTheme } from '@fluentui/react-components';
-import { ArrowClockwise20Regular, CursorHover24Regular, Folder24Regular, PeopleTeam24Regular } from '@fluentui/react-icons';
+import { ArrowClockwise20Regular, ChatHelp24Regular, CursorHover24Regular, Folder24Regular, PeopleTeam24Regular } from '@fluentui/react-icons';
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AppBar, AppBarTab } from './components/AppBar';
@@ -16,6 +16,7 @@ import { useVolcanoStore } from './stores/volcano/useVolcanoStore';
 const PickerIcon = CursorHover24Regular;
 const CatalogIcon = Folder24Regular;
 const AdminIcon = PeopleTeam24Regular;
+const HelpIcon = ChatHelp24Regular;
 
 function App() {
   const navigate = useNavigate();
@@ -120,6 +121,9 @@ function App() {
             </AppBarTab>
             <AppBarTab value="/admin" icon={AdminIcon} onClick={() => navigate('/admin')}>
               Admin
+            </AppBarTab>
+            <AppBarTab value="/help" icon={HelpIcon} onClick={() => navigate('/help')}>
+              Help
             </AppBarTab>
           </AppBar>
 

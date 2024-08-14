@@ -13,6 +13,7 @@ import EventDetailWaveform from '../views/catalog/EventDetailWaveform';
 import EventTable from '../views/catalog/EventTable';
 import Hypocenter from '../views/catalog/Hypocenter';
 import Seismicity from '../views/catalog/Seismicity';
+import ForgotYourPassword from '../views/help/ForgotYourPassword';
 import Help from '../views/help/Help';
 import Login from '../views/login/Login';
 import Picker from '../views/picker/Picker';
@@ -100,6 +101,10 @@ const router = createBrowserRouter([
   {
     path: '/login',
     element: <Login />,
+  },
+  {
+    path: '/forgot-password',
+    element: <ForgotYourPassword />,
   },
   {
     path: '/about',
