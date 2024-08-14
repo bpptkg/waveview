@@ -17,7 +17,12 @@ const EventDetailSummary = () => {
   }, [eventId, fetchEvent, hasEventId]);
 
   const firstArrivalStation = getStationOfFirstArrival();
-  const attachments = useMemo(() => event?.attachments.filter((attachment) => attachment.media_type === 'photo'), [event]);
+  const attachments = useMemo(() => {
+    if (!event) {
+      return [];
+    }
+    return event?.attachments.filter((attachment) => attachment.media_type === 'photo');
+  }, [event]);
 
   if (loading) {
     return <EventDetailLoadingIndicator message="Loading event details..." />;
