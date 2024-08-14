@@ -14,7 +14,8 @@ const eventTypeStore = create<EventTypeStore>((set) => ({
       return;
     }
 
-    const data = await api<EventType[]>(apiVersion.listEventType.v1(currentOrganization.id));
+    const response = await api(apiVersion.listEventType.v1(currentOrganization.id));
+    const data: EventType[] = await response.json();
     set({ eventTypes: data });
   },
 }));

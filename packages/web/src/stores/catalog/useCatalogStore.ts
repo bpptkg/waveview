@@ -5,6 +5,7 @@ import { createSelectors } from '../../shared/createSelectors';
 import { Catalog } from '../../types/catalog';
 import { SeismicEvent } from '../../types/event';
 import { Pagination } from '../../types/pagination';
+import { CustomError } from '../../types/response';
 import { useOrganizationStore } from '../organization';
 import { useVolcanoStore } from '../volcano/useVolcanoStore';
 import { CatalogStore } from './types';
@@ -16,6 +17,10 @@ const catalogStore = create<CatalogStore>((set, get) => {
     events: [],
     nextEventsUrl: null,
     setCurrentCatalog: (catalog) => set({ currentCatalog: catalog }),
+    /**
+     * Fetches all catalogs from the organization where the user is a member of
+     * and sets the default catalog.
+     */
     fetchAllCatalogs: async () => {
       const { currentOrganization } = useOrganizationStore.getState();
       if (!currentOrganization) {
@@ -28,17 +33,21 @@ const catalogStore = create<CatalogStore>((set, get) => {
       }
 
       const url = apiVersion.listCatalog.v1(currentOrganization.id, currentVolcano.id);
-      const data = await api<Catalog[]>(url);
+      const response = await api(url);
+      const data: Catalog[] = await response.json();
       set({ allCatalogs: data });
 
       const defaultCatalog = data.find((c) => c.is_default);
       if (defaultCatalog) {
         set({ currentCatalog: defaultCatalog });
       } else {
-        throw new Error('No default catalog found');
+        throw new CustomError('No default catalog found');
       }
     },
     setNextEventsUrl: (url) => set({ nextEventsUrl: url }),
+    /**
+     * Fetches the events from the current catalog at page 1.
+     */
     fetchEvents: async () => {
       const { currentOrganization } = useOrganizationStore.getState();
       if (!currentOrganization) {
@@ -51,22 +60,30 @@ const catalogStore = create<CatalogStore>((set, get) => {
       }
 
       const url = apiVersion.listEvent.v1(currentOrganization.id, currentCatalog.id);
-      const data = await api<Pagination<SeismicEvent[]>>(url, {
+      const response = await api(url, {
         params: {
           page: 1,
         },
       });
+      const data: Pagination<SeismicEvent[]> = await response.json();
       set({ events: data.results, nextEventsUrl: data.next });
     },
+    /**
+     * Fetches the next page of events from the current catalog.
+     */
     fetchNextEvents: async () => {
       const { nextEventsUrl } = get();
       if (!nextEventsUrl) {
         return;
       }
 
-      const data = await api<Pagination<SeismicEvent[]>>(nextEventsUrl);
+      const response = await api(nextEventsUrl);
+      const data: Pagination<SeismicEvent[]> = await response.json();
       set((state) => ({ events: [...state.events, ...data.results], nextEventsUrl: data.next }));
     },
+    /**
+     * True if there are more events to fetch.
+     */
     hasNextEvents: () => {
       const { nextEventsUrl } = get();
       return !!nextEventsUrl;

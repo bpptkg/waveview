@@ -1,8 +1,33 @@
-import { Button, Divider, makeStyles, Tab, TabList, TabListProps, Toast, Toaster, ToastTitle, useId, useToastController } from '@fluentui/react-components';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogBody,
+  DialogContent,
+  DialogSurface,
+  DialogTitle,
+  DialogTrigger,
+  Divider,
+  makeStyles,
+  Menu,
+  MenuItem,
+  MenuList,
+  MenuPopover,
+  MenuTrigger,
+  Tab,
+  TabList,
+  TabListProps,
+  Toast,
+  Toaster,
+  ToastTitle,
+  useId,
+  useToastController,
+} from '@fluentui/react-components';
 import { Dismiss20Regular, Edit20Regular, MoreHorizontal20Regular, ShareIos20Regular, Star20Filled, Star20Regular } from '@fluentui/react-icons';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useEventDetailStore } from '../../stores/eventDetail';
+import { CustomError } from '../../types/response';
 
 export interface EventDetailProps {}
 
@@ -29,7 +54,7 @@ const EventDetail: React.FC<EventDetailProps> = () => {
   const toasterId = useId('event-detail');
   const { dispatchToast } = useToastController(toasterId);
 
-  const { event, bookmarkEvent } = useEventDetailStore();
+  const { event, bookmarkEvent, deleteEvent } = useEventDetailStore();
 
   const handleToggleBookmark = useCallback(() => {
     bookmarkEvent().catch(() => {
@@ -42,6 +67,26 @@ const EventDetail: React.FC<EventDetailProps> = () => {
     });
   }, [bookmarkEvent, dispatchToast]);
 
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  const handleDelete = useCallback(() => {
+    deleteEvent()
+      .then(() => {
+        navigate('/catalog/events');
+      })
+      .catch((error: CustomError) => {
+        dispatchToast(
+          <Toast>
+            <ToastTitle>{error.message}</ToastTitle>
+          </Toast>,
+          { intent: 'error' }
+        );
+      })
+      .finally(() => {
+        setDeleteDialogOpen(false);
+      });
+  }, [deleteEvent, dispatchToast, navigate]);
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -50,11 +95,28 @@ const EventDetail: React.FC<EventDetailProps> = () => {
           <Button icon={event?.is_bookmarked ? <Star20Filled color="orange" /> : <Star20Regular />} appearance="transparent" onClick={handleToggleBookmark} />
           <Button icon={<Edit20Regular />} appearance="transparent" />
           <Button icon={<ShareIos20Regular />} appearance="transparent" />
-          <Button icon={<MoreHorizontal20Regular />} appearance="transparent" />
+          <Menu>
+            <MenuTrigger disableButtonEnhancement>
+              <Button icon={<MoreHorizontal20Regular />} appearance="transparent" />
+            </MenuTrigger>
+            <MenuPopover>
+              <MenuList>
+                <MenuItem
+                  onClick={() => {
+                    setDeleteDialogOpen(true);
+                  }}
+                >
+                  <span className="text-red-500">Delete...</span>
+                </MenuItem>
+              </MenuList>
+            </MenuPopover>
+          </Menu>
           <Button icon={<Dismiss20Regular />} appearance="transparent" onClick={handleClose} />
         </div>
       </div>
+
       <Divider alignContent="center" className={styles.divider} />
+
       <TabList onTabSelect={handleTabSelect} selectedValue={location.pathname}>
         <Tab value={`/catalog/events/${eventId}/summary`}>Summary</Tab>
         <Tab value={`/catalog/events/${eventId}/amplitude`}>Amplitude</Tab>
@@ -64,7 +126,27 @@ const EventDetail: React.FC<EventDetailProps> = () => {
         <Tab value={`/catalog/events/${eventId}/attachments`}>Attachments</Tab>
       </TabList>
       <Outlet />
+
       <Toaster toasterId={toasterId} />
+
+      <Dialog open={deleteDialogOpen} onOpenChange={(_, data) => setDeleteDialogOpen(data.open)}>
+        <DialogSurface>
+          <DialogBody>
+            <DialogTitle>Delete Event</DialogTitle>
+            <DialogContent>Are you sure you want to delete this event?</DialogContent>
+            <DialogActions>
+              <DialogTrigger disableButtonEnhancement>
+                <Button appearance="secondary" onClick={() => setDeleteDialogOpen(false)}>
+                  Cancel
+                </Button>
+              </DialogTrigger>
+              <Button appearance="primary" onClick={handleDelete}>
+                Delete
+              </Button>
+            </DialogActions>
+          </DialogBody>
+        </DialogSurface>
+      </Dialog>
     </>
   );
 };

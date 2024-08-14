@@ -2,8 +2,9 @@ import { create } from 'zustand';
 import { api, baseUrl } from '../../services/api';
 import apiVersion from '../../services/apiVersion';
 import { createSelectors } from '../../shared/createSelectors';
+import { JwtToken } from '../../types/auth';
 import { AUTH_KEY } from './constants';
-import { AuthStore, JwtToken } from './types';
+import { AuthStore } from './types';
 
 const authStore = create<AuthStore>((set, get) => {
   const auth = typeof window !== 'undefined' ? window.localStorage.getItem(AUTH_KEY) : null;
@@ -44,12 +45,13 @@ const authStore = create<AuthStore>((set, get) => {
     },
 
     refreshToken: async () => {
-      const data = await api<JwtToken>(apiVersion.refreshToken.v1, {
+      const response = await api(apiVersion.refreshToken.v1, {
         method: 'POST',
         body: {
           refresh: token?.refresh,
         },
       });
+      const data: JwtToken = await response.json();
       get().setToken(data);
     },
 

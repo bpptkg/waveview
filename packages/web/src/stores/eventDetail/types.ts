@@ -11,4 +11,5 @@ export interface EventDetailStore {
   getStationOfFirstArrival: () => string;
   bookmarkEvent: () => Promise<void>;
   clearCache: () => void;
+  deleteEvent: () => Promise<void>;
 }

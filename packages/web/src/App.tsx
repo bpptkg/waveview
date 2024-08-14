@@ -12,6 +12,7 @@ import { useOrganizationStore } from './stores/organization';
 import { usePickerStore } from './stores/picker';
 import { useUserStore } from './stores/user';
 import { useVolcanoStore } from './stores/volcano/useVolcanoStore';
+import { CustomError } from './types/response';
 
 const PickerIcon = CursorHover24Regular;
 const CatalogIcon = Folder24Regular;
@@ -52,7 +53,7 @@ function App() {
 
       const { pickerConfig } = usePickerStore.getState();
       if (!pickerConfig) {
-        throw new Error('Picker configuration is not available');
+        throw new CustomError('Picker configuration is not available');
       }
 
       setHelicorderChannelId(pickerConfig.helicorder_config.channel.id);
@@ -61,14 +62,14 @@ function App() {
       const selectedChannels = pickerConfig.seismogram_config.station_configs.map((stationConfig) => {
         const channel = availableChannels.find((channel) => channel.station_id === stationConfig.station.id && channel.code.includes(seismogramComponent));
         if (!channel) {
-          throw new Error(`Channel for station ${stationConfig.station.id} not found`);
+          throw new CustomError(`Channel for station ${stationConfig.station.id} not found`);
         }
         return channel;
       });
       setSelectedChannels(selectedChannels);
     };
 
-    initializeApp().catch((error: Error) => {
+    initializeApp().catch((error: CustomError) => {
       setError(`Failed to initialize app (${error.message})`);
     });
 

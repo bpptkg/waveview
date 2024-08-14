@@ -40,7 +40,7 @@ const refreshToken = async () => {
   }
 };
 
-export const api = async <T = any>(url: string, options: APIOptions = {}): Promise<T> => {
+export const api = async (url: string, options: APIOptions = {}): Promise<Response> => {
   const tryFetch = async () => {
     const { method = 'GET', body, params } = options;
 
@@ -67,13 +67,10 @@ export const api = async <T = any>(url: string, options: APIOptions = {}): Promi
     if (response.status === 401) {
       await refreshToken();
       return tryFetch();
-    } else if (response.status === 404) {
-      window.location.href = '/404';
     }
 
     return response;
   };
 
-  const response = await tryFetch();
-  return response.json() as Promise<T>;
+  return await tryFetch();
 };

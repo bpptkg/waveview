@@ -10,13 +10,17 @@ export const inventoryStore = create<InventoryStore>((set, get) => {
   return {
     inventory: null,
     setInventory: (inventory) => set({ inventory }),
+    /**
+     * Fetches the inventory of the current organization.
+     */
     fetchInventory: async () => {
       const currentOrganization = useOrganizationStore.getState().currentOrganization;
       if (!currentOrganization) {
         return;
       }
       const url = apiVersion.getInventory.v1(currentOrganization.id);
-      const inventory = await api<Inventory>(url);
+      const response = await api(url);
+      const inventory: Inventory = await response.json();
       set({ inventory });
     },
     stations: () => {
