@@ -1,10 +1,11 @@
-import { Button, makeStyles, Popover, PopoverProps, PopoverSurface, PopoverTrigger } from '@fluentui/react-components';
+import { Button, Divider, makeStyles, Popover, PopoverProps, PopoverSurface, PopoverTrigger } from '@fluentui/react-components';
 import { AlertRegular } from '@fluentui/react-icons';
 import { useState } from 'react';
 
 const useNotificationStyles = makeStyles({
   popoverSurface: {
-    padding: '8px',
+    padding: '0px',
+    width: '300px',
   },
 });
 
@@ -20,7 +21,17 @@ const Notification = () => {
       </PopoverTrigger>
 
       <PopoverSurface tabIndex={-1} className={styles.popoverSurface}>
-        <div>This notification popover.</div>
+        <div>
+          <div className="flex items-center justify-start">
+            <h2 className="text-md font-semibold p-2">Notifications</h2>
+          </div>
+
+          <Divider />
+
+          <div className="p-2">
+            <span>No notification</span>
+          </div>
+        </div>
       </PopoverSurface>
     </Popover>
   );
