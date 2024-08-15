@@ -26,6 +26,7 @@ import {
 import { Dismiss20Regular, Edit20Regular, MoreHorizontal20Regular, Star20Filled, Star20Regular } from '@fluentui/react-icons';
 import React, { useCallback, useState } from 'react';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useCatalogStore } from '../../stores/catalog';
 import { useEventDetailStore } from '../../stores/eventDetail';
 import { CustomError } from '../../types/response';
 import EventDetailEditor from './EventDetailEditor';
@@ -56,6 +57,7 @@ const EventDetail: React.FC<EventDetailProps> = () => {
   const { dispatchToast } = useToastController(toasterId);
 
   const { event, bookmarkEvent, deleteEvent, fetchEvent } = useEventDetailStore();
+  const { removeEvent } = useCatalogStore();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
 
@@ -80,6 +82,7 @@ const EventDetail: React.FC<EventDetailProps> = () => {
   const handleDelete = useCallback(() => {
     deleteEvent()
       .then(() => {
+        removeEvent(eventId!);
         navigate('/catalog/events');
       })
       .catch((error: CustomError) => {
@@ -88,7 +91,7 @@ const EventDetail: React.FC<EventDetailProps> = () => {
       .finally(() => {
         setDeleteDialogOpen(false);
       });
-  }, [deleteEvent, navigate, showErrorToast]);
+  }, [deleteEvent, navigate, showErrorToast, removeEvent, eventId]);
 
   const handleRefresh = useCallback(() => {
     if (!eventId) {

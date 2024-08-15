@@ -88,6 +88,12 @@ const catalogStore = create<CatalogStore>((set, get) => {
       const { nextEventsUrl } = get();
       return !!nextEventsUrl;
     },
+    /**
+     * Removes an event from the list of events.
+     */
+    removeEvent: (eventId) => {
+      set((state) => ({ events: state.events.filter((event) => event.id !== eventId) }));
+    },
   };
 });
 

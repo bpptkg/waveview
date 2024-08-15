@@ -12,4 +12,5 @@ export interface CatalogStore {
   fetchEvents: () => Promise<void>;
   fetchNextEvents: () => Promise<void>;
   hasNextEvents: () => boolean;
+  removeEvent: (eventId: string) => void;
 }
