@@ -66,15 +66,15 @@ const EventDetailLocation = () => {
             </div>
             <div className="flex items-center justify-between">
               <div>Latitude</div>
-              <div>{formatNumber(currentOrigin.latitude, { unit: '°' })}</div>
+              <div>{formatNumber(currentOrigin.latitude, { unit: '°', precision: 5 })}</div>
             </div>
             <div className="flex items-center justify-between">
               <div>Longitude</div>
-              <div>{formatNumber(currentOrigin.longitude, { unit: '°' })}</div>
+              <div>{formatNumber(currentOrigin.longitude, { unit: '°', precision: 5 })}</div>
             </div>
             <div className="flex items-center justify-between">
               <div>Depth</div>
-              <div>{formatNumber(currentOrigin.depth, { unit: 'km' })}</div>
+              <div>{formatNumber(currentOrigin.depth, { unit: 'km', precision: 2 })}</div>
             </div>
             <div className="flex items-center justify-between">
               <div>Earth model</div>
@@ -125,9 +125,9 @@ const EventDetailLocation = () => {
                 >
                   <TableHeaderCell>{origin.is_preferred ? <Checkmark16Regular /> : null}</TableHeaderCell>
                   <TableHeaderCell>{formatTime(origin.time, { useUTC })}</TableHeaderCell>
-                  <TableHeaderCell>{formatNumber(origin.latitude, { unit: '°' })}</TableHeaderCell>
-                  <TableHeaderCell>{formatNumber(origin.longitude, { unit: '°' })}</TableHeaderCell>
-                  <TableHeaderCell>{formatNumber(origin.depth, { unit: ' km' })}</TableHeaderCell>
+                  <TableHeaderCell>{formatNumber(origin.latitude, { unit: '°', precision: 5 })}</TableHeaderCell>
+                  <TableHeaderCell>{formatNumber(origin.longitude, { unit: '°', precision: 5 })}</TableHeaderCell>
+                  <TableHeaderCell>{formatNumber(origin.depth, { unit: ' km', precision: 2 })}</TableHeaderCell>
                   <TableHeaderCell>{origin.method}</TableHeaderCell>
                 </TableRow>
               ))

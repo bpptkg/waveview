@@ -72,7 +72,7 @@ const EventDetailMagnitude = () => {
             </div>
             <div className="flex items-center justify-between">
               <div>Azimuthal gap</div>
-              <div>{formatNumber(currentMagnitude.azimuthal_gap, { unit: '°' })}</div>
+              <div>{formatNumber(currentMagnitude.azimuthal_gap, { unit: '°', precision: 5 })}</div>
             </div>
             <div className="flex items-center justify-between">
               <div>Evaluation status</div>
@@ -115,7 +115,7 @@ const EventDetailMagnitude = () => {
                 >
                   <TableHeaderCell>{magnitude.is_preferred ? <Checkmark16Regular /> : null}</TableHeaderCell>
                   <TableHeaderCell>{magnitude.type}</TableHeaderCell>
-                  <TableHeaderCell>{magnitude.magnitude}</TableHeaderCell>
+                  <TableHeaderCell>{formatNumber(magnitude.magnitude, { precision: 2 })}</TableHeaderCell>
                   <TableHeaderCell>{magnitude.method}</TableHeaderCell>
                   <TableHeaderCell>{magnitude.station_count}</TableHeaderCell>
                   <TableHeaderCell>{magnitude.evaluation_status}</TableHeaderCell>

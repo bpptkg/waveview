@@ -57,7 +57,7 @@ const EventDetailSummary = () => {
         </div>
         <div className="flex items-center justify-between">
           <div>Duration</div>
-          <div>{formatNumber(event?.duration, { unit: ' sec' })}</div>
+          <div>{formatNumber(event?.duration, { unit: ' sec', precision: 2 })}</div>
         </div>
         <div className="flex items-center justify-between">
           <div>Event type</div>

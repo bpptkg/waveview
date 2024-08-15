@@ -64,7 +64,7 @@ const EventDetailAmplitude = () => {
             </div>
             <div className="flex items-center justify-between">
               <div>Amplitude</div>
-              <div>{currentAmplitude.amplitude}</div>
+              <div>{formatNumber(currentAmplitude.amplitude, { precision: 2 })}</div>
             </div>
             <div className="flex items-center justify-between">
               <div>Type</div>
@@ -80,15 +80,15 @@ const EventDetailAmplitude = () => {
             </div>
             <div className="flex items-center justify-between">
               <div>Begin</div>
-              <div>{formatNumber(currentAmplitude.begin, { unit: ' sec' })}</div>
+              <div>{formatNumber(currentAmplitude.begin, { unit: ' sec', precision: 2 })}</div>
             </div>
             <div className="flex items-center justify-between">
               <div>End</div>
-              <div>{formatNumber(currentAmplitude.end, { unit: ' sec' })}</div>
+              <div>{formatNumber(currentAmplitude.end, { unit: ' sec', precision: 2 })}</div>
             </div>
             <div className="flex items-center justify-between">
               <div>Duration</div>
-              <div>{formatNumber(currentAmplitude.duration, { unit: ' sec' })}</div>
+              <div>{formatNumber(currentAmplitude.duration, { unit: ' sec', precision: 2 })}</div>
             </div>
             <div className="flex items-center justify-between">
               <div>SNR</div>
@@ -147,7 +147,7 @@ const EventDetailAmplitude = () => {
                 >
                   <TableHeaderCell>{amplitude.is_preferred ? <Checkmark16Regular /> : null}</TableHeaderCell>
                   <TableHeaderCell>{amplitude.type}</TableHeaderCell>
-                  <TableHeaderCell>{amplitude.amplitude}</TableHeaderCell>
+                  <TableHeaderCell>{formatNumber(amplitude.amplitude, { precision: 2 })}</TableHeaderCell>
                   <TableHeaderCell>{amplitude.unit}</TableHeaderCell>
                   <TableHeaderCell>{amplitude.category}</TableHeaderCell>
                   <TableHeaderCell>{getChannelById(amplitude.waveform_id)?.stream_id}</TableHeaderCell>

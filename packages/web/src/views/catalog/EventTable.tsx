@@ -134,13 +134,13 @@ const EventTable = () => {
           {rows.map(({ item, onClick, onKeyDown, selected, appearance }) => (
             <TableRow key={item.id} onClick={onClick} onKeyDown={onKeyDown} aria-selected={selected} appearance={appearance}>
               <TableCell>{formatTime(item.time, { useUTC })}</TableCell>
-              <TableCell>{formatNumber(item.duration, { unit: ' sec' })}</TableCell>
+              <TableCell>{formatNumber(item.duration, { unit: ' sec', precision: 2 })}</TableCell>
               <TableCell>{item.type.code}</TableCell>
-              <TableCell>{formatNumber(item.preferred_amplitude?.amplitude, { unit: item.preferred_amplitude?.unit })}</TableCell>
-              <TableCell>{item.preferred_magnitude?.magnitude}</TableCell>
-              <TableCell>{formatNumber(item.preferred_origin?.latitude, { unit: '°' })}</TableCell>
-              <TableCell>{formatNumber(item.preferred_origin?.longitude, { unit: '°' })}</TableCell>
-              <TableCell>{formatNumber(item.preferred_origin?.depth, { unit: ' km' })}</TableCell>
+              <TableCell>{formatNumber(item.preferred_amplitude?.amplitude, { unit: item.preferred_amplitude?.unit, precision: 2 })}</TableCell>
+              <TableCell>{formatNumber(item.preferred_magnitude?.magnitude, { precision: 2 })}</TableCell>
+              <TableCell>{formatNumber(item.preferred_origin?.latitude, { unit: '°', precision: 5 })}</TableCell>
+              <TableCell>{formatNumber(item.preferred_origin?.longitude, { unit: '°', precision: 5 })}</TableCell>
+              <TableCell>{formatNumber(item.preferred_origin?.depth, { unit: ' km', precision: 2 })}</TableCell>
               <TableCell>{item.evaluation_mode}</TableCell>
               <TableCell>{item.evaluation_status}</TableCell>
               <TableCell>
