@@ -47,8 +47,6 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = () => {
     duration,
     interval,
     isExpandMode,
-    lastSelection,
-    lastTrackExtent,
     offsetDate,
     pickEnd,
     pickStart,
@@ -218,7 +216,6 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = () => {
                 },
                 darkMode,
                 offsetDate,
-                selection: lastSelection,
                 grid: {
                   top: 30,
                   right: 15,
@@ -251,8 +248,6 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = () => {
                 },
                 darkMode,
                 devicePixelRatio: window.devicePixelRatio,
-                startTime: lastTrackExtent[0],
-                endTime: lastTrackExtent[1],
                 useUTC,
               }}
               onFocus={handleSeismogramFocus}
