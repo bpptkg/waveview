@@ -13,7 +13,8 @@ import EventDetailWaveform from '../views/catalog/EventDetailWaveform';
 import EventTable from '../views/catalog/EventTable';
 import Hypocenter from '../views/catalog/Hypocenter';
 import Seismicity from '../views/catalog/Seismicity';
-import Error404 from '../views/error/404';
+import Error404 from '../views/error/Error404';
+import Error500 from '../views/error/Error500';
 import ForgotYourPassword from '../views/help/ForgotYourPassword';
 import Help from '../views/help/Help';
 import Login from '../views/login/Login';
@@ -123,6 +124,10 @@ const router = createBrowserRouter([
   {
     path: '/404',
     element: <Error404 />,
+  },
+  {
+    path: '/500',
+    element: <Error500 />,
   },
 ]);
 
