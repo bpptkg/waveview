@@ -1,8 +1,10 @@
-import { Button, Dropdown, Field, Input, Option, Textarea } from '@fluentui/react-components';
+import { Button, Dropdown, Field, Input, Option, Textarea, Toast, Toaster, ToastTitle, useId, useToastController } from '@fluentui/react-components';
 import { formatDate } from '@waveview/charts';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useEventTypeStore } from '../../../stores/eventType';
-import { PickedEvent, usePickerStore } from '../../../stores/picker';
+import { usePickerStore } from '../../../stores/picker';
+import { SeismicEvent } from '../../../types/event';
+import { CustomError } from '../../../types/response';
 
 export interface EventDrawerProps {
   time: number;
@@ -11,7 +13,8 @@ export interface EventDrawerProps {
   onTimeChange?: (time: number) => void;
   onDurationChange?: (duration: number) => void;
   onCancel?: () => void;
-  onConfirm?: (event: PickedEvent) => void;
+  onSave?: (event: SeismicEvent) => void;
+  onError?: (error: CustomError) => void;
 }
 
 const formatTime = (time: number, useUTC: boolean) => {
@@ -20,12 +23,40 @@ const formatTime = (time: number, useUTC: boolean) => {
 };
 
 const PickEdit: React.FC<EventDrawerProps> = (props) => {
-  const { time, duration, useUTC = false, onTimeChange, onDurationChange, onCancel, onConfirm } = props;
+  const { time, duration, useUTC = false, onTimeChange, onDurationChange, onCancel, onSave } = props;
+  const [loading, setLoading] = useState(false);
   const [timeValue, setTimeValue] = useState(time);
   const [durationValue, setDurationValue] = useState(duration);
   const [eventType, setEventType] = useState('');
   const [stationOfFirstArrival, setStationOfFirstArrival] = useState('');
   const [note, setNote] = useState('');
+
+  useEffect(() => {
+    setTimeValue(time);
+    setDurationValue(duration);
+  }, [time, duration]);
+
+  const { getSelectedStations, savePickedEvent } = usePickerStore();
+  const { eventTypes } = useEventTypeStore();
+
+  const toasterId = useId('pick-editor');
+  const { dispatchToast } = useToastController(toasterId);
+
+  const canSave = useMemo(() => {
+    return timeValue !== 0 && durationValue !== 0 && eventType !== '' && stationOfFirstArrival !== '';
+  }, [timeValue, durationValue, eventType, stationOfFirstArrival]);
+
+  const showErrorToast = useCallback(
+    (error: CustomError) => {
+      dispatchToast(
+        <Toast>
+          <ToastTitle>{error.message}</ToastTitle>
+        </Toast>,
+        { intent: 'error' }
+      );
+    },
+    [dispatchToast]
+  );
 
   const handleTimeChange = useCallback(
     (value: string) => {
@@ -63,23 +94,23 @@ const PickEdit: React.FC<EventDrawerProps> = (props) => {
     setNote(value);
   }, []);
 
-  useEffect(() => {
-    setTimeValue(time);
-    setDurationValue(duration);
-  }, [time, duration]);
-
-  const { getSelectedStations } = usePickerStore();
-  const { eventTypes } = useEventTypeStore();
-
-  const handleConfirm = useCallback(() => {
-    onConfirm?.({
-      time: timeValue,
-      duration: durationValue,
-      stationOfFirstArrival: stationOfFirstArrival,
-      eventType: eventType,
-      note: note,
-    });
-  }, [timeValue, durationValue, stationOfFirstArrival, eventType, note, onConfirm]);
+  const handleConfirm = useCallback(async () => {
+    setLoading(true);
+    try {
+      const event = await savePickedEvent({
+        time: timeValue,
+        duration: durationValue,
+        stationOfFirstArrival: stationOfFirstArrival,
+        eventType: eventType,
+        note: note,
+      });
+      onSave?.(event);
+    } catch (error) {
+      showErrorToast(error as CustomError);
+    } finally {
+      setLoading(false);
+    }
+  }, [timeValue, durationValue, stationOfFirstArrival, eventType, note, onSave, showErrorToast, savePickedEvent]);
 
   const handleCancel = useCallback(() => {
     onCancel?.();
@@ -93,7 +124,7 @@ const PickEdit: React.FC<EventDrawerProps> = (props) => {
           <Button size="small" appearance="outline" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button size="small" appearance="primary" onClick={handleConfirm}>
+          <Button size="small" appearance="primary" onClick={handleConfirm} disabled={loading || !canSave}>
             Save
           </Button>
         </div>
@@ -125,6 +156,7 @@ const PickEdit: React.FC<EventDrawerProps> = (props) => {
       <Field label="Note">
         <Textarea value={note} resize="vertical" size="large" onChange={(_, data) => handleNoteChange(data.value)} />
       </Field>
+      <Toaster toasterId={toasterId} />
     </div>
   );
 };

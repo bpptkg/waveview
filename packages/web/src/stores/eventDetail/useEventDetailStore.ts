@@ -116,7 +116,7 @@ const eventDetailStore = create<EventDetailStore>((set, get) => ({
     const response = await api(apiVersion.deleteEvent.v1(currentOrganization.id, currentCatalog.id, eventId), { method: 'DELETE' });
     if (!response.ok) {
       const err: ErrorData = await response.json();
-      throw CustomError.from(err);
+      throw CustomError.fromErrorData(err);
     }
   },
 }));

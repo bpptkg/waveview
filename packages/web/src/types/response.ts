@@ -15,7 +15,7 @@ export class CustomError extends Error {
     this.name = 'CustomError';
   }
 
-  static from(response: ErrorData): CustomError {
+  static fromErrorData(response: ErrorData): CustomError {
     return new CustomError(response.errors[0].detail, response.errors[0].code);
   }
 }

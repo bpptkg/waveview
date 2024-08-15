@@ -118,3 +118,15 @@ export interface EventBookmarkResponse {
   event_id: string;
   is_bookmarked: boolean;
 }
+
+export interface CreateEventPayload {
+  station_of_first_arrival_id: string;
+  time: string;
+  duration: number;
+  type_id: string;
+  note: string;
+  method: string;
+  evaluation_mode: string;
+  evaluation_status: string;
+  attachment_ids: string[];
+}

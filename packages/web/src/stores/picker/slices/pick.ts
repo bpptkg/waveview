@@ -1,3 +1,4 @@
+import { SeismicEvent } from '../../../types/event';
 import { PickedEvent } from '../types';
 
 export interface PickSlice {
@@ -14,5 +15,5 @@ export interface PickSlice {
   setPickStart: (start: number) => void;
   setPickEnd: (end: number) => void;
   setPickRange: (range: [number, number]) => void;
-  savePickedEvent: (event: PickedEvent) => void;
+  savePickedEvent: (event: PickedEvent) => Promise<SeismicEvent>;
 }

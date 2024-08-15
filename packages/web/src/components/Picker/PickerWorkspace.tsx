@@ -4,7 +4,8 @@ import { FederatedPointerEvent } from 'pixi.js';
 import { useCallback, useRef } from 'react';
 import { useAppStore } from '../../stores/app';
 import { useInventoryStore } from '../../stores/inventory';
-import { PickedEvent, usePickerStore } from '../../stores/picker';
+import { usePickerStore } from '../../stores/picker';
+import { SeismicEvent } from '../../types/event';
 import EventDrawer from './EventDrawer/EventDrawer';
 import PickEdit from './EventDrawer/PickEdit';
 import PickGuide from './EventDrawer/PickGuide';
@@ -20,6 +21,8 @@ import { useSeismogramCallback } from './useSeismogramCallback';
 import { useThemeEffect } from './useThemeEffect';
 import { useTimeZoneEffect } from './useTimeZoneEffect';
 
+export interface PickWorkspaceProps {}
+
 const useStyles = makeStyles({
   backButton: {
     position: 'absolute',
@@ -29,7 +32,7 @@ const useStyles = makeStyles({
   },
 });
 
-const PickerWorkspace = () => {
+const PickerWorkspace: React.FC<PickWorkspaceProps> = () => {
   const heliChartRef = useRef<HelicorderChartRef | null>(null);
   const seisChartRef = useRef<SeismogramChartRef | null>(null);
   const contextMenuRef = useRef<ContextMenuRef | null>(null);
@@ -55,7 +58,6 @@ const PickerWorkspace = () => {
     selectedChannels,
     isPickEmpty,
     setPickRange,
-    savePickedEvent,
     isPickModeActive,
   } = usePickerStore();
 
@@ -135,11 +137,9 @@ const PickerWorkspace = () => {
     return color;
   }
 
-  const handlePickConfirm = useCallback(
-    (event: PickedEvent) => {
+  const handlePickSave = useCallback(
+    (event: SeismicEvent) => {
       if (pickStart && pickEnd) {
-        savePickedEvent(event);
-
         const color = getRandomColor();
         const { time, duration } = event;
         const start = time;
@@ -154,7 +154,7 @@ const PickerWorkspace = () => {
         setPickRange([0, 0]);
       }
     },
-    [pickStart, pickEnd, setPickRange, savePickedEvent]
+    [pickStart, pickEnd, setPickRange]
   );
 
   return (
@@ -280,7 +280,7 @@ const PickerWorkspace = () => {
                     duration={(pickEnd - pickStart) / 1000}
                     onDurationChange={handlePickDurationChange}
                     onCancel={handlePickCancel}
-                    onConfirm={handlePickConfirm}
+                    onSave={handlePickSave}
                   />
                 )}
               </EventDrawer>
