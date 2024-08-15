@@ -73,8 +73,8 @@ const EventDetailAttachments = () => {
         </div>
       </TabList>
       <div className="mt-2">
-        {tab === 'photo' && <AttachmentGallery attachments={photos} />}
-        {tab == 'video' && <AttachmentGallery attachments={videos} />}
+        {tab === 'photo' && (photos && photos.length ? <AttachmentGallery attachments={photos} /> : <div>No photos</div>)}
+        {tab == 'video' && (videos && videos.length ? <AttachmentGallery attachments={videos} /> : <div>No videos</div>)}
         {tab === 'document' && (
           <div className="flex flex-col gap-2">
             {documents && documents.length ? (
