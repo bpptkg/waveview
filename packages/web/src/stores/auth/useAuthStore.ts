@@ -7,12 +7,15 @@ import { CustomError } from '../../types/response';
 import { AUTH_KEY } from './constants';
 import { AuthStore } from './types';
 
-const authStore = create<AuthStore>((set, get) => {
+const getInitialToken = () => {
   const auth = typeof window !== 'undefined' ? window.localStorage.getItem(AUTH_KEY) : null;
   const token = auth ? JSON.parse(auth) : null;
+  return token;
+};
 
+const authStore = create<AuthStore>((set, get) => {
   return {
-    token,
+    token: getInitialToken(),
 
     setToken: (token) => {
       set({ token });
@@ -53,6 +56,7 @@ const authStore = create<AuthStore>((set, get) => {
     },
 
     refreshToken: async () => {
+      const token = get().token;
       const response = await api(apiVersion.refreshToken.v1, {
         method: 'POST',
         body: {
@@ -64,12 +68,15 @@ const authStore = create<AuthStore>((set, get) => {
     },
 
     blacklistToken: async () => {
-      await api(apiVersion.logout.v1, {
-        method: 'POST',
-        body: {
-          refresh: token?.refresh,
-        },
-      });
+      const token = get().token;
+      if (token) {
+        await api(apiVersion.logout.v1, {
+          method: 'POST',
+          body: {
+            refresh: token?.refresh,
+          },
+        });
+      }
       get().clearToken();
     },
   };
