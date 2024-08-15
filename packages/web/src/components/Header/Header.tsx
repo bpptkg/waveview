@@ -13,11 +13,11 @@ const Header = () => {
         <VolcanoPicker />
       </div>
 
-      <div className="absolute left-1/2 transform -translate-x-1/2">
+      {/* <div className="absolute left-1/2 transform -translate-x-1/2"> */}
         <div className="flex items-center gap-2">
           <ArrowNavigation />
           <SearchBox />
-        </div>
+        {/* </div> */}
       </div>
 
       <div className="flex items-center gap-3">
