@@ -6,7 +6,7 @@ import { HelicorderChartProps, HelicorderChartRef } from './HelicorderChart.type
 export type HelicorderChartType = React.ForwardRefExoticComponent<HelicorderChartProps & React.RefAttributes<HelicorderChartRef>>;
 
 export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref) => {
-  const { initOptions, className, onTrackSelected, onTrackDeselected, onFocus, onBlur, onOffsetChange, onSelectionChange } = props;
+  const { initOptions, className, onTrackSelected, onTrackDeselected, onFocus, onBlur, onOffsetChange, onSelectionChange, onReady } = props;
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Helicorder | null>(null);
@@ -109,6 +109,7 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
         chartRef.current.addEventMarker({
           value,
           color,
+          width: 3,
         });
         chartRef.current.render();
       }
@@ -213,6 +214,7 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
       })
       .finally(() => {
         webWorkerExtensionRef.current?.getAPI().fetchAllTracksData();
+        onReady?.();
       });
 
     return () => {

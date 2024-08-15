@@ -126,28 +126,18 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = () => {
     seisChartRef.current?.clearPickRange();
   }, [setPickRange]);
 
-  function getRandomColor() {
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  }
-
   const handlePickSave = useCallback(
     (event: SeismicEvent) => {
       if (pickStart && pickEnd) {
-        const color = getRandomColor();
         const { time, duration } = event;
-        const start = time;
-        const end = time + duration;
+        const start = new Date(time).getTime();
+        const end = start + duration;
         seisChartRef.current?.addEventMarker({
           start,
           end,
-          color,
+          color: event.type.color,
         });
-        heliChartRef.current?.addEventMarker(start, color);
+        heliChartRef.current?.addEventMarker(start, event.type.color);
         seisChartRef.current?.clearPickRange();
         setPickRange([0, 0]);
       }

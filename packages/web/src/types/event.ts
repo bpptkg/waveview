@@ -6,6 +6,7 @@ export interface EventType {
   code: string;
   name: string;
   description: string;
+  color: string;
   color_light: string;
   color_dark: string;
   created_at: number;
@@ -80,7 +81,7 @@ export interface SeismicEvent {
   id: string;
   catalog_id: string;
   station_of_first_arrival_id: string;
-  time: number;
+  time: string;
   duration: number;
   type: EventType;
   type_certainty: string;

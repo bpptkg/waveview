@@ -33,6 +33,10 @@ export interface HelicorderChartProps {
    * Callback fired when the selection is changed.
    */
   onSelectionChange?: (value: number) => void;
+  /**
+   * Callback fired when the chart is ready.
+   */
+  onReady?: () => void;
 }
 
 export interface HelicorderChartRef {
