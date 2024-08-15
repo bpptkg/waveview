@@ -179,7 +179,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
 
   useEffect(() => {
     fuseRef.current = new Fuse(candidateChannels, {
-      keys: ['stream_id'],
+      keys: ['network_station_code'],
       threshold: 0.3,
     });
 
@@ -197,13 +197,13 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
       <Toolbar aria-label="Seismogram Toolbar" checkedValues={checkedValues} onCheckedValueChange={handleToolbarCheckedValueChange}>
         <Popover trapFocus open={open} onOpenChange={() => setOpen(!open)}>
           <PopoverTrigger disableButtonEnhancement>
-            <ToolbarButton appearance="primary" aria-label="Add channel" icon={<Add20Regular />} disabled={!!isExpandMode}>
-              <span className="font-normal">Add channel</span>
+            <ToolbarButton appearance="primary" aria-label="Add station" icon={<Add20Regular />} disabled={!!isExpandMode}>
+              <span className="font-normal">Add station</span>
             </ToolbarButton>
           </PopoverTrigger>
           <PopoverSurface>
             <Field className={styles.searchBoxWrapper}>
-              <SearchBox placeholder="Search channel" size="medium" className={styles.searchBox} value={searchQuery} onChange={handleSearchChange} />
+              <SearchBox placeholder="Search station" size="medium" className={styles.searchBox} value={searchQuery} onChange={handleSearchChange} />
             </Field>
             <MenuList>
               {filterableChannels.map((channel, index) => (
@@ -214,7 +214,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
                     setOpen(false);
                   }}
                 >
-                  {channel.stream_id}
+                  {channel.network_station_code}
                 </MenuItem>
               ))}
             </MenuList>
