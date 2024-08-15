@@ -10,7 +10,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', ...defaultTheme.fontFamily.sans],
+        sans: [...defaultTheme.fontFamily.sans],
       },
       backgroundImage: {
         'gradient-matcha': 'linear-gradient(to top left, #EBB9B9, #D0B9EB, #74C6F8)',
