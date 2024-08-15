@@ -107,8 +107,8 @@ const PickEdit: React.FC<EventDrawerProps> = (props) => {
       <Field label="Event type">
         <Dropdown placeholder="Select event type">
           {eventTypes.map((event) => (
-            <Option key={event.code} onClick={() => handleEventTypeChange(event.code)}>
-              {event.name}
+            <Option key={event.id} onClick={() => handleEventTypeChange(event.id)}>
+              {event.code}
             </Option>
           ))}
         </Dropdown>
