@@ -11,6 +11,7 @@ const Error404 = () => {
 
   return (
     <FluentProvider theme={darkMode ? webDarkTheme : webLightTheme}>
+      <title>Not Found &middot; WaveView</title>
       <div className="w-screen h-screen bg-cover bg-center flex items-center justify-center p-2 fixed top-0 left-0 bg-gradient-matcha dark:bg-gradient-matcha-dark">
         <div className="flex flex-col gap-4 w-1/2 p-4 rounded-2xl bg-white dark:bg-neutral-grey-14 overflow-auto max-h-[90%] h-auto">
           <div className="flex flex-col gap-4">
