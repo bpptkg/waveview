@@ -212,6 +212,11 @@ export class Helicorder extends ChartView<
     this._markers.forEach((marker) => marker.hide());
   }
 
+  removeAllEventMarkers(): void {
+    this._markers.forEach((marker) => this.removeComponent(marker));
+    this._markers = [];
+  }
+
   selectTrack(index: number): void {
     const [start, end] = this.getTrackExtentAt(index);
     const value = (start + end) / 2;

@@ -124,6 +124,7 @@ export abstract class ChartView<
     if (index >= 0) {
       this._views.splice(index, 1);
       this.app.stage.removeChild(component.group);
+      component.dispose();
     }
   }
 

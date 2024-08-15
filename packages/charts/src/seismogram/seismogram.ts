@@ -166,6 +166,10 @@ export class Seismogram extends ChartView<
     this._xAxis.hideAllMarkers();
   }
 
+  removeAllMarkers(): void {
+    this._xAxis.removeAllMarkers();
+  }
+
   selectChannel(index: number): void {
     this._selectedTrackIndex = index;
     for (const track of this._trackManager.tracks()) {

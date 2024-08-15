@@ -307,6 +307,11 @@ export class Axis extends View<AxisModel, AxisEventMap> {
     this._markers.forEach((marker) => marker.hide());
   }
 
+  removeAllMarkers(): void {
+    this._markers.forEach((marker) => marker.dispose());
+    this._markers = [];
+  }
+
   getRect() {
     return this._rect;
   }
