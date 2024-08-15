@@ -13,6 +13,7 @@ import EventDetailWaveform from '../views/catalog/EventDetailWaveform';
 import EventTable from '../views/catalog/EventTable';
 import Hypocenter from '../views/catalog/Hypocenter';
 import Seismicity from '../views/catalog/Seismicity';
+import Dashboard from '../views/dashboard/Dashboard';
 import Error404 from '../views/error/Error404';
 import Error500 from '../views/error/Error500';
 import ForgotYourPassword from '../views/help/ForgotYourPassword';
@@ -25,109 +26,115 @@ import TermsOfService from '../views/tos/TermsOfService';
 const router = createBrowserRouter([
   {
     path: '/',
-    element: (
-      <RequireAuth>
-        <App />
-      </RequireAuth>
-    ),
+    element: <App />,
     children: [
       {
-        path: '/picker',
-        element: <Picker />,
-      },
-      {
-        path: '/catalog',
-        element: <Catalog />,
+        path: '/',
+        element: (
+          <RequireAuth>
+            <Dashboard />
+          </RequireAuth>
+        ),
         children: [
           {
-            path: 'events',
-            element: <EventTable />,
+            path: '/picker',
+            element: <Picker />,
+          },
+          {
+            path: '/catalog',
+            element: <Catalog />,
             children: [
               {
-                path: ':eventId/summary',
-                element: <EventDetailSummary />,
+                path: 'events',
+                element: <EventTable />,
+                children: [
+                  {
+                    path: ':eventId/summary',
+                    element: <EventDetailSummary />,
+                  },
+                  {
+                    path: ':eventId/amplitude',
+                    element: <EventDetailAmplitude />,
+                  },
+                  {
+                    path: ':eventId/magnitude',
+                    element: <EventDetailMagnitude />,
+                  },
+                  {
+                    path: ':eventId/location',
+                    element: <EventDetailLocation />,
+                  },
+                  {
+                    path: ':eventId/waveform',
+                    element: <EventDetailWaveform />,
+                  },
+                  {
+                    path: ':eventId/attachments',
+                    element: <EventDetailAttachments />,
+                  },
+                  {
+                    path: ':eventId',
+                    element: <Navigate to="summary" replace />,
+                  },
+                ],
               },
               {
-                path: ':eventId/amplitude',
-                element: <EventDetailAmplitude />,
+                path: 'seismicity',
+                element: <Seismicity />,
               },
               {
-                path: ':eventId/magnitude',
-                element: <EventDetailMagnitude />,
+                path: 'hypocenter',
+                element: <Hypocenter />,
               },
               {
-                path: ':eventId/location',
-                element: <EventDetailLocation />,
-              },
-              {
-                path: ':eventId/waveform',
-                element: <EventDetailWaveform />,
-              },
-              {
-                path: ':eventId/attachments',
-                element: <EventDetailAttachments />,
-              },
-              {
-                path: ':eventId',
-                element: <Navigate to="summary" replace />,
+                index: true,
+                element: <Navigate to="events" replace />,
               },
             ],
           },
           {
-            path: 'seismicity',
-            element: <Seismicity />,
+            path: '/admin',
+            element: <Admin />,
           },
           {
-            path: 'hypocenter',
-            element: <Hypocenter />,
+            path: '/help',
+            element: <Help />,
+          },
+          {
+            path: '/profile',
+            element: <Profile />,
           },
           {
             index: true,
-            element: <Navigate to="events" replace />,
+            element: <Navigate to="/picker" replace />,
           },
         ],
       },
       {
-        path: '/admin',
-        element: <Admin />,
+        path: '/login',
+        element: <Login />,
       },
       {
-        path: '/help',
-        element: <Help />,
+        path: '/forgot-password',
+        element: <ForgotYourPassword />,
       },
       {
-        path: '/profile',
-        element: <Profile />,
+        path: '/about',
+        element: <About />,
       },
       {
-        index: true,
-        element: <Navigate to="/picker" replace />,
+        path: '/terms-of-service',
+        element: <TermsOfService />,
+      },
+      {
+        path: '/404',
+        element: <Error404 />,
+      },
+      {
+        path: '/500',
+        element: <Error500 />,
       },
     ],
-  },
-  {
-    path: '/login',
-    element: <Login />,
-  },
-  {
-    path: '/forgot-password',
-    element: <ForgotYourPassword />,
-  },
-  {
-    path: '/about',
-    element: <About />,
-  },
-  {
-    path: '/terms-of-service',
-    element: <TermsOfService />,
-  },
-  {
-    path: '/404',
-    element: <Error404 />,
-  },
-  {
-    path: '/500',
-    element: <Error500 />,
   },
 ]);
 

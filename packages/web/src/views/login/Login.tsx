@@ -1,23 +1,9 @@
-import {
-  Button,
-  Field,
-  FluentProvider,
-  Input,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  MenuPopover,
-  MenuTrigger,
-  webDarkTheme,
-  webLightTheme,
-} from '@fluentui/react-components';
+import { Button, Field, Input, Menu, MenuButton, MenuItem, MenuList, MenuPopover, MenuTrigger } from '@fluentui/react-components';
 import { Checkmark20Regular, Eye20Regular, EyeOff20Regular } from '@fluentui/react-icons';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LogoImage from '../../components/Header/LogoImage';
 import LogoText from '../../components/Header/LogoText';
-import { useAppStore } from '../../stores/app';
 import { useAuthStore } from '../../stores/auth';
 import { CustomError } from '../../types/response';
 
@@ -65,8 +51,6 @@ const Footer = () => {
 };
 
 const Login = () => {
-  const { darkMode, theme, toggleTheme } = useAppStore();
-
   const navigate = useNavigate();
   const { fetchToken } = useAuthStore();
 
@@ -112,16 +96,12 @@ const Login = () => {
     }
   };
 
-  useEffect(() => {
-    toggleTheme(theme);
-  }, [theme, toggleTheme]);
-
   const toggleShowPassword = () => {
     setShowPassword((prev) => !prev);
   };
 
   return (
-    <FluentProvider theme={darkMode ? webDarkTheme : webLightTheme}>
+    <>
       <title>Login &middot; WaveView</title>
       <div className="w-screen h-screen bg-cover bg-center flex items-center justify-center bg-gradient-matcha dark:bg-gradient-matcha-dark">
         <div className="flex flex-col lg:w-1/2 min-h-[320px]">
@@ -167,7 +147,7 @@ const Login = () => {
           <Footer />
         </div>
       </div>
-    </FluentProvider>
+    </>
   );
 };
 
