@@ -238,6 +238,13 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
       workerRef.current?.terminate();
       resizeObserverRef.current?.disconnect();
     },
+    getChartExtent: () => {
+      if (chartRef.current) {
+        return chartRef.current.getChartExtent();
+      } else {
+        return [0, 0];
+      }
+    },
   }));
 
   const handleZoomRectangle = useCallback(

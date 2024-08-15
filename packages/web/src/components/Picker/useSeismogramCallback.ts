@@ -6,7 +6,8 @@ import { SeismogramChartRef } from './SeismogramChart';
 
 export const useSeismogramCallback = (
   seisChartRef: React.MutableRefObject<SeismogramChartRef | null>,
-  heliChartRef: React.MutableRefObject<HelicorderChartRef | null>
+  heliChartRef: React.MutableRefObject<HelicorderChartRef | null>,
+  seisChartReadyRef: React.MutableRefObject<boolean | null>
 ) => {
   const {
     selectedChannels,
@@ -85,15 +86,21 @@ export const useSeismogramCallback = (
 
     handleSeismogramShowEvent: useCallback(
       (showEvent: boolean) => {
-        if (showEvent) {
-          seisChartRef.current?.showAllMarkers();
-          setShowEvent(true);
-        } else {
-          seisChartRef.current?.hideAllMarkers();
-          setShowEvent(false);
+        async function toggleShowEvent(showEvent: boolean) {
+          if (showEvent) {
+            seisChartRef.current?.showAllMarkers();
+            heliChartRef.current?.showAllEventMarkers();
+            setShowEvent(true);
+          } else {
+            seisChartRef.current?.hideAllMarkers();
+            heliChartRef.current?.hideAllEventMarkers();
+            setShowEvent(false);
+          }
         }
+
+        toggleShowEvent(showEvent);
       },
-      [seisChartRef, setShowEvent]
+      [seisChartRef, heliChartRef, setShowEvent]
     ),
 
     handleSeismogramPickModeChange: useCallback(
@@ -193,5 +200,9 @@ export const useSeismogramCallback = (
       },
       [setPickRange]
     ),
+
+    handleSeismogramOnReady: useCallback(() => {
+      seisChartReadyRef.current = true;
+    }, [seisChartReadyRef]),
   };
 };

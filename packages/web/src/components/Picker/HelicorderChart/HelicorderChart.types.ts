@@ -54,6 +54,7 @@ export interface HelicorderChartRef {
   setDuration: (duration: number) => void;
   setTheme: (theme: 'light' | 'dark') => void;
   getTrackExtent: (index: number) => [number, number];
+  getChartExtent: () => [number, number];
   focus: () => void;
   blur: () => void;
   isFocused: () => boolean;

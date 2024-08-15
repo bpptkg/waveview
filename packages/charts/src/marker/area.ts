@@ -49,8 +49,8 @@ export class AreaMarkerModel extends Model<AreaMarkerOptions> {
     opacity: 0.1,
     start: 0,
     end: 0,
-    pill: false,
-    length: 10,
+    pill: true,
+    length: 5,
   };
 
   constructor(options?: Partial<AreaMarkerOptions>) {

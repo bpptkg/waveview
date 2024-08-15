@@ -1,12 +1,13 @@
-import { useCallback, useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { usePickerStore } from '../../stores/picker';
+import { Channel } from '../../types/channel';
 import { HelicorderChartRef } from './HelicorderChart';
 import { SeismogramChartRef } from './SeismogramChart';
-import { Channel } from '../../types/channel';
 
 export function useHelicorderCallback(
   heliChartRef: React.MutableRefObject<HelicorderChartRef | null>,
-  seisChartRef: React.MutableRefObject<SeismogramChartRef | null>
+  seisChartRef: React.MutableRefObject<SeismogramChartRef | null>,
+  heliChartReadyRef: React.MutableRefObject<boolean | null>
 ) {
   const {
     setHelicorderOffsetDate,
@@ -17,6 +18,7 @@ export function useHelicorderCallback(
     seismogramToolbarRemoveCheckedValue,
     setSelectedChart,
     setLastSelection,
+    fetchEventMarkers,
   } = usePickerStore();
 
   const selectingTrackRef = useRef<boolean | null>(null);
@@ -50,8 +52,8 @@ export function useHelicorderCallback(
 
     handleHelicorderChannelChange: useCallback(
       (channel: Channel) => {
-          setHelicorderChannelId(channel.id);
-          heliChartRef.current?.setChannel({id: channel.id, label: channel.stream_id});
+        setHelicorderChannelId(channel.id);
+        heliChartRef.current?.setChannel({ id: channel.id, label: channel.stream_id });
       },
       [heliChartRef, setHelicorderChannelId]
     ),
@@ -116,5 +118,17 @@ export function useHelicorderCallback(
       },
       [setLastSelection]
     ),
+
+    handleHelicorderOnReady: useCallback(() => {
+      async function get() {
+        const helicorderExtent = heliChartRef.current?.getChartExtent();
+        if (helicorderExtent) {
+          await fetchEventMarkers(helicorderExtent[0], helicorderExtent[1]);
+        }
+      }
+      get();
+
+      heliChartReadyRef.current = true;
+    }, [heliChartRef, fetchEventMarkers, heliChartReadyRef]),
   };
 }

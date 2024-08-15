@@ -1,7 +1,7 @@
 import { Button, makeStyles } from '@fluentui/react-components';
 import { ArrowReply20Regular } from '@fluentui/react-icons';
 import { FederatedPointerEvent } from 'pixi.js';
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useAppStore } from '../../stores/app';
 import { useInventoryStore } from '../../stores/inventory';
 import { usePickerStore } from '../../stores/picker';
@@ -21,7 +21,10 @@ import { useSeismogramCallback } from './useSeismogramCallback';
 import { useThemeEffect } from './useThemeEffect';
 import { useTimeZoneEffect } from './useTimeZoneEffect';
 
-export interface PickWorkspaceProps {}
+export interface PickWorkspaceProps {
+  showMarkersOnReady?: boolean;
+  event?: SeismicEvent;
+}
 
 const useStyles = makeStyles({
   backButton: {
@@ -32,10 +35,14 @@ const useStyles = makeStyles({
   },
 });
 
-const PickerWorkspace: React.FC<PickWorkspaceProps> = () => {
+const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
+  const { showMarkersOnReady = false } = props;
+
   const heliChartRef = useRef<HelicorderChartRef | null>(null);
   const seisChartRef = useRef<SeismogramChartRef | null>(null);
   const contextMenuRef = useRef<ContextMenuRef | null>(null);
+  const heliChartReadyRef = useRef<boolean>(false);
+  const seisChartReadyRef = useRef<boolean>(false);
 
   const { channels } = useInventoryStore();
   const { darkMode, useUTC } = useAppStore();
@@ -54,9 +61,11 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = () => {
     selectedChart,
     showEvent,
     selectedChannels,
+    eventMarkers,
     isPickEmpty,
     setPickRange,
     isPickModeActive,
+    addEventMarker,
   } = usePickerStore();
 
   const {
@@ -74,7 +83,8 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = () => {
     handleHelicorderFocus,
     handleHelicorderOffsetChange,
     handleHelicorderSelectionChange,
-  } = useHelicorderCallback(heliChartRef, seisChartRef);
+    handleHelicorderOnReady,
+  } = useHelicorderCallback(heliChartRef, seisChartRef, heliChartReadyRef);
 
   const {
     handleSeismogramChannelAdd,
@@ -99,10 +109,28 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = () => {
     handleSeismogramExtentChange,
     handleSeismogramPickChange,
     handleSeismogramDeactivatePickMode,
-  } = useSeismogramCallback(seisChartRef, heliChartRef);
+    handleSeismogramOnReady,
+  } = useSeismogramCallback(seisChartRef, heliChartRef, seisChartReadyRef);
 
   useThemeEffect(heliChartRef, seisChartRef);
   useTimeZoneEffect(heliChartRef, seisChartRef);
+
+  useEffect(() => {
+    if (!showMarkersOnReady) {
+      return;
+    }
+
+    if (heliChartReadyRef.current && seisChartReadyRef.current) {
+      eventMarkers.forEach((event) => {
+        heliChartRef.current?.addEventMarker(new Date(event.time).getTime(), event.type.color);
+        seisChartRef.current?.addEventMarker({
+          start: new Date(event.time).getTime(),
+          end: new Date(event.time).getTime() + event.duration * 1_000,
+          color: event.type.color,
+        });
+      });
+    }
+  }, [eventMarkers, showMarkersOnReady]);
 
   const handleContextMenuRequested = useCallback((e: FederatedPointerEvent) => {
     if (seisChartRef.current) {
@@ -128,10 +156,12 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = () => {
 
   const handlePickSave = useCallback(
     (event: SeismicEvent) => {
+      addEventMarker(event);
+
       if (pickStart && pickEnd) {
         const { time, duration } = event;
         const start = new Date(time).getTime();
-        const end = start + duration;
+        const end = start + duration * 1_000;
         seisChartRef.current?.addEventMarker({
           start,
           end,
@@ -142,7 +172,7 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = () => {
         setPickRange([0, 0]);
       }
     },
-    [pickStart, pickEnd, setPickRange]
+    [pickStart, pickEnd, setPickRange, addEventMarker]
   );
 
   return (
@@ -219,6 +249,7 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = () => {
               onFocus={handleHelicorderFocus}
               onOffsetChange={handleHelicorderOffsetChange}
               onSelectionChange={handleHelicorderSelectionChange}
+              onReady={handleHelicorderOnReady}
             />
           </div>
           <div className="relative flex-1 h-full">
@@ -244,6 +275,7 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = () => {
               onExtentChange={handleSeismogramExtentChange}
               onContextMenuRequested={handleContextMenuRequested}
               onPick={handleSeismogramPickChange}
+              onReady={handleSeismogramOnReady}
             />
             {isExpandMode && (
               <Button className={styles.backButton} icon={<ArrowReply20Regular />} size="small" appearance="transparent" onClick={handleRestoreChannels} />
