@@ -19,6 +19,7 @@ import LogoImage from '../../components/Header/LogoImage';
 import LogoText from '../../components/Header/LogoText';
 import { useAppStore } from '../../stores/app';
 import { useAuthStore } from '../../stores/auth';
+import { CustomError } from '../../types/response';
 
 const WelcomeText = () => {
   return <h1 className="text-lg font-bold text-gray-800 dark:text-neutral-grey-84">Login to continue</h1>;
@@ -95,7 +96,11 @@ const Login = () => {
 
       navigate('/');
     } catch (error) {
-      setError('The username and password you entered did not match our records. Please double-check and try again.');
+      if (error instanceof CustomError) {
+        setError(error.message);
+      } else {
+        setError('Unknown error occurred. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

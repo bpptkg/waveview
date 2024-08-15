@@ -3,6 +3,7 @@ import { api, baseUrl } from '../../services/api';
 import apiVersion from '../../services/apiVersion';
 import { createSelectors } from '../../shared/createSelectors';
 import { JwtToken } from '../../types/auth';
+import { CustomError } from '../../types/response';
 import { AUTH_KEY } from './constants';
 import { AuthStore } from './types';
 
@@ -30,6 +31,7 @@ const authStore = create<AuthStore>((set, get) => {
     fetchToken: async (credentials) => {
       const { username, password } = credentials;
       const url = new URL(`${baseUrl}${apiVersion.login.v1}`);
+
       const response = await fetch(url.toString(), {
         method: 'POST',
         headers: {
@@ -40,7 +42,13 @@ const authStore = create<AuthStore>((set, get) => {
           password,
         }),
       });
-      const data = await response.json();
+      if (!response.ok) {
+        throw new CustomError(
+          `The username and password you entered did not match our records. 
+          Please double-check and try again.`
+        );
+      }
+      const data: JwtToken = await response.json();
       get().setToken(data);
     },
 
