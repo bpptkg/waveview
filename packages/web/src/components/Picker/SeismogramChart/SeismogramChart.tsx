@@ -233,6 +233,12 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
         chartRef.current.render();
       }
     },
+    removeAllEventMarkers: () => {
+      if (chartRef.current) {
+        chartRef.current.removeAllMarkers();
+        chartRef.current.render();
+      }
+    },
     dispose: () => {
       chartRef.current?.dispose();
       workerRef.current?.terminate();

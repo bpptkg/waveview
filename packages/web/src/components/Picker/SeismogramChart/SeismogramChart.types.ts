@@ -87,4 +87,5 @@ export interface SeismogramChartRef {
   hideAllMarkers: () => void;
   dispose: () => void;
   getChartExtent: () => [number, number];
+  removeAllEventMarkers: () => void;
 }

@@ -132,6 +132,12 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
         chartRef.current.render();
       }
     },
+    removeAllEventMarkers: () => {
+      if (chartRef.current) {
+        chartRef.current.removeAllEventMarkers();
+        chartRef.current.render();
+      }
+    },
     dispose: () => {
       chartRef.current?.dispose();
       workerRef.current?.terminate();
