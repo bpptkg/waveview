@@ -31,6 +31,11 @@ const useEventTableStyles = makeStyles({
   table: {
     tableLayout: 'auto',
   },
+  emptyColumn: {
+    display: 'flex',
+    justifyContent: 'center',
+    width: '100%',
+  },
 });
 
 type Item = SeismicEvent;
@@ -131,29 +136,37 @@ const EventTable = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rows.map(({ item, onClick, onKeyDown, selected, appearance }) => (
-            <TableRow key={item.id} onClick={onClick} onKeyDown={onKeyDown} aria-selected={selected} appearance={appearance}>
-              <TableCell>{formatTime(item.time, { useUTC })}</TableCell>
-              <TableCell>{formatNumber(item.duration, { unit: ' sec', precision: 2 })}</TableCell>
-              <TableCell>{item.type.code}</TableCell>
-              <TableCell>{formatNumber(item.preferred_amplitude?.amplitude, { unit: item.preferred_amplitude?.unit, precision: 2 })}</TableCell>
-              <TableCell>{formatNumber(item.preferred_magnitude?.magnitude, { precision: 2 })}</TableCell>
-              <TableCell>{formatNumber(item.preferred_origin?.latitude, { unit: '°', precision: 5 })}</TableCell>
-              <TableCell>{formatNumber(item.preferred_origin?.longitude, { unit: '°', precision: 5 })}</TableCell>
-              <TableCell>{formatNumber(item.preferred_origin?.depth, { unit: ' km', precision: 2 })}</TableCell>
-              <TableCell>{item.evaluation_mode}</TableCell>
-              <TableCell>{item.evaluation_status}</TableCell>
-              <TableCell>
-                <TableCellLayout
-                  media={
-                    <Tooltip content={item.author.name} relationship="label">
-                      <Avatar aria-label={item.author.name} name={item.author.name} color="colorful" image={{ src: item.author.avatar }} />
-                    </Tooltip>
-                  }
-                />
-              </TableCell>
+          {rows.length ? (
+            rows.map(({ item, onClick, onKeyDown, selected, appearance }) => (
+              <TableRow key={item.id} onClick={onClick} onKeyDown={onKeyDown} aria-selected={selected} appearance={appearance}>
+                <TableCell>{formatTime(item.time, { useUTC })}</TableCell>
+                <TableCell>{formatNumber(item.duration, { unit: ' sec', precision: 2 })}</TableCell>
+                <TableCell>{item.type.code}</TableCell>
+                <TableCell>{formatNumber(item.preferred_amplitude?.amplitude, { unit: item.preferred_amplitude?.unit, precision: 2 })}</TableCell>
+                <TableCell>{formatNumber(item.preferred_magnitude?.magnitude, { precision: 2 })}</TableCell>
+                <TableCell>{formatNumber(item.preferred_origin?.latitude, { unit: '°', precision: 5 })}</TableCell>
+                <TableCell>{formatNumber(item.preferred_origin?.longitude, { unit: '°', precision: 5 })}</TableCell>
+                <TableCell>{formatNumber(item.preferred_origin?.depth, { unit: ' km', precision: 2 })}</TableCell>
+                <TableCell>{item.evaluation_mode}</TableCell>
+                <TableCell>{item.evaluation_status}</TableCell>
+                <TableCell>
+                  <TableCellLayout
+                    media={
+                      <Tooltip content={item.author.name} relationship="label">
+                        <Avatar aria-label={item.author.name} name={item.author.name} color="colorful" image={{ src: item.author.avatar }} />
+                      </Tooltip>
+                    }
+                  />
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableHeaderCell colSpan={11}>
+                <span className="text-center w-full">No events found</span>
+              </TableHeaderCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
       {hasNextEvents() && (
