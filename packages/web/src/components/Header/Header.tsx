@@ -7,17 +7,17 @@ import SearchBox from './SearchBox';
 
 const Header = () => {
   return (
-    <div className="flex h-[48px] items-center justify-between relative">
+    <div className="flex h-[48px] items-center justify-between z-50">
       <div className="flex items-center">
         <OrganizationPicker />
         <VolcanoPicker />
       </div>
 
-      {/* <div className="absolute left-1/2 transform -translate-x-1/2"> */}
-        <div className="flex items-center gap-2">
+      <div className="absolute left-1/2 transform -translate-x-1/2 flex">
+        <div className="flex items-center gap-2 relative">
           <ArrowNavigation />
           <SearchBox />
-        {/* </div> */}
+        </div>
       </div>
 
       <div className="flex items-center gap-3">

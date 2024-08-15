@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 const useStyles = makeStyles({
   searchBox: {
     width: '364px',
+    position: 'relative',
   },
 });
 
@@ -83,7 +84,7 @@ const SearchBox = () => {
   }, [searchQuery]);
 
   return (
-    <div className="w-[364px] relative">
+    <div className="relative">
       <FluentSearchBox
         ref={searchBoxRef}
         value={searchQuery}
@@ -94,7 +95,7 @@ const SearchBox = () => {
         onKeyDown={handleKeyDown}
         onFocus={() => setFocusedIndex(null)}
       />
-      <ul className="absolute right-0 left-0 z-50 overflow-x-hidden overflow-y-auto max-h-[500px] bg-white dark:bg-black rounded-b-lg">
+      <ul className="z-50 absolute left-0 right-0 bg-white dark:bg-black rounded-b-lg">
         {filteredItems.map((item, index) => (
           <li key={index} role="presentation" tabIndex={0} className={focusedIndex === index ? 'bg-gray-100 dark:bg-gray-800' : ''}>
             <a
