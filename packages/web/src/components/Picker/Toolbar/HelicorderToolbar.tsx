@@ -30,9 +30,10 @@ import {
   ChevronUpDown20Regular,
   Search20Regular,
 } from '@fluentui/react-icons';
+import Fuse from 'fuse.js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Channel } from '../../../types/channel';
-import Fuse from 'fuse.js';
+import CatalogPicker from '../../Catalog/CatalogPicker';
 
 export interface HelicorderToolbarProps {
   channelId: string;
@@ -169,7 +170,7 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
   }, [searchQuery, candidateChannels]);
 
   return (
-    <div className="bg-white dark:bg-black mx-2 drop-shadow rounded">
+    <div className="bg-white dark:bg-black mx-2 drop-shadow rounded flex justify-between items-center">
       <Toolbar aria-label="Helicorder Toolbar">
         <Popover trapFocus open={open} onOpenChange={() => setOpen(!open)}>
           <PopoverTrigger disableButtonEnhancement>
@@ -253,6 +254,7 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
         <ToolbarDivider />
         <Switch checked={showEvent} label={showEvent ? 'Hide Event' : 'Show Event'} onChange={handleShowEventChange} />
       </Toolbar>
+      <CatalogPicker />
     </div>
   );
 };
