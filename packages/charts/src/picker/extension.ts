@@ -36,6 +36,7 @@ export class PickerExtension implements Extension<Seismogram> {
 
   deactivate(): void {
     this.picker?.model.disable();
+    this.picker?.clearRange();
   }
 
   isActive(): boolean {
