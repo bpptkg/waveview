@@ -321,7 +321,7 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
         eventManagerExtensionRef.current = new SeismogramEventManagerExtension({
           refreshDataAfterEvent: true,
           enableNKey: false,
-          fetchData: webWorkerRef.current.fetchAllChannelsDataDebounced,
+          fetchData: fetchDataDebounced,
         });
         zoomRectangleExtensionRef.current = new ZoomRectangleExtension();
         pickerExtensionRef.current = new PickerExtension();
