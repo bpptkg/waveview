@@ -12,17 +12,17 @@ import {
 import { Helicorder } from "../helicorder";
 
 export class HelicorderWebWorker {
-  private worker: Worker;
-  private chart: Helicorder;
-  private interval?: number;
-  private requests: Map<string, number> = new Map();
+  private _worker: Worker;
+  private _chart: Helicorder;
+  private _interval?: number;
+  private _requests: Map<string, number> = new Map();
 
   constructor(chart: Helicorder, worker: Worker) {
-    this.worker = worker;
-    this.worker.addEventListener("message", this.onMessage.bind(this));
-    this.chart = chart;
-    this.interval = undefined;
-    this.requests = new Map();
+    this._worker = worker;
+    this._worker.addEventListener("message", this.onMessage.bind(this));
+    this._chart = chart;
+    this._interval = undefined;
+    this._requests = new Map();
   }
 
   attachEventListeners(): void {}
@@ -31,12 +31,12 @@ export class HelicorderWebWorker {
 
   refreshRealtimeFeed(): void {
     const now = Date.now();
-    const [start, end] = this.chart.getChartExtent();
-    if (this.interval) {
-      clearInterval(this.interval);
+    const [start, end] = this._chart.getChartExtent();
+    if (this._interval) {
+      clearInterval(this._interval);
     }
     if (now >= start && now <= end) {
-      this.interval = window.setInterval(() => {
+      this._interval = window.setInterval(() => {
         this.fetchAllTracksData({ mode: "light" });
       }, 3000);
     }
@@ -44,11 +44,11 @@ export class HelicorderWebWorker {
 
   fetchAllTracksData(options: Partial<RefreshMode> = {}): void {
     const mode = options.mode || "light";
-    const extents = this.chart.getTrackExtents();
-    const dataStore = this.chart.getDataStore();
+    const extents = this._chart.getTrackExtents();
+    const dataStore = this._chart.getDataStore();
 
     extents.forEach((extent: [number, number]) => {
-      const trackId = this.chart.getTrackId(extent);
+      const trackId = this._chart.getTrackId(extent);
       if (dataStore.has(trackId)) {
         const [start, end] = extent;
         const now = Date.now();
@@ -80,8 +80,8 @@ export class HelicorderWebWorker {
   postRequestMessage(extent: [number, number]): void {
     const requestId = uuid4();
     const [start, end] = extent;
-    const width = this.chart.getWidth();
-    const channel = this.chart.getChannel();
+    const width = this._chart.getWidth();
+    const channel = this._chart.getChannel();
     const msg: WorkerRequestData<StreamRequestData> = {
       type: "stream.fetch",
       payload: {
@@ -96,10 +96,10 @@ export class HelicorderWebWorker {
 
     this.postMessage(msg);
 
-    this.requests.set(requestId, Date.now());
+    this._requests.set(requestId, Date.now());
   }
 
-  onMessage(event: MessageEvent<WorkerResponseData<unknown>>): void {
+  private onMessage(event: MessageEvent<WorkerResponseData<unknown>>): void {
     const { type, payload } = event.data;
 
     switch (type) {
@@ -115,78 +115,69 @@ export class HelicorderWebWorker {
     }
   }
 
-  onStreamFetch(payload: StreamResponseData): void {
+  private onStreamFetch(payload: StreamResponseData): void {
     const { data, index, channelId, requestId, start, end } = payload;
     const seriesData = new Series(data, {
       index: index,
       name: channelId,
     });
-    this.chart.setTrackData(seriesData, start, end);
-    this.chart.refreshData();
-    this.chart.render();
+    this._chart.setTrackData(seriesData, start, end);
+    this._chart.refreshData();
+    this._chart.render();
 
-    this.requests.delete(requestId);
-    if (this.requests.size === 0) {
+    this._requests.delete(requestId);
+    if (this._requests.size === 0) {
       this.refreshRealtimeFeed();
     }
   }
 
   postMessage<T>(data: WorkerRequestData<T>): void {
-    this.worker.postMessage(data);
+    this._worker.postMessage(data);
   }
 
   terminate(): void {
-    this.worker.terminate();
-  }
-
-  ping(): void {
-    const msg: WorkerRequestData<string> = {
-      type: "ping",
-      payload: "ping",
-    };
-
-    this.worker.postMessage(msg);
+    this._worker.terminate();
   }
 
   dispose(): void {
     this.detachEventListeners();
     this.terminate();
-    if (this.interval) {
-      clearInterval(this.interval);
+    if (this._interval) {
+      clearInterval(this._interval);
     }
   }
 }
 
 export class HelicorderWebWorkerExtension implements Extension<Helicorder> {
-  private worker: Worker;
-  private instance?: HelicorderWebWorker;
+  private _worker: Worker;
+  private _instance?: HelicorderWebWorker;
 
   constructor(worker: Worker) {
-    this.worker = worker;
+    this._worker = worker;
   }
 
   install(chart: Helicorder): void {
-    this.instance = new HelicorderWebWorker(chart, this.worker);
-    this.instance.attachEventListeners();
+    this._instance = new HelicorderWebWorker(chart, this._worker);
+    this._instance.attachEventListeners();
   }
 
   uninstall(): void {
-    if (this.instance) {
+    if (this._instance) {
       this.dispose();
     }
   }
 
   getAPI(): HelicorderWebWorker {
-    if (!this.instance) {
+    if (!this._instance) {
       throw new Error("HelicorderWebWorker extension is not installed");
     }
-    return this.instance;
+    return this._instance;
   }
 
   dispose(): void {
-    if (this.instance) {
-      this.instance.dispose();
-      this.instance = undefined;
+    if (this._instance) {
+      this._instance.dispose();
+      this._instance = undefined;
     }
   }
 }
