@@ -1,5 +1,6 @@
 import { Series } from "@waveview/ndarray";
 import { v4 as uuid4 } from "uuid";
+import { Debounce } from "../../util/decorators";
 import { ONE_MINUTE } from "../../util/time";
 import {
   Extension,
@@ -64,6 +65,11 @@ export class SeismogramWebWorker {
     channels.forEach((channel) => {
       this.postRequestMessage(channel.id, extent);
     });
+  }
+
+  @Debounce(300)
+  fetchAllChannelsDataDebounced(): void {
+    this.fetchAllChannelsData();
   }
 
   fetchChannelData(channelId: string): void {

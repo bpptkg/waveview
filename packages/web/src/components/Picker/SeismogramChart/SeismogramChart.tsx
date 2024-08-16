@@ -30,9 +30,9 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
   const eventManagerExtensionRef = useRef<SeismogramEventManagerExtension | null>(null);
   const pickerExtensionRef = useRef<PickerExtension | null>(null);
 
-  const fetchDataDebounced = debounce(() => {
-    webWorkerRef.current?.fetchAllChannelsData();
-  }, 250);
+  const fetchDataDebounced = useCallback(() => {
+    webWorkerRef.current?.fetchAllChannelsDataDebounced();
+  }, []);
 
   const fetchChannelData = (channelId: string): void => {
     webWorkerRef.current?.fetchChannelData(channelId);
