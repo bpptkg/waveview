@@ -17,20 +17,29 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
   const webWorkerExtensionRef = useRef<HelicorderWebWorkerExtension | null>(null);
   const eventManagerExtensionRef = useRef<HelicorderEventManagerExtension | null>(null);
 
-  const fetchDataDebounced = debounce(() => {
-    webWorkerExtensionRef.current?.getAPI().fetchAllTracksData();
-  }, 250);
+  const fetchDataDebounced = useCallback(() => {
+    webWorkerExtensionRef.current?.getAPI().fetchAllTracksDataDebounced();
+  }, []);
 
   useImperativeHandle(ref, () => ({
     getInstance: () => chartRef.current!,
     shiftViewUp: (by: number = 1) => {
       chartRef.current?.shiftViewUp(by);
+      chartRef.current?.refreshData();
+      chartRef.current?.render();
+      fetchDataDebounced();
     },
     shiftViewDown: (by: number = 1) => {
       chartRef.current?.shiftViewDown(by);
+      chartRef.current?.refreshData();
+      chartRef.current?.render();
+      fetchDataDebounced();
     },
     shiftViewToNow: () => {
       chartRef.current?.shiftViewToNow();
+      chartRef.current?.refreshData();
+      chartRef.current?.render();
+      fetchDataDebounced();
     },
     increaseAmplitude: (by: number) => {
       chartRef.current?.increaseAmplitude(by);
@@ -190,9 +199,9 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
 
         workerRef.current = new Worker(new URL('../../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
         webWorkerExtensionRef.current = new HelicorderWebWorkerExtension(workerRef.current);
-        eventManagerExtensionRef.current = new HelicorderEventManagerExtension();
-
         chartRef.current.use(webWorkerExtensionRef.current);
+
+        eventManagerExtensionRef.current = new HelicorderEventManagerExtension(webWorkerExtensionRef.current.getAPI());
         chartRef.current.use(eventManagerExtensionRef.current);
 
         chartRef.current.render();

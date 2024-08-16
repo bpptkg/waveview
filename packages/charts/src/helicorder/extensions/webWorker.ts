@@ -1,5 +1,6 @@
 import { Series } from "@waveview/ndarray";
 import { v4 as uuid4 } from "uuid";
+import { Debounce } from "../../util/decorators";
 import {
   Extension,
   RefreshMode,
@@ -24,17 +25,9 @@ export class HelicorderWebWorker {
     this.requests = new Map();
   }
 
-  attachEventListeners(): void {
-    this.chart.on("offsetChanged", this.onOffsetChanged.bind(this));
-  }
+  attachEventListeners(): void {}
 
-  detachEventListeners(): void {
-    this.chart.off("offsetChanged", this.onOffsetChanged.bind(this));
-  }
-
-  onOffsetChanged(): void {
-    this.fetchAllTracksData({ mode: "light" });
-  }
+  detachEventListeners(): void {}
 
   refreshRealtimeFeed(): void {
     const now = Date.now();
@@ -53,7 +46,6 @@ export class HelicorderWebWorker {
     const mode = options.mode || "light";
     const extents = this.chart.getTrackExtents();
     const dataStore = this.chart.getDataStore();
-    let allDataPresent = true;
 
     extents.forEach((extent: [number, number]) => {
       const trackId = this.chart.getTrackId(extent);
@@ -63,10 +55,8 @@ export class HelicorderWebWorker {
         if (now >= start && now <= end) {
           // If now is between the start and end of the track, request data.
           this.postRequestMessage(extent);
-          allDataPresent = false;
         }
       } else {
-        allDataPresent = false;
         if (mode === "light") {
           // In light mode, only request data for tracks not in the data store.
           this.postRequestMessage(extent);
@@ -80,9 +70,11 @@ export class HelicorderWebWorker {
         this.postRequestMessage(extent);
       });
     }
+  }
 
-    this.chart.refreshData();
-    this.chart.render();
+  @Debounce(300)
+  fetchAllTracksDataDebounced(options: Partial<RefreshMode> = {}): void {
+    this.fetchAllTracksData(options);
   }
 
   postRequestMessage(extent: [number, number]): void {

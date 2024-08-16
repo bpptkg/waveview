@@ -1,6 +1,7 @@
 import { FederatedPointerEvent, Point } from "pixi.js";
 import { EventManager, EventManagerConfig, Extension } from "../../util/types";
 import { Helicorder } from "../helicorder";
+import { HelicorderWebWorker } from "./webWorker";
 
 export interface HelicorderEventManagerConfig extends EventManagerConfig {
   enableArrowUp?: boolean;
@@ -15,13 +16,19 @@ export class HelicorderEventManager implements EventManager {
   private config: HelicorderEventManagerConfig;
   private handleKeyDownBound: (event: KeyboardEvent) => void;
   private onPointerDownBound: (event: FederatedPointerEvent) => void;
+  private webWorker: HelicorderWebWorker;
 
-  constructor(chart: Helicorder, config: HelicorderEventManagerConfig = {}) {
+  constructor(
+    chart: Helicorder,
+    webWorker: HelicorderWebWorker,
+    config: HelicorderEventManagerConfig = {}
+  ) {
     this.chart = chart;
     this.enabled = true;
     this.config = config;
 
     this.chart.app.stage.cursor = "pointer";
+    this.webWorker = webWorker;
     this.handleKeyDownBound = this.handleKeyDown.bind(this);
     this.onPointerDownBound = this.onPointerDown.bind(this);
   }
@@ -67,7 +74,9 @@ export class HelicorderEventManager implements EventManager {
     } else {
       this.chart.shiftViewUp();
     }
+    this.chart.refreshData();
     this.chart.render();
+    this.webWorker.fetchAllTracksDataDebounced();
   }
 
   private onArrowDown(): void {
@@ -80,7 +89,9 @@ export class HelicorderEventManager implements EventManager {
     } else {
       this.chart.shiftViewDown();
     }
+    this.chart.refreshData();
     this.chart.render();
+    this.webWorker.fetchAllTracksDataDebounced();
   }
 
   private onNKey(): void {
@@ -88,7 +99,9 @@ export class HelicorderEventManager implements EventManager {
       return;
     }
     this.chart.shiftViewToNow();
+    this.chart.refreshData();
     this.chart.render();
+    this.webWorker.fetchAllTracksDataDebounced();
   }
 
   private onPointerDown(event: FederatedPointerEvent): void {
@@ -141,14 +154,23 @@ export class HelicorderEventManager implements EventManager {
 
 export class HelicorderEventManagerExtension implements Extension<Helicorder> {
   private config: HelicorderEventManagerConfig;
+  private webWorker: HelicorderWebWorker;
   private eventManager?: HelicorderEventManager;
 
-  constructor(config: HelicorderEventManagerConfig = {}) {
+  constructor(
+    webWorker: HelicorderWebWorker,
+    config: HelicorderEventManagerConfig = {}
+  ) {
     this.config = config;
+    this.webWorker = webWorker;
   }
 
   install(chart: Helicorder): void {
-    this.eventManager = new HelicorderEventManager(chart, this.config);
+    this.eventManager = new HelicorderEventManager(
+      chart,
+      this.webWorker,
+      this.config
+    );
     this.eventManager.attachEventListeners();
   }
 
