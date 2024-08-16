@@ -65,7 +65,7 @@ const Help = () => {
           )}
           {currentOrganization?.address && (
             <li>
-              <div className="inline-flex gap-2">
+              <div className="inline-flex items-start gap-2">
                 <LocationRegular fontSize={16} />
                 <span>{currentOrganization.address}</span>
               </div>
@@ -73,7 +73,7 @@ const Help = () => {
           )}
           {currentOrganization?.email && (
             <li>
-              <div className="inline-flex gap-2">
+              <div className="inline-flex items-center gap-2">
                 <MailRegular fontSize={16} />
                 <a href={`mailto:${currentOrganization.email}`} className="text-blue-500 hover:underline">
                   {currentOrganization.email}
@@ -83,7 +83,7 @@ const Help = () => {
           )}
           {currentOrganization?.url && (
             <li>
-              <div className="inline-flex gap-2">
+              <div className="inline-flex items-center gap-2">
                 <GlobeRegular fontSize={16} />
                 <a href={currentOrganization.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
                   {currentOrganization.url}
