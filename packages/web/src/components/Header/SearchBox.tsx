@@ -33,6 +33,7 @@ const searchIndex: SearchItem[] = [
 const SearchBox = () => {
   const navigate = useNavigate();
   const styles = useStyles();
+  const ref = useRef<HTMLDivElement | null>(null);
   const fuseRef = useRef<Fuse<SearchItem> | null>(null);
   const searchBoxRef = useRef<HTMLInputElement | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -83,8 +84,23 @@ const SearchBox = () => {
     setFocusedIndex(null);
   }, [searchQuery]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setSearchQuery('');
+        setFocusedIndex(null);
+        searchBoxRef.current?.blur();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div className="relative">
+    <div className="relative" ref={ref}>
       <FluentSearchBox
         ref={searchBoxRef}
         value={searchQuery}
