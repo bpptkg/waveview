@@ -65,6 +65,10 @@ export class Selection extends View<SelectionModel> {
     this.model.mergeOptions({ value });
   }
 
+  hasValue(): boolean {
+    return this.model.options.value !== 0;
+  }
+
   getTrackIndex(): number {
     return this.chart.getTrackIndexAtTime(this.model.options.value);
   }
@@ -86,14 +90,22 @@ export class Selection extends View<SelectionModel> {
   }
 
   moveUp(): void {
+    const [start, _] = this.chart.getChartExtent();
     const { interval } = this.chart.getOptions();
     const value = this.model.options.value - interval * 60000;
+    if (value < start) {
+      this.chart.shiftViewUp();
+    }
     this.model.mergeOptions({ value });
   }
 
   moveDown(): void {
+    const [_, end] = this.chart.getChartExtent();
     const { interval } = this.chart.getOptions();
     const value = this.model.options.value + interval * 60000;
+    if (value > end) {
+      this.chart.shiftViewDown();
+    }
     this.model.mergeOptions({ value });
   }
 

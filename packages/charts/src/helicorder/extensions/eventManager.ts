@@ -61,7 +61,12 @@ export class HelicorderEventManager implements EventManager {
     if (this.config.enableArrowUp === false) {
       return;
     }
-    this.chart.shiftViewUp();
+    const selection = this.chart.getSelection();
+    if (selection.hasValue()) {
+      this.chart.moveSelectionUp();
+    } else {
+      this.chart.shiftViewUp();
+    }
     this.chart.render();
   }
 
@@ -69,7 +74,12 @@ export class HelicorderEventManager implements EventManager {
     if (this.config.enableArrowDown === false) {
       return;
     }
-    this.chart.shiftViewDown();
+    const selection = this.chart.getSelection();
+    if (selection.hasValue()) {
+      this.chart.moveSelectionDown();
+    } else {
+      this.chart.shiftViewDown();
+    }
     this.chart.render();
   }
 
