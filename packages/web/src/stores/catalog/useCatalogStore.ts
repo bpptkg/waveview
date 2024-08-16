@@ -16,11 +16,9 @@ const catalogStore = create<CatalogStore>((set, get) => {
     allCatalogs: [],
     events: [],
     nextEventsUrl: null,
+
     setCurrentCatalog: (catalog) => set({ currentCatalog: catalog }),
-    /**
-     * Fetches all catalogs from the organization where the user is a member of
-     * and sets the default catalog.
-     */
+
     fetchAllCatalogs: async () => {
       const { currentOrganization } = useOrganizationStore.getState();
       if (!currentOrganization) {
@@ -45,9 +43,7 @@ const catalogStore = create<CatalogStore>((set, get) => {
       }
     },
     setNextEventsUrl: (url) => set({ nextEventsUrl: url }),
-    /**
-     * Fetches the events from the current catalog at page 1.
-     */
+
     fetchEvents: async () => {
       const { currentOrganization } = useOrganizationStore.getState();
       if (!currentOrganization) {
@@ -68,9 +64,7 @@ const catalogStore = create<CatalogStore>((set, get) => {
       const data: Pagination<SeismicEvent[]> = await response.json();
       set({ events: data.results, nextEventsUrl: data.next });
     },
-    /**
-     * Fetches the next page of events from the current catalog.
-     */
+
     fetchNextEvents: async () => {
       const { nextEventsUrl } = get();
       if (!nextEventsUrl) {
@@ -81,16 +75,12 @@ const catalogStore = create<CatalogStore>((set, get) => {
       const data: Pagination<SeismicEvent[]> = await response.json();
       set((state) => ({ events: [...state.events, ...data.results], nextEventsUrl: data.next }));
     },
-    /**
-     * True if there are more events to fetch.
-     */
+
     hasNextEvents: () => {
       const { nextEventsUrl } = get();
       return !!nextEventsUrl;
     },
-    /**
-     * Removes an event from the list of events.
-     */
+
     removeEvent: (eventId) => {
       set((state) => ({ events: state.events.filter((event) => event.id !== eventId) }));
     },

@@ -6,11 +6,33 @@ export interface CatalogStore {
   allCatalogs: Catalog[];
   events: SeismicEvent[];
   nextEventsUrl: string | null;
+  /**
+   * Sets the current catalog.
+   */
   setCurrentCatalog: (catalog: Catalog) => void;
+  /**
+   * Fetches all catalogs from the organization where the user is a member of
+   * and sets the default catalog.
+   */
   fetchAllCatalogs: () => Promise<void>;
+  /**
+   * Sets the next events URL to fetch the next page of events.
+   */
   setNextEventsUrl: (url: string | null) => void;
+  /**
+   * Fetches the events from the current catalog at page 1.
+   */
   fetchEvents: () => Promise<void>;
+  /**
+   * Fetches the next page of events from the current catalog.
+   */
   fetchNextEvents: () => Promise<void>;
+  /**
+   * True if there are more events to fetch.
+   */
   hasNextEvents: () => boolean;
+  /**
+   * Removes an event from the list of events.
+   */
   removeEvent: (eventId: string) => void;
 }
