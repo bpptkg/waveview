@@ -11,110 +11,110 @@ export interface HelicorderEventManagerConfig extends EventManagerConfig {
 }
 
 export class HelicorderEventManager implements EventManager {
-  private chart: Helicorder;
-  private enabled: boolean;
-  private config: HelicorderEventManagerConfig;
-  private handleKeyDownBound: (event: KeyboardEvent) => void;
-  private onPointerDownBound: (event: FederatedPointerEvent) => void;
-  private webWorker: HelicorderWebWorker;
+  private _chart: Helicorder;
+  private _enabled: boolean;
+  private _config: HelicorderEventManagerConfig;
+  private _handleKeyDownBound: (event: KeyboardEvent) => void;
+  private _onPointerDownBound: (event: FederatedPointerEvent) => void;
+  private _webWorker: HelicorderWebWorker;
 
   constructor(
     chart: Helicorder,
     webWorker: HelicorderWebWorker,
     config: HelicorderEventManagerConfig = {}
   ) {
-    this.chart = chart;
-    this.enabled = true;
-    this.config = config;
+    this._chart = chart;
+    this._enabled = true;
+    this._config = config;
 
-    this.chart.app.stage.cursor = "pointer";
-    this.webWorker = webWorker;
-    this.handleKeyDownBound = this.handleKeyDown.bind(this);
-    this.onPointerDownBound = this.onPointerDown.bind(this);
+    this._chart.app.stage.cursor = "pointer";
+    this._webWorker = webWorker;
+    this._handleKeyDownBound = this._handleKeyDown.bind(this);
+    this._onPointerDownBound = this._onPointerDown.bind(this);
   }
 
   attachEventListeners(): void {
-    window.addEventListener("keydown", this.handleKeyDownBound);
-    this.chart.app.stage.on("pointerdown", this.onPointerDownBound);
+    window.addEventListener("keydown", this._handleKeyDownBound);
+    this._chart.app.stage.on("pointerdown", this._onPointerDownBound);
   }
 
   removeEventListeners(): void {
-    window.removeEventListener("keydown", this.handleKeyDownBound);
-    this.chart.app.stage.off("pointerdown", this.onPointerDownBound);
+    window.removeEventListener("keydown", this._handleKeyDownBound);
+    this._chart.app.stage.off("pointerdown", this._onPointerDownBound);
   }
 
-  private handleKeyDown(event: KeyboardEvent): void {
-    if (!this.enabled || !this.chart.isFocused()) {
+  private _handleKeyDown(event: KeyboardEvent): void {
+    if (!this._enabled || !this._chart.isFocused()) {
       return;
     }
 
     switch (event.key) {
       case "ArrowUp":
-        this.onArrowUp();
+        this._onArrowUp();
         break;
       case "ArrowDown":
-        this.onArrowDown();
+        this._onArrowDown();
         break;
       case "N":
       case "n":
-        this.onNKey();
+        this._onNKey();
         break;
       default:
         break;
     }
   }
 
-  private onArrowUp(): void {
-    if (this.config.enableArrowUp === false) {
+  private _onArrowUp(): void {
+    if (this._config.enableArrowUp === false) {
       return;
     }
-    const selection = this.chart.getSelection();
+    const selection = this._chart.getSelection();
     if (selection.hasValue()) {
-      this.chart.moveSelectionUp();
+      this._chart.moveSelectionUp();
     } else {
-      this.chart.shiftViewUp();
+      this._chart.shiftViewUp();
     }
-    this.chart.refreshData();
-    this.chart.render();
-    this.webWorker.fetchAllTracksDataDebounced();
+    this._chart.refreshData();
+    this._chart.render();
+    this._webWorker.fetchAllTracksDataDebounced();
   }
 
-  private onArrowDown(): void {
-    if (this.config.enableArrowDown === false) {
+  private _onArrowDown(): void {
+    if (this._config.enableArrowDown === false) {
       return;
     }
-    const selection = this.chart.getSelection();
+    const selection = this._chart.getSelection();
     if (selection.hasValue()) {
-      this.chart.moveSelectionDown();
+      this._chart.moveSelectionDown();
     } else {
-      this.chart.shiftViewDown();
+      this._chart.shiftViewDown();
     }
-    this.chart.refreshData();
-    this.chart.render();
-    this.webWorker.fetchAllTracksDataDebounced();
+    this._chart.refreshData();
+    this._chart.render();
+    this._webWorker.fetchAllTracksDataDebounced();
   }
 
-  private onNKey(): void {
-    if (this.config.enableNKey === false) {
+  private _onNKey(): void {
+    if (this._config.enableNKey === false) {
       return;
     }
-    this.chart.shiftViewToNow();
-    this.chart.refreshData();
-    this.chart.render();
-    this.webWorker.fetchAllTracksDataDebounced();
+    this._chart.shiftViewToNow();
+    this._chart.refreshData();
+    this._chart.render();
+    this._webWorker.fetchAllTracksDataDebounced();
   }
 
-  private onPointerDown(event: FederatedPointerEvent): void {
-    if (!this.enabled) {
+  private _onPointerDown(event: FederatedPointerEvent): void {
+    if (!this._enabled) {
       return;
     }
-    this.handleTrackSelected(event);
-    this.handleFocusBlur(event);
+    this._handleTrackSelected(event);
+    this._handleFocusBlur(event);
   }
 
-  private handleTrackSelected(event: FederatedPointerEvent): void {
+  private _handleTrackSelected(event: FederatedPointerEvent): void {
     const { x, y }: Point = event.global;
-    const rect = this.chart.getGrid().getRect();
+    const rect = this._chart.getGrid().getRect();
     if (
       x < rect.x ||
       x > rect.x + rect.width ||
@@ -123,67 +123,67 @@ export class HelicorderEventManager implements EventManager {
     ) {
       return;
     }
-    const trackIndex = this.chart.getTrackIndexAtPosition(y);
-    this.chart.selectTrack(trackIndex);
-    this.chart.render();
+    const trackIndex = this._chart.getTrackIndexAtPosition(y);
+    this._chart.selectTrack(trackIndex);
+    this._chart.render();
   }
 
-  private handleFocusBlur(event: FederatedPointerEvent): void {
+  private _handleFocusBlur(event: FederatedPointerEvent): void {
     const { x, y }: Point = event.global;
-    const rect = this.chart.getRect();
+    const rect = this._chart.getRect();
     if (
       x < rect.x ||
       x > rect.x + rect.width ||
       y < rect.y ||
       y > rect.y + rect.height
     ) {
-      this.chart.blur();
+      this._chart.blur();
     } else {
-      this.chart.focus();
+      this._chart.focus();
     }
   }
 
   enable(): void {
-    this.enabled = true;
+    this._enabled = true;
   }
 
   disable(): void {
-    this.enabled = false;
+    this._enabled = false;
   }
 }
 
 export class HelicorderEventManagerExtension implements Extension<Helicorder> {
-  private config: HelicorderEventManagerConfig;
-  private webWorker: HelicorderWebWorker;
-  private eventManager?: HelicorderEventManager;
+  private _config: HelicorderEventManagerConfig;
+  private _webWorker: HelicorderWebWorker;
+  private _eventManager?: HelicorderEventManager;
 
   constructor(
     webWorker: HelicorderWebWorker,
     config: HelicorderEventManagerConfig = {}
   ) {
-    this.config = config;
-    this.webWorker = webWorker;
+    this._config = config;
+    this._webWorker = webWorker;
   }
 
   install(chart: Helicorder): void {
-    this.eventManager = new HelicorderEventManager(
+    this._eventManager = new HelicorderEventManager(
       chart,
-      this.webWorker,
-      this.config
+      this._webWorker,
+      this._config
     );
-    this.eventManager.attachEventListeners();
+    this._eventManager.attachEventListeners();
   }
 
   uninstall(): void {
-    if (this.eventManager) {
-      this.eventManager.removeEventListeners();
+    if (this._eventManager) {
+      this._eventManager.removeEventListeners();
     }
   }
 
   getAPI(): HelicorderEventManager {
-    if (!this.eventManager) {
+    if (!this._eventManager) {
       throw new Error("Extension not installed");
     }
-    return this.eventManager;
+    return this._eventManager;
   }
 }
