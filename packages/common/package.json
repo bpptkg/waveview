@@ -1,0 +1,39 @@
+{
+  "name": "@waveview/common",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Common utilities library for WaveView",
+  "type": "module",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bpptkg/waveview"
+  },
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.3",
+    "vite": "^5.4.0",
+    "vite-plugin-dts": "^3.9.1"
+  },
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "require": "./src/index.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ]
+}
