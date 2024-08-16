@@ -1,4 +1,4 @@
-import { Channel, Helicorder, HelicorderChartOptions } from '@waveview/charts';
+import { Channel, Helicorder, HelicorderChartOptions, HelicorderEventMarkerOptions } from '@waveview/charts';
 
 export interface HelicorderChartProps {
   /**
@@ -60,7 +60,7 @@ export interface HelicorderChartRef {
   isFocused: () => boolean;
   selectTrack: (index: number) => void;
   setSelection: (value: number) => void;
-  addEventMarker: (value: number, color: string) => void;
+  addEventMarker: (marker: HelicorderEventMarkerOptions) => void;
   removeEventMarker: (value: number) => void;
   showAllEventMarkers: () => void;
   hideAllEventMarkers: () => void;

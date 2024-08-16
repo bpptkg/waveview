@@ -140,7 +140,7 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
 
     if (heliChartReadyRef.current && seisChartReadyRef.current) {
       eventMarkers.forEach((event) => {
-        heliChartRef.current?.addEventMarker(new Date(event.time).getTime(), event.type.color);
+        heliChartRef.current?.addEventMarker({ value: new Date(event.time).getTime(), color: event.type.color, width: 3 });
         seisChartRef.current?.addEventMarker({
           start: new Date(event.time).getTime(),
           end: new Date(event.time).getTime() + event.duration * 1_000,
@@ -163,7 +163,7 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
       seisChartRef.current?.clearAllEventMarkers();
 
       eventMarkers.forEach((event) => {
-        heliChartRef.current?.addEventMarker(new Date(event.time).getTime(), event.type.color);
+        heliChartRef.current?.addEventMarker({ value: new Date(event.time).getTime(), color: event.type.color, width: 3 });
         seisChartRef.current?.addEventMarker({
           start: new Date(event.time).getTime(),
           end: new Date(event.time).getTime() + event.duration * 1_000,
@@ -223,7 +223,7 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
           end,
           color: event.type.color,
         });
-        heliChartRef.current?.addEventMarker(start, event.type.color);
+        heliChartRef.current?.addEventMarker({ value: start, color: event.type.color });
         seisChartRef.current?.clearPickRange();
         setPickRange([0, 0]);
       }

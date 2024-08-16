@@ -113,13 +113,9 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
         chartRef.current.render();
       }
     },
-    addEventMarker: (value: number, color: string) => {
+    addEventMarker: (marker) => {
       if (chartRef.current) {
-        chartRef.current.addEventMarker({
-          value,
-          color,
-          width: 3,
-        });
+        chartRef.current.addEventMarker(marker);
         chartRef.current.render();
       }
     },
