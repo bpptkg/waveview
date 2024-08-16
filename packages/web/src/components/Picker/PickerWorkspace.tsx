@@ -74,6 +74,7 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
     addEventMarker,
     clearEventMarkers,
     deactivatePickMode,
+    clearPick,
   } = usePickerStore();
 
   const {
@@ -130,8 +131,9 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
   useEffect(() => {
     return () => {
       deactivatePickMode();
+      clearPick();
     };
-  }, [deactivatePickMode]);
+  }, [deactivatePickMode, clearPick]);
 
   useEffect(() => {
     if (!showMarkersOnReady) {
@@ -206,9 +208,9 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
   );
 
   const handlePickCancel = useCallback(() => {
-    setPickRange([0, 0]);
+    clearPick();
     seisChartRef.current?.clearPickRange();
-  }, [setPickRange]);
+  }, [clearPick]);
 
   const handlePickSave = useCallback(
     (event: SeismicEvent) => {
@@ -225,10 +227,10 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
         });
         heliChartRef.current?.addEventMarker({ value: start, color: event.type.color });
         seisChartRef.current?.clearPickRange();
-        setPickRange([0, 0]);
+        clearPick();
       }
     },
-    [pickStart, pickEnd, setPickRange, addEventMarker]
+    [pickStart, pickEnd, clearPick, addEventMarker]
   );
 
   return (

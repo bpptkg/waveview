@@ -25,6 +25,7 @@ export const useSeismogramCallback = (
     getChannelById,
     getChannelsByStationIndex,
     deactivatePickMode,
+    clearPick,
   } = usePickerStore();
 
   return {
@@ -110,15 +111,17 @@ export const useSeismogramCallback = (
           seisChartRef.current?.activatePickMode();
         } else {
           seisChartRef.current?.deactivatePickMode();
+          clearPick();
         }
       },
-      [seisChartRef]
+      [seisChartRef, clearPick]
     ),
 
     handleSeismogramDeactivatePickMode: useCallback(() => {
       seisChartRef.current?.deactivatePickMode();
       deactivatePickMode();
-    }, [seisChartRef, deactivatePickMode]),
+      clearPick();
+    }, [seisChartRef, deactivatePickMode, clearPick]),
 
     handleSeismogramZoomRectangleChange: useCallback(
       (active: boolean) => {

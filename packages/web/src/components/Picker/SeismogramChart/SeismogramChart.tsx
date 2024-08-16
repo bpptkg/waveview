@@ -189,6 +189,8 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
     deactivatePickMode: () => {
       if (pickerExtensionRef.current) {
         pickerExtensionRef.current.deactivate();
+        pickerExtensionRef.current.getAPI().clearRange();
+        chartRef.current?.render();
       }
     },
     isPickModeActive: () => {
@@ -376,16 +378,6 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
       chartRef.current?.dispose();
       workerRef.current?.terminate();
       resizeObserverRef.current?.disconnect();
-
-      if (chartRef.current) {
-        chartRef.current.off('focus', handleFocus);
-        chartRef.current.off('blur', handleBlur);
-        chartRef.current.off('extentChange', handleExtentChange);
-        chartRef.current.off('trackDoubleClick', handleTrackDoubleClick);
-        chartRef.current.app.stage.off('rightclick', handleContextMenuRequested);
-        zoomRectangleExtensionRef.current?.getAPI().off('extentSelected', handleZoomRectangle);
-        pickerExtensionRef.current?.getAPI().off('change', handlePickRangeChange);
-      }
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
