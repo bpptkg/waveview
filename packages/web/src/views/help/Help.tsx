@@ -23,7 +23,7 @@ const Help = () => {
         <p className="mb-4">Here are some resources that might help you:</p>
         <ul className="mb-4">
           <li>
-            <a href={baseUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline flex items-center gap-1">
+            <a href={baseUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline inline-flex items-center gap-1">
               API Documentation
               <ArrowUpRightRegular fontSize={12} />
             </a>
@@ -33,7 +33,7 @@ const Help = () => {
               href="https://github.com/bpptkg/waveview"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-500 hover:underline flex items-center gap-1"
+              className="text-blue-500 hover:underline inline-flex items-center gap-1"
             >
               GitHub
               <ArrowUpRightRegular fontSize={12} />
@@ -44,7 +44,7 @@ const Help = () => {
               href="https://github.com/bpptkg/waveview/issues"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-500 hover:underline flex items-center gap-1"
+              className="text-blue-500 hover:underline inline-flex items-center gap-1"
             >
               Report an Issue
               <ArrowUpRightRegular fontSize={12} />
