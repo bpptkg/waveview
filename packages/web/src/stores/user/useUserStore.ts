@@ -7,11 +7,9 @@ import { UserStore } from './types';
 
 const userStore = create<UserStore>((set, get) => ({
   user: null,
+
   setUser: (user) => set({ user }),
-  /**
-   * Fetches the user data from the API. It should be called after the user has
-   * logged in.
-   */
+
   fetchUser: async () => {
     const accessToken = useAuthStore.getState().token?.access;
     const url = `${baseUrl}/api/v1/account/`;
@@ -23,7 +21,9 @@ const userStore = create<UserStore>((set, get) => ({
     const user: User = await response.json();
     set({ user });
   },
+
   isAdmin: () => get().user?.is_staff || get().user?.is_superuser || false,
+
   isSuperuser: () => get().user?.is_superuser || false,
 }));
 
