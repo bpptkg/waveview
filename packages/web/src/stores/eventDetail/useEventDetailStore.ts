@@ -16,12 +16,11 @@ const eventDetailStore = create<EventDetailStore>((set, get) => ({
   event: null,
   loading: false,
   error: null,
+
   setEventId: (eventId) => set({ eventId }),
+
   hasEventId: (eventId) => get().eventId === eventId,
-  /**
-   * Fetches the event details from the API. If the event is already in the
-   * cache, it will be used instead.
-   */
+
   fetchEvent: async (eventId, options = {}) => {
     const { clearCache } = options;
     if (clearCache) {
@@ -59,9 +58,7 @@ const eventDetailStore = create<EventDetailStore>((set, get) => ({
       set({ loading: false, error: (error as CustomError).message });
     }
   },
-  /**
-   * Returns the station code of the first arrival of the event.
-   */
+
   getStationOfFirstArrival: () => {
     const { event } = get();
     if (!event) {
@@ -70,9 +67,7 @@ const eventDetailStore = create<EventDetailStore>((set, get) => ({
     const { stations } = useInventoryStore.getState();
     return stations().find((station) => station.id === event.station_of_first_arrival_id)?.code || '';
   },
-  /**
-   * Bookmarks the event.
-   */
+
   bookmarkEvent: async () => {
     const { currentOrganization } = useOrganizationStore.getState();
     if (!currentOrganization) {
@@ -93,12 +88,11 @@ const eventDetailStore = create<EventDetailStore>((set, get) => ({
     const data: EventBookmarkResponse = await response.json();
     set((state) => ({ event: state.event ? { ...state.event, is_bookmarked: data.is_bookmarked } : null }));
   },
+
   clearCache: () => {
     cache.clear();
   },
-  /**
-   * Deletes the event.
-   */
+
   deleteEvent: async () => {
     const { currentOrganization } = useOrganizationStore.getState();
     if (!currentOrganization) {
