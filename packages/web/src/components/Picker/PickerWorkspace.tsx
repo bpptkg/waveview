@@ -2,10 +2,15 @@ import { Button, makeStyles } from '@fluentui/react-components';
 import { ArrowReply20Regular } from '@fluentui/react-icons';
 import { FederatedPointerEvent } from 'pixi.js';
 import { useCallback, useEffect, useRef } from 'react';
+import { uuid4 } from '../../shared/uuid';
 import { useAppStore } from '../../stores/app';
+import { useAuthStore } from '../../stores/auth';
+import { useCatalogStore } from '../../stores/catalog';
 import { useInventoryStore } from '../../stores/inventory';
+import { useOrganizationStore } from '../../stores/organization';
 import { usePickerStore } from '../../stores/picker';
 import { SeismicEvent } from '../../types/event';
+import { EventResponseData } from '../../types/fetcher';
 import EventDrawer from './EventDrawer/EventDrawer';
 import PickEdit from './EventDrawer/PickEdit';
 import PickGuide from './EventDrawer/PickGuide';
@@ -16,6 +21,7 @@ import SeismogramContextMenu, { ContextMenuRef } from './SeismogramContextMenu';
 import TimeZoneSelector from './TimezoneSelector';
 import HelicorderToolbar from './Toolbar/HelicorderToolbar';
 import SeismogramToolbar from './Toolbar/SeismogramToolbar';
+import { useFetcherWorker } from './useFetchWorker';
 import { useHelicorderCallback } from './useHelicorderCallback';
 import { useSeismogramCallback } from './useSeismogramCallback';
 import { useThemeEffect } from './useThemeEffect';
@@ -66,6 +72,7 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
     setPickRange,
     isPickModeActive,
     addEventMarker,
+    clearEventMarkers,
   } = usePickerStore();
 
   const {
@@ -115,6 +122,10 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
   useThemeEffect(heliChartRef, seisChartRef);
   useTimeZoneEffect(heliChartRef, seisChartRef);
 
+  const { currentOrganization } = useOrganizationStore();
+  const { currentCatalog } = useCatalogStore();
+  const { token } = useAuthStore();
+
   useEffect(() => {
     if (!showMarkersOnReady) {
       return;
@@ -131,6 +142,44 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
       });
     }
   }, [eventMarkers, showMarkersOnReady]);
+
+  const { fetcherWorkerRef } = useFetcherWorker({
+    onMessage: (event: EventResponseData) => {
+      clearEventMarkers();
+
+      const { events } = event;
+      events.forEach((event) => {
+        addEventMarker(event);
+      });
+
+      heliChartRef.current?.removeAllEventMarkers();
+      seisChartRef.current?.removeAllEventMarkers();
+
+      eventMarkers.forEach((event) => {
+        heliChartRef.current?.addEventMarker(new Date(event.time).getTime(), event.type.color);
+        seisChartRef.current?.addEventMarker({
+          start: new Date(event.time).getTime(),
+          end: new Date(event.time).getTime() + event.duration * 1_000,
+          color: event.type.color,
+        });
+      });
+    },
+  });
+
+  const handleFetchEvents = useCallback(() => {
+    const helicorderExtent = heliChartRef.current?.getChartExtent();
+    if (helicorderExtent && currentOrganization && currentCatalog && token) {
+      const [start, end] = helicorderExtent;
+      fetcherWorkerRef.current?.fetchEvents({
+        requestId: uuid4(),
+        start: new Date(start).toISOString(),
+        end: new Date(end).toISOString(),
+        organizationId: currentOrganization.id,
+        catalogId: currentCatalog.id,
+        accessToken: token.access,
+      });
+    }
+  }, [heliChartRef, fetcherWorkerRef, currentOrganization, currentCatalog, token]);
 
   const handleContextMenuRequested = useCallback((e: FederatedPointerEvent) => {
     if (seisChartRef.current) {
@@ -247,7 +296,10 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
               }}
               onTrackSelected={handleTrackSelected}
               onFocus={handleHelicorderFocus}
-              onOffsetChange={handleHelicorderOffsetChange}
+              onOffsetChange={(date: number) => {
+                handleHelicorderOffsetChange(date);
+                handleFetchEvents();
+              }}
               onSelectionChange={handleHelicorderSelectionChange}
               onReady={handleHelicorderOnReady}
             />

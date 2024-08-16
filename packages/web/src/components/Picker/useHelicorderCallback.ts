@@ -120,13 +120,13 @@ export function useHelicorderCallback(
     ),
 
     handleHelicorderOnReady: useCallback(() => {
-      async function get() {
+      async function fetchEvents() {
         const helicorderExtent = heliChartRef.current?.getChartExtent();
         if (helicorderExtent) {
           await fetchEventMarkers(helicorderExtent[0], helicorderExtent[1]);
         }
       }
-      get();
+      fetchEvents();
 
       heliChartReadyRef.current = true;
     }, [heliChartRef, fetchEventMarkers, heliChartReadyRef]),
