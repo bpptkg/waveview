@@ -134,5 +134,16 @@ export const createSeismogramSlice: StateCreator<PickerStore, [], [], Seismogram
         };
       });
     },
+
+    deactivateZoomRectangle() {
+      set((state) => {
+        return {
+          seismogramToolbarCheckedValues: {
+            ...state.seismogramToolbarCheckedValues,
+            options: state.seismogramToolbarCheckedValues.options.filter((value) => value !== 'zoom-rectangle'),
+          },
+        };
+      });
+    },
   };
 };

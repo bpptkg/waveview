@@ -44,4 +44,5 @@ export interface SeismogramSlice {
   getSelectedStations: () => StationWithChannel[];
   isPickModeActive(): boolean;
   deactivatePickMode(): void;
+  deactivateZoomRectangle(): void;
 }
