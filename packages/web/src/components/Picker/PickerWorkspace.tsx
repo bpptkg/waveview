@@ -15,10 +15,9 @@ import EventDrawer from './EventDrawer/EventDrawer';
 import PickEdit from './EventDrawer/PickEdit';
 import PickGuide from './EventDrawer/PickGuide';
 import { HelicorderChart, HelicorderChartRef } from './HelicorderChart';
-import RealtimeClock from './RealtimeClock';
 import { SeismogramChart, SeismogramChartRef } from './SeismogramChart';
 import SeismogramContextMenu, { ContextMenuRef } from './SeismogramContextMenu';
-import TimeZoneSelector from './TimezoneSelector';
+import StatusBar from './StatusBar';
 import HelicorderToolbar from './Toolbar/HelicorderToolbar';
 import SeismogramToolbar from './Toolbar/SeismogramToolbar';
 import { useFetcherWorker } from './useFetchWorker';
@@ -365,10 +364,7 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
             </div>
           )}
         </div>
-        <div className="bg-white dark:bg-black relative flex items-center justify-end gap-2 mr-2 h-[20px]">
-          <RealtimeClock />
-          <TimeZoneSelector />
-        </div>
+        <StatusBar />
       </div>
     </>
   );

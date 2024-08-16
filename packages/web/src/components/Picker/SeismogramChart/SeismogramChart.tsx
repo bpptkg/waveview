@@ -335,7 +335,7 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
 
         chartRef.current.on('focus', handleFocus);
         chartRef.current.on('blur', handleBlur);
-        chartRef.current.on('extentChange', handleExtentChange);
+        chartRef.current.on('extentChanged', handleExtentChange);
         chartRef.current.on('trackDoubleClick', handleTrackDoubleClick);
         chartRef.current.app.stage.on('rightclick', handleContextMenuRequested);
         zoomRectangleExtensionRef.current?.getAPI().on('extentSelected', handleZoomRectangle);

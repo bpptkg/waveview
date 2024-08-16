@@ -206,6 +206,10 @@ export const useSeismogramCallback = (
 
     handleSeismogramOnReady: useCallback(() => {
       seisChartReadyRef.current = true;
-    }, [seisChartReadyRef]),
+      const extent = seisChartRef.current?.getChartExtent();
+      if (extent) {
+        setLastTrackExtent(extent);
+      }
+    }, [seisChartReadyRef, setLastTrackExtent, seisChartRef]),
   };
 };
