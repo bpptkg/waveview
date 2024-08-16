@@ -140,15 +140,6 @@ export class Seismogram extends ChartView<
     this.getXAxis().getModel().getScale().mergeOptions({ useUTC });
   }
 
-  addLineMarker(marker: SeismogramLineMarkerOptions): void {
-    const { value, ...options } = marker;
-    this._xAxis.addLineMarker(value, options || {});
-  }
-
-  removeLineMarker(value: number): void {
-    this._xAxis.removeLineMarker(value);
-  }
-
   addEventMarker(marker: SeismogramEventMarkerOptions): void {
     const { start, end, ...options } = marker;
     this._xAxis.addAreaMarker(start, end, options || {});
@@ -158,11 +149,11 @@ export class Seismogram extends ChartView<
     this._xAxis.removeAreaMarker(start, end);
   }
 
-  showAllMarkers(): void {
+  showAllEventMarkers(): void {
     this._xAxis.showAllMarkers();
   }
 
-  hideAllMarkers(): void {
+  hideAllEventMarkers(): void {
     this._xAxis.hideAllMarkers();
   }
 

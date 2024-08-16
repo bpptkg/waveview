@@ -83,9 +83,9 @@ export interface SeismogramChartRef {
   clearPickRange(): void;
   addEventMarker: (marker: SeismogramEventMarkerOptions) => void;
   removeEventMarker: (start: number, end: number) => void;
-  showAllMarkers: () => void;
-  hideAllMarkers: () => void;
+  showAllEventMarkers: () => void;
+  hideAllEventMarkers: () => void;
   dispose: () => void;
   getChartExtent: () => [number, number];
-  removeAllEventMarkers: () => void;
+  clearAllEventMarkers: () => void;
 }

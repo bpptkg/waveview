@@ -159,8 +159,8 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
         addEventMarker(event);
       });
 
-      heliChartRef.current?.removeAllEventMarkers();
-      seisChartRef.current?.removeAllEventMarkers();
+      heliChartRef.current?.clearAllEventMarkers();
+      seisChartRef.current?.clearAllEventMarkers();
 
       eventMarkers.forEach((event) => {
         heliChartRef.current?.addEventMarker(new Date(event.time).getTime(), event.type.color);

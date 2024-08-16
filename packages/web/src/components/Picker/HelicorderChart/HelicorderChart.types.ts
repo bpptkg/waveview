@@ -64,6 +64,6 @@ export interface HelicorderChartRef {
   removeEventMarker: (value: number) => void;
   showAllEventMarkers: () => void;
   hideAllEventMarkers: () => void;
-  removeAllEventMarkers: () => void;
+  clearAllEventMarkers: () => void;
   dispose: () => void;
 }

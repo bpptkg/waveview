@@ -212,7 +212,7 @@ export class Helicorder extends ChartView<
     this._markers.forEach((marker) => marker.hide());
   }
 
-  removeAllEventMarkers(): void {
+  clearAllEventMarkers(): void {
     this._markers.forEach((marker) => this.removeComponent(marker));
     this._markers = [];
   }

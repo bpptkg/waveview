@@ -88,11 +88,11 @@ export const useSeismogramCallback = (
       (showEvent: boolean) => {
         async function toggleShowEvent(showEvent: boolean) {
           if (showEvent) {
-            seisChartRef.current?.showAllMarkers();
+            seisChartRef.current?.showAllEventMarkers();
             heliChartRef.current?.showAllEventMarkers();
             setShowEvent(true);
           } else {
-            seisChartRef.current?.hideAllMarkers();
+            seisChartRef.current?.hideAllEventMarkers();
             heliChartRef.current?.hideAllEventMarkers();
             setShowEvent(false);
           }

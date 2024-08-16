@@ -209,15 +209,15 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
         chartRef.current?.render();
       }
     },
-    showAllMarkers: () => {
+    showAllEventMarkers: () => {
       if (chartRef.current) {
-        chartRef.current.showAllMarkers();
+        chartRef.current.showAllEventMarkers();
         chartRef.current.render();
       }
     },
-    hideAllMarkers: () => {
+    hideAllEventMarkers: () => {
       if (chartRef.current) {
-        chartRef.current.hideAllMarkers();
+        chartRef.current.hideAllEventMarkers();
         chartRef.current.render();
       }
     },
@@ -233,7 +233,7 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
         chartRef.current.render();
       }
     },
-    removeAllEventMarkers: () => {
+    clearAllEventMarkers: () => {
       if (chartRef.current) {
         chartRef.current.removeAllMarkers();
         chartRef.current.render();
