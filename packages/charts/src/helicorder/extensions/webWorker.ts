@@ -81,12 +81,8 @@ export class HelicorderWebWorker {
       });
     }
 
-    // If all data is present, rerender the chart directly to avoid double
-    // rendering.
-    if (allDataPresent) {
-      this.chart.refreshData();
-      this.chart.render();
-    }
+    this.chart.refreshData();
+    this.chart.render();
   }
 
   postRequestMessage(extent: [number, number]): void {
