@@ -54,5 +54,9 @@ export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> =
         };
       });
     },
+
+    clearEventMarkers: () => {
+      set({ eventMarkers: [] });
+    },
   };
 };
