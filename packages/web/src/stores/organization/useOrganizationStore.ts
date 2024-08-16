@@ -11,10 +11,9 @@ const organizationStore = create<OrganizationStore>((set) => {
     currentOrganization: null,
     allOrganizations: [],
     currentOrganizationSettings: null,
+
     setCurrentOrganization: (organization) => set({ currentOrganization: organization }),
-    /**
-     * Fetches all organizations the user is a member of.
-     */
+
     fetchAllOrganizations: async () => {
       const url = apiVersion.listOrganization.v1;
       const response = await api(url);
@@ -27,9 +26,7 @@ const organizationStore = create<OrganizationStore>((set) => {
         throw new CustomError('You are not a member of any organization');
       }
     },
-    /**
-     * Fetches the settings of the organization.
-     */
+
     fetchOrganizationSettings: async (id: string) => {
       const url = apiVersion.getOrganizationSettings.v1(id);
       const response = await api(url);
