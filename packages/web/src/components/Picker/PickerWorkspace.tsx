@@ -73,6 +73,7 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
     isPickModeActive,
     addEventMarker,
     clearEventMarkers,
+    deactivatePickMode,
   } = usePickerStore();
 
   const {
@@ -125,6 +126,12 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
   const { currentOrganization } = useOrganizationStore();
   const { currentCatalog } = useCatalogStore();
   const { token } = useAuthStore();
+
+  useEffect(() => {
+    return () => {
+      deactivatePickMode();
+    };
+  }, [deactivatePickMode]);
 
   useEffect(() => {
     if (!showMarkersOnReady) {
