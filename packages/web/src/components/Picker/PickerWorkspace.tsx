@@ -43,6 +43,7 @@ const useStyles = makeStyles({
 const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
   const { showMarkersOnReady = false } = props;
 
+  const workspaceRef = useRef<HTMLDivElement | null>(null);
   const heliChartRef = useRef<HelicorderChartRef | null>(null);
   const seisChartRef = useRef<SeismogramChartRef | null>(null);
   const contextMenuRef = useRef<ContextMenuRef | null>(null);
@@ -133,6 +134,20 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
       clearPick();
     };
   }, [deactivatePickMode, clearPick]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (workspaceRef.current && !workspaceRef.current.contains(event.target as Node)) {
+        heliChartRef.current?.blur();
+        seisChartRef.current?.blur();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     if (!showMarkersOnReady) {
@@ -233,7 +248,7 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
   );
 
   return (
-    <>
+    <div className="flex flex-col flex-grow relative overflow-hidden" ref={workspaceRef}>
       {selectedChart === 'helicorder' && (
         <HelicorderToolbar
           channelId={channelId}
@@ -366,7 +381,7 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
         </div>
         <StatusBar />
       </div>
-    </>
+    </div>
   );
 };
 
