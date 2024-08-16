@@ -7,21 +7,12 @@ import { Volcano } from '../../types/volcano';
 import { useOrganizationStore } from '../organization';
 import { VolcanoStore } from './types';
 
-const volcanoStore = create<VolcanoStore>((set, get) => ({
+const volcanoStore = create<VolcanoStore>((set) => ({
   currentVolcano: null,
   allVolcanoes: [],
+
   setCurrentVolcano: (volcano) => set({ currentVolcano: volcano }),
-  setCurrentVolcanoById: async (id) => {
-    const volcanoes = get().allVolcanoes;
-    const volcano = volcanoes.find((volcano) => volcano.id === id);
-    if (volcano) {
-      set({ currentVolcano: volcano });
-    }
-  },
-  /**
-   * Fetches all volcanoes from the organization where the user is a member of
-   * and sets the default volcano.
-   */
+
   fetchAllVolcanoes: async () => {
     const currentOrganization = useOrganizationStore.getState().currentOrganization;
     if (!currentOrganization) {
