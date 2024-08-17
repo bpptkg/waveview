@@ -19,6 +19,7 @@ import {
 } from '@fluentui/react-components';
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import EventTypeLabel from '../../components/Catalog/EventTypeLabel';
 import { formatNumber, formatTime } from '../../shared/formatting';
 import { useAppStore } from '../../stores/app';
 import { useCatalogStore } from '../../stores/catalog';
@@ -141,7 +142,9 @@ const EventTable = () => {
               <TableRow key={item.id} onClick={onClick} onKeyDown={onKeyDown} aria-selected={selected} appearance={appearance}>
                 <TableCell>{formatTime(item.time, { useUTC })}</TableCell>
                 <TableCell>{formatNumber(item.duration, { unit: ' sec', precision: 2 })}</TableCell>
-                <TableCell>{item.type.code}</TableCell>
+                <TableCell>
+                  <EventTypeLabel eventType={item.type} />
+                </TableCell>
                 <TableCell>{formatNumber(item.preferred_amplitude?.amplitude, { unit: item.preferred_amplitude?.unit, precision: 2 })}</TableCell>
                 <TableCell>{formatNumber(item.preferred_magnitude?.magnitude, { precision: 2 })}</TableCell>
                 <TableCell>{formatNumber(item.preferred_origin?.latitude, { unit: '°', precision: 5 })}</TableCell>

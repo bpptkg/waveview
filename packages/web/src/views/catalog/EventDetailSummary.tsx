@@ -2,6 +2,7 @@ import { Avatar, Divider, Tooltip } from '@fluentui/react-components';
 import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
+import EventTypeLabel from '../../components/Catalog/EventTypeLabel';
 import AttachmentGallery from '../../components/Gallery/AttachmentGallery';
 import EventDetailErrorMessage from '../../components/Loading/EventDetailErrorMessage';
 import EventDetailLoadingIndicator from '../../components/Loading/EventDetailLoadingIndicator';
@@ -61,7 +62,9 @@ const EventDetailSummary = () => {
         </div>
         <div className="flex items-center justify-between">
           <div>Event type</div>
-          <div>{event?.type.code}</div>
+          <div>
+            <EventTypeLabel eventType={event?.type} />
+          </div>
         </div>
         <div className="flex flex-col">
           <div>Note</div>
