@@ -59,6 +59,7 @@ const catalogStore = create<CatalogStore>((set, get) => {
       const response = await api(url, {
         params: {
           page: 1,
+          ordering: 'desc',
         },
       });
       const data: Pagination<SeismicEvent[]> = await response.json();
