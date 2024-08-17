@@ -367,9 +367,9 @@ export class Seismogram extends ChartView<
     this._rect.width = width;
     this._rect.height = height;
     this._grid.setRect(this.getRect());
-    this._xAxis.setRect(this._grid.getRect());
     this._updateTracksRect();
     const rect = this._grid.getRect();
+    this._xAxis.resize({ width: rect.width, height: rect.height });
     this._mask.clear();
     this._mask
       .rect(rect.x, rect.y, rect.width, rect.height)

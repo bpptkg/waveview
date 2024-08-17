@@ -69,6 +69,7 @@ export class Axis extends View<AxisModel, AxisEventMap> {
     const { width, height } = options;
     const { x, y } = this.getRect();
     this.setRect(new PIXI.Rectangle(x, y, width, height));
+    this._markers.forEach((marker) => marker.resize(options));
   }
 
   applyThemeStyle(style: ThemeStyle): void {
