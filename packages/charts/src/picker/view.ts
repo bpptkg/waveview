@@ -396,6 +396,7 @@ export class Picker extends View<PickerModel> {
   resize(): void {
     const rect = this.chart.getGrid().getRect();
     this.setRect(rect);
+    this._updateHandleHitArea();
   }
 
   override render(): void {

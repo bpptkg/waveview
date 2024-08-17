@@ -11,7 +11,6 @@ import { ChartView } from "../view";
 import {
   SeismogramChartOptions,
   SeismogramEventMarkerOptions,
-  SeismogramLineMarkerOptions,
   getDefaultOptions,
 } from "./chartOptions";
 import { SeismogramEventMap } from "./eventMap";
@@ -377,6 +376,12 @@ export class Seismogram extends ChartView<
       .fill({ color: "transparent" });
     this.app.stage.hitArea = new PIXI.Rectangle(0, 0, width, height);
     this.app.renderer.resize(width, height);
+    this._extensions.forEach((ext) => {
+      const api = ext.getAPI();
+      if (api.resize) {
+        api.resize({ width, height });
+      }
+    });
     this.emit("resize", width, height);
   }
 
