@@ -1,5 +1,6 @@
 import { CircleFilled } from '@fluentui/react-icons';
 import React, { useMemo } from 'react';
+import { getEventTypeColor } from '../../shared/theme';
 import { useAppStore } from '../../stores/app';
 import { EventType } from '../../types/event';
 
@@ -14,9 +15,9 @@ const EventTypeLabel: React.FC<EventTypeLabelProps> = (props) => {
 
   const color = useMemo(() => {
     if (!eventType) {
-      return '';
+      return undefined;
     }
-    return darkMode ? eventType.color_dark : eventType.color_light;
+    return getEventTypeColor(eventType, darkMode);
   }, [darkMode, eventType]);
 
   return eventType ? (
