@@ -14,44 +14,44 @@ export interface SeismogramEventManagerConfig extends EventManagerConfig {
 }
 
 export class SeismogramEventManager implements EventManager {
-  private chart: Seismogram;
-  private enabled: boolean;
-  private config: SeismogramEventManagerConfig;
-  private handleKeyDownBound: (event: KeyboardEvent) => void;
-  private onWheelBound: (event: FederatedWheelEvent) => void;
-  private onPointerDownBound: (event: FederatedPointerEvent) => void;
+  private _chart: Seismogram;
+  private _enabled: boolean;
+  private _config: SeismogramEventManagerConfig;
+  private _handleKeyDownBound: (event: KeyboardEvent) => void;
+  private _onWheelBound: (event: FederatedWheelEvent) => void;
+  private _onPointerDownBound: (event: FederatedPointerEvent) => void;
 
   constructor(chart: Seismogram, config: SeismogramEventManagerConfig = {}) {
-    this.chart = chart;
-    this.enabled = true;
-    this.config = config;
+    this._chart = chart;
+    this._enabled = true;
+    this._config = config;
 
-    this.handleKeyDownBound = this.handleKeyDown.bind(this);
-    this.onWheelBound = this.onWheel.bind(this);
-    this.onPointerDownBound = this.onPointerDown.bind(this);
+    this._handleKeyDownBound = this._handleKeyDown.bind(this);
+    this._onWheelBound = this._onWheel.bind(this);
+    this._onPointerDownBound = this._onPointerDown.bind(this);
   }
 
-  private handleKeyDown(event: KeyboardEvent): void {
-    if (!this.enabled || !this.chart.isFocused()) {
+  private _handleKeyDown(event: KeyboardEvent): void {
+    if (!this._enabled || !this._chart.isFocused()) {
       return;
     }
 
     switch (event.key) {
       case "ArrowLeft":
-        this.onArrowLeft();
+        this._onArrowLeft();
         break;
       case "ArrowRight":
-        this.onArrowRight();
+        this._onArrowRight();
         break;
       case "ArrowUp":
-        this.onArrowUp();
+        this._onArrowUp();
         break;
       case "ArrowDown":
-        this.onArrowDown();
+        this._onArrowDown();
         break;
       case "N":
       case "n":
-        this.onNKey();
+        this._onNKey();
         break;
       default:
         break;
@@ -59,119 +59,123 @@ export class SeismogramEventManager implements EventManager {
   }
 
   attachEventListeners(): void {
-    window.addEventListener("keydown", this.handleKeyDownBound);
-    this.chart.app.stage.on("wheel", this.onWheelBound);
-    this.chart.app.stage.on("pointerdown", this.onPointerDownBound);
+    window.addEventListener("keydown", this._handleKeyDownBound);
+    this._chart.app.stage.on("wheel", this._onWheelBound);
+    this._chart.app.stage.on("pointerdown", this._onPointerDownBound);
   }
 
   detachEventListeners(): void {
-    window.removeEventListener("keydown", this.handleKeyDownBound);
-    this.chart.app.stage.off("wheel", this.onWheelBound);
-    this.chart.app.stage.off("pointerdown", this.onPointerDownBound);
+    window.removeEventListener("keydown", this._handleKeyDownBound);
+    this._chart.app.stage.off("wheel", this._onWheelBound);
+    this._chart.app.stage.off("pointerdown", this._onPointerDownBound);
   }
 
-  private onWheel(event: FederatedWheelEvent): void {
-    if (!this.enabled) {
+  private _onWheel(event: FederatedWheelEvent): void {
+    if (!this._enabled) {
       return;
     }
 
-    if (this.config.enableWheel === false) {
+    if (this._config.enableWheel === false) {
       return;
     }
 
     const { deltaX, deltaY, shiftKey, altKey } = event;
     const { x, y } = event.global;
-    const { x: x0, y: y0, width, height } = this.chart.getGrid().getRect();
+    const { x: x0, y: y0, width, height } = this._chart.getGrid().getRect();
     if (x < x0 || x > x0 + width || y < y0 || y > y0 + height) {
       return;
     }
 
-    const center = this.chart.getXAxis().getValueForPixel(x);
+    const sensitivity = 0.01;
+    const scaledDeltaX = deltaX * sensitivity;
+    const scaledDeltaY = deltaY * sensitivity;
+
+    const center = this._chart.getXAxis().getValueForPixel(x);
     if (shiftKey) {
-      if (deltaY > 0 || deltaX > 0) {
-        this.chart.zoomOut(center, 0.1);
+      if (scaledDeltaY > 0 || scaledDeltaX > 0) {
+        this._chart.zoomOut(center, 0.1);
       } else {
-        this.chart.zoomIn(center, 0.1);
+        this._chart.zoomIn(center, 0.1);
       }
     } else if (altKey) {
-      if (deltaY > 0) {
-        this.chart.decreaseAmplitude(0.1);
+      if (scaledDeltaY > 0) {
+        this._chart.decreaseAmplitude(0.1);
       } else {
-        this.chart.increaseAmplitude(0.1);
+        this._chart.increaseAmplitude(0.1);
       }
     } else {
-      if (deltaY > 0) {
-        this.chart.scrollRight(0.1);
+      if (scaledDeltaY > 0) {
+        this._chart.scrollRight(0.1);
       } else {
-        this.chart.scrollLeft(0.1);
+        this._chart.scrollLeft(0.1);
       }
     }
-    this.chart.render();
-    this.onFinished();
+    this._chart.render();
+    this._onFinished();
   }
 
-  private onArrowLeft(): void {
-    if (this.config.enableArrowLeft === false) {
+  private _onArrowLeft(): void {
+    if (this._config.enableArrowLeft === false) {
       return;
     }
-    this.chart.scrollLeft(0.1);
-    this.chart.render();
-    this.onFinished();
+    this._chart.scrollLeft(0.1);
+    this._chart.render();
+    this._onFinished();
   }
 
-  private onArrowRight(): void {
-    if (this.config.enableArrowRight === false) {
+  private _onArrowRight(): void {
+    if (this._config.enableArrowRight === false) {
       return;
     }
-    this.chart.scrollRight(0.1);
-    this.chart.render();
-    this.onFinished();
+    this._chart.scrollRight(0.1);
+    this._chart.render();
+    this._onFinished();
   }
 
-  private onArrowUp(): void {
-    if (this.config.enableArrowUp === false) {
+  private _onArrowUp(): void {
+    if (this._config.enableArrowUp === false) {
       return;
     }
-    this.chart.increaseAmplitude(0.1);
-    this.chart.render();
-    this.onFinished();
+    this._chart.increaseAmplitude(0.1);
+    this._chart.render();
+    this._onFinished();
   }
 
-  private onArrowDown(): void {
-    if (this.config.enableArrowDown === false) {
+  private _onArrowDown(): void {
+    if (this._config.enableArrowDown === false) {
       return;
     }
-    this.chart.decreaseAmplitude(0.1);
-    this.chart.render();
-    this.onFinished();
+    this._chart.decreaseAmplitude(0.1);
+    this._chart.render();
+    this._onFinished();
   }
 
-  private onNKey(): void {
-    if (this.config.enableNKey === false) {
+  private _onNKey(): void {
+    if (this._config.enableNKey === false) {
       return;
     }
-    this.chart.scrollToNow();
-    this.chart.render();
-    this.onFinished();
+    this._chart.scrollToNow();
+    this._chart.render();
+    this._onFinished();
   }
 
-  private onFinished(): void {
-    const { refreshDataAfterEvent, fetchData } = this.config;
+  private _onFinished(): void {
+    const { refreshDataAfterEvent, fetchData } = this._config;
     if (refreshDataAfterEvent && fetchData) {
       fetchData();
     }
   }
 
-  private onPointerDown(event: FederatedPointerEvent): void {
-    if (!this.enabled) {
+  private _onPointerDown(event: FederatedPointerEvent): void {
+    if (!this._enabled) {
       return;
     }
-    this.handleFocusBlur(event);
+    this._handleFocusBlur(event);
   }
 
-  private handleFocusBlur(event: FederatedPointerEvent): void {
-    const { x, y } = event.data.getLocalPosition(this.chart.app.stage);
-    const rect = this.chart.getRect();
+  private _handleFocusBlur(event: FederatedPointerEvent): void {
+    const { x, y } = event.data.getLocalPosition(this._chart.app.stage);
+    const rect = this._chart.getRect();
     if (
       x < rect.x ||
       x > rect.x + rect.width ||
@@ -180,15 +184,15 @@ export class SeismogramEventManager implements EventManager {
     ) {
       return;
     }
-    this.chart.focus();
+    this._chart.focus();
   }
 
   enable(): void {
-    this.enabled = true;
+    this._enabled = true;
   }
 
   disable(): void {
-    this.enabled = false;
+    this._enabled = false;
   }
 
   dispose(): void {
@@ -197,28 +201,28 @@ export class SeismogramEventManager implements EventManager {
 }
 
 export class SeismogramEventManagerExtension implements Extension<Seismogram> {
-  private config: SeismogramEventManagerConfig;
-  private instance?: SeismogramEventManager;
+  private _config: SeismogramEventManagerConfig;
+  private _instance?: SeismogramEventManager;
 
   constructor(config: SeismogramEventManagerConfig = {}) {
-    this.config = config;
+    this._config = config;
   }
 
   install(chart: Seismogram): void {
-    this.instance = new SeismogramEventManager(chart, this.config);
-    this.instance.attachEventListeners();
+    this._instance = new SeismogramEventManager(chart, this._config);
+    this._instance.attachEventListeners();
   }
 
   uninstall(): void {
-    if (this.instance) {
-      this.instance.dispose();
+    if (this._instance) {
+      this._instance.dispose();
     }
   }
 
   getAPI(): SeismogramEventManager {
-    if (!this.instance) {
+    if (!this._instance) {
       throw new Error("Extension not installed");
     }
-    return this.instance;
+    return this._instance;
   }
 }
