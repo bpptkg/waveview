@@ -144,7 +144,7 @@ const PickEdit: React.FC<EventDrawerProps> = (props) => {
   return (
     <div className="p-2">
       <div className="flex p-2 items-center justify-between h-[60px]">
-        <h1 className="font-bold">{title}</h1>
+        <h1 className="font-bold text-md">{title}</h1>
         <div className="flex gap-1 items-center">
           <Button size="small" appearance="outline" onClick={handleCancel}>
             Cancel
