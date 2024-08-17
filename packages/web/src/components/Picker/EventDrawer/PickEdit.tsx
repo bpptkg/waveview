@@ -1,19 +1,23 @@
-import { Button, Dropdown, Field, Input, Option, Textarea, Toast, Toaster, ToastTitle, useId, useToastController } from '@fluentui/react-components';
+import { Button, Field, Input, Select, Textarea, Toast, Toaster, ToastTitle, useId, useToastController } from '@fluentui/react-components';
 import { formatDate } from '@waveview/charts';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useEventTypeStore } from '../../../stores/eventType';
 import { usePickerStore } from '../../../stores/picker';
-import { SeismicEvent } from '../../../types/event';
+import { SeismicEventDetail } from '../../../types/event';
 import { CustomError } from '../../../types/response';
 
 export interface EventDrawerProps {
   time: number;
   duration: number;
+  eventId?: string;
+  eventType?: string;
+  stationOfFirstArrival?: string;
+  note?: string;
   useUTC?: boolean;
   onTimeChange?: (time: number) => void;
   onDurationChange?: (duration: number) => void;
   onCancel?: () => void;
-  onSave?: (event: SeismicEvent) => void;
+  onSave?: (event: SeismicEventDetail) => void;
   onError?: (error: CustomError) => void;
 }
 
@@ -23,17 +27,29 @@ const formatTime = (time: number, useUTC: boolean) => {
 };
 
 const PickEdit: React.FC<EventDrawerProps> = (props) => {
-  const { time, duration, useUTC = false, onTimeChange, onDurationChange, onCancel, onSave } = props;
+  const {
+    eventId,
+    time,
+    duration,
+    eventType = '',
+    stationOfFirstArrival = '',
+    note = '',
+    useUTC = false,
+    onTimeChange,
+    onDurationChange,
+    onCancel,
+    onSave,
+  } = props;
   const [loading, setLoading] = useState(false);
-  const [timeValue, setTimeValue] = useState(time);
-  const [durationValue, setDurationValue] = useState(duration);
-  const [eventType, setEventType] = useState('');
-  const [stationOfFirstArrival, setStationOfFirstArrival] = useState('');
-  const [note, setNote] = useState('');
+  const [timeState, setTimeState] = useState(time);
+  const [durationState, setDurationState] = useState(duration);
+  const [eventTypeState, setEventTypeState] = useState(eventType);
+  const [stationOfFirstArrivalState, setStationOfFirstArrivalState] = useState(stationOfFirstArrival);
+  const [noteState, setNoteState] = useState(note);
 
   useEffect(() => {
-    setTimeValue(time);
-    setDurationValue(duration);
+    setTimeState(time);
+    setDurationState(duration);
   }, [time, duration]);
 
   const { getSelectedStations, savePickedEvent } = usePickerStore();
@@ -43,8 +59,8 @@ const PickEdit: React.FC<EventDrawerProps> = (props) => {
   const { dispatchToast } = useToastController(toasterId);
 
   const canSave = useMemo(() => {
-    return timeValue !== 0 && durationValue !== 0 && eventType !== '' && stationOfFirstArrival !== '';
-  }, [timeValue, durationValue, eventType, stationOfFirstArrival]);
+    return timeState !== 0 && durationState !== 0 && eventTypeState !== '' && stationOfFirstArrivalState !== '';
+  }, [timeState, durationState, eventTypeState, stationOfFirstArrivalState]);
 
   const showErrorToast = useCallback(
     (error: CustomError) => {
@@ -64,7 +80,7 @@ const PickEdit: React.FC<EventDrawerProps> = (props) => {
         return;
       }
       const parsedValue = new Date(value).getTime();
-      setTimeValue(parsedValue);
+      setTimeState(parsedValue);
       onTimeChange?.(parsedValue);
     },
     [onTimeChange]
@@ -76,33 +92,38 @@ const PickEdit: React.FC<EventDrawerProps> = (props) => {
         return;
       }
       const parsedValue = parseFloat(value);
-      setDurationValue(parsedValue);
+      setDurationState(parsedValue);
       onDurationChange?.(parsedValue);
     },
     [onDurationChange]
   );
 
   const handleStationChange = useCallback((value: string) => {
-    setStationOfFirstArrival(value);
+    setStationOfFirstArrivalState(value);
   }, []);
 
   const handleEventTypeChange = useCallback((value: string) => {
-    setEventType(value);
+    setEventTypeState(value);
   }, []);
 
   const handleNoteChange = useCallback((value: string) => {
-    setNote(value);
+    setNoteState(value);
   }, []);
 
   const handleConfirm = useCallback(async () => {
     setLoading(true);
     try {
       const event = await savePickedEvent({
-        time: timeValue,
-        duration: durationValue,
-        stationOfFirstArrival: stationOfFirstArrival,
-        eventType: eventType,
-        note: note,
+        eventId,
+        time: timeState,
+        duration: durationState,
+        stationOfFirstArrival: stationOfFirstArrivalState,
+        eventType: eventTypeState,
+        note: noteState,
+        method: 'waveview',
+        evaluation_mode: 'manual',
+        evaluation_status: 'confirmed',
+        attachment_ids: [],
       });
       onSave?.(event);
     } catch (error) {
@@ -110,16 +131,20 @@ const PickEdit: React.FC<EventDrawerProps> = (props) => {
     } finally {
       setLoading(false);
     }
-  }, [timeValue, durationValue, stationOfFirstArrival, eventType, note, onSave, showErrorToast, savePickedEvent]);
+  }, [eventId, timeState, durationState, stationOfFirstArrivalState, eventTypeState, noteState, savePickedEvent, showErrorToast, onSave]);
 
   const handleCancel = useCallback(() => {
     onCancel?.();
   }, [onCancel]);
 
+  const title = useMemo(() => {
+    return eventId ? 'Edit Event' : 'Create Event';
+  }, [eventId]);
+
   return (
     <div className="p-2">
       <div className="flex p-2 items-center justify-between h-[60px]">
-        <h1 className="font-bold">Pick New Event</h1>
+        <h1 className="font-bold">{title}</h1>
         <div className="flex gap-1 items-center">
           <Button size="small" appearance="outline" onClick={handleCancel}>
             Cancel
@@ -129,33 +154,45 @@ const PickEdit: React.FC<EventDrawerProps> = (props) => {
           </Button>
         </div>
       </div>
+
       <Field label="Time">
-        <Input appearance="outline" value={formatTime(timeValue, useUTC)} onChange={(_, data) => handleTimeChange(data.value)} />
+        <Input appearance="outline" value={formatTime(timeState, useUTC)} onChange={(_, data) => handleTimeChange(data.value)} />
       </Field>
+
       <Field label="Duration (s)">
-        <Input appearance="outline" value={`${durationValue.toFixed(2)}`} type="number" onChange={(_, data) => handleDurationChange(data.value)} />
+        <Input appearance="outline" value={`${durationState.toFixed(2)}`} type="number" onChange={(_, data) => handleDurationChange(data.value)} />
       </Field>
+
       <Field label="Event type">
-        <Dropdown placeholder="Select event type">
+        <Select defaultValue={eventType} onChange={(_, data) => handleEventTypeChange(data.value)}>
+          <option value="" disabled>
+            Select an event type
+          </option>
           {eventTypes.map((event) => (
-            <Option key={event.id} onClick={() => handleEventTypeChange(event.id)}>
+            <option key={event.id} value={event.id}>
               {event.code}
-            </Option>
+            </option>
           ))}
-        </Dropdown>
+        </Select>
       </Field>
+
       <Field label="Station of first arrival">
-        <Dropdown placeholder="Select station name">
+        <Select defaultValue={stationOfFirstArrival} onChange={(_, data) => handleStationChange(data.value)}>
+          <option value="" disabled>
+            Select station name
+          </option>
           {getSelectedStations().map((station) => (
-            <Option key={station.id} onClick={() => handleStationChange(station.id)}>
+            <option key={station.id} value={station.id}>
               {station.code}
-            </Option>
+            </option>
           ))}
-        </Dropdown>
+        </Select>
       </Field>
+
       <Field label="Note">
-        <Textarea value={note} resize="vertical" size="large" onChange={(_, data) => handleNoteChange(data.value)} />
+        <Textarea value={noteState} resize="vertical" size="large" onChange={(_, data) => handleNoteChange(data.value)} />
       </Field>
+
       <Toaster toasterId={toasterId} />
     </div>
   );

@@ -1,7 +1,7 @@
 import { Button, makeStyles } from '@fluentui/react-components';
 import { ArrowReply20Regular } from '@fluentui/react-icons';
 import { FederatedPointerEvent } from 'pixi.js';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { uuid4 } from '../../shared/uuid';
 import { useAppStore } from '../../stores/app';
 import { useAuthStore } from '../../stores/auth';
@@ -9,7 +9,7 @@ import { useCatalogStore } from '../../stores/catalog';
 import { useInventoryStore } from '../../stores/inventory';
 import { useOrganizationStore } from '../../stores/organization';
 import { usePickerStore } from '../../stores/picker';
-import { SeismicEvent } from '../../types/event';
+import { SeismicEvent, SeismicEventDetail } from '../../types/event';
 import { EventResponseData } from '../../types/fetcher';
 import EventDrawer from './EventDrawer/EventDrawer';
 import PickEdit from './EventDrawer/PickEdit';
@@ -26,9 +26,34 @@ import { useSeismogramCallback } from './useSeismogramCallback';
 import { useThemeEffect } from './useThemeEffect';
 import { useTimeZoneEffect } from './useTimeZoneEffect';
 
+export type EditedEvent = SeismicEvent | SeismicEventDetail;
+
 export interface PickWorkspaceProps {
-  showMarkersOnReady?: boolean;
-  event?: SeismicEvent;
+  /**
+   * The seismic event to be edited. If provided, the picker will be in event
+   * editing mode. Otherwise, it will be in pick mode.
+   */
+  event?: EditedEvent;
+  /**
+   * Whether the helicorder chart should be shown.
+   */
+  showHelicorder?: boolean;
+  /**
+   * Whether the seismogram chart should be shown.
+   */
+  showSeismogram?: boolean;
+  /**
+   * Whether the event markers should be shown on the charts.
+   */
+  showEventMarkers?: boolean;
+  /**
+   * Callback to be called when the event is saved to the server.
+   */
+  onSave?: (event: SeismicEventDetail) => void;
+  /**
+   * Callback to be called when the picker is canceled or closed.
+   */
+  onCancel?: () => void;
 }
 
 const useStyles = makeStyles({
@@ -40,8 +65,21 @@ const useStyles = makeStyles({
   },
 });
 
+const ONE_SECOND = 1_000;
+
+const getPickExtent = (event: EditedEvent) => {
+  const start = new Date(event.time).getTime();
+  const end = start + event.duration * ONE_SECOND;
+  return [start, end];
+};
+
+const calcHelicorderOffsetDate = (event: EditedEvent) => {
+  const [start, end] = getPickExtent(event);
+  return new Date((start + end) / 2);
+};
+
 const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
-  const { showMarkersOnReady = false } = props;
+  const { event, showEventMarkers = true, showHelicorder = true, showSeismogram = true, onSave, onCancel } = props;
 
   const workspaceRef = useRef<HTMLDivElement | null>(null);
   const heliChartRef = useRef<HelicorderChartRef | null>(null);
@@ -75,6 +113,7 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
     clearEventMarkers,
     deactivatePickMode,
     clearPick,
+    setSelectedChart,
   } = usePickerStore();
 
   const {
@@ -93,7 +132,7 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
     handleHelicorderOffsetChange,
     handleHelicorderSelectionChange,
     handleHelicorderOnReady,
-  } = useHelicorderCallback(heliChartRef, seisChartRef, heliChartReadyRef);
+  } = useHelicorderCallback(heliChartRef, seisChartRef);
 
   const {
     handleSeismogramChannelAdd,
@@ -119,7 +158,7 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
     handleSeismogramPickChange,
     handleSeismogramDeactivatePickMode,
     handleSeismogramOnReady,
-  } = useSeismogramCallback(seisChartRef, heliChartRef, seisChartReadyRef);
+  } = useSeismogramCallback(seisChartRef, heliChartRef);
 
   useThemeEffect(heliChartRef, seisChartRef);
   useTimeZoneEffect(heliChartRef, seisChartRef);
@@ -149,25 +188,58 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
     };
   }, []);
 
+  const isEditMode = useMemo(() => {
+    return !!event;
+  }, [event]);
+
+  const setupEventEditing = useCallback(
+    (event: EditedEvent) => {
+      if (event) {
+        const [start, end] = getPickExtent(event);
+        setPickRange([start, end]);
+        seisChartRef.current?.setPickRange([start, end]);
+
+        handleSeismogramCheckValueChange('options', ['pick-mode']);
+        handleSeismogramPickModeChange(true);
+        setSelectedChart('seismogram');
+        handleSeismogramFocus();
+      }
+    },
+    [setPickRange, setSelectedChart, handleSeismogramCheckValueChange, handleSeismogramPickModeChange, handleSeismogramFocus]
+  );
+
+  const clearEventEditing = useCallback(() => {
+    handleSeismogramCheckValueChange('options', []);
+    handleSeismogramPickModeChange(false);
+  }, [handleSeismogramCheckValueChange, handleSeismogramPickModeChange]);
+
+  const plotEventMarkers = useCallback(() => {
+    eventMarkers.forEach((event) => {
+      heliChartRef.current?.addEventMarker({ value: new Date(event.time).getTime(), color: event.type.color, width: 3 });
+      seisChartRef.current?.addEventMarker({
+        start: new Date(event.time).getTime(),
+        end: new Date(event.time).getTime() + event.duration * 1_000,
+        color: event.type.color,
+      });
+    });
+  }, [eventMarkers]);
+
   useEffect(() => {
-    if (!showMarkersOnReady) {
+    if (!showEventMarkers) {
       return;
     }
 
     if (heliChartReadyRef.current && seisChartReadyRef.current) {
-      eventMarkers.forEach((event) => {
-        heliChartRef.current?.addEventMarker({ value: new Date(event.time).getTime(), color: event.type.color, width: 3 });
-        seisChartRef.current?.addEventMarker({
-          start: new Date(event.time).getTime(),
-          end: new Date(event.time).getTime() + event.duration * 1_000,
-          color: event.type.color,
-        });
-      });
+      plotEventMarkers();
     }
-  }, [eventMarkers, showMarkersOnReady]);
+  }, [showEventMarkers, plotEventMarkers]);
 
   const { fetcherWorkerRef } = useFetcherWorker({
     onMessage: (event: EventResponseData) => {
+      if (!showEventMarkers) {
+        return;
+      }
+
       clearEventMarkers();
 
       const { events } = event;
@@ -178,14 +250,7 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
       heliChartRef.current?.clearAllEventMarkers();
       seisChartRef.current?.clearAllEventMarkers();
 
-      eventMarkers.forEach((event) => {
-        heliChartRef.current?.addEventMarker({ value: new Date(event.time).getTime(), color: event.type.color, width: 3 });
-        seisChartRef.current?.addEventMarker({
-          start: new Date(event.time).getTime(),
-          end: new Date(event.time).getTime() + event.duration * 1_000,
-          color: event.type.color,
-        });
-      });
+      plotEventMarkers();
     },
   });
 
@@ -224,32 +289,126 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
   const handlePickCancel = useCallback(() => {
     clearPick();
     seisChartRef.current?.clearPickRange();
-  }, [clearPick]);
+    onCancel?.();
+  }, [clearPick, onCancel]);
 
   const handlePickSave = useCallback(
-    (event: SeismicEvent) => {
-      addEventMarker(event);
+    (savedEvent: SeismicEventDetail) => {
+      onSave?.(savedEvent);
+
+      if (!isEditMode) {
+        addEventMarker(savedEvent);
+      }
 
       if (pickStart && pickEnd) {
-        const { time, duration } = event;
+        const { time, duration } = savedEvent;
         const start = new Date(time).getTime();
         const end = start + duration * 1_000;
         seisChartRef.current?.addEventMarker({
           start,
           end,
-          color: event.type.color,
+          color: savedEvent.type.color,
         });
-        heliChartRef.current?.addEventMarker({ value: start, color: event.type.color });
+        heliChartRef.current?.addEventMarker({ value: start, color: savedEvent.type.color });
         seisChartRef.current?.clearPickRange();
         clearPick();
       }
     },
-    [pickStart, pickEnd, clearPick, addEventMarker]
+    [pickStart, pickEnd, isEditMode, clearPick, addEventMarker, onSave]
   );
+
+  const handleUnifiedHelicorderOnReady = useCallback(() => {
+    heliChartReadyRef.current = true;
+    handleHelicorderOnReady();
+  }, [handleHelicorderOnReady]);
+
+  const handleUnifiedSeismogramOnReady = useCallback(() => {
+    seisChartReadyRef.current = true;
+    handleSeismogramOnReady();
+
+    if (event) {
+      setupEventEditing(event);
+    }
+  }, [event, setupEventEditing, handleSeismogramOnReady]);
+
+  // Clear event editing when picker is closed.
+  useEffect(() => {
+    return () => {
+      clearEventEditing();
+    };
+  }, [clearEventEditing]);
+
+  const helicorderClassName = useMemo(() => {
+    if (event) {
+      return 'border border-transparent';
+    }
+    return selectedChart === 'helicorder' ? 'border border-brand-hosts-80' : 'border border-transparent';
+  }, [selectedChart, event]);
+
+  const seismogramClassName = useMemo(() => {
+    if (event) {
+      return 'border border-transparent';
+    }
+    return selectedChart === 'seismogram' ? 'border border-brand-hosts-80' : 'border border-transparent';
+  }, [selectedChart, event]);
+
+  const helicorderInitOptions = useMemo(() => {
+    const initialOffsetDate = event ? calcHelicorderOffsetDate(event) : new Date(offsetDate);
+    const initOptions = {
+      interval,
+      duration,
+      channel: {
+        id: channelId,
+      },
+      darkMode,
+      offsetDate: initialOffsetDate.getTime(),
+      grid: {
+        top: 30,
+        right: 15,
+        bottom: 5,
+        left: 80,
+      },
+      devicePixelRatio: window.devicePixelRatio,
+      useUTC,
+    };
+    return initOptions;
+  }, [interval, duration, channelId, darkMode, offsetDate, useUTC, event]);
+
+  const seismogramInitOptions = useMemo(() => {
+    const determinteInitialExtent = () => {
+      if (event) {
+        const [start, end] = getPickExtent(event);
+        const margin = 10 * ONE_SECOND;
+        return [start - margin, end + margin];
+      }
+
+      return [undefined, undefined];
+    };
+    const [startTime, endTime] = determinteInitialExtent();
+
+    const initOptions = {
+      channels: selectedChannels.map((channel) => ({
+        id: channel.id,
+        label: channel.network_station_code,
+      })),
+      grid: {
+        top: 30,
+        right: 20,
+        bottom: 5,
+        left: 80,
+      },
+      darkMode,
+      devicePixelRatio: window.devicePixelRatio,
+      useUTC,
+      startTime,
+      endTime,
+    };
+    return initOptions;
+  }, [selectedChannels, darkMode, useUTC, event]);
 
   return (
     <div className="flex flex-col flex-grow relative overflow-hidden" ref={workspaceRef}>
-      {selectedChart === 'helicorder' && (
+      {selectedChart === 'helicorder' && showHelicorder && (
         <HelicorderToolbar
           channelId={channelId}
           interval={interval}
@@ -270,7 +429,8 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
           onShowEventChange={handleSeismogramShowEvent}
         />
       )}
-      {selectedChart === 'seismogram' && (
+
+      {selectedChart === 'seismogram' && showSeismogram && (
         <SeismogramToolbar
           showEvent={showEvent}
           checkedValues={seismogramToolbarCheckedValues}
@@ -294,82 +454,67 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
           onPickModeChange={handleSeismogramPickModeChange}
         />
       )}
+
       <div className="flex-grow relative mt-1 flex flex-col h-full">
         <div className="flex flex-1 relative">
-          <div className="relative w-1/4 h-full">
-            <HelicorderChart
-              ref={heliChartRef}
-              className={selectedChart === 'helicorder' ? 'border border-brand-hosts-80' : 'border border-transparent'}
-              initOptions={{
-                interval,
-                duration,
-                channel: {
-                  id: channelId,
-                },
-                darkMode,
-                offsetDate,
-                grid: {
-                  top: 30,
-                  right: 15,
-                  bottom: 5,
-                  left: 80,
-                },
-                devicePixelRatio: window.devicePixelRatio,
-                useUTC,
-              }}
-              onTrackSelected={handleTrackSelected}
-              onFocus={handleHelicorderFocus}
-              onOffsetChange={(date: number) => {
-                handleHelicorderOffsetChange(date);
-                handleFetchEvents();
-              }}
-              onSelectionChange={handleHelicorderSelectionChange}
-              onReady={handleHelicorderOnReady}
-            />
-          </div>
-          <div className="relative flex-1 h-full">
-            <SeismogramChart
-              ref={seisChartRef}
-              className={selectedChart === 'seismogram' ? 'border border-brand-hosts-80' : 'border border-transparent'}
-              initOptions={{
-                channels: selectedChannels.map((channel) => ({
-                  id: channel.id,
-                  label: channel.network_station_code,
-                })),
-                grid: {
-                  top: 30,
-                  right: 20,
-                  bottom: 5,
-                  left: 80,
-                },
-                darkMode,
-                devicePixelRatio: window.devicePixelRatio,
-                useUTC,
-              }}
-              onFocus={handleSeismogramFocus}
-              onExtentChange={handleSeismogramExtentChange}
-              onContextMenuRequested={handleContextMenuRequested}
-              onPick={handleSeismogramPickChange}
-              onReady={handleSeismogramOnReady}
-            />
-            {isExpandMode && (
-              <Button className={styles.backButton} icon={<ArrowReply20Regular />} size="small" appearance="transparent" onClick={handleRestoreChannels} />
-            )}
-            <SeismogramContextMenu
-              onRemoveChannel={handleSeismogramRemoveChannel}
-              onMoveChannelUp={handleSeismogramMoveChannelUp}
-              onMoveChannelDown={handleSeismogramMoveChannelDown}
-              ref={contextMenuRef}
-            />
-          </div>
+          {showHelicorder && (
+            <div className="relative w-1/4 h-full">
+              <HelicorderChart
+                ref={heliChartRef}
+                className={helicorderClassName}
+                initOptions={helicorderInitOptions}
+                onTrackSelected={handleTrackSelected}
+                onFocus={handleHelicorderFocus}
+                onOffsetChange={(date: number) => {
+                  handleHelicorderOffsetChange(date);
+                  handleFetchEvents();
+                }}
+                onSelectionChange={handleHelicorderSelectionChange}
+                onReady={handleUnifiedHelicorderOnReady}
+              />
+            </div>
+          )}
+
+          {showSeismogram && (
+            <div className="relative flex-1 h-full">
+              <SeismogramChart
+                ref={seisChartRef}
+                className={seismogramClassName}
+                initOptions={seismogramInitOptions}
+                onFocus={handleSeismogramFocus}
+                onExtentChange={handleSeismogramExtentChange}
+                onContextMenuRequested={handleContextMenuRequested}
+                onPick={handleSeismogramPickChange}
+                onReady={handleUnifiedSeismogramOnReady}
+              />
+
+              {isExpandMode && (
+                <Button className={styles.backButton} icon={<ArrowReply20Regular />} size="small" appearance="transparent" onClick={handleRestoreChannels} />
+              )}
+
+              <SeismogramContextMenu
+                onRemoveChannel={handleSeismogramRemoveChannel}
+                onMoveChannelUp={handleSeismogramMoveChannelUp}
+                onMoveChannelDown={handleSeismogramMoveChannelDown}
+                ref={contextMenuRef}
+              />
+            </div>
+          )}
+
           {isPickModeActive() && (
             <div className="relative w-[300px] h-full">
               <EventDrawer>
-                {isPickEmpty() && <PickGuide onClose={handleSeismogramDeactivatePickMode} />}
-                {!isPickEmpty() && (
+                {isPickEmpty() ? (
+                  <PickGuide onClose={handleSeismogramDeactivatePickMode} />
+                ) : (
                   <PickEdit
+                    eventId={event?.id}
                     time={pickStart}
                     duration={(pickEnd - pickStart) / 1000}
+                    eventType={event?.type.id}
+                    stationOfFirstArrival={event?.station_of_first_arrival_id}
+                    note={event?.note}
+                    useUTC={useUTC}
                     onDurationChange={handlePickDurationChange}
                     onCancel={handlePickCancel}
                     onSave={handlePickSave}
@@ -379,6 +524,7 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
             </div>
           )}
         </div>
+
         <StatusBar />
       </div>
     </div>

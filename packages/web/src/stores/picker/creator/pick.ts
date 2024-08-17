@@ -1,7 +1,7 @@
 import { StateCreator } from 'zustand';
 import { api } from '../../../services/api';
 import apiVersion from '../../../services/apiVersion';
-import { CreateEventPayload } from '../../../types/event';
+import { EventPayload } from '../../../types/event';
 import { CustomError, ErrorData } from '../../../types/response';
 import { useCatalogStore } from '../../catalog';
 import { useOrganizationStore } from '../../organization';
@@ -21,9 +21,6 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
       const [pickStart, pickEnd] = range;
       set({ pickStart, pickEnd });
     },
-    /**
-     * Saves the picked event to the API.
-     */
     savePickedEvent: async (event) => {
       const { currentOrganization } = useOrganizationStore.getState();
       if (!currentOrganization) {
@@ -34,26 +31,37 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
         throw new CustomError('No catalog selected');
       }
 
-      const payload: CreateEventPayload = {
+      const payload: EventPayload = {
         station_of_first_arrival_id: event.stationOfFirstArrival,
         time: new Date(event.time).toISOString(),
         duration: event.duration,
         type_id: event.eventType,
         note: event.note,
-        method: 'waveview',
-        evaluation_mode: 'manual',
-        evaluation_status: 'confirmed',
-        attachment_ids: [],
+        method: event.method,
+        evaluation_mode: event.evaluation_mode,
+        evaluation_status: event.evaluation_status,
+        attachment_ids: event.attachment_ids,
       };
-      const response = await api(apiVersion.createEvent.v1(currentOrganization.id, currentCatalog.id), {
-        method: 'POST',
-        body: payload,
-      });
-      if (!response.ok) {
-        const err: ErrorData = await response.json();
-        throw CustomError.fromErrorData(err);
-      }
-      return await response.json();
+
+      const makeApiRequest = async (url: string, method: 'PUT' | 'POST', payload: any) => {
+        const response = await api(url, {
+          method,
+          body: payload,
+        });
+        if (!response.ok) {
+          const err: ErrorData = await response.json();
+          throw CustomError.fromErrorData(err);
+        }
+        return await response.json();
+      };
+
+      const url = event.eventId
+        ? apiVersion.updateEvent.v1(currentOrganization.id, currentCatalog.id, event.eventId)
+        : apiVersion.createEvent.v1(currentOrganization.id, currentCatalog.id);
+
+      const method: 'PUT' | 'POST' = event.eventId ? 'PUT' : 'POST';
+
+      return await makeApiRequest(url, method, payload);
     },
   };
 };

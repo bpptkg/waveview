@@ -10,6 +10,10 @@ export interface EventDetailStore {
   loading: boolean;
   error: string | null;
   /**
+   * Sets the event details.
+   */
+  setEvent(event: SeismicEventDetail): void;
+  /**
    * Sets the event ID.
    */
   setEventId: (eventId: string) => void;
@@ -38,4 +42,5 @@ export interface EventDetailStore {
    * Deletes the event.
    */
   deleteEvent: () => Promise<void>;
+
 }

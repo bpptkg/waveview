@@ -6,8 +6,7 @@ import { SeismogramChartRef } from './SeismogramChart';
 
 export const useSeismogramCallback = (
   seisChartRef: React.MutableRefObject<SeismogramChartRef | null>,
-  heliChartRef: React.MutableRefObject<HelicorderChartRef | null>,
-  seisChartReadyRef: React.MutableRefObject<boolean | null>
+  heliChartRef: React.MutableRefObject<HelicorderChartRef | null>
 ) => {
   const {
     selectedChannels,
@@ -205,11 +204,10 @@ export const useSeismogramCallback = (
     ),
 
     handleSeismogramOnReady: useCallback(() => {
-      seisChartReadyRef.current = true;
       const extent = seisChartRef.current?.getChartExtent();
       if (extent) {
         setLastTrackExtent(extent);
       }
-    }, [seisChartReadyRef, setLastTrackExtent, seisChartRef]),
+    }, [setLastTrackExtent, seisChartRef]),
   };
 };

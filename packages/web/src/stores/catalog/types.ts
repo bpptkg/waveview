@@ -35,4 +35,8 @@ export interface CatalogStore {
    * Removes an event from the list of events.
    */
   removeEvent: (eventId: string) => void;
+  /**
+   * Update event in the list of events.
+   */
+  updateEvent: (event: SeismicEvent) => void;
 }

@@ -1,5 +1,8 @@
 import { User } from './user';
 
+export type EvaluationMode = 'automatic' | 'manual';
+export type EvaluationStatus = 'preliminary' | 'confirmed' | 'reviewed' | 'final' | 'rejected';
+
 export interface EventType {
   id: string;
   organization_id: string;
@@ -120,14 +123,14 @@ export interface EventBookmarkResponse {
   is_bookmarked: boolean;
 }
 
-export interface CreateEventPayload {
+export interface EventPayload {
   station_of_first_arrival_id: string;
   time: string;
   duration: number;
   type_id: string;
   note: string;
   method: string;
-  evaluation_mode: string;
-  evaluation_status: string;
+  evaluation_mode: EvaluationMode;
+  evaluation_status: EvaluationStatus;
   attachment_ids: string[];
 }

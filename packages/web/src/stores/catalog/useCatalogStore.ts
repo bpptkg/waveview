@@ -84,6 +84,12 @@ const catalogStore = create<CatalogStore>((set, get) => {
     removeEvent: (eventId) => {
       set((state) => ({ events: state.events.filter((event) => event.id !== eventId) }));
     },
+
+    updateEvent: (event) => {
+      set((state) => ({
+        events: state.events.map((e) => (e.id === event.id ? event : e)),
+      }));
+    },
   };
 });
 

@@ -28,6 +28,7 @@ import React, { useCallback, useState } from 'react';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useCatalogStore } from '../../stores/catalog';
 import { useEventDetailStore } from '../../stores/eventDetail';
+import { SeismicEventDetail } from '../../types/event';
 import { CustomError } from '../../types/response';
 import EventDetailEditor from './EventDetailEditor';
 
@@ -56,8 +57,8 @@ const EventDetail: React.FC<EventDetailProps> = () => {
   const toasterId = useId('event-detail');
   const { dispatchToast } = useToastController(toasterId);
 
-  const { event, bookmarkEvent, deleteEvent, fetchEvent } = useEventDetailStore();
-  const { removeEvent } = useCatalogStore();
+  const { event, bookmarkEvent, deleteEvent, fetchEvent, setEvent } = useEventDetailStore();
+  const { removeEvent, updateEvent } = useCatalogStore();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
 
@@ -111,6 +112,15 @@ const EventDetail: React.FC<EventDetailProps> = () => {
         showErrorToast(error);
       });
   }, [eventId, showErrorToast]);
+
+  const handleEventSave = useCallback(
+    (event: SeismicEventDetail) => {
+      setEvent(event);
+      setShowEditor(false);
+      updateEvent({ ...event });
+    },
+    [setEvent, updateEvent]
+  );
 
   return (
     <>
@@ -174,8 +184,10 @@ const EventDetail: React.FC<EventDetailProps> = () => {
         </DialogSurface>
       </Dialog>
 
-      {showEditor && (
+      {showEditor && event && (
         <EventDetailEditor
+          event={event}
+          onSave={handleEventSave}
           onClose={() => {
             setShowEditor(false);
           }}

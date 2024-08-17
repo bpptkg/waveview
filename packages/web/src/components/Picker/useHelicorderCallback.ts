@@ -6,8 +6,7 @@ import { SeismogramChartRef } from './SeismogramChart';
 
 export function useHelicorderCallback(
   heliChartRef: React.MutableRefObject<HelicorderChartRef | null>,
-  seisChartRef: React.MutableRefObject<SeismogramChartRef | null>,
-  heliChartReadyRef: React.MutableRefObject<boolean | null>
+  seisChartRef: React.MutableRefObject<SeismogramChartRef | null>
 ) {
   const {
     setHelicorderOffsetDate,
@@ -127,8 +126,6 @@ export function useHelicorderCallback(
         }
       }
       fetchEvents();
-
-      heliChartReadyRef.current = true;
-    }, [heliChartRef, fetchEventMarkers, heliChartReadyRef]),
+    }, [heliChartRef, fetchEventMarkers]),
   };
 }

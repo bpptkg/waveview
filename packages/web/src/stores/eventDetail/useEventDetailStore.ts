@@ -17,6 +17,8 @@ const eventDetailStore = create<EventDetailStore>((set, get) => ({
   loading: false,
   error: null,
 
+  setEvent: (event) => set({ event, eventId: event.id }),
+
   setEventId: (eventId) => set({ eventId }),
 
   hasEventId: (eventId) => get().eventId === eventId,
