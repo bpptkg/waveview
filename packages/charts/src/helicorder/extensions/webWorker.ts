@@ -1,5 +1,4 @@
 import { Series } from "@waveview/ndarray";
-import { v4 as uuid4 } from "uuid";
 import { Debounce } from "../../util/decorators";
 import {
   Extension,
@@ -9,6 +8,7 @@ import {
   WorkerRequestData,
   WorkerResponseData,
 } from "../../util/types";
+import { uuid4 } from "../../util/uuid";
 import { Helicorder } from "../helicorder";
 
 export class HelicorderWebWorker {

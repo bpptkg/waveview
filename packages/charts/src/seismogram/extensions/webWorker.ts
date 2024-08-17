@@ -1,5 +1,4 @@
 import { Series } from "@waveview/ndarray";
-import { v4 as uuid4 } from "uuid";
 import { Debounce } from "../../util/decorators";
 import { ONE_MINUTE } from "../../util/time";
 import {
@@ -10,6 +9,7 @@ import {
   WorkerRequestData,
   WorkerResponseData,
 } from "../../util/types";
+import { uuid4 } from "../../util/uuid";
 import { Seismogram } from "../seismogram";
 
 export interface SeismogramWebWorkerOptions {
