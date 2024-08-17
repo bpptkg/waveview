@@ -1,6 +1,6 @@
-import { debounce } from 'lodash';
 import { baseUrl } from '../services/api';
 import apiVersion from '../services/apiVersion';
+import { debounce } from '../shared/debounce';
 import { SeismicEvent } from '../types/event';
 import { EventRequestData, EventResponseData } from '../types/fetcher';
 
