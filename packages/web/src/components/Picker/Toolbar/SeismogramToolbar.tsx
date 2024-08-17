@@ -230,6 +230,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
           name="options"
           value="zoom-rectangle"
           appearance="subtle"
+          disabled={checkedValues?.options?.includes('pick-mode')}
         />
         <ToolbarButton aria-label="Scroll Left" icon={<ChevronLeft20Regular />} onClick={onScrollLeft} />
         <ToolbarButton aria-label="Scroll Right" icon={<ChevronRight20Regular />} onClick={onScrollRight} />
@@ -237,7 +238,14 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
         <ToolbarButton aria-label="Decrease Amplitude" icon={<ChevronDownUp20Regular />} onClick={onDecreaseAmplitude} />
         <ToolbarButton aria-label="Reset Amplitude" icon={<AutoFitHeight20Regular />} onClick={onResetAmplitude} />
         <ToolbarDivider />
-        <ToolbarToggleButton aria-label="Pick mode" icon={<PickIcon className={styles.iconPick} />} name="options" value="pick-mode" appearance="subtle" />
+        <ToolbarToggleButton
+          aria-label="Pick mode"
+          icon={<PickIcon className={styles.iconPick} />}
+          name="options"
+          value="pick-mode"
+          appearance="subtle"
+          disabled={checkedValues?.options?.includes('zoom-rectangle')}
+        />
 
         <Menu hasIcons>
           <MenuTrigger>
