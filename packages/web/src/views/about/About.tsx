@@ -1,4 +1,6 @@
 import { Link } from '@fluentui/react-components';
+import { ArrowUpRightRegular } from '@fluentui/react-icons';
+import { formatDistanceToNow } from 'date-fns';
 import LogoImage from '../../components/Header/LogoImage';
 import LogoText from '../../components/Header/LogoText';
 
@@ -7,12 +9,15 @@ const VersionInfo = () => {
   const commitHash = import.meta.env.__COMMIT__HASH__;
   const buildDate = import.meta.env.__BUILD__DATE__;
   const packageVersion = import.meta.env.__PACKAGE__VERSION__;
+  const timeDiff = formatDistanceToNow(new Date(buildDate), { addSuffix: true });
 
   return (
     <div className="flex flex-col gap-2">
       <span className="text-gray-800 dark:text-neutral-grey-84">Version: {packageVersion}</span>
       <span className="text-gray-800 dark:text-neutral-grey-84">Commit: {commitHash}</span>
-      <span className="text-gray-800 dark:text-neutral-grey-84">Date: {buildDate}</span>
+      <span className="text-gray-800 dark:text-neutral-grey-84">
+        Date: {buildDate} ({timeDiff})
+      </span>
       <span className="text-gray-800 dark:text-neutral-grey-84">Copyright © {thisYear} WaveView Developers</span>
     </div>
   );
@@ -41,13 +46,13 @@ const About = () => {
 
             <div className="flex-grow items-start justify-center flex flex-col gap-2">
               <Link href="https://github.com/bpptkg/waveview" target="_blank">
-                GitHub
+                GitHub <ArrowUpRightRegular fontSize={12} />
               </Link>
               <Link href="https://github.com/bpptkg/waveview/issues" target="_blank">
-                Report an issue
+                Report an issue <ArrowUpRightRegular fontSize={12} />
               </Link>
               <Link href="https://github.com/bpptkg/waveview/blob/main/LICENSE" target="_blank">
-                View license
+                View license <ArrowUpRightRegular fontSize={12} />
               </Link>
             </div>
           </div>
