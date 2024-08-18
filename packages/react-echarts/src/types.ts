@@ -11,7 +11,7 @@ export type Opts = {
   readonly locale?: string;
 };
 
-export type EChartsReactProps = {
+export type ReactEChartsProps = {
   /**
    * echarts library entry, use it for import necessary.
    */
@@ -66,8 +66,8 @@ export type EChartsReactProps = {
    * should update echarts options
    */
   readonly shouldSetOption?: (
-    prevProps: EChartsReactProps,
-    props: EChartsReactProps
+    prevProps: ReactEChartsProps,
+    props: ReactEChartsProps
   ) => boolean;
 
   /**

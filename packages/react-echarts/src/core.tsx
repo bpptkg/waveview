@@ -5,12 +5,12 @@ import { pick } from "./helper/pick";
 import { isFunction } from "./helper/isFunction";
 import { isString } from "./helper/isString";
 import { isEqual } from "./helper/isEqual";
-import { EChartsReactProps, EChartsInstance } from "./types";
+import { ReactEChartsProps, EChartsInstance } from "./types";
 
 /**
  * core component for echarts binding
  */
-export default class EChartsReactCore extends PureComponent<EChartsReactProps> {
+export default class ReactEChartsCore extends PureComponent<ReactEChartsProps> {
   /**
    * echarts render container
    */
@@ -26,7 +26,7 @@ export default class EChartsReactCore extends PureComponent<EChartsReactProps> {
    */
   protected echarts: any;
 
-  constructor(props: EChartsReactProps) {
+  constructor(props: ReactEChartsProps) {
     super(props);
 
     this.echarts = props.echarts;
@@ -39,7 +39,7 @@ export default class EChartsReactCore extends PureComponent<EChartsReactProps> {
   }
 
   // update
-  componentDidUpdate(prevProps: EChartsReactProps) {
+  componentDidUpdate(prevProps: ReactEChartsProps) {
     /**
      * if shouldSetOption return false, then return, not update echarts options
      * default is true
@@ -172,7 +172,7 @@ export default class EChartsReactCore extends PureComponent<EChartsReactProps> {
   }
 
   // bind the events
-  private bindEvents(instance: any, events: EChartsReactProps["onEvents"]) {
+  private bindEvents(instance: any, events: ReactEChartsProps["onEvents"]) {
     function _bindEvent(eventName: string, func: Function) {
       // ignore the event config which not satisfy
       if (isString(eventName) && isFunction(func)) {

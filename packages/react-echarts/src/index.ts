@@ -1,14 +1,14 @@
 import * as echarts from "echarts";
 import { EChartsOption } from "echarts";
-import EChartsReactCore from "./core";
-import type { EChartsReactProps } from "./types";
+import ReactEChartsCore from "./core";
+import type { ReactEChartsProps } from "./types";
 
 export { createGrid, makeIndex, type GridOptions } from "./helper/grid";
-export type { EChartsOption, EChartsReactProps };
+export type { EChartsOption, ReactEChartsProps as EChartsReactProps };
 
 // export the Component the echarts Object.
-export default class EChartsReact extends EChartsReactCore {
-  constructor(props: EChartsReactProps) {
+export class ReactECharts extends ReactEChartsCore {
+  constructor(props: ReactEChartsProps) {
     super(props);
 
     // 初始化为 echarts 整个包
