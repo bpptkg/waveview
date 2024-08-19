@@ -29,7 +29,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import EventTypeLabel from '../../components/Catalog/EventTypeLabel';
 import DateRangePicker from '../../components/DatePicker/DateRangePicker';
 import { formatNumber } from '../../shared/formatting';
-import { max, mean, min, sum } from '../../shared/statistics';
+import { max, mean, median, min, standardDeviation, sum } from '../../shared/statistics';
 import { formatTimezonedDate } from '../../shared/time';
 import { useAppStore } from '../../stores/app';
 import { useSeismicityStore } from '../../stores/seismicity';
@@ -189,20 +189,32 @@ const Seismicity = () => {
                 <TableHeaderCell>Max</TableHeaderCell>
                 <TableHeaderCell>Average</TableHeaderCell>
                 <TableHeaderCell>Total</TableHeaderCell>
+                <TableHeaderCell>Median</TableHeaderCell>
+                <TableHeaderCell>Std Dev</TableHeaderCell>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {seismicity.map((item) => (
-                <TableRow key={item.event_type.id}>
-                  <TableCell>
-                    <EventTypeLabel eventType={item.event_type} />
-                  </TableCell>
-                  <TableCell>{formatNumber(min(item.data.map((v) => v.count)), { precision: 0 })}</TableCell>
-                  <TableCell>{formatNumber(max(item.data.map((v) => v.count)), { precision: 0 })}</TableCell>
-                  <TableCell>{formatNumber(mean(item.data.map((v) => v.count)), { precision: 1 })}</TableCell>
-                  <TableCell>{formatNumber(sum(item.data.map((v) => v.count)), { precision: 0 })}</TableCell>
+              {seismicity.length ? (
+                seismicity.map((item) => (
+                  <TableRow key={item.event_type.id}>
+                    <TableCell>
+                      <EventTypeLabel eventType={item.event_type} />
+                    </TableCell>
+                    <TableCell>{formatNumber(min(item.data.map((v) => v.count)), { precision: 0 })}</TableCell>
+                    <TableCell>{formatNumber(max(item.data.map((v) => v.count)), { precision: 0 })}</TableCell>
+                    <TableCell>{formatNumber(mean(item.data.map((v) => v.count)), { precision: 1 })}</TableCell>
+                    <TableCell>{formatNumber(sum(item.data.map((v) => v.count)), { precision: 0 })}</TableCell>
+                    <TableCell>{formatNumber(median(item.data.map((v) => v.count)), { precision: 1 })}</TableCell>
+                    <TableCell>{formatNumber(standardDeviation(item.data.map((v) => v.count)), { precision: 1 })}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableHeaderCell colSpan={7}>
+                    <span className="text-center w-full">No data found</span>
+                  </TableHeaderCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </div>

@@ -41,3 +41,27 @@ export function mean(array: number[]): number {
   }
   return sum(array) / array.length;
 }
+
+export function median(array: number[]): number {
+  if (array.length === 0) {
+    return NaN;
+  }
+  const sorted = array.slice().sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  if (sorted.length % 2 === 0) {
+    return (sorted[middle - 1] + sorted[middle]) / 2;
+  }
+  return sorted[middle];
+}
+
+export function variance(array: number[]): number {
+  if (array.length === 0) {
+    return NaN;
+  }
+  const meanValue = mean(array);
+  return mean(array.map((value) => Math.pow(value - meanValue, 2)));
+}
+
+export function standardDeviation(array: number[]): number {
+  return Math.sqrt(variance(array));
+}
