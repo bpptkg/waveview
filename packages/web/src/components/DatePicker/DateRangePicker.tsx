@@ -12,7 +12,7 @@ export interface DateRangePickerProps {
   defaultIndex?: number;
   startDate?: Date;
   endDate?: Date;
-  onChange?: (start: Date, end: Date) => void;
+  onChange?: (index: number, start: Date, end: Date) => void;
 }
 
 const DateRangePicker: React.FC<DateRangePickerProps> = (props) => {
@@ -30,7 +30,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = (props) => {
     const period = periods[periodIndex];
     const end = new Date();
     const start = sub(end, { [period.unit]: period.value });
-    onChange?.(start, end);
+    onChange?.(periodIndex, start, end);
   };
 
   const handleStartDateSelected = (date: Date) => {
@@ -42,7 +42,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = (props) => {
   };
 
   const handleApply = () => {
-    onChange?.(pickedStartDate, pickedEndDate);
+    onChange?.(-1, pickedStartDate, pickedEndDate);
     setDatePickerOpen(false);
   };
 
