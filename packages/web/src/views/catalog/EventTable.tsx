@@ -119,71 +119,73 @@ const EventTable = () => {
   );
 
   return (
-    <div className="p-2 relative h-full">
-      <Table aria-label="Event Table" className={styles.table} sortable>
-        <TableHeader>
-          <TableRow>
-            <TableHeaderCell {...headerSortProps('time')}>Time</TableHeaderCell>
-            <TableHeaderCell>Duration</TableHeaderCell>
-            <TableHeaderCell>Type</TableHeaderCell>
-            <TableHeaderCell>Amplitude</TableHeaderCell>
-            <TableHeaderCell>Magnitude</TableHeaderCell>
-            <TableHeaderCell>Latitude</TableHeaderCell>
-            <TableHeaderCell>Longitude</TableHeaderCell>
-            <TableHeaderCell>Depth</TableHeaderCell>
-            <TableHeaderCell>Evaluation Mode</TableHeaderCell>
-            <TableHeaderCell>Evaluation Status</TableHeaderCell>
-            <TableHeaderCell>Author</TableHeaderCell>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {rows.length ? (
-            rows.map(({ item, onClick, onKeyDown, selected, appearance }) => (
-              <TableRow key={item.id} onClick={onClick} onKeyDown={onKeyDown} aria-selected={selected} appearance={appearance}>
-                <TableCell>{formatTime(item.time, { useUTC })}</TableCell>
-                <TableCell>{formatNumber(item.duration, { unit: ' sec', precision: 2 })}</TableCell>
-                <TableCell>
-                  <EventTypeLabel eventType={item.type} />
-                </TableCell>
-                <TableCell>{formatNumber(item.preferred_amplitude?.amplitude, { unit: item.preferred_amplitude?.unit, precision: 2 })}</TableCell>
-                <TableCell>{formatNumber(item.preferred_magnitude?.magnitude, { precision: 2 })}</TableCell>
-                <TableCell>{formatNumber(item.preferred_origin?.latitude, { unit: '°', precision: 5 })}</TableCell>
-                <TableCell>{formatNumber(item.preferred_origin?.longitude, { unit: '°', precision: 5 })}</TableCell>
-                <TableCell>{formatNumber(item.preferred_origin?.depth, { unit: ' km', precision: 2 })}</TableCell>
-                <TableCell>{item.evaluation_mode}</TableCell>
-                <TableCell>{item.evaluation_status}</TableCell>
-                <TableCell>
-                  <TableCellLayout
-                    media={
-                      <Tooltip content={item.author.name} relationship="label">
-                        <Avatar aria-label={item.author.name} name={item.author.name} color="colorful" image={{ src: item.author.avatar }} />
-                      </Tooltip>
-                    }
-                  />
-                </TableCell>
-              </TableRow>
-            ))
-          ) : (
+    <div className="relative h-full w-full">
+      <div className="absolute top-0 right-0 bottom-0 left-0 overflow-auto p-2">
+        <Table aria-label="Event Table" className={styles.table} sortable>
+          <TableHeader>
             <TableRow>
-              <TableHeaderCell colSpan={11}>
-                <span className="text-center w-full">No events found</span>
-              </TableHeaderCell>
+              <TableHeaderCell {...headerSortProps('time')}>Time</TableHeaderCell>
+              <TableHeaderCell>Duration</TableHeaderCell>
+              <TableHeaderCell>Type</TableHeaderCell>
+              <TableHeaderCell>Amplitude</TableHeaderCell>
+              <TableHeaderCell>Magnitude</TableHeaderCell>
+              <TableHeaderCell>Latitude</TableHeaderCell>
+              <TableHeaderCell>Longitude</TableHeaderCell>
+              <TableHeaderCell>Depth</TableHeaderCell>
+              <TableHeaderCell>Evaluation Mode</TableHeaderCell>
+              <TableHeaderCell>Evaluation Status</TableHeaderCell>
+              <TableHeaderCell>Author</TableHeaderCell>
             </TableRow>
-          )}
-        </TableBody>
-      </Table>
-      {hasNextEvents() && (
-        <div className="flex justify-center mt-2">
-          <Button appearance="transparent" onClick={fetchNextEvents}>
-            Load more
-          </Button>
-        </div>
-      )}
-      {eventId && (
-        <EventDetailDrawer>
-          <EventDetail />
-        </EventDetailDrawer>
-      )}
+          </TableHeader>
+          <TableBody>
+            {rows.length ? (
+              rows.map(({ item, onClick, onKeyDown, selected, appearance }) => (
+                <TableRow key={item.id} onClick={onClick} onKeyDown={onKeyDown} aria-selected={selected} appearance={appearance}>
+                  <TableCell>{formatTime(item.time, { useUTC })}</TableCell>
+                  <TableCell>{formatNumber(item.duration, { unit: ' sec', precision: 2 })}</TableCell>
+                  <TableCell>
+                    <EventTypeLabel eventType={item.type} />
+                  </TableCell>
+                  <TableCell>{formatNumber(item.preferred_amplitude?.amplitude, { unit: item.preferred_amplitude?.unit, precision: 2 })}</TableCell>
+                  <TableCell>{formatNumber(item.preferred_magnitude?.magnitude, { precision: 2 })}</TableCell>
+                  <TableCell>{formatNumber(item.preferred_origin?.latitude, { unit: '°', precision: 5 })}</TableCell>
+                  <TableCell>{formatNumber(item.preferred_origin?.longitude, { unit: '°', precision: 5 })}</TableCell>
+                  <TableCell>{formatNumber(item.preferred_origin?.depth, { unit: ' km', precision: 2 })}</TableCell>
+                  <TableCell>{item.evaluation_mode}</TableCell>
+                  <TableCell>{item.evaluation_status}</TableCell>
+                  <TableCell>
+                    <TableCellLayout
+                      media={
+                        <Tooltip content={item.author.name} relationship="label">
+                          <Avatar aria-label={item.author.name} name={item.author.name} color="colorful" image={{ src: item.author.avatar }} />
+                        </Tooltip>
+                      }
+                    />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableHeaderCell colSpan={11}>
+                  <span className="text-center w-full">No events found</span>
+                </TableHeaderCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+        {hasNextEvents() && (
+          <div className="flex justify-center mt-2">
+            <Button appearance="transparent" onClick={fetchNextEvents}>
+              Load more
+            </Button>
+          </div>
+        )}
+        {eventId && (
+          <EventDetailDrawer>
+            <EventDetail />
+          </EventDetailDrawer>
+        )}
+      </div>
     </div>
   );
 };
