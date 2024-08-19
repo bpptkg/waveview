@@ -98,4 +98,7 @@ export default {
   bookmarkEvent: {
     v1: (organizationId: string, catalogId: string, id: string) => `/api/v1/organizations/${organizationId}/catalogs/${catalogId}/events/${id}/bookmark/`,
   },
+  getSeismicity: {
+    v1: (organizationId: string, catalogId: string) => `/api/v1/organizations/${organizationId}/catalogs/${catalogId}/analytics/seismicity/`,
+  },
 };

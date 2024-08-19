@@ -8,6 +8,12 @@ export interface FormatNumberOptions {
 export function formatNumber(number: unknown, options: FormatNumberOptions = {}): string {
   const { precision, unit } = options;
   if (typeof number === 'number') {
+    const isNumberFinite = Number.isFinite(number);
+    const isNumberNaN = Number.isNaN(number);
+    if (!isNumberFinite || isNumberNaN) {
+      return '';
+    }
+
     let numberFormatted = '';
     if (precision !== undefined) {
       numberFormatted = number.toFixed(precision);

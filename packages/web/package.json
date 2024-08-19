@@ -15,6 +15,7 @@
     "@fluentui/react-components": "^9.54.0",
     "@fluentui/react-icons": "^2.0.242",
     "@waveview/charts": "workspace:*",
+    "@waveview/react-echarts": "workspace:*",
     "@waveview/stream": "workspace:*",
     "date-fns": "^3.6.0",
     "fuse.js": "^7.0.0",

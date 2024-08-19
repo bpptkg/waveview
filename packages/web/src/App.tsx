@@ -11,7 +11,7 @@ const App = () => {
   }, [theme, toggleTheme]);
 
   return (
-    <FluentProvider theme={darkMode ? webDarkTheme : webLightTheme}>
+    <FluentProvider theme={darkMode ? webDarkTheme : webLightTheme} applyStylesToPortals>
       <Outlet />
     </FluentProvider>
   );
