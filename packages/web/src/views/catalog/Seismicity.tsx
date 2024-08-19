@@ -170,9 +170,9 @@ const Seismicity = () => {
                 </span>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mt-2">
               <DateRangePicker periods={periods} defaultIndex={periodIndex} startDate={startDate} endDate={endDate} onChange={handleDateRangeChange} />
-              <Select appearance="underline" defaultValue={sampling} onChange={(_, data) => handleSamplingChange(data.value)}>
+              <Select appearance="outline" defaultValue={sampling} onChange={(_, data) => handleSamplingChange(data.value)}>
                 <option value={'day'}>Daily</option>
                 <option value={'hour'}>Hourly</option>
               </Select>

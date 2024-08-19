@@ -49,7 +49,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = (props) => {
 
   return (
     <div className="flex items-center">
-      <Select appearance="underline" defaultValue={selectedPeriod} onChange={(_, data) => handleSelectPeriod(data.value)}>
+      <Select appearance="outline" defaultValue={selectedPeriod} onChange={(_, data) => handleSelectPeriod(data.value)}>
         {periods.map((period, index) => (
           <option key={index} value={index}>
             {period.label}
