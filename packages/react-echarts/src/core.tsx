@@ -1,11 +1,11 @@
-import type { ECharts } from "echarts";
+import type { ECharts, EChartsOption } from "echarts";
 import React, { PureComponent } from "react";
 import { bind, clear } from "size-sensor";
-import { pick } from "./helper/pick";
+import { isEqual } from "./helper/isEqual";
 import { isFunction } from "./helper/isFunction";
 import { isString } from "./helper/isString";
-import { isEqual } from "./helper/isEqual";
-import { ReactEChartsProps, EChartsInstance } from "./types";
+import { pick } from "./helper/pick";
+import { EChartsInstance, ReactEChartsProps } from "./types";
 
 /**
  * core component for echarts binding
@@ -251,5 +251,21 @@ export default class ReactEChartsCore extends PureComponent<ReactEChartsProps> {
         className={`echarts-for-react ${className}`}
       />
     );
+  }
+
+  setOption(option: EChartsOption, notMerge?: boolean, lazyUpdate?: boolean) {
+    this.getEchartsInstance().setOption(option, notMerge, lazyUpdate);
+  }
+
+  showLoading() {
+    this.getEchartsInstance().showLoading();
+  }
+
+  hideLoading() {
+    this.getEchartsInstance().hideLoading();
+  }
+
+  clear() {
+    this.getEchartsInstance().clear();
   }
 }
