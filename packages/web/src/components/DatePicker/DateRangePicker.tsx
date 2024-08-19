@@ -10,34 +10,35 @@ import { today } from './utils';
 export interface DateRangePickerProps {
   periods?: PeriodItem[];
   defaultIndex?: number;
-  startDate?: Date;
-  endDate?: Date;
-  onChange?: (index: number, start: Date, end: Date) => void;
+  startDate?: number;
+  endDate?: number;
+  showTimeSelect?: boolean;
+  onChange?: (index: number, start: number, end: number) => void;
 }
 
 const DateRangePicker: React.FC<DateRangePickerProps> = (props) => {
-  const { periods = [], startDate = today(), endDate = today(), defaultIndex = 0, onChange } = props;
+  const { periods = [], startDate = today(), endDate = today(), defaultIndex = 0, showTimeSelect = true, onChange } = props;
 
   const [selectedPeriod, setSelectedPeriod] = useState<number>(defaultIndex);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
-  const [pickedStartDate, setPickedStartDate] = useState<Date>(startDate);
-  const [pickedEndDate, setPickedEndDate] = useState<Date>(endDate);
+  const [pickedStartDate, setPickedStartDate] = useState<number>(startDate);
+  const [pickedEndDate, setPickedEndDate] = useState<number>(endDate);
 
   const handleSelectPeriod = (value: string) => {
     const periodIndex = parseInt(value);
     setSelectedPeriod(periodIndex);
 
     const period = periods[periodIndex];
-    const end = new Date();
-    const start = sub(end, { [period.unit]: period.value });
+    const end = Date.now();
+    const start = sub(end, { [period.unit]: period.value }).getTime();
     onChange?.(periodIndex, start, end);
   };
 
-  const handleStartDateSelected = (date: Date) => {
+  const handleStartDateSelected = (date: number) => {
     setPickedStartDate(date);
   };
 
-  const handleEndDateSelected = (date: Date) => {
+  const handleEndDateSelected = (date: number) => {
     setPickedEndDate(date);
   };
 
@@ -70,14 +71,14 @@ const DateRangePicker: React.FC<DateRangePickerProps> = (props) => {
                 <Label>Start date</Label>
                 <div className="flex gap-1">
                   <DatePicker selected={pickedStartDate} onChange={handleStartDateSelected} />
-                  <TimePicker timeInterval={10} selected={pickedStartDate} onChange={handleStartDateSelected} />
+                  {showTimeSelect && <TimePicker timeInterval={10} selected={pickedStartDate} onChange={handleStartDateSelected} />}
                 </div>
               </div>
               <div>
                 <Label>End date</Label>
                 <div className="flex gap-1">
                   <DatePicker selected={pickedEndDate} onChange={handleEndDateSelected} />
-                  <TimePicker timeInterval={10} selected={pickedEndDate} onChange={handleEndDateSelected} />
+                  {showTimeSelect && <TimePicker timeInterval={10} selected={pickedEndDate} onChange={handleEndDateSelected} />}
                 </div>
               </div>
               <div className="flex justify-end">

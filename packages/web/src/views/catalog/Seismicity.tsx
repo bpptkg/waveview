@@ -15,7 +15,7 @@ import {
 } from '@fluentui/react-components';
 import { MoreHorizontalRegular } from '@fluentui/react-icons';
 import { ReactECharts } from '@waveview/react-echarts';
-import { format, sub } from 'date-fns';
+import { sub } from 'date-fns';
 import { BarChart } from 'echarts/charts';
 import { GridComponent, TitleComponent, TooltipComponent } from 'echarts/components';
 import * as echarts from 'echarts/core';
@@ -25,6 +25,8 @@ import EventTypeLabel from '../../components/Catalog/EventTypeLabel';
 import DateRangePicker from '../../components/DatePicker/DateRangePicker';
 import { formatNumber } from '../../shared/formatting';
 import { max, mean, min, sum } from '../../shared/statistics';
+import { formatTimezonedDate } from '../../shared/time';
+import { useAppStore } from '../../stores/app';
 import { useSeismicityStore } from '../../stores/seismicity';
 import { Sampling } from '../../types/seismicity';
 
@@ -48,6 +50,8 @@ const Seismicity = () => {
     setPeriodIndex,
   } = useSeismicityStore();
 
+  const { useUTC } = useAppStore();
+
   const periods = useMemo(() => {
     return sampling === 'day' ? periodsDay : periodsHour;
   }, [periodsDay, periodsHour, sampling]);
@@ -60,12 +64,14 @@ const Seismicity = () => {
   }, [fetchSeismicity, getEChartsOption]);
 
   const startDateFormatted = useMemo(() => {
-    return format(startDate, 'MMMM dd, yyyy');
-  }, [startDate]);
+    const template = sampling === 'day' ? 'MMMM dd, yyyy' : 'MMMM dd, yyyy HH:mm';
+    return formatTimezonedDate(startDate, template, useUTC);
+  }, [startDate, sampling, useUTC]);
 
   const endDateFormatted = useMemo(() => {
-    return format(endDate, 'MMMM dd, yyyy');
-  }, [endDate]);
+    const template = sampling === 'day' ? 'MMMM dd, yyyy' : 'MMMM dd, yyyy HH:mm';
+    return formatTimezonedDate(endDate, template, useUTC);
+  }, [endDate, sampling, useUTC]);
 
   useEffect(() => {
     updatePlot();
@@ -78,7 +84,7 @@ const Seismicity = () => {
   }, [seismicity]);
 
   const handleDateRangeChange = useCallback(
-    (index: number, start: Date, end: Date) => {
+    (index: number, start: number, end: number) => {
       setTimeRange(start, end);
       setPeriodIndex(index);
       updatePlot();
@@ -94,13 +100,13 @@ const Seismicity = () => {
 
       if (sample === 'day') {
         const period = periodsDay[0];
-        const end = new Date();
-        const start = sub(end, { [period.unit]: period.value });
+        const end = Date.now();
+        const start = sub(end, { [period.unit]: period.value }).getTime();
         setTimeRange(start, end);
       } else {
         const period = periodsHour[0];
-        const end = new Date();
-        const start = sub(end, { [period.unit]: period.value });
+        const end = Date.now();
+        const start = sub(end, { [period.unit]: period.value }).getTime();
         setTimeRange(start, end);
       }
 

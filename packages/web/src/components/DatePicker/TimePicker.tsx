@@ -1,49 +1,127 @@
-import { Select } from '@fluentui/react-components';
-import React, { useCallback, useMemo } from 'react';
+import { Button, Input, makeStyles, Popover, PopoverSurface, PopoverTrigger } from '@fluentui/react-components';
+import { ChevronDownRegular, ChevronUpRegular, ClockRegular } from '@fluentui/react-icons';
+import React, { useCallback, useMemo, useState } from 'react';
+import { formatTimezonedDate, ONE_HOUR, ONE_MINUTE, ONE_SECOND } from '../../shared/time';
+import { useAppStore } from '../../stores/app';
 import { today } from './utils';
 
 export interface TimePickerProps {
-  selected?: Date;
-  onChange?: (date: Date) => void;
+  selected?: number;
+  onChange?: (date: number) => void;
   timeInterval?: number;
 }
 
-const TimePicker: React.FC<TimePickerProps> = (props) => {
-  const { selected = today(), onChange, timeInterval = 30 } = props;
+const useTimePickerStyles = makeStyles({
+  input: {
+    display: 'inline-flex',
+    maxWidth: '120px',
+  },
+});
 
-  const timePickerOptions = useMemo(() => {
-    return Array.from({ length: (24 * 60) / timeInterval }, (_, index) => {
-      const hour = Math.floor((index * timeInterval) / 60);
-      const minute = (index * timeInterval) % 60;
-      return {
-        value: index,
-        label: `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`,
-      };
-    });
-  }, [timeInterval]);
+type TimeUnit = 'hour' | 'minute' | 'second';
+
+interface TimeSliderProps {
+  value: number;
+  unit: TimeUnit;
+  useUTC: boolean;
+  onChange?: (value: number) => void;
+}
+
+const add = (value: number, unit: TimeUnit) => {
+  switch (unit) {
+    case 'hour':
+      return value + ONE_HOUR;
+    case 'minute':
+      return value + ONE_MINUTE;
+    case 'second':
+      return value + ONE_SECOND;
+    default:
+      return value;
+  }
+};
+
+const sub = (value: number, unit: TimeUnit) => {
+  switch (unit) {
+    case 'hour':
+      return value - ONE_HOUR;
+    case 'minute':
+      return value - ONE_MINUTE;
+    case 'second':
+      return value - ONE_SECOND;
+    default:
+      return value;
+  }
+};
+
+const TimeSlider: React.FC<TimeSliderProps> = (props) => {
+  const { value, unit, useUTC, onChange } = props;
+
+  const handleUp = useCallback(() => {
+    onChange?.(add(value, unit));
+  }, [value, unit, onChange]);
+
+  const handleDown = useCallback(() => {
+    onChange?.(sub(value, unit));
+  }, [value, unit, onChange]);
+
+  const template = useMemo(() => {
+    switch (unit) {
+      case 'hour':
+        return 'HH';
+      case 'minute':
+        return 'mm';
+      case 'second':
+        return 'ss';
+      default:
+        return '';
+    }
+  }, [unit]);
+
+  return (
+    <div className="flex flex-col justify-center items-center w-[40px]">
+      <Button appearance="subtle" icon={<ChevronUpRegular fontSize={20} onClick={handleUp} />} />
+      <span>{formatTimezonedDate(value, template, useUTC)}</span>
+      <Button appearance="subtle" icon={<ChevronDownRegular fontSize={20} onClick={handleDown} />} />
+    </div>
+  );
+};
+
+const TimePicker: React.FC<TimePickerProps> = (props) => {
+  const { selected = today(), onChange } = props;
+
+  const styles = useTimePickerStyles();
+
+  const [open, setOpen] = useState<boolean>(false);
+  const { useUTC } = useAppStore();
 
   const handleChange = useCallback(
-    (index: string) => {
-      const value = parseInt(index);
-      const hour = Math.floor((value * timeInterval) / 60);
-      const minute = (value * timeInterval) % 60;
-      const newDate = new Date(selected);
-      newDate.setHours(hour, minute, 0, 0);
-      onChange?.(newDate);
+    (value: number) => {
+      onChange?.(value);
     },
-    [selected, onChange, timeInterval]
+    [onChange]
   );
 
   return (
-    <div>
-      <Select defaultValue={0} onChange={(_, data) => handleChange(data.value)}>
-        {timePickerOptions.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </Select>
-    </div>
+    <Popover trapFocus open={open} onOpenChange={() => setOpen(!open)}>
+      <PopoverTrigger disableButtonEnhancement>
+        <Input
+          value={formatTimezonedDate(selected, 'HH:mm:ss', useUTC)}
+          aria-label="inline"
+          contentAfter={<ClockRegular fontSize={20} />}
+          readOnly
+          className={styles.input}
+        />
+      </PopoverTrigger>
+      <PopoverSurface>
+        <div className="flex items-center">
+          <TimeSlider value={selected} unit="hour" useUTC={useUTC} onChange={handleChange} />
+          <span>:</span>
+          <TimeSlider value={selected} unit="minute" useUTC={useUTC} onChange={handleChange} />
+          <span>:</span>
+          <TimeSlider value={selected} unit="second" useUTC={useUTC} onChange={handleChange} />
+        </div>
+      </PopoverSurface>
+    </Popover>
   );
 };
 

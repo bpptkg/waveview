@@ -14,8 +14,8 @@ import { useOrganizationStore } from '../organization';
 import { SeismicityStore } from './types';
 
 const seismicityStore = create<SeismicityStore>((set, get) => {
-  const endDate = new Date();
-  const startDate = subDays(endDate, 7);
+  const endDate = Date.now();
+  const startDate = subDays(endDate, 7).getTime();
 
   return {
     seismicity: [],
@@ -74,7 +74,7 @@ const seismicityStore = create<SeismicityStore>((set, get) => {
 
     setError: (error: string) => set({ error }),
 
-    setTimeRange: (startDate: Date, endDate: Date) => set({ startDate, endDate }),
+    setTimeRange: (startDate: number, endDate: number) => set({ startDate, endDate }),
 
     setSampling: (sampling) => set({ sampling }),
 
@@ -97,8 +97,8 @@ const seismicityStore = create<SeismicityStore>((set, get) => {
       const url = apiVersion.getSeismicity.v1(currentOrganization.id, currentCatalog.id);
       const response = await api(url, {
         params: {
-          start: startDate.toISOString(),
-          end: endDate.toISOString(),
+          start: new Date(startDate).toISOString(),
+          end: new Date(endDate).toISOString(),
           group_by: sampling,
         },
       });
