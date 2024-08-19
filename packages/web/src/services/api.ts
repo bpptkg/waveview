@@ -40,6 +40,19 @@ const refreshToken = async () => {
   }
 };
 
+const isAbsoluteUrl = (url: string): boolean => /^(?:[a-z]+:)?\/\//i.test(url);
+
+const constructUrl = (baseUrl: string, url: string, params?: Record<string, string>): string => {
+  const fullUrl = isAbsoluteUrl(url) ? url : `${baseUrl}${url}`;
+  const urlWithParams = new URL(fullUrl);
+
+  if (params) {
+    Object.keys(params).forEach((key) => urlWithParams.searchParams.append(key, params[key]));
+  }
+
+  return urlWithParams.toString();
+};
+
 export const api = async (url: string, options: APIOptions = {}): Promise<Response> => {
   const tryFetch = async () => {
     const { method = 'GET', body, params } = options;
@@ -50,12 +63,8 @@ export const api = async (url: string, options: APIOptions = {}): Promise<Respon
       window.location.href = '/login';
     }
 
-    const urlWithParams = new URL(`${baseUrl}${url}`);
-    if (params) {
-      Object.keys(params).forEach((key) => urlWithParams.searchParams.append(key, params[key]));
-    }
-
-    const response = await fetch(urlWithParams.toString(), {
+    const input = constructUrl(baseUrl, url, params);
+    const response = await fetch(input, {
       method,
       headers: {
         'Content-Type': 'application/json',
