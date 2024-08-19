@@ -12,6 +12,11 @@ import {
   TableHeader,
   TableHeaderCell,
   TableRow,
+  Toast,
+  Toaster,
+  ToastTitle,
+  useId,
+  useToastController,
 } from '@fluentui/react-components';
 import { MoreHorizontalRegular } from '@fluentui/react-icons';
 import { ReactECharts } from '@waveview/react-echarts';
@@ -28,6 +33,7 @@ import { max, mean, min, sum } from '../../shared/statistics';
 import { formatTimezonedDate } from '../../shared/time';
 import { useAppStore } from '../../stores/app';
 import { useSeismicityStore } from '../../stores/seismicity';
+import { CustomError } from '../../types/response';
 import { Sampling } from '../../types/seismicity';
 
 echarts.use([BarChart, GridComponent, CanvasRenderer, TitleComponent, TooltipComponent]);
@@ -50,6 +56,21 @@ const Seismicity = () => {
     setPeriodIndex,
   } = useSeismicityStore();
 
+  const toasterId = useId('seismicity');
+  const { dispatchToast } = useToastController(toasterId);
+
+  const showErrorToast = useCallback(
+    (error: CustomError) => {
+      dispatchToast(
+        <Toast>
+          <ToastTitle>{error.message}</ToastTitle>
+        </Toast>,
+        { intent: 'error' }
+      );
+    },
+    [dispatchToast]
+  );
+
   const { useUTC } = useAppStore();
 
   const periods = useMemo(() => {
@@ -57,11 +78,15 @@ const Seismicity = () => {
   }, [periodsDay, periodsHour, sampling]);
 
   const updatePlot = useCallback(() => {
-    fetchSeismicity().then(() => {
-      const option = getEChartsOption();
-      chartRef.current?.setOption(option, true, true);
-    });
-  }, [fetchSeismicity, getEChartsOption]);
+    fetchSeismicity()
+      .then(() => {
+        const option = getEChartsOption();
+        chartRef.current?.setOption(option, true, true);
+      })
+      .catch(() => {
+        showErrorToast(new CustomError('Failed to fetch seismicity data'));
+      });
+  }, [fetchSeismicity, getEChartsOption, showErrorToast]);
 
   const startDateFormatted = useMemo(() => {
     const template = sampling === 'day' ? 'MMMM dd, yyyy' : 'MMMM dd, yyyy HH:mm';
@@ -182,6 +207,7 @@ const Seismicity = () => {
           </Table>
         </div>
       </div>
+      <Toaster toasterId={toasterId} />
     </div>
   );
 };
