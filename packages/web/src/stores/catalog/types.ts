@@ -6,10 +6,15 @@ export interface CatalogStore {
   allCatalogs: Catalog[];
   events: SeismicEvent[];
   nextEventsUrl: string | null;
+  loading: boolean;
   /**
    * Sets the current catalog.
    */
   setCurrentCatalog: (catalog: Catalog) => void;
+  /**
+   * Sets the loading state.
+   */
+  setLoading: (loading: boolean) => void;
   /**
    * Fetches all catalogs from the organization where the user is a member of
    * and sets the default catalog.

@@ -16,8 +16,11 @@ const catalogStore = create<CatalogStore>((set, get) => {
     allCatalogs: [],
     events: [],
     nextEventsUrl: null,
+    loading: false,
 
     setCurrentCatalog: (catalog) => set({ currentCatalog: catalog }),
+
+    setLoading: (loading) => set({ loading }),
 
     fetchAllCatalogs: async () => {
       const { currentOrganization } = useOrganizationStore.getState();
@@ -72,9 +75,14 @@ const catalogStore = create<CatalogStore>((set, get) => {
         return;
       }
 
-      const response = await api(nextEventsUrl);
-      const data: Pagination<SeismicEvent[]> = await response.json();
-      set((state) => ({ events: [...state.events, ...data.results], nextEventsUrl: data.next }));
+      set({ loading: true });
+      try {
+        const response = await api(nextEventsUrl);
+        const data: Pagination<SeismicEvent[]> = await response.json();
+        set((state) => ({ events: [...state.events, ...data.results], nextEventsUrl: data.next }));
+      } finally {
+        set({ loading: false });
+      }
     },
 
     hasNextEvents: () => {

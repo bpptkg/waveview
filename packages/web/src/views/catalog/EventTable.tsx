@@ -17,7 +17,7 @@ import {
   useTableSelection,
   useTableSort,
 } from '@fluentui/react-components';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import EventTypeLabel from '../../components/Catalog/EventTypeLabel';
 import { formatNumber, formatTime } from '../../shared/formatting';
@@ -60,7 +60,7 @@ const EventTable = () => {
   const navigate = useNavigate();
   const { eventId } = useParams();
   const { useUTC } = useAppStore();
-  const { events, fetchEvents, fetchNextEvents, hasNextEvents } = useCatalogStore();
+  const { events, loading, fetchEvents, fetchNextEvents, hasNextEvents } = useCatalogStore();
   const { clearCache } = useEventDetailStore();
 
   useEffect(() => {
@@ -117,6 +117,10 @@ const EventTable = () => {
       };
     })
   );
+
+  const handleFetchNextEvents = useCallback(() => {
+    fetchNextEvents();
+  }, [fetchNextEvents]);
 
   return (
     <div className="relative h-full w-full">
@@ -175,8 +179,8 @@ const EventTable = () => {
         </Table>
         {hasNextEvents() && (
           <div className="flex justify-center mt-2">
-            <Button appearance="transparent" onClick={fetchNextEvents}>
-              Load more
+            <Button appearance="transparent" onClick={handleFetchNextEvents}>
+              {loading ? 'Loading...' : 'Load more'}
             </Button>
           </div>
         )}
