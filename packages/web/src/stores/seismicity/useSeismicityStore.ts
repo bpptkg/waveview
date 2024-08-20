@@ -100,6 +100,7 @@ const seismicityStore = create<SeismicityStore>((set, get) => {
           start: new Date(startDate).toISOString(),
           end: new Date(endDate).toISOString(),
           group_by: sampling,
+          fill_gaps: true,
         },
       });
       if (!response.ok) {
