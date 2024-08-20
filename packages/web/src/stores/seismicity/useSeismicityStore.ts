@@ -12,6 +12,7 @@ import { SeismicityData } from '../../types/seismicity';
 import { useCatalogStore } from '../catalog';
 import { useOrganizationStore } from '../organization';
 import { SeismicityStore } from './types';
+import { ONE_HOUR } from '../../shared/time';
 
 const seismicityStore = create<SeismicityStore>((set, get) => {
   const endDate = Date.now();
@@ -127,8 +128,8 @@ const seismicityStore = create<SeismicityStore>((set, get) => {
           axisTick: {
             show: index === seismicity.length - 1 ? true : false,
           },
-          min: startDate,
-          max: endDate,
+          min: startDate - ONE_HOUR, // Add one hour to show the first bar
+          max: endDate + ONE_HOUR, // Add one hour to show the last bar
         };
         return option;
       });
