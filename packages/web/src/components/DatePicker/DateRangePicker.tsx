@@ -8,6 +8,7 @@ import TimePicker from './TimePicker';
 import { today } from './utils';
 
 export interface DateRangePickerProps {
+  className?: string;
   periods?: PeriodItem[];
   defaultIndex?: number;
   startDate?: number;
@@ -17,7 +18,7 @@ export interface DateRangePickerProps {
 }
 
 const DateRangePicker: React.FC<DateRangePickerProps> = (props) => {
-  const { periods = [], startDate = today(), endDate = today(), defaultIndex = 0, showTimeSelect = true, onChange } = props;
+  const { className, periods = [], startDate = today(), endDate = today(), defaultIndex = 0, showTimeSelect = true, onChange } = props;
 
   const [selectedPeriod, setSelectedPeriod] = useState<number>(defaultIndex);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
@@ -48,7 +49,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = (props) => {
   };
 
   return (
-    <div className="flex items-center">
+    <div className={`flex items-center ${className}`}>
       <Select appearance="outline" defaultValue={selectedPeriod} onChange={(_, data) => handleSelectPeriod(data.value)}>
         {periods.map((period, index) => (
           <option key={index} value={index}>
