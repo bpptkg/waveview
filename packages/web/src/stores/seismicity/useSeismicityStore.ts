@@ -6,13 +6,13 @@ import { create } from 'zustand';
 import { api } from '../../services/api';
 import apiVersion from '../../services/apiVersion';
 import { createSelectors } from '../../shared/createSelectors';
+import { ONE_DAY, ONE_HOUR } from '../../shared/time';
 import { circle } from '../../shared/tooltip';
 import { CustomError } from '../../types/response';
 import { SeismicityData } from '../../types/seismicity';
 import { useCatalogStore } from '../catalog';
 import { useOrganizationStore } from '../organization';
 import { SeismicityStore } from './types';
-import { ONE_HOUR } from '../../shared/time';
 
 const seismicityStore = create<SeismicityStore>((set, get) => {
   const endDate = Date.now();
@@ -114,6 +114,8 @@ const seismicityStore = create<SeismicityStore>((set, get) => {
     getEChartsOption: () => {
       const { seismicity, startDate, endDate, sampling } = get();
 
+      const margin = sampling === 'day' ? ONE_DAY : ONE_HOUR;
+
       const xAxis = seismicity.map((_, index) => {
         const option: XAXisOption = {
           type: 'time',
@@ -128,8 +130,8 @@ const seismicityStore = create<SeismicityStore>((set, get) => {
           axisTick: {
             show: index === seismicity.length - 1 ? true : false,
           },
-          min: startDate - ONE_HOUR, // Add one hour to show the first bar
-          max: endDate + ONE_HOUR, // Add one hour to show the last bar
+          min: startDate - margin,
+          max: endDate + margin,
         };
         return option;
       });
