@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { baseUrl } from '../../services/api';
 import { createSelectors } from '../../shared/createSelectors';
-import { User } from '../../types/user';
+import { UserDetail } from '../../types/user';
 import { useAuthStore } from '../auth/useAuthStore';
 import { UserStore } from './types';
 
@@ -18,7 +18,7 @@ const userStore = create<UserStore>((set, get) => ({
         Authorization: `Bearer ${accessToken}`,
       },
     });
-    const user: User = await response.json();
+    const user: UserDetail = await response.json();
     set({ user });
   },
 
