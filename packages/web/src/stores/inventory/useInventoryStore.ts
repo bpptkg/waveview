@@ -5,6 +5,7 @@ import { createSelectors } from '../../shared/createSelectors';
 import { Inventory } from '../../types/inventory';
 import { useOrganizationStore } from '../organization';
 import { InventoryStore } from './types';
+import { CustomError } from '../../types/response';
 
 export const inventoryStore = create<InventoryStore>((set, get) => {
   return {
@@ -17,6 +18,10 @@ export const inventoryStore = create<InventoryStore>((set, get) => {
       }
       const url = apiVersion.getInventory.v1(currentOrganization.id);
       const response = await api(url);
+      if (!response.ok) {
+        throw CustomError.fromErrorData(await response.json());
+      }
+
       const inventory: Inventory = await response.json();
       set({ inventory });
     },
