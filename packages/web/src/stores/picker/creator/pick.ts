@@ -6,6 +6,7 @@ import { CustomError, ErrorData } from '../../../types/response';
 import { useCatalogStore } from '../../catalog';
 import { useOrganizationStore } from '../../organization';
 import { PickSlice, PickerStore } from '../slices';
+import { useVolcanoStore } from '../../volcano/useVolcanoStore';
 
 export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (set, get) => {
   return {
@@ -24,11 +25,15 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
     savePickedEvent: async (event) => {
       const { currentOrganization } = useOrganizationStore.getState();
       if (!currentOrganization) {
-        throw new CustomError('No organization selected');
+        throw new CustomError('Organization is not set');
+      }
+      const { currentVolcano } = useVolcanoStore.getState();
+      if (!currentVolcano) {
+        throw new CustomError('Volcano is not set');
       }
       const { currentCatalog } = useCatalogStore.getState();
       if (!currentCatalog) {
-        throw new CustomError('No catalog selected');
+        throw new CustomError('Catalog is not set');
       }
 
       const payload: EventPayload = {
@@ -56,8 +61,8 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
       };
 
       const url = event.eventId
-        ? apiVersion.updateEvent.v1(currentOrganization.id, currentCatalog.id, event.eventId)
-        : apiVersion.createEvent.v1(currentOrganization.id, currentCatalog.id);
+        ? apiVersion.updateEvent.v1(currentOrganization.id, currentVolcano.id, currentCatalog.id, event.eventId)
+        : apiVersion.createEvent.v1(currentOrganization.id, currentVolcano.id, currentCatalog.id);
 
       const method: 'PUT' | 'POST' = event.eventId ? 'PUT' : 'POST';
 

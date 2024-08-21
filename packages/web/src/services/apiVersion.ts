@@ -62,6 +62,12 @@ export default {
   deleteEventType: {
     v1: (organizationId: string, id: string) => `/api/v1/organizations/${organizationId}/event-types/${id}/`,
   },
+  getDemXyz: {
+    v1: (organizationId: string, volcanoId: string) => `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/demxyz/`,
+  },
+  getPickerConfig: {
+    v1: (organizationId: string, volcanoId: string) => `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/picker-config/`,
+  },
   listCatalog: {
     v1: (organizationId: string, volcanoId: string) => `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/`,
   },
@@ -77,28 +83,36 @@ export default {
   deleteCatalog: {
     v1: (organizationId: string, volcanoId: string, id: string) => `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/${id}/`,
   },
-  getPickerConfig: {
-    v1: (organizationId: string) => `/api/v1/organizations/${organizationId}/picker-config/`,
-  },
   listEvent: {
-    v1: (organizationId: string, catalogId: string) => `/api/v1/organizations/${organizationId}/catalogs/${catalogId}/events/`,
+    v1: (organizationId: string, volcanoId: string, catalogId: string) =>
+      `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/${catalogId}/events/`,
   },
   createEvent: {
-    v1: (organizationId: string, catalogId: string) => `/api/v1/organizations/${organizationId}/catalogs/${catalogId}/events/`,
+    v1: (organizationId: string, volcanoId: string, catalogId: string) =>
+      `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/${catalogId}/events/`,
   },
   getEvent: {
-    v1: (organizationId: string, catalogId: string, id: string) => `/api/v1/organizations/${organizationId}/catalogs/${catalogId}/events/${id}/`,
+    v1: (organizationId: string, volcanoId: string, catalogId: string, id: string) =>
+      `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/${catalogId}/events/${id}/`,
   },
   updateEvent: {
-    v1: (organizationId: string, catalogId: string, id: string) => `/api/v1/organizations/${organizationId}/catalogs/${catalogId}/events/${id}/`,
+    v1: (organizationId: string, volcanoId: string, catalogId: string, id: string) =>
+      `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/${catalogId}/events/${id}/`,
   },
   deleteEvent: {
-    v1: (organizationId: string, catalogId: string, id: string) => `/api/v1/organizations/${organizationId}/catalogs/${catalogId}/events/${id}/`,
+    v1: (organizationId: string, volcanoId: string, catalogId: string, id: string) =>
+      `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/${catalogId}/events/${id}/`,
   },
   bookmarkEvent: {
-    v1: (organizationId: string, catalogId: string, id: string) => `/api/v1/organizations/${organizationId}/catalogs/${catalogId}/events/${id}/bookmark/`,
+    v1: (organizationId: string, volcanoId: string, catalogId: string, id: string) =>
+      `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/${catalogId}/events/${id}/bookmark/`,
   },
   getSeismicity: {
-    v1: (organizationId: string, catalogId: string) => `/api/v1/organizations/${organizationId}/catalogs/${catalogId}/analytics/seismicity/`,
+    v1: (organizationId: string, volcanoId: string, catalogId: string) =>
+      `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}catalogs/${catalogId}/analytics/seismicity/`,
+  },
+  getHypocenter: {
+    v1: (organizationId: string, volcanoId: string, catalogId: string) =>
+      `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/${catalogId}/analytics/hypocenter/`,
   },
 };

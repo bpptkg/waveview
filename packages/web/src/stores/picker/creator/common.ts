@@ -5,6 +5,7 @@ import { PickerConfig } from '../../../types/picker';
 import { CustomError } from '../../../types/response';
 import { useCatalogStore } from '../../catalog';
 import { useOrganizationStore } from '../../organization';
+import { useVolcanoStore } from '../../volcano/useVolcanoStore';
 import { CommonSlice, PickerStore } from '../slices';
 
 export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> = (set) => {
@@ -21,9 +22,13 @@ export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> =
     fetchPickerConfig: async () => {
       const { currentOrganization } = useOrganizationStore.getState();
       if (!currentOrganization) {
-        return;
+        throw new CustomError('Organization is not set');
       }
-      const response = await api(apiVersion.getPickerConfig.v1(currentOrganization.id));
+      const { currentVolcano } = useVolcanoStore.getState();
+      if (!currentVolcano) {
+        throw new CustomError('Volcano is not set');
+      }
+      const response = await api(apiVersion.getPickerConfig.v1(currentOrganization.id, currentVolcano.id));
       const data: PickerConfig = await response.json();
       set({ pickerConfig: data });
     },
@@ -33,11 +38,15 @@ export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> =
       if (!currentOrganization) {
         throw new CustomError('Organization not found');
       }
+      const { currentVolcano } = useVolcanoStore.getState();
+      if (!currentVolcano) {
+        throw new CustomError('Volcano is not set');
+      }
       const { currentCatalog } = useCatalogStore.getState();
       if (!currentCatalog) {
         throw new CustomError('Catalog not found');
       }
-      const response = await api(apiVersion.listEvent.v1(currentOrganization.id, currentCatalog.id), {
+      const response = await api(apiVersion.listEvent.v1(currentOrganization.id, currentVolcano.id, currentCatalog.id), {
         params: {
           start: new Date(start).toISOString(),
           end: new Date(end).toISOString(),

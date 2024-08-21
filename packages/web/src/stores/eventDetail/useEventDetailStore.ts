@@ -8,6 +8,7 @@ import { useCatalogStore } from '../catalog';
 import { useInventoryStore } from '../inventory';
 import { useOrganizationStore } from '../organization';
 import { EventDetailStore } from './types';
+import { useVolcanoStore } from '../volcano/useVolcanoStore';
 
 const cache = new Map<string, SeismicEventDetail>();
 
@@ -41,6 +42,10 @@ const eventDetailStore = create<EventDetailStore>((set, get) => ({
       if (!currentOrganization) {
         throw new CustomError('Organization is not set');
       }
+      const { currentVolcano } = useVolcanoStore.getState();
+      if (!currentVolcano) {
+        throw new CustomError('Volcano is not set');
+      }
       const { currentCatalog } = useCatalogStore.getState();
       if (!currentCatalog) {
         throw new CustomError('Catalog is not set');
@@ -48,7 +53,7 @@ const eventDetailStore = create<EventDetailStore>((set, get) => ({
 
       set({ loading: true });
 
-      const response = await api(apiVersion.getEvent.v1(currentOrganization.id, currentCatalog.id, eventId));
+      const response = await api(apiVersion.getEvent.v1(currentOrganization.id, currentVolcano.id, currentCatalog.id, eventId));
       if (response.status === 404) {
         throw new CustomError('Event not found');
       }
@@ -75,6 +80,10 @@ const eventDetailStore = create<EventDetailStore>((set, get) => ({
     if (!currentOrganization) {
       throw new CustomError('Organization is not set');
     }
+    const { currentVolcano } = useVolcanoStore.getState();
+    if (!currentVolcano) {
+      throw new CustomError('Volcano is not set');
+    }
     const { currentCatalog } = useCatalogStore.getState();
     if (!currentCatalog) {
       throw new CustomError('Catalog is not set');
@@ -84,7 +93,7 @@ const eventDetailStore = create<EventDetailStore>((set, get) => ({
       throw new CustomError('Event ID is not set');
     }
 
-    const response = await api(apiVersion.bookmarkEvent.v1(currentOrganization.id, currentCatalog.id, eventId), {
+    const response = await api(apiVersion.bookmarkEvent.v1(currentOrganization.id, currentVolcano.id, currentCatalog.id, eventId), {
       method: 'POST',
     });
     const data: EventBookmarkResponse = await response.json();
@@ -100,6 +109,10 @@ const eventDetailStore = create<EventDetailStore>((set, get) => ({
     if (!currentOrganization) {
       throw new CustomError('Organization is not set');
     }
+    const { currentVolcano } = useVolcanoStore.getState();
+    if (!currentVolcano) {
+      throw new CustomError('Volcano is not set');
+    }
     const { currentCatalog } = useCatalogStore.getState();
     if (!currentCatalog) {
       throw new CustomError('Catalog is not set');
@@ -109,7 +122,7 @@ const eventDetailStore = create<EventDetailStore>((set, get) => ({
       throw new CustomError('Event ID is not set');
     }
 
-    const response = await api(apiVersion.deleteEvent.v1(currentOrganization.id, currentCatalog.id, eventId), { method: 'DELETE' });
+    const response = await api(apiVersion.deleteEvent.v1(currentOrganization.id, currentVolcano.id, currentCatalog.id, eventId), { method: 'DELETE' });
     if (!response.ok) {
       const err: ErrorData = await response.json();
       throw CustomError.fromErrorData(err);

@@ -38,10 +38,10 @@ const Dashboard = () => {
       await fetchUser();
       await fetchAllOrganizations();
       await fetchInventory();
-      await fetchPickerConfig();
-      await fetchEventTypes();
       await fetchAllVolcanoes();
       await fetchAllCatalogs();
+      await fetchEventTypes();
+      await fetchPickerConfig();
 
       setIsInitialized(true);
 

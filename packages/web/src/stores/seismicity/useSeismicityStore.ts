@@ -13,6 +13,7 @@ import { SeismicityData } from '../../types/seismicity';
 import { useCatalogStore } from '../catalog';
 import { useOrganizationStore } from '../organization';
 import { SeismicityStore } from './types';
+import { useVolcanoStore } from '../volcano/useVolcanoStore';
 
 const seismicityStore = create<SeismicityStore>((set, get) => {
   const endDate = Date.now();
@@ -88,6 +89,10 @@ const seismicityStore = create<SeismicityStore>((set, get) => {
       if (!currentOrganization) {
         throw new CustomError('Organization is not set');
       }
+      const { currentVolcano } = useVolcanoStore.getState();
+      if (!currentVolcano) {
+        throw new CustomError('Volcano is not set');
+      }
       const { currentCatalog } = useCatalogStore.getState();
       if (!currentCatalog) {
         throw new CustomError('Catalog is not set');
@@ -95,7 +100,7 @@ const seismicityStore = create<SeismicityStore>((set, get) => {
 
       const { startDate, endDate, sampling } = get();
 
-      const url = apiVersion.getSeismicity.v1(currentOrganization.id, currentCatalog.id);
+      const url = apiVersion.getSeismicity.v1(currentOrganization.id, currentVolcano.id, currentCatalog.id);
       const response = await api(url, {
         params: {
           start: new Date(startDate).toISOString(),

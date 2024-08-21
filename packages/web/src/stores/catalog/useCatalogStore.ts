@@ -25,12 +25,11 @@ const catalogStore = create<CatalogStore>((set, get) => {
     fetchAllCatalogs: async () => {
       const { currentOrganization } = useOrganizationStore.getState();
       if (!currentOrganization) {
-        return;
+        throw new CustomError('Organization is not set');
       }
-
       const { currentVolcano } = useVolcanoStore.getState();
       if (!currentVolcano) {
-        return;
+        throw new CustomError('Volcano is not set');
       }
 
       const url = apiVersion.listCatalog.v1(currentOrganization.id, currentVolcano.id);
@@ -50,15 +49,18 @@ const catalogStore = create<CatalogStore>((set, get) => {
     fetchEvents: async () => {
       const { currentOrganization } = useOrganizationStore.getState();
       if (!currentOrganization) {
-        return;
+        throw new CustomError('Organization is not set');
       }
-
+      const { currentVolcano } = useVolcanoStore.getState();
+      if (!currentVolcano) {
+        throw new CustomError('Volcano is not set');
+      }
       const { currentCatalog } = catalogStore.getState();
       if (!currentCatalog) {
-        return;
+        throw new CustomError('Catalog is not set');
       }
 
-      const url = apiVersion.listEvent.v1(currentOrganization.id, currentCatalog.id);
+      const url = apiVersion.listEvent.v1(currentOrganization.id, currentVolcano.id, currentCatalog.id);
       const response = await api(url, {
         params: {
           page: 1,
