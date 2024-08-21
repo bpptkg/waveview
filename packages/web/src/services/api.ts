@@ -54,6 +54,8 @@ const constructUrl = (baseUrl: string, url: string, params?: Record<string, stri
 };
 
 export const api = async (url: string, options: APIOptions = {}): Promise<Response> => {
+  let attempts = 0;
+
   const tryFetch = async () => {
     const { method = 'GET', body, params } = options;
 
@@ -74,7 +76,12 @@ export const api = async (url: string, options: APIOptions = {}): Promise<Respon
     });
 
     if (response.status === 401) {
+      if (attempts > 0) {
+        window.location.href = '/login';
+      }
       await refreshToken();
+      attempts += 1;
+
       return tryFetch();
     }
 
