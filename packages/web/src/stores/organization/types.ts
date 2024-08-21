@@ -1,9 +1,8 @@
-import { Organization, OrganizationSettings } from '../../types/organization';
+import { Organization } from '../../types/organization';
 
 export interface OrganizationStore {
   currentOrganization: Organization | null;
   allOrganizations: Organization[];
-  currentOrganizationSettings: OrganizationSettings | null;
   /**
    * Sets the current organization context.
    *
@@ -15,8 +14,4 @@ export interface OrganizationStore {
    * Fetches all organizations the user is a member of.
    */
   fetchAllOrganizations: () => Promise<void>;
-  /**
-   * Fetches the settings of the organization.
-   */
-  fetchOrganizationSettings: (id: string) => Promise<void>;
 }

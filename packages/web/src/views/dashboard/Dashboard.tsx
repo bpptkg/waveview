@@ -56,7 +56,7 @@ const Dashboard = () => {
       const selectedChannels = pickerConfig.seismogram_config.station_configs.map((stationConfig) => {
         const channel = availableChannels.find((channel) => channel.station_id === stationConfig.station.id && channel.code.includes(seismogramComponent));
         if (!channel) {
-          throw new CustomError(`Channel for station ${stationConfig.station.id} not found`);
+          throw new CustomError(`Channel for station ${stationConfig.station.id} not found.`);
         }
         return channel;
       });
@@ -64,7 +64,7 @@ const Dashboard = () => {
     };
 
     initializeApp().catch((error: CustomError) => {
-      setError(`Failed to initialize app (${error.message})`);
+      setError(`Failed to initialize app: ${error.message}`);
     });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

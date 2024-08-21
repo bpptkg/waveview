@@ -109,7 +109,7 @@ export default {
   },
   getSeismicity: {
     v1: (organizationId: string, volcanoId: string, catalogId: string) =>
-      `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}catalogs/${catalogId}/analytics/seismicity/`,
+      `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/${catalogId}/analytics/seismicity/`,
   },
   getHypocenter: {
     v1: (organizationId: string, volcanoId: string, catalogId: string) =>
