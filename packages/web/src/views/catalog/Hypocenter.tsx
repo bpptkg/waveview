@@ -24,6 +24,7 @@ interface UpdateOptions {
 
 const Hypocenter = () => {
   const chartRef = useRef<ReactECharts | null>(null);
+
   const { startDate, endDate, periods, periodIndex, setPeriodIndex, setTimeRange, fetchHypocenter, getEChartsOption } = useHypocenterStore();
   const { demxyz, fetchDemXyz } = useDemXyzStore();
   const { useUTC, darkMode } = useAppStore();
@@ -93,6 +94,17 @@ const Hypocenter = () => {
     updatePlot();
   }, [updatePlot]);
 
+  const handleDownload = useCallback(async () => {
+    const dataURL = chartRef.current?.toDataURL({ type: 'png', pixelRatio: 3 });
+    if (dataURL) {
+      const a = document.createElement('a');
+      a.href = dataURL;
+      a.download = 'hypocenter.png';
+      a.click();
+      a.remove();
+    }
+  }, []);
+
   return (
     <div className="relative h-full w-full flex flex-col">
       <div className="bg-white dark:bg-black mx-2 drop-shadow rounded flex justify-between items-center">
@@ -105,7 +117,7 @@ const Hypocenter = () => {
             </Select>
           </div>
           <ToolbarButton icon={<ArrowCounterclockwiseRegular fontSize={20} />} onClick={handleRefresh} />
-          <ToolbarButton icon={<ArrowDownloadRegular fontSize={20} />} />
+          <ToolbarButton icon={<ArrowDownloadRegular fontSize={20} onClick={handleDownload} />} />
         </Toolbar>
       </div>
       <div className="flex-grow mt-2">
