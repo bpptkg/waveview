@@ -21,6 +21,7 @@ import { useHypocenterStore } from '../../stores/hypocenter';
 import { CustomError } from '../../types/response';
 
 import { ArrowCounterclockwiseRegular, ArrowDownloadRegular } from '@fluentui/react-icons';
+import { install as VisualMapCustomPiecewiseComponent } from '@waveview/visualmap-custompiecewise';
 import { Scatter3DChart, SurfaceChart } from 'echarts-gl/charts';
 import { Grid3DComponent } from 'echarts-gl/components';
 import { TooltipComponent, VisualMapComponent, VisualMapPiecewiseComponent } from 'echarts/components';
@@ -36,7 +37,16 @@ import { useDemXyzStore } from '../../stores/demxyz';
 import { useEventTypeStore } from '../../stores/eventType';
 import { HypocenterWorkspace } from '../../types/hypocenter';
 
-echarts.use([TooltipComponent, VisualMapComponent, VisualMapPiecewiseComponent, Grid3DComponent, Scatter3DChart, SurfaceChart, CanvasRenderer]);
+echarts.use([
+  TooltipComponent,
+  VisualMapComponent,
+  VisualMapPiecewiseComponent,
+  VisualMapCustomPiecewiseComponent,
+  CanvasRenderer,
+  Grid3DComponent,
+  Scatter3DChart,
+  SurfaceChart,
+]);
 
 interface UpdateOptions {
   refreshHypo?: boolean;

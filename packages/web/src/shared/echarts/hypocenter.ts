@@ -392,7 +392,7 @@ export function createHypocenterChartOption(options: HypocenterOption): any {
       color: colors.foreground,
       fontSize: 10,
     },
-    type: 'piecewise',
+    type: 'customPiecewise',
   };
 
   const seriesOption = [

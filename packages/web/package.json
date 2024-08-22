@@ -17,6 +17,7 @@
     "@waveview/charts": "workspace:*",
     "@waveview/react-echarts": "workspace:*",
     "@waveview/stream": "workspace:*",
+    "@waveview/visualmap-custompiecewise": "workspace:*",
     "colormap": "^2.3.2",
     "date-fns": "^3.6.0",
     "date-fns-tz": "^3.1.3",
