@@ -29,10 +29,12 @@ const DateRangePicker: React.FC<DateRangePickerProps> = (props) => {
     const periodIndex = parseInt(value);
     setSelectedPeriod(periodIndex);
 
-    const period = periods[periodIndex];
-    const end = Date.now();
-    const start = sub(end, { [period.unit]: period.value }).getTime();
-    onChange?.(periodIndex, start, end);
+    if (periodIndex !== -1) {
+      const period = periods[periodIndex];
+      const end = Date.now();
+      const start = sub(end, { [period.unit]: period.value }).getTime();
+      onChange?.(periodIndex, start, end);
+    }
   };
 
   const handleStartDateSelected = (date: number) => {
