@@ -1,0 +1,32 @@
+{
+  "name": "@waveview/visualmap-custompiecewise",
+  "private": true,
+  "version": "0.1.0",
+  "description": "ECharts visual map custom piecewise extension",
+  "type": "module",
+  "main": "./src/index.js",
+  "module": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bpptkg/waveview"
+  },
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.4.1"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "dependencies": {
+    "echarts": "^5.5.1",
+    "tslib": "^2.6.3",
+    "zrender": "^5.6.0"
+  }
+}
