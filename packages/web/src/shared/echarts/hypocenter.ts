@@ -326,7 +326,7 @@ export function createHypocenterChartOption(options: HypocenterOption): any {
         return [
           utm.easting, // Array index: 0
           utm.northing, // 1
-          e.depth * -1000, // 2
+          e.depth * -1000, // 2: Depth is in km, so we convert it to meters.
           e.magnitude, // 3
           // ECharts strangely show last item label in the tooltip. So, we keep
           // eventtype always in the last order.

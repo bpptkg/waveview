@@ -1,7 +1,7 @@
 import { Select, Toast, ToastTitle, Toolbar, ToolbarButton, Tooltip, useId, useToastController } from '@fluentui/react-components';
 import { ReactECharts } from '@waveview/react-echarts';
 import * as echarts from 'echarts/core';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useHypocenterStore } from '../../stores/hypocenter';
 import { CustomError } from '../../types/response';
 
@@ -24,6 +24,7 @@ interface UpdateOptions {
 
 const Hypocenter = () => {
   const chartRef = useRef<ReactECharts | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   const { startDate, endDate, periods, periodIndex, setPeriodIndex, setTimeRange, fetchHypocenter, getEChartsOption } = useHypocenterStore();
   const { demxyz, fetchDemXyz } = useDemXyzStore();
@@ -73,12 +74,14 @@ const Hypocenter = () => {
   );
 
   useEffect(() => {
+    if (!isMounted) return;
     updatePlot({ refreshHypo: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [useUTC, darkMode]);
 
   useMount(async () => {
     updatePlot({ refreshHypo: true, refreshDem: 'auto' });
+    setIsMounted(true);
   });
 
   const handleDateRangeChange = useCallback(
