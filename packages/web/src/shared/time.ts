@@ -17,6 +17,6 @@ export function getPickExtent(event: SeismicEvent | SeismicEventDetail) {
   return [start, end];
 }
 
-export function formatTimezonedDate(date: number, template: string, useUTC: boolean): string {
+export function formatTimezonedDate(date: Date | string | number, template: string, useUTC: boolean): string {
   return useUTC ? formatInTimeZone(date, 'UTC', template) : format(date, template);
 }
