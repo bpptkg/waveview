@@ -29,7 +29,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import EventTypeLabel from '../../components/Catalog/EventTypeLabel';
 import DateRangePicker from '../../components/DatePicker/DateRangePicker';
 import { formatNumber } from '../../shared/formatting';
-import { max, mean, median, min, standardDeviation, sum } from '../../shared/statistics';
+import { max, mean, median, minNonZero, standardDeviation, sum } from '../../shared/statistics';
 import { formatTimezonedDate } from '../../shared/time';
 import { useAppStore } from '../../stores/app';
 import { useSeismicityStore } from '../../stores/seismicity';
@@ -212,7 +212,7 @@ const Seismicity = () => {
                     <TableCell>
                       <EventTypeLabel eventType={item.event_type} />
                     </TableCell>
-                    <TableCell>{formatNumber(min(item.data.map((v) => v.count)), { precision: 0 })}</TableCell>
+                    <TableCell>{formatNumber(minNonZero(item.data.map((v) => v.count)), { precision: 0 })}</TableCell>
                     <TableCell>{formatNumber(max(item.data.map((v) => v.count)), { precision: 0 })}</TableCell>
                     <TableCell>{formatNumber(mean(item.data.map((v) => v.count)), { precision: 1 })}</TableCell>
                     <TableCell>{formatNumber(sum(item.data.map((v) => v.count)), { precision: 0 })}</TableCell>

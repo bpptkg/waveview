@@ -24,6 +24,19 @@ export function min(array: number[]): number {
   return min;
 }
 
+export function minNonZero(array: number[]): number {
+  if (array.length === 0) {
+    return NaN;
+  }
+  let min = Infinity;
+  for (const value of array) {
+    if (value < min && value !== 0) {
+      min = value;
+    }
+  }
+  return min;
+}
+
 export function sum(array: number[]): number {
   if (array.length === 0) {
     return 0;

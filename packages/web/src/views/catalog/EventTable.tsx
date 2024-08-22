@@ -160,7 +160,7 @@ const EventTable = () => {
                   <TableCell>
                     <TableCellLayout
                       media={
-                        <Tooltip content={item.author.name} relationship="label">
+                        <Tooltip content={item.author.name || item.author.username} relationship="label">
                           <Avatar aria-label={item.author.name} name={item.author.name} color="colorful" image={{ src: item.author.avatar }} />
                         </Tooltip>
                       }
