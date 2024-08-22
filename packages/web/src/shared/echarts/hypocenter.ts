@@ -1,7 +1,10 @@
+import { CallbackDataParams } from 'echarts/types/dist/shared';
 import { HypocenterOrigin } from '../../types/hypocenter';
 import { createColormap } from '../color';
+import { formatNumber } from '../formatting';
 import { fromLatLon } from '../geo';
 import { formatTimezonedDate } from '../time';
+import { circle } from '../tooltip';
 
 export interface HypocenterOption {
   /**
@@ -50,17 +53,53 @@ export interface HypocenterOption {
   showSurfaceWireframe?: boolean;
 }
 
+type Nullable<T> = T | null;
+
+interface AspectRatioOptions {
+  xMin?: Nullable<number>;
+  xMax?: Nullable<number>;
+  yMin?: Nullable<number>;
+  yMax?: Nullable<number>;
+  zMin?: Nullable<number>;
+  zMax?: Nullable<number>;
+}
+
+function isNumber<T>(value: Nullable<T>): boolean {
+  return typeof value === 'number';
+}
+
+function calculateAspectRatio(options: AspectRatioOptions): [number, number, number] {
+  const { xMin, xMax, yMin, yMax, zMin, zMax } = options;
+  if (isNumber(xMin) && isNumber(xMax) && isNumber(yMin) && isNumber(yMax) && isNumber(zMin) && isNumber(zMax)) {
+    const xRange = xMax! - xMin!;
+    const yRange = yMax! - yMin!;
+    const zRange = zMax! - zMin!;
+    const maxRange = Math.max(xRange, yRange, zRange);
+    return [xRange / maxRange, yRange / maxRange, zRange / maxRange];
+  } else {
+    return [1, 1, 1];
+  }
+}
+
+export const tooltipWrapper = (template: string) => {
+  return `
+  <div style="max-height:300px;overflow-y:hidden;font-size:0.85rem;line-height:0.92rem;">
+    ${template}
+  </div>
+  `;
+};
+
 export function createHypocenterChartOption(options: HypocenterOption): any {
   const {
     data,
     topo,
     zoneNumber,
     darkMode = false,
-    alpha = 20, // Vertical view angle.
-    beta = 40, // Horizontal view angle.
+    alpha = 20,
+    beta = 40,
     minAlpha = -360,
     maxAlpha = 360,
-    distance = 200,
+    distance = 180,
     xMin,
     xMax,
     yMin,
@@ -88,6 +127,20 @@ export function createHypocenterChartOption(options: HypocenterOption): any {
     background: darkMode ? '#708090' : '#fff',
   };
 
+  const aspectRatioOptions: AspectRatioOptions = {
+    xMin,
+    xMax,
+    yMin,
+    yMax,
+    zMin,
+    zMax,
+  };
+
+  const [xAspect, yAspect, zAspect] = calculateAspectRatio(aspectRatioOptions);
+  const boxWidth = 100 * xAspect;
+  const boxHeight = 100 * zAspect;
+  const boxDepth = 100 * yAspect;
+
   const baseOption = {
     grid3D: {
       show: true,
@@ -110,7 +163,9 @@ export function createHypocenterChartOption(options: HypocenterOption): any {
         rotateSensitivity: 2,
         zoomSensitivity: 2,
       },
-      boxHeight: 30,
+      boxWidth,
+      boxHeight,
+      boxDepth,
     },
     xAxis3D: {
       axisLabel: {
@@ -187,6 +242,53 @@ export function createHypocenterChartOption(options: HypocenterOption): any {
       scale: true,
       type: 'value',
     },
+    tooltip: {
+      enterable: true,
+      trigger: 'item',
+      formatter: (params: CallbackDataParams) => {
+        const { value, color } = params;
+
+        const val = value as (number | string)[];
+        const time = formatTimezonedDate(val[3], 'yyyy-MM-dd HH:mm:ss', useUTC);
+        const eventType = val[13];
+        const magnitude = formatNumber(val[4], { precision: 1 });
+
+        const latitude = formatNumber(val[5], { precision: 5, unit: '°' });
+        const longitude = formatNumber(val[7], { precision: 5, unit: '°' });
+        const depth = formatNumber(val[9], { precision: 1, unit: ' km' });
+
+        const template = `${circle(color as string)} ${eventType}<br />
+          Time: ${time}<br />
+          Event type: ${eventType}<br />
+          Magnitude: ${magnitude}<br />
+          Latitude: ${latitude}<br />
+          Longitude: ${longitude}<br />
+          Depth: ${depth}
+          `;
+        return tooltipWrapper(template);
+      },
+    },
+  };
+
+  const surfaceColormapOption = {
+    bottom: 50,
+    right: 50,
+    calculable: true,
+    dimension: 2,
+    inRange: { color: createColormap(surfaceColormap) },
+    max: surfaceMax,
+    min: surfaceMin,
+    realtime: true,
+    seriesIndex: 1,
+    show: showSurfaceColormap,
+    showLabel: true,
+    text: ['Elevation (m)', ''],
+    textStyle: {
+      color: colors.foreground,
+      fontSize: 10,
+    },
+    type: 'continuous',
+    formatter: (value: number) => `${value.toFixed(0)}`,
   };
 
   const timeColormapOption = {
@@ -293,27 +395,6 @@ export function createHypocenterChartOption(options: HypocenterOption): any {
     type: 'piecewise',
   };
 
-  const surfaceColormapOption = {
-    bottom: 50,
-    right: 50,
-    calculable: true,
-    dimension: 2,
-    inRange: { color: createColormap(surfaceColormap) },
-    max: surfaceMax,
-    min: surfaceMin,
-    realtime: true,
-    seriesIndex: 1,
-    show: showSurfaceColormap,
-    showLabel: true,
-    text: ['Elevation (m)', ''],
-    textStyle: {
-      color: colors.foreground,
-      fontSize: 10,
-    },
-    type: 'continuous',
-    formatter: (value: number) => `${value.toFixed(0)}`,
-  };
-
   const seriesOption = [
     {
       blendMode: 'source-over',
@@ -327,10 +408,17 @@ export function createHypocenterChartOption(options: HypocenterOption): any {
           utm.easting, // Array index: 0
           utm.northing, // 1
           e.depth * -1000, // 2: Depth is in km, so we convert it to meters.
-          e.magnitude, // 3
-          // ECharts strangely show last item label in the tooltip. So, we keep
-          // eventtype always in the last order.
-          e.event_type,
+          new Date(e.time).getTime(), // 3
+          e.magnitude_value, // 4
+          e.latitude, // 5
+          e.latitude_uncertainty, // 6
+          e.longitude, // 7
+          e.longitude_uncertainty, // 8
+          e.depth, // 9
+          e.depth_uncertainty, // 10
+          e.id, // 11
+          e.magnitude_type, // 12
+          e.event_type, // 13
         ];
       }),
     },

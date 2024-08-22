@@ -124,15 +124,15 @@ const hypocenterStore = create<HypocenterStore>((set, get) => {
         xMax: demxyz.x_max,
         yMin: demxyz.y_min,
         yMax: demxyz.y_max,
-        zMin: grid.z_min,
-        zMax: grid.z_max,
+        zMin: demxyz.z_min,
+        zMax: demxyz.z_max,
         darkMode: darkMode,
         useUTC: useUTC,
         alpha: pitch,
         beta: yaw,
       });
       return option;
-    }
+    },
   };
 });
 
