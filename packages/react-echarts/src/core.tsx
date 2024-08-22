@@ -256,4 +256,13 @@ export default class ReactEChartsCore extends PureComponent<ReactEChartsProps> {
   clear() {
     this.getEchartsInstance().clear();
   }
+
+  toDataURL(options: {
+    type?: "png" | "jpeg" | "svg";
+    backgroundColor?: string;
+    pixelRatio?: number;
+    excludeComponents?: string[];
+  }) {
+    return this.getEchartsInstance().getDataURL(options);
+  }
 }
