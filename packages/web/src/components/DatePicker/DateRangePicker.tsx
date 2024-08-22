@@ -1,7 +1,7 @@
 import { Button, Label, Popover, PopoverSurface, PopoverTrigger, Select } from '@fluentui/react-components';
 import { CalendarRegular } from '@fluentui/react-icons';
 import { sub } from 'date-fns';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PeriodItem } from '../../types/period';
 import DatePicker from './DatePicker';
 import TimePicker from './TimePicker';
@@ -24,6 +24,10 @@ const DateRangePicker: React.FC<DateRangePickerProps> = (props) => {
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [pickedStartDate, setPickedStartDate] = useState<number>(startDate);
   const [pickedEndDate, setPickedEndDate] = useState<number>(endDate);
+
+  useEffect(() => {
+    setSelectedPeriod(defaultIndex);
+  }, [defaultIndex]);
 
   const handleSelectPeriod = (value: string) => {
     const periodIndex = parseInt(value);
