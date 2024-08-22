@@ -2,6 +2,7 @@ import { Button, makeStyles } from '@fluentui/react-components';
 import { ArrowReply20Regular } from '@fluentui/react-icons';
 import { FederatedPointerEvent } from 'pixi.js';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { getEventTypeColor } from '../../shared/theme';
 import { uuid4 } from '../../shared/uuid';
 import { useAppStore } from '../../stores/app';
 import { useAuthStore } from '../../stores/auth';
@@ -215,14 +216,15 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
 
   const plotEventMarkers = useCallback(() => {
     eventMarkers.forEach((event) => {
-      heliChartRef.current?.addEventMarker({ value: new Date(event.time).getTime(), color: event.type.color, width: 3 });
+      const color = getEventTypeColor(event.type, darkMode);
+      heliChartRef.current?.addEventMarker({ value: new Date(event.time).getTime(), color, width: 3 });
       seisChartRef.current?.addEventMarker({
         start: new Date(event.time).getTime(),
         end: new Date(event.time).getTime() + event.duration * 1_000,
-        color: event.type.color,
+        color,
       });
     });
-  }, [eventMarkers]);
+  }, [eventMarkers, darkMode]);
 
   useEffect(() => {
     if (!showEventMarkers) {
@@ -304,17 +306,18 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
         const { time, duration } = savedEvent;
         const start = new Date(time).getTime();
         const end = start + duration * 1_000;
+        const color = getEventTypeColor(savedEvent.type, darkMode);
         seisChartRef.current?.addEventMarker({
           start,
           end,
-          color: savedEvent.type.color,
+          color,
         });
-        heliChartRef.current?.addEventMarker({ value: start, color: savedEvent.type.color });
+        heliChartRef.current?.addEventMarker({ value: start, color, width: 3 });
         seisChartRef.current?.clearPickRange();
         clearPick();
       }
     },
-    [pickStart, pickEnd, isEditMode, clearPick, addEventMarker, onSave]
+    [pickStart, pickEnd, isEditMode, darkMode, clearPick, addEventMarker, onSave]
   );
 
   const handleUnifiedHelicorderOnReady = useCallback(() => {
