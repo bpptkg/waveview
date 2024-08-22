@@ -17,10 +17,15 @@ import { useDemXyzStore } from '../../stores/demxyz';
 
 echarts.use([TooltipComponent, VisualMapComponent, VisualMapPiecewiseComponent, Grid3DComponent, Scatter3DChart, SurfaceChart, CanvasRenderer]);
 
+interface UpdateOptions {
+  refreshHypo?: boolean;
+  refreshDem?: boolean | 'auto';
+}
+
 const Hypocenter = () => {
   const chartRef = useRef<ReactECharts | null>(null);
   const { startDate, endDate, periods, periodIndex, setPeriodIndex, setTimeRange, fetchHypocenter, getEChartsOption } = useHypocenterStore();
-  const { fetchDemXyz } = useDemXyzStore();
+  const { demxyz, fetchDemXyz } = useDemXyzStore();
   const { useUTC, darkMode } = useAppStore();
 
   const toasterId = useId('hypocenter');
@@ -39,15 +44,20 @@ const Hypocenter = () => {
   );
 
   const updatePlot = useCallback(
-    async ({ refreshHypo = true, refreshDem = false } = {}) => {
+    async (options: UpdateOptions = {}) => {
+      const { refreshHypo = true, refreshDem = 'auto' } = options;
       try {
         chartRef.current?.clear();
         chartRef.current?.showLoading();
         if (refreshHypo) {
           await fetchHypocenter();
         }
-        if (refreshDem) {
+        if (refreshDem === true) {
           await fetchDemXyz();
+        } else if (refreshDem === 'auto') {
+          if (!demxyz) {
+            await fetchDemXyz();
+          }
         }
 
         const option = getEChartsOption();
@@ -58,7 +68,7 @@ const Hypocenter = () => {
         chartRef.current?.hideLoading();
       }
     },
-    [fetchHypocenter, fetchDemXyz, getEChartsOption, showErrorToast]
+    [demxyz, fetchHypocenter, fetchDemXyz, getEChartsOption, showErrorToast]
   );
 
   useEffect(() => {
@@ -67,7 +77,7 @@ const Hypocenter = () => {
   }, [useUTC, darkMode]);
 
   useMount(async () => {
-    updatePlot({ refreshHypo: true, refreshDem: true });
+    updatePlot({ refreshHypo: true, refreshDem: 'auto' });
   });
 
   const handleDateRangeChange = useCallback(
