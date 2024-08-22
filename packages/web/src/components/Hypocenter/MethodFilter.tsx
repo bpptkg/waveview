@@ -1,14 +1,15 @@
 import { Button, MenuItemRadio, MenuList, MenuProps, Popover, PopoverSurface, PopoverTrigger, Tooltip } from '@fluentui/react-components';
 import { CheckmarkRegular, ColumnDoubleCompareRegular } from '@fluentui/react-icons';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 export interface MethodFilterProps {
   methods?: string[];
   selected?: string;
   onChange?: (method: string) => void;
+  onReset?: () => void;
 }
 
-const MethodFilter: React.FC<MethodFilterProps> = ({ methods = [], selected = '', onChange }) => {
+const MethodFilter: React.FC<MethodFilterProps> = ({ methods = [], selected = '', onChange, onReset }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [checkedValues, setCheckedValues] = useState<Record<string, string[]>>({ methods: [selected] });
 
@@ -19,6 +20,12 @@ const MethodFilter: React.FC<MethodFilterProps> = ({ methods = [], selected = ''
     }
     setOpen(false);
   };
+
+  const handleReset = useCallback(() => {
+    setCheckedValues({ methods: [] });
+    onReset?.();
+    setOpen(false);
+  }, [onReset]);
 
   return (
     <Popover trapFocus open={open} onOpenChange={() => setOpen(!open)}>
@@ -35,6 +42,11 @@ const MethodFilter: React.FC<MethodFilterProps> = ({ methods = [], selected = ''
             </MenuItemRadio>
           ))}
         </MenuList>
+        <div className="flex justify-end mt-2">
+          <Button appearance="primary" onClick={handleReset}>
+            Reset
+          </Button>
+        </div>
       </PopoverSurface>
     </Popover>
   );

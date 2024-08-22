@@ -1,7 +1,8 @@
-import { Hypocenter } from '../../types/hypocenter';
+import { Hypocenter, HypocenterWorkspace } from '../../types/hypocenter';
 import { PeriodItem } from '../../types/period';
 
 export interface HypocenterStore {
+  workspace: HypocenterWorkspace;
   startDate: number;
   endDate: number;
   periods: PeriodItem[];
@@ -14,6 +15,7 @@ export interface HypocenterStore {
   pitch: number;
   yaw: number;
   eventTypesFilter: string[],
+  setWorkspace: (workspace: HypocenterWorkspace) => void;
   setPeriodIndex: (index: number) => void;
   setTimeRange: (startDate: number, endDate: number) => void;
   setCurrentMethod: (method: string) => void;

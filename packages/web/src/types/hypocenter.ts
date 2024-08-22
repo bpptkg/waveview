@@ -12,6 +12,7 @@ export interface HypocenterOrigin {
   depth_uncertainty?: number;
   magnitude_value: number;
   magnitude_type: string;
+  origin_method: string;
 }
 
 export interface Hypocenter {
@@ -19,3 +20,5 @@ export interface Hypocenter {
   event_types: string[];
   hypocenters: HypocenterOrigin[];
 }
+
+export type HypocenterWorkspace = '3d' | '2d' | 'table';

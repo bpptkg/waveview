@@ -40,3 +40,7 @@ export function formatTime(time: unknown, options: FormatTimeOptions = {}): stri
   }
   return formatDate(time, template, useUTC);
 }
+
+export function shortUUID(uuid: string): string {
+  return uuid.slice(0, 8);
+}

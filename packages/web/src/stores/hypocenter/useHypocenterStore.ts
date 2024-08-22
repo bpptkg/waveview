@@ -18,6 +18,7 @@ const hypocenterStore = create<HypocenterStore>((set, get) => {
   const startDate = subDays(endDate, 7).getTime();
 
   return {
+    workspace: '3d',
     startDate,
     endDate,
     periods: [
@@ -56,6 +57,9 @@ const hypocenterStore = create<HypocenterStore>((set, get) => {
     pitch: 20,
     yaw: 40,
     eventTypesFilter: [],
+    setWorkspace: (workspace) => {
+      set({ workspace });
+    },
     setTimeRange: (startDate: number, endDate: number) => {
       set({ startDate, endDate });
     },

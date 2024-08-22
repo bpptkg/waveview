@@ -101,15 +101,15 @@ const EventDetailSummary = () => {
         <div className="font-semibold">Location</div>
         <div className="flex items-center justify-between">
           <div>Latitude</div>
-          {event?.preferred_origin ? <div>{formatNumber(event.preferred_origin?.latitude, { unit: '°' })}</div> : <div>No data</div>}
+          {event?.preferred_origin ? <div>{formatNumber(event.preferred_origin?.latitude, { unit: '°', precision: 5 })}</div> : <div>No data</div>}
         </div>
         <div className="flex items-center justify-between">
           <div>Longitude</div>
-          {event?.preferred_origin ? <div>{formatNumber(event.preferred_origin?.longitude, { unit: '°' })}</div> : <div>No data</div>}
+          {event?.preferred_origin ? <div>{formatNumber(event.preferred_origin?.longitude, { unit: '°', precision: 5 })}</div> : <div>No data</div>}
         </div>
         <div className="flex items-center justify-between">
           <div>Depth</div>
-          {event?.preferred_origin ? <div>{formatNumber(event.preferred_origin?.depth, { unit: ' km' })}</div> : <div>No data</div>}
+          {event?.preferred_origin ? <div>{formatNumber(event.preferred_origin?.depth, { unit: ' km', precision: 2 })}</div> : <div>No data</div>}
         </div>
       </div>
       <Divider />
