@@ -16,5 +16,6 @@ export interface HypocenterOrigin {
 
 export interface Hypocenter {
   methods: string[];
+  event_types: string[];
   hypocenters: HypocenterOrigin[];
 }

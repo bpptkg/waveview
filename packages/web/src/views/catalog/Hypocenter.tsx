@@ -1,4 +1,4 @@
-import { Select, Toast, ToastTitle, Toolbar, ToolbarButton, Tooltip, useId, useToastController } from '@fluentui/react-components';
+import { Toast, ToastTitle, Toolbar, ToolbarButton, Tooltip, useId, useToastController } from '@fluentui/react-components';
 import { ReactECharts } from '@waveview/react-echarts';
 import * as echarts from 'echarts/core';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -11,9 +11,12 @@ import { Grid3DComponent } from 'echarts-gl/components';
 import { TooltipComponent, VisualMapComponent, VisualMapPiecewiseComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import DateRangePicker from '../../components/DatePicker/DateRangePicker';
+import EventTypeFilter from '../../components/Hypocenter/EventTypeFilter';
+import MethodFilter from '../../components/Hypocenter/MethodFilter';
 import { useMount } from '../../hooks';
 import { useAppStore } from '../../stores/app';
 import { useDemXyzStore } from '../../stores/demxyz';
+import { useEventTypeStore } from '../../stores/eventType';
 
 echarts.use([TooltipComponent, VisualMapComponent, VisualMapPiecewiseComponent, Grid3DComponent, Scatter3DChart, SurfaceChart, CanvasRenderer]);
 
@@ -33,14 +36,17 @@ const Hypocenter = () => {
     periodIndex,
     currentMethod,
     methods,
+    eventTypesFilter,
     setCurrentMethod,
     setPeriodIndex,
     setTimeRange,
+    setEventTypesFilter,
     fetchHypocenter,
     getEChartsOption,
   } = useHypocenterStore();
   const { demxyz, fetchDemXyz } = useDemXyzStore();
   const { useUTC, darkMode } = useAppStore();
+  const { eventTypes } = useEventTypeStore();
 
   const toasterId = useId('hypocenter');
   const { dispatchToast } = useToastController(toasterId);
@@ -113,6 +119,14 @@ const Hypocenter = () => {
     [setCurrentMethod, updatePlot]
   );
 
+  const handleEventTypesFilterChange = useCallback(
+    (types: string[]) => {
+      setEventTypesFilter(types);
+      updatePlot();
+    },
+    [setEventTypesFilter, updatePlot]
+  );
+
   const handleRefresh = useCallback(() => {
     updatePlot();
   }, [updatePlot]);
@@ -134,18 +148,16 @@ const Hypocenter = () => {
         <Toolbar aria-label="Hypocenter Toolbar">
           <div className="flex gap-1 mr-1">
             <DateRangePicker periods={periods} defaultIndex={periodIndex} startDate={startDate} endDate={endDate} onChange={handleDateRangeChange} />
-            <Select appearance="outline" defaultValue={currentMethod} onChange={(_, data) => handleMethodChange(data.value)}>
-              <option value="" disabled>Filter by method</option>
-              {methods.map((method, index) => (
-                <option key={index} value={method}>
-                  {method}
-                </option>
-              ))}
-            </Select>
           </div>
+
+          <MethodFilter methods={methods} selected={currentMethod} onChange={handleMethodChange} />
+
+          <EventTypeFilter eventTypes={eventTypes} selected={eventTypesFilter} onChange={handleEventTypesFilterChange} />
+
           <Tooltip content={'Refresh'} relationship="label" showDelay={1500}>
             <ToolbarButton icon={<ArrowCounterclockwiseRegular fontSize={20} />} onClick={handleRefresh} />
           </Tooltip>
+
           <Tooltip content={'Save as Image'} relationship="label" showDelay={1500}>
             <ToolbarButton icon={<ArrowDownloadRegular fontSize={20} onClick={handleDownload} />} />
           </Tooltip>

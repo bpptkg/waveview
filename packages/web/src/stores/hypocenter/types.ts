@@ -13,11 +13,13 @@ export interface HypocenterStore {
   error: string;
   pitch: number;
   yaw: number;
+  eventTypesFilter: string[],
   setPeriodIndex: (index: number) => void;
   setTimeRange: (startDate: number, endDate: number) => void;
   setCurrentMethod: (method: string) => void;
   setPitch: (pitch: number) => void;
   setYaw: (yaw: number) => void;
+  setEventTypesFilter: (types: string[]) => void;
   fetchHypocenter: () => Promise<void>;
   getEChartsOption: () => any;
 }
