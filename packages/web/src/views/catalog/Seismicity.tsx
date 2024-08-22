@@ -144,6 +144,17 @@ const Seismicity = () => {
     updatePlot();
   }, [updatePlot]);
 
+  const handleDownload = useCallback(async () => {
+    const dataURL = chartRef.current?.toDataURL({ type: 'png', pixelRatio: 3 });
+    if (dataURL) {
+      const a = document.createElement('a');
+      a.href = dataURL;
+      a.download = 'seismicity.png';
+      a.click();
+      a.remove();
+    }
+  }, []);
+
   return (
     <div className="relative h-full w-full">
       <div className="absolute top-0 right-0 bottom-0 left-0 overflow-auto">
@@ -159,6 +170,7 @@ const Seismicity = () => {
                   <MenuPopover>
                     <MenuList>
                       <MenuItem onClick={handleRefresh}>Refresh</MenuItem>
+                      <MenuItem onClick={handleDownload}>Download</MenuItem>
                     </MenuList>
                   </MenuPopover>
                 </Menu>
