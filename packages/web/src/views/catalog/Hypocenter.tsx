@@ -26,7 +26,19 @@ const Hypocenter = () => {
   const chartRef = useRef<ReactECharts | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
-  const { startDate, endDate, periods, periodIndex, setPeriodIndex, setTimeRange, fetchHypocenter, getEChartsOption } = useHypocenterStore();
+  const {
+    startDate,
+    endDate,
+    periods,
+    periodIndex,
+    currentMethod,
+    methods,
+    setCurrentMethod,
+    setPeriodIndex,
+    setTimeRange,
+    fetchHypocenter,
+    getEChartsOption,
+  } = useHypocenterStore();
   const { demxyz, fetchDemXyz } = useDemXyzStore();
   const { useUTC, darkMode } = useAppStore();
 
@@ -93,6 +105,14 @@ const Hypocenter = () => {
     [setTimeRange, setPeriodIndex, updatePlot]
   );
 
+  const handleMethodChange = useCallback(
+    (method: string) => {
+      setCurrentMethod(method);
+      updatePlot();
+    },
+    [setCurrentMethod, updatePlot]
+  );
+
   const handleRefresh = useCallback(() => {
     updatePlot();
   }, [updatePlot]);
@@ -114,9 +134,13 @@ const Hypocenter = () => {
         <Toolbar aria-label="Hypocenter Toolbar">
           <div className="flex gap-1 mr-1">
             <DateRangePicker periods={periods} defaultIndex={periodIndex} startDate={startDate} endDate={endDate} onChange={handleDateRangeChange} />
-            <Select appearance="outline">
-              <option value={'automatic'}>Automatic</option>
-              <option value={'manual'}>Manual</option>
+            <Select appearance="outline" defaultValue={currentMethod} onChange={(_, data) => handleMethodChange(data.value)}>
+              <option value="" disabled>Filter by method</option>
+              {methods.map((method, index) => (
+                <option key={index} value={method}>
+                  {method}
+                </option>
+              ))}
             </Select>
           </div>
           <Tooltip content={'Refresh'} relationship="label" showDelay={1500}>

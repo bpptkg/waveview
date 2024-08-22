@@ -99,7 +99,7 @@ const hypocenterStore = create<HypocenterStore>((set, get) => {
           throw CustomError.fromErrorData(await response.json());
         }
         const data: Hypocenter = await response.json();
-        set({ hypocenter: data });
+        set({ hypocenter: data, methods: data.methods });
       } finally {
         set({ loading: false });
       }
