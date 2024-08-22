@@ -1,4 +1,4 @@
-import { Select, Toast, ToastTitle, Toolbar, ToolbarButton, useId, useToastController } from '@fluentui/react-components';
+import { Select, Toast, ToastTitle, Toolbar, ToolbarButton, Tooltip, useId, useToastController } from '@fluentui/react-components';
 import { ReactECharts } from '@waveview/react-echarts';
 import * as echarts from 'echarts/core';
 import { useCallback, useEffect, useRef } from 'react';
@@ -116,8 +116,12 @@ const Hypocenter = () => {
               <option value={'manual'}>Manual</option>
             </Select>
           </div>
-          <ToolbarButton icon={<ArrowCounterclockwiseRegular fontSize={20} />} onClick={handleRefresh} />
-          <ToolbarButton icon={<ArrowDownloadRegular fontSize={20} onClick={handleDownload} />} />
+          <Tooltip content={'Refresh'} relationship="label" showDelay={1500}>
+            <ToolbarButton icon={<ArrowCounterclockwiseRegular fontSize={20} />} onClick={handleRefresh} />
+          </Tooltip>
+          <Tooltip content={'Save as Image'} relationship="label" showDelay={1500}>
+            <ToolbarButton icon={<ArrowDownloadRegular fontSize={20} onClick={handleDownload} />} />
+          </Tooltip>
         </Toolbar>
       </div>
       <div className="flex-grow mt-2">

@@ -170,7 +170,7 @@ const Seismicity = () => {
                   <MenuPopover>
                     <MenuList>
                       <MenuItem onClick={handleRefresh}>Refresh</MenuItem>
-                      <MenuItem onClick={handleDownload}>Download</MenuItem>
+                      <MenuItem onClick={handleDownload}>Save as Image</MenuItem>
                     </MenuList>
                   </MenuPopover>
                 </Menu>
