@@ -41,7 +41,7 @@
  */
 import PiecewiseModel from "./CustomPiecewiseModel";
 import PiecewiseView from "./CustomPiecewiseView";
-export function install(registers) {
+export function VisualMapCustomPiecewiseComponent(registers) {
   registers.registerComponentModel(PiecewiseModel);
   registers.registerComponentView(PiecewiseView);
 }

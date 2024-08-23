@@ -1,4 +1,4 @@
-# VisualMap customPiecewise
+# VisualMap Custom Piecewise
 
 This directory contains visual map extension module called `customPiecewise`. We
 write this module based on ECharts visual map piecewise code that enables us to
@@ -82,3 +82,7 @@ Available properties are:
 - itemLineWidth (Number)
 
   Outline line width of graphical item in pixel.
+
+## License
+
+MIT

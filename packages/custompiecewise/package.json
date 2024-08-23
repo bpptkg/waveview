@@ -1,5 +1,5 @@
 {
-  "name": "@waveview/visualmap-custompiecewise",
+  "name": "@waveview/custompiecewise",
   "private": true,
   "version": "0.1.0",
   "description": "ECharts visual map custom piecewise extension",
