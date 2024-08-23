@@ -7,6 +7,7 @@ import {
   TableHeaderCell,
   TableRow,
   Toast,
+  Toaster,
   ToastTitle,
   Toolbar,
   ToolbarButton,
@@ -274,6 +275,7 @@ const Hypocenter = () => {
           </div>
         </div>
       )}
+      <Toaster toasterId={toasterId} />
     </div>
   );
 };
