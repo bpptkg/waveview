@@ -20,6 +20,7 @@ import {
   Toast,
   Toaster,
   ToastTitle,
+  Tooltip,
   useId,
   useToastController,
 } from '@fluentui/react-components';
@@ -127,11 +128,17 @@ const EventDetail: React.FC<EventDetailProps> = () => {
       <div className="flex items-center justify-between">
         <h2 className="text-md font-semibold p-4">Event Detail</h2>
         <div className="flex items-center">
-          <Button icon={event?.is_bookmarked ? <Star20Filled color="orange" /> : <Star20Regular />} appearance="transparent" onClick={handleToggleBookmark} />
-          <Button icon={<Edit20Regular />} appearance="transparent" onClick={() => setShowEditor(true)} />
+          <Tooltip content={'Bookmark Event'} relationship="label" showDelay={1500}>
+            <Button icon={event?.is_bookmarked ? <Star20Filled color="orange" /> : <Star20Regular />} appearance="transparent" onClick={handleToggleBookmark} />
+          </Tooltip>
+          <Tooltip content={'Edit Event'} relationship="label" showDelay={1500}>
+            <Button icon={<Edit20Regular />} appearance="transparent" onClick={() => setShowEditor(true)} />
+          </Tooltip>
           <Menu>
             <MenuTrigger disableButtonEnhancement>
-              <Button icon={<MoreHorizontal20Regular />} appearance="transparent" />
+              <Tooltip content={'More Options'} relationship="label" showDelay={1500}>
+                <Button icon={<MoreHorizontal20Regular />} appearance="transparent" />
+              </Tooltip>
             </MenuTrigger>
             <MenuPopover>
               <MenuList>
@@ -147,7 +154,9 @@ const EventDetail: React.FC<EventDetailProps> = () => {
               </MenuList>
             </MenuPopover>
           </Menu>
-          <Button icon={<Dismiss20Regular />} appearance="transparent" onClick={handleClose} />
+          <Tooltip content={'Close'} relationship="label" showDelay={1500}>
+            <Button icon={<Dismiss20Regular />} appearance="transparent" onClick={handleClose} />
+          </Tooltip>
         </div>
       </div>
 
