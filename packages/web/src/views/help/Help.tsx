@@ -1,4 +1,4 @@
-import { ArrowUpRightRegular, GlobeRegular, LocationRegular, MailRegular } from '@fluentui/react-icons';
+import { ArrowUpRightRegular, FaxRegular, GlobeRegular, LocationRegular, MailRegular, PhoneRegular } from '@fluentui/react-icons';
 import { baseUrl } from '../../services/api';
 import { useOrganizationStore } from '../../stores/organization';
 
@@ -77,6 +77,36 @@ const Help = () => {
                 <MailRegular fontSize={16} />
                 <a href={`mailto:${currentOrganization.email}`} className="text-blue-500 hover:underline">
                   {currentOrganization.email}
+                </a>
+              </div>
+            </li>
+          )}
+          {currentOrganization?.phone_number && (
+            <li>
+              <div className="inline-flex items-center gap-2">
+                <PhoneRegular fontSize={16} />
+                <a href={`tel:${currentOrganization.phone_number}`} className="text-blue-500 hover:underline">
+                  {currentOrganization.phone_number}
+                </a>
+              </div>
+            </li>
+          )}
+          {currentOrganization?.mobile_number && (
+            <li>
+              <div className="inline-flex items-center gap-2">
+                <PhoneRegular fontSize={16} />
+                <a href={`tel:${currentOrganization.mobile_number}`} className="text-blue-500 hover:underline">
+                  {currentOrganization.mobile_number}
+                </a>
+              </div>
+            </li>
+          )}
+          {currentOrganization?.fax_number && (
+            <li>
+              <div className="inline-flex items-center gap-2">
+                <FaxRegular fontSize={16} />
+                <a href={`tel:${currentOrganization.fax_number}`} className="text-blue-500 hover:underline">
+                  {currentOrganization.fax_number}
                 </a>
               </div>
             </li>

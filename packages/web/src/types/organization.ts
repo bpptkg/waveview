@@ -13,4 +13,7 @@ export interface Organization {
   created_at: string;
   updated_at: string;
   member_count: number;
+  phone_number: string;
+  fax_number: string;
+  mobile_number: string;
 }
