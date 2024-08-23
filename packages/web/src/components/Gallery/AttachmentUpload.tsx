@@ -214,31 +214,6 @@ const AttachmentUpload: React.FC<AttachmentUploadProps> = ({ initialAttachments 
       {attachments.length === 0 && uploadingFiles.length === 0 && <div>No attachments</div>}
 
       <div className="flex flex-col gap-1">
-        {attachments.map((attachment) => (
-          <div key={attachment.id} className="flex h-[80px] items-center">
-            <div className="w-[80px] h-[80px] flex items-center justify-center">
-              {isPreviewable(attachment) ? (
-                <img src={attachment.thumbnail} alt={attachment.name} className="w-[80px] h-[80px] object-cover" />
-              ) : (
-                <DocumentRegular fontSize={40} />
-              )}
-            </div>
-
-            <div className="flex-grow flex flex-col gap-0 p-2">
-              <span className="text-wrap text-ellipsis">{truncateFileName(attachment.name)}</span>
-              <span className="text-xs">{humanizeFileSize(attachment.size)}</span>
-            </div>
-
-            <div>
-              <Tooltip content={'Remove Attachment'} relationship="label" showDelay={1500}>
-                <Button size="small" appearance="transparent" icon={<DeleteRegular />} onClick={() => removeAttachment(attachment)} />
-              </Tooltip>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="flex flex-col gap-1">
         {uploadingFiles.map((queue) => (
           <div key={queue.file.name} className="flex h-[80px] items-center">
             <div className="h-[80px] w-[80px] flex items-center justify-center">{renderIcon(queue.mediaType)}</div>
@@ -269,6 +244,31 @@ const AttachmentUpload: React.FC<AttachmentUploadProps> = ({ initialAttachments 
                   <Button size="small" appearance="transparent" icon={<DismissRegular fontSize={16} />} onClick={() => cancelUpload(queue)} />
                 </Tooltip>
               )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex flex-col gap-1">
+        {attachments.map((attachment) => (
+          <div key={attachment.id} className="flex h-[80px] items-center">
+            <div className="w-[80px] h-[80px] flex items-center justify-center">
+              {isPreviewable(attachment) ? (
+                <img src={attachment.thumbnail} alt={attachment.name} className="w-[80px] h-[80px] object-cover" />
+              ) : (
+                <DocumentRegular fontSize={40} />
+              )}
+            </div>
+
+            <div className="flex-grow flex flex-col gap-0 p-2">
+              <span className="text-wrap text-ellipsis">{truncateFileName(attachment.name)}</span>
+              <span className="text-xs">{humanizeFileSize(attachment.size)}</span>
+            </div>
+
+            <div>
+              <Tooltip content={'Remove Attachment'} relationship="label" showDelay={1500}>
+                <Button size="small" appearance="transparent" icon={<DeleteRegular />} onClick={() => removeAttachment(attachment)} />
+              </Tooltip>
             </div>
           </div>
         ))}
