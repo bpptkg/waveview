@@ -10,7 +10,7 @@ import { useCatalogStore } from '../../stores/catalog';
 import { useInventoryStore } from '../../stores/inventory';
 import { useOrganizationStore } from '../../stores/organization';
 import { usePickerStore } from '../../stores/picker';
-import { SeismicEvent, SeismicEventDetail } from '../../types/event';
+import { SeismicEventDetail } from '../../types/event';
 import { EventResponseData } from '../../types/fetcher';
 import EventDrawer from './EventDrawer/EventDrawer';
 import PickEdit from './EventDrawer/PickEdit';
@@ -27,7 +27,7 @@ import { useSeismogramCallback } from './useSeismogramCallback';
 import { useThemeEffect } from './useThemeEffect';
 import { useTimeZoneEffect } from './useTimeZoneEffect';
 
-export type EditedEvent = SeismicEvent | SeismicEventDetail;
+export type EditedEvent = SeismicEventDetail;
 
 export interface PickWorkspaceProps {
   /**
@@ -518,6 +518,7 @@ const PickerWorkspace: React.FC<PickWorkspaceProps> = (props) => {
                     stationOfFirstArrival={event?.station_of_first_arrival_id}
                     note={event?.note}
                     useUTC={useUTC}
+                    attachments={event?.attachments}
                     onDurationChange={handlePickDurationChange}
                     onCancel={handlePickCancel}
                     onSave={handlePickSave}

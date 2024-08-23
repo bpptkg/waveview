@@ -3,8 +3,9 @@ import { formatDate } from '@waveview/charts';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useEventTypeStore } from '../../../stores/eventType';
 import { usePickerStore } from '../../../stores/picker';
-import { SeismicEventDetail } from '../../../types/event';
+import { Attachment, SeismicEventDetail } from '../../../types/event';
 import { CustomError } from '../../../types/response';
+import AttachmentUpload from '../../Gallery/AttachmentUpload';
 
 export interface EventDrawerProps {
   time: number;
@@ -14,6 +15,7 @@ export interface EventDrawerProps {
   stationOfFirstArrival?: string;
   note?: string;
   useUTC?: boolean;
+  attachments?: Attachment[];
   onTimeChange?: (time: number) => void;
   onDurationChange?: (duration: number) => void;
   onCancel?: () => void;
@@ -35,6 +37,7 @@ const PickEdit: React.FC<EventDrawerProps> = (props) => {
     stationOfFirstArrival = '',
     note = '',
     useUTC = false,
+    attachments = [],
     onTimeChange,
     onDurationChange,
     onCancel,
@@ -46,6 +49,7 @@ const PickEdit: React.FC<EventDrawerProps> = (props) => {
   const [eventTypeState, setEventTypeState] = useState(eventType);
   const [stationOfFirstArrivalState, setStationOfFirstArrivalState] = useState(stationOfFirstArrival);
   const [noteState, setNoteState] = useState(note);
+  const [attachmentsState, setAttachmentsState] = useState(attachments);
 
   useEffect(() => {
     setTimeState(time);
@@ -123,7 +127,7 @@ const PickEdit: React.FC<EventDrawerProps> = (props) => {
         method: 'waveview',
         evaluation_mode: 'manual',
         evaluation_status: 'confirmed',
-        attachment_ids: [],
+        attachment_ids: attachmentsState.map((a) => a.id),
       });
       onSave?.(event);
     } catch (error) {
@@ -131,7 +135,7 @@ const PickEdit: React.FC<EventDrawerProps> = (props) => {
     } finally {
       setLoading(false);
     }
-  }, [eventId, timeState, durationState, stationOfFirstArrivalState, eventTypeState, noteState, savePickedEvent, showErrorToast, onSave]);
+  }, [eventId, timeState, durationState, stationOfFirstArrivalState, eventTypeState, noteState, attachmentsState, savePickedEvent, showErrorToast, onSave]);
 
   const handleCancel = useCallback(() => {
     onCancel?.();
@@ -140,6 +144,14 @@ const PickEdit: React.FC<EventDrawerProps> = (props) => {
   const title = useMemo(() => {
     return eventId ? 'Edit Event' : 'Create Event';
   }, [eventId]);
+
+  const handleAttachmentAdd = useCallback((attachment: Attachment) => {
+    setAttachmentsState((attachments) => [...attachments, attachment]);
+  }, []);
+
+  const handleAttachmentRemove = useCallback((attachment: Attachment) => {
+    setAttachmentsState((attachments) => attachments.filter((a) => a.id !== attachment.id));
+  }, []);
 
   return (
     <div className="p-2">
@@ -191,6 +203,10 @@ const PickEdit: React.FC<EventDrawerProps> = (props) => {
 
       <Field label="Note">
         <Textarea value={noteState} resize="vertical" size="large" onChange={(_, data) => handleNoteChange(data.value)} />
+      </Field>
+
+      <Field>
+        <AttachmentUpload initialAttachments={attachments} onAdd={handleAttachmentAdd} onRemove={handleAttachmentRemove} />
       </Field>
 
       <Toaster toasterId={toasterId} />
