@@ -184,11 +184,9 @@ const EventTable = () => {
             </Button>
           </div>
         )}
-        {eventId && (
-          <EventDetailDrawer>
-            <EventDetail />
-          </EventDetailDrawer>
-        )}
+        <EventDetailDrawer isVisible={!!eventId}>
+          <EventDetail />
+        </EventDetailDrawer>
       </div>
     </div>
   );
