@@ -1,3 +1,4 @@
+import { MediaType } from './media';
 import { User } from './user';
 
 export type EvaluationMode = 'automatic' | 'manual';
@@ -19,7 +20,7 @@ export interface EventType {
 export interface Attachment {
   id: string;
   event_id: string;
-  media_type: 'photo' | 'video' | 'audio' | 'document';
+  media_type: MediaType;
   file: string;
   thumbnail: string;
   name: string;

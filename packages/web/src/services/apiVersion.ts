@@ -115,4 +115,10 @@ export default {
     v1: (organizationId: string, volcanoId: string, catalogId: string) =>
       `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/${catalogId}/analytics/hypocenter/`,
   },
+  uploadEventAttachments: {
+    v1: '/api/v1/event-attachments/',
+  },
+  deleteEventAttachment: {
+    v1: (id: string) => `/api/v1/event-attachments/${id}/`,
+  },
 };
