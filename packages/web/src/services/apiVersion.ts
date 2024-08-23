@@ -11,6 +11,12 @@ export default {
   verifyToken: {
     v1: '/api/v1/auth/token/verify/',
   },
+  getAccount: {
+    v1: '/api/v1/account/',
+  },
+  updateAccount: {
+    v1: '/api/v1/account/',
+  },
   listOrganization: {
     v1: '/api/v1/organizations/',
   },
