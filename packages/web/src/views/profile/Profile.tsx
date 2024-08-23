@@ -165,86 +165,88 @@ const Profile = () => {
   }
 
   return (
-    <div className="flex flex-col items-center pt-4">
-      <div className="w-[400px] p-3 rounded-2xl bg-white dark:bg-black">
-        {isEditing ? (
-          <>
-            <Label weight="semibold">Edit Profile</Label>
-            <Field label={'Name'}>
-              <Input value={name} onChange={(e) => setName(e.target.value)} />
-            </Field>
-            <Field label={'Email'}>
-              <Input value={email} onChange={(e) => handleEmailChange(e.target.value)} />
-              <div>
-                <p className="text-red-500 text-sm">{emailError}</p>
-              </div>
-            </Field>
-            <Field label={'Phone number'}>
-              <Input value={phoneNumber} onChange={(e) => handlePhoneNumberChange(e.target.value)} />
-              <div>
-                <p className="text-red-500 text-sm">{phoneError}</p>
-              </div>
-            </Field>
-            <Field label={'Bio'}>
-              <Textarea value={bio} onChange={(e) => setBio(e.target.value)} resize="vertical" />
-            </Field>
-            <div className="pt-2 flex items-center justify-end gap-2">
-              <Button appearance="secondary" onClick={() => handleCancel()}>
-                Cancel
-              </Button>
-              <Button appearance="primary" onClick={() => handleSave()} disabled={loading || !areFieldsValid}>
-                Save
-              </Button>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="flex justify-end">
-              <Tooltip content={'Edit profile'} relationship="label" showDelay={1500}>
-                <Button appearance="transparent" onClick={() => handleEdit()}>
-                  Edit Profile
-                </Button>
-              </Tooltip>
-            </div>
-
-            <div className="flex items-center gap-4 relative">
-              <div className="relative">
-                <Avatar size={128} color="colorful" name={user.name ?? user.username} image={{ src: user.avatar }} />
-                <div className="absolute top-0 right-0 bg-blue-600 rounded-full">
-                  <Tooltip content={'Change avatar'} relationship="label" showDelay={1500}>
-                    <Button appearance="transparent" size="medium" icon={<EditRegular color="white" fontSize={16} />} onClick={handleAvatarChange} />
+    <div className="w-full h-full relative">
+      <div className="absolute top-0 right-0 bottom-0 left-0 overflow-auto">
+        <div className="flex flex-col items-center mt-2 mb-4">
+          <div className="w-[400px] p-3 rounded-2xl bg-white dark:bg-black">
+            {isEditing ? (
+              <>
+                <Label weight="semibold">Edit Profile</Label>
+                <Field label={'Name'}>
+                  <Input value={name} onChange={(e) => setName(e.target.value)} />
+                </Field>
+                <Field label={'Email'}>
+                  <Input value={email} onChange={(e) => handleEmailChange(e.target.value)} />
+                  <div>
+                    <p className="text-red-500 text-sm">{emailError}</p>
+                  </div>
+                </Field>
+                <Field label={'Phone number'}>
+                  <Input value={phoneNumber} onChange={(e) => handlePhoneNumberChange(e.target.value)} />
+                  <div>
+                    <p className="text-red-500 text-sm">{phoneError}</p>
+                  </div>
+                </Field>
+                <Field label={'Bio'}>
+                  <Textarea value={bio} onChange={(e) => setBio(e.target.value)} resize="vertical" />
+                </Field>
+                <div className="pt-2 flex items-center justify-end gap-2">
+                  <Button appearance="secondary" onClick={() => handleCancel()}>
+                    Cancel
+                  </Button>
+                  <Button appearance="primary" onClick={() => handleSave()} disabled={loading || !areFieldsValid}>
+                    Save
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex justify-end">
+                  <Tooltip content={'Edit profile'} relationship="label" showDelay={1500}>
+                    <Button appearance="transparent" onClick={() => handleEdit()}>
+                      Edit Profile
+                    </Button>
                   </Tooltip>
                 </div>
-              </div>
-              <div className="flex flex-col gap-0">
-                <div className="text-2xl font-semibold">{user.name}</div>
-                <div>@{user.username}</div>
-              </div>
-            </div>
 
-            <div className="mt-4 flex flex-col gap-2">
-              {user.bio && <p className="mb-4">{user.bio}</p>}
-              <div className="flex items-center justify-between">
-                <div>Email</div>
-                <div>{user.email}</div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>Phone number</div>
-                <div>{user.phone_number}</div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>Date joined</div>
-                <div>{format(new Date(user.date_joined), 'MMMM dd, yyyy')}</div>
-              </div>
-              <div className="text-sm text-gray-500 mt-2">Only you can see this information.</div>
-            </div>
-          </>
-        )}
+                <div className="flex items-center gap-4 relative">
+                  <div className="relative">
+                    <Avatar size={128} color="colorful" name={user.name ?? user.username} image={{ src: user.avatar }} />
+                    <div className="absolute top-0 right-0 rounded-full bg-blue-600">
+                      <Tooltip content={'Change avatar'} relationship="label" showDelay={1500}>
+                        <Button appearance="transparent" size="medium" icon={<EditRegular color="white" fontSize={16} />} onClick={handleAvatarChange} />
+                      </Tooltip>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-0">
+                    <div className="text-2xl font-semibold">{user.name}</div>
+                    <div>@{user.username}</div>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex flex-col gap-2">
+                  {user.bio && <p className="mb-4">{user.bio}</p>}
+                  <div className="flex items-center justify-between">
+                    <div>Email</div>
+                    <div>{user.email}</div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>Phone number</div>
+                    <div>{user.phone_number}</div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>Date joined</div>
+                    <div>{format(new Date(user.date_joined), 'MMMM dd, yyyy')}</div>
+                  </div>
+                  <div className="text-sm text-gray-500 mt-2">Only you can see this information.</div>
+                </div>
+              </>
+            )}
+          </div>
+          <input ref={inputRef} type="file" style={{ display: 'none' }} onChange={handleFileChange} accept="image/*" />
+          <Toaster toasterId={toasterId} />
+        </div>
       </div>
-
-      <input ref={inputRef} type="file" style={{ display: 'none' }} onChange={handleFileChange} accept="image/*" />
-
-      <Toaster toasterId={toasterId} />
     </div>
   );
 };
