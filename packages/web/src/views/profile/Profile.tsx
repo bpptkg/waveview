@@ -212,7 +212,7 @@ const Profile = () => {
                 <div className="flex items-center gap-4 relative">
                   <div className="relative">
                     <Avatar size={128} color="colorful" name={user.name ?? user.username} image={{ src: user.avatar }} />
-                    <div className="absolute top-0 right-0 rounded-full bg-blue-600">
+                    <div className="absolute top-0 right-0 rounded-full bg-blue-600 dark:bg-blue-700">
                       <Tooltip content={'Change avatar'} relationship="label" showDelay={1500}>
                         <Button appearance="transparent" size="medium" icon={<EditRegular color="white" fontSize={16} />} onClick={handleAvatarChange} />
                       </Tooltip>
