@@ -2,12 +2,25 @@ import { Avatar, Button, Field, Input, Label, Textarea, Toast, Toaster, ToastTit
 import { EditRegular } from '@fluentui/react-icons';
 import { format } from 'date-fns';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '../../services/api';
 import apiVersion from '../../services/apiVersion';
 import { useUserStore } from '../../stores/user';
 import { CustomError } from '../../types/response';
 import { UserDetail } from '../../types/user';
+
+const uploadAvatar = async (file: File): Promise<UserDetail> => {
+  const formData = new FormData();
+  formData.append('avatar', file);
+  const response = await api(apiVersion.updateAccount.v1, {
+    method: 'PUT',
+    body: formData,
+  });
+  if (!response.ok) {
+    throw CustomError.fromErrorData(await response.json());
+  }
+  return await response.json();
+};
 
 const Profile = () => {
   const { user, fetchUser, setUser } = useUserStore();
@@ -19,6 +32,7 @@ const Profile = () => {
   const [email, setEmail] = useState<string>(user?.email ?? '');
   const [phoneNumber, setPhoneNumber] = useState<string>(user?.phone_number ?? '');
 
+  const inputRef = useRef<HTMLInputElement>(null);
   const [phoneError, setPhoneError] = useState('');
   const [emailError, setEmailError] = useState('');
 
@@ -122,6 +136,30 @@ const Profile = () => {
     return validatePhoneNumber(phoneNumber) && validateEmail(email);
   }, [phoneNumber, email]);
 
+  const handleAvatarChange = () => {
+    inputRef.current?.value && (inputRef.current.value = '');
+    inputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      uploadAvatar(files[0])
+        .then((user) => {
+          setUser(user);
+          dispatchToast(
+            <Toast>
+              <ToastTitle>Avatar successfully updated.</ToastTitle>
+            </Toast>,
+            { intent: 'success' }
+          );
+        })
+        .catch((error) => {
+          showErrorToast(error as CustomError);
+        });
+    }
+  };
+
   if (!user) {
     return <div>Loading...</div>;
   }
@@ -163,12 +201,21 @@ const Profile = () => {
           <>
             <div className="flex justify-end">
               <Tooltip content={'Edit profile'} relationship="label" showDelay={1500}>
-                <Button appearance="transparent" icon={<EditRegular fontSize={16} />} onClick={() => handleEdit()} />
+                <Button appearance="transparent" onClick={() => handleEdit()}>
+                  Edit Profile
+                </Button>
               </Tooltip>
             </div>
 
-            <div className="flex items-center gap-4">
-              <Avatar size={128} color="colorful" name={user.name ?? user.username} image={{ src: user.avatar }} />
+            <div className="flex items-center gap-4 relative">
+              <div className="relative">
+                <Avatar size={128} color="colorful" name={user.name ?? user.username} image={{ src: user.avatar }} />
+                <div className="absolute top-0 right-0 bg-blue-600 rounded-full">
+                  <Tooltip content={'Change avatar'} relationship="label" showDelay={1500}>
+                    <Button appearance="transparent" size="medium" icon={<EditRegular color="white" fontSize={16} />} onClick={handleAvatarChange} />
+                  </Tooltip>
+                </div>
+              </div>
               <div className="flex flex-col gap-0">
                 <div className="text-2xl font-semibold">{user.name}</div>
                 <div>@{user.username}</div>
@@ -189,10 +236,13 @@ const Profile = () => {
                 <div>Date joined</div>
                 <div>{format(new Date(user.date_joined), 'MMMM dd, yyyy')}</div>
               </div>
+              <div className="text-sm text-gray-500 mt-2">Only you can see this information.</div>
             </div>
           </>
         )}
       </div>
+
+      <input ref={inputRef} type="file" style={{ display: 'none' }} onChange={handleFileChange} accept="image/*" />
 
       <Toaster toasterId={toasterId} />
     </div>
