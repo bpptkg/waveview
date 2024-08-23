@@ -65,14 +65,17 @@ export const api = async (url: string, options: APIOptions = {}): Promise<Respon
       window.location.href = '/login';
     }
 
+    const headers: Record<string, string> = body instanceof FormData ? {} : { 'Content-Type': 'application/json' };
+    const data = body ? (body instanceof FormData ? body : JSON.stringify(body)) : undefined;
+
     const input = constructUrl(baseUrl, url, params);
     const response = await fetch(input, {
       method,
       headers: {
-        'Content-Type': 'application/json',
+        ...headers,
         Authorization: `Bearer ${token.access}`,
       },
-      body: body ? JSON.stringify(body) : undefined,
+      body: data,
     });
 
     if (response.status === 401) {
