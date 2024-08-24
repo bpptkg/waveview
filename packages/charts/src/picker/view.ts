@@ -383,6 +383,14 @@ export class Picker extends View<PickerModel> {
     this._rect = rect;
   }
 
+  enable(): void {
+    this.model.enable();
+  }
+
+  disable(): void {
+    this.model.disable();
+  }
+
   clear(): void {
     this._graphics.clear();
     this._label.text = "";

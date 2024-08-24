@@ -121,6 +121,10 @@ export class ZoomRectangle extends View<
       return;
     }
 
+    if (!this._isActive) {
+      return;
+    }
+
     const rect = this.chart.getGrid().getRect();
 
     const x1 = Math.max(Math.min(this._start.x, this._end.x), rect.x);
