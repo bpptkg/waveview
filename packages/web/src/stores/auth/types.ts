@@ -7,4 +7,5 @@ export interface AuthStore {
   fetchToken: (credentials: AuthCredentials) => Promise<void>;
   refreshToken: () => Promise<void>;
   blacklistToken: () => Promise<void>;
+  hasToken: () => boolean;
 }

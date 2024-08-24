@@ -1,6 +1,6 @@
 import { Button, Field, Input, Menu, MenuButton, MenuItem, MenuList, MenuPopover, MenuTrigger } from '@fluentui/react-components';
 import { Checkmark20Regular, Eye20Regular, EyeOff20Regular } from '@fluentui/react-icons';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LogoImage from '../../components/Header/LogoImage';
 import LogoText from '../../components/Header/LogoText';
@@ -52,7 +52,7 @@ const Footer = () => {
 
 const Login = () => {
   const navigate = useNavigate();
-  const { fetchToken } = useAuthStore();
+  const { fetchToken, hasToken } = useAuthStore();
 
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -99,6 +99,12 @@ const Login = () => {
   const toggleShowPassword = () => {
     setShowPassword((prev) => !prev);
   };
+
+  useEffect(() => {
+    if (hasToken()) {
+      navigate('/');
+    }
+  }, [hasToken, navigate]);
 
   return (
     <>

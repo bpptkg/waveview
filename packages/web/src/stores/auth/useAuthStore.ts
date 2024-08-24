@@ -79,6 +79,10 @@ const authStore = create<AuthStore>((set, get) => {
       }
       get().clearToken();
     },
+
+    hasToken: () => {
+      return !!get().token;
+    },
   };
 });
 
