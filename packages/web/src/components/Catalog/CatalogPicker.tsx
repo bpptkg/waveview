@@ -1,5 +1,5 @@
-import { Button, makeStyles, MenuButton, MenuItem, MenuList, Popover, PopoverProps, PopoverSurface, PopoverTrigger } from '@fluentui/react-components';
-import { Checkmark20Regular, Dismiss16Regular, Folder20Regular } from '@fluentui/react-icons';
+import { Button, makeStyles, MenuItem, MenuList, Popover, PopoverProps, PopoverSurface, PopoverTrigger } from '@fluentui/react-components';
+import { Checkmark20Regular, ChevronDownRegular, Dismiss16Regular, Folder20Regular } from '@fluentui/react-icons';
 import { useState } from 'react';
 import { useCatalogStore } from '../../stores/catalog';
 
@@ -18,9 +18,10 @@ const CatalogPicker = () => {
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger disableButtonEnhancement>
-        <MenuButton size="small" appearance="transparent" icon={<Folder20Regular />}>
-          <span className="font-normal text-nowrap text-black dark:text-white">{currentCatalog?.name}</span>
-        </MenuButton>
+        <Button size="small" appearance="transparent" icon={<Folder20Regular />}>
+          <span className="font-normal text-nowrap text-black dark:text-white">{currentCatalog?.name}</span>{' '}
+          <ChevronDownRegular fontSize={12} className="ml-1" />
+        </Button>
       </PopoverTrigger>
 
       <PopoverSurface tabIndex={-1} className={styles.popoverSurface}>
