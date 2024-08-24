@@ -1,6 +1,7 @@
 import { FluentProvider, webDarkTheme, webLightTheme } from '@fluentui/react-components';
 import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
+import RequireDesktop from './components/Common/RequireDesktop';
 import { useAppStore } from './stores/app';
 
 const App = () => {
@@ -12,7 +13,9 @@ const App = () => {
 
   return (
     <FluentProvider theme={darkMode ? webDarkTheme : webLightTheme} applyStylesToPortals>
-      <Outlet />
+      <RequireDesktop>
+        <Outlet />
+      </RequireDesktop>
     </FluentProvider>
   );
 };
