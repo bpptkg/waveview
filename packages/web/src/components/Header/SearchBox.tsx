@@ -23,7 +23,6 @@ const searchIndex: SearchItem[] = [
   { url: '/catalog/events', title: 'Events' },
   { url: '/catalog/seismicity', title: 'Seismicity' },
   { url: '/catalog/hypocenter', title: 'Hypocenter' },
-  { url: '/admin', title: 'Admin' },
   { url: '/help', title: 'Help' },
   { url: '/about', title: 'About' },
   { url: '/profile', title: 'Profile' },
