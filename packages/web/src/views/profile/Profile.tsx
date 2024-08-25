@@ -37,8 +37,10 @@ const Profile = () => {
   const [emailError, setEmailError] = useState('');
 
   useEffect(() => {
-    fetchUser();
-  }, [fetchUser]);
+    if (!user) {
+      fetchUser();
+    }
+  }, [user, fetchUser]);
 
   const toasterId = useId('profile');
   const { dispatchToast } = useToastController(toasterId);
@@ -161,7 +163,11 @@ const Profile = () => {
   };
 
   if (!user) {
-    return <div>Loading...</div>;
+    return (
+      <div className="w-full h-full relative">
+        <div className="text-center mt-2">Loading...</div>
+      </div>
+    );
   }
 
   return (
