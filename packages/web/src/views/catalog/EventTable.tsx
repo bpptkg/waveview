@@ -12,10 +12,15 @@ import {
   TableHeader,
   TableHeaderCell,
   TableRow,
+  Toast,
+  Toaster,
+  ToastTitle,
   Tooltip,
+  useId,
   useTableFeatures,
   useTableSelection,
   useTableSort,
+  useToastController,
 } from '@fluentui/react-components';
 import React, { useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -25,6 +30,7 @@ import { useAppStore } from '../../stores/app';
 import { useCatalogStore } from '../../stores/catalog';
 import { useEventDetailStore } from '../../stores/eventDetail';
 import { SeismicEvent } from '../../types/event';
+import { CustomError } from '../../types/response';
 import EventDetail from './EventDetail';
 import EventDetailDrawer from './EventDetailDrawer';
 
@@ -63,13 +69,30 @@ const EventTable = () => {
   const { events, loading, fetchEvents, fetchNextEvents, hasNextEvents } = useCatalogStore();
   const { clearCache } = useEventDetailStore();
 
+  const toasterId = useId('event-table');
+  const { dispatchToast } = useToastController(toasterId);
+
+  const showErrorToast = useCallback(
+    (error: CustomError) => {
+      dispatchToast(
+        <Toast>
+          <ToastTitle>{error.message}</ToastTitle>
+        </Toast>,
+        { intent: 'error' }
+      );
+    },
+    [dispatchToast]
+  );
+
   useEffect(() => {
-    fetchEvents();
+    fetchEvents().catch((error: CustomError) => {
+      showErrorToast(error);
+    });
 
     return () => {
       clearCache();
     };
-  }, [fetchEvents, clearCache]);
+  }, [fetchEvents, clearCache, showErrorToast]);
 
   const styles = useEventTableStyles();
 
@@ -119,8 +142,10 @@ const EventTable = () => {
   );
 
   const handleFetchNextEvents = useCallback(() => {
-    fetchNextEvents();
-  }, [fetchNextEvents]);
+    fetchNextEvents().catch((error: CustomError) => {
+      showErrorToast(error);
+    });
+  }, [fetchNextEvents, showErrorToast]);
 
   return (
     <div className="relative h-full w-full">
@@ -188,6 +213,7 @@ const EventTable = () => {
           <EventDetail />
         </EventDetailDrawer>
       </div>
+      <Toaster toasterId={toasterId} />
     </div>
   );
 };
