@@ -31,7 +31,7 @@ import DateRangePicker from '../../components/DatePicker/DateRangePicker';
 import EventTypeFilter from '../../components/Hypocenter/EventTypeFilter';
 import HypocenterWorkspaceSwitcher from '../../components/Hypocenter/HypocenterWorkspaceSwitcher';
 import MethodFilter from '../../components/Hypocenter/MethodFilter';
-import { useMount } from '../../hooks';
+import { useMount } from '../../hooks/useMount';
 import { formatNumber, formatTime, shortUUID } from '../../shared/formatting';
 import { useAppStore } from '../../stores/app';
 import { useDemXyzStore } from '../../stores/demxyz';
