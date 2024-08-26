@@ -266,7 +266,7 @@ const EventTable = () => {
   return (
     <div className="relative h-full w-full">
       <div className="absolute top-0 right-0 bottom-0 left-0 overflow-auto p-2">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between my-1">
           <div className="flex items-center">
             <SearchBox placeholder="Search events" className={styles.searchBox} value={searchQuery} onChange={handleSearchChange} />
           </div>
