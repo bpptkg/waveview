@@ -25,7 +25,7 @@ const EventDetailDrawer: React.FC<EventDetailDrawerProps> = ({ children, isVisib
     isRendered && (
       <div
         className={classNames(
-          'flex flex-col fixed top-0 right-0 bottom-0 w-[576px] h-full z-50 bg-white dark:bg-neutral-grey-4 overflow-y-auto transition-transform duration-300',
+          'flex flex-col fixed top-0 right-0 bottom-0 w-[596px] h-full z-50 bg-white dark:bg-neutral-grey-4 overflow-y-auto transition-transform duration-300',
           {
             'transform translate-x-0': isVisible,
             'transform translate-x-full': !isVisible,
