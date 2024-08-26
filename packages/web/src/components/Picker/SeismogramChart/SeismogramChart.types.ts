@@ -78,6 +78,8 @@ export interface SeismogramChartRef {
   setUseUTC: (useUTC: boolean) => void;
   activatePickMode: () => void;
   deactivatePickMode: () => void;
+  enablePickMode: () => void;
+  disablePickMode: () => void;
   isPickModeActive: () => boolean;
   setPickRange: (range: [number, number]) => void;
   clearPickRange(): void;
@@ -85,7 +87,7 @@ export interface SeismogramChartRef {
   removeEventMarker: (start: number, end: number) => void;
   showAllEventMarkers: () => void;
   hideAllEventMarkers: () => void;
-  dispose: () => void;
-  getChartExtent: () => [number, number];
   clearAllEventMarkers: () => void;
+  getChartExtent: () => [number, number];
+  dispose: () => void;
 }

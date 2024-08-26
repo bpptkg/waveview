@@ -337,6 +337,11 @@ export class Picker extends View<PickerModel> {
   }
 
   private _updateHandleHitArea(): void {
+    const { enable } = this.model.options;
+    if (!enable) {
+      return;
+    }
+
     const xAxis = this.chart.getXAxis();
 
     const rect = this.chart.getGrid().getRect();
