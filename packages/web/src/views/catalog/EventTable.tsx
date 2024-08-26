@@ -255,6 +255,7 @@ const EventTable = () => {
   const handleFilter = useCallback(
     (data: FilterData) => {
       setFilterData(data);
+      setSearchQuery('');
       fetchEvents().catch((error: CustomError) => {
         showErrorToast(error);
       });
