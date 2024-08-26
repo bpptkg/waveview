@@ -2,7 +2,10 @@ import {
   Avatar,
   Button,
   createTableColumn,
+  InputOnChangeData,
   makeStyles,
+  SearchBox,
+  SearchBoxChangeEvent,
   Table,
   TableBody,
   TableCell,
@@ -22,13 +25,17 @@ import {
   useTableSort,
   useToastController,
 } from '@fluentui/react-components';
-import React, { useCallback, useEffect } from 'react';
+import { ArrowCounterclockwiseRegular, ArrowDownloadRegular } from '@fluentui/react-icons';
+import Fuse from 'fuse.js';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import EventTableFilter from '../../components/Catalog/EventTableFilter';
 import EventTypeLabel from '../../components/Catalog/EventTypeLabel';
 import { formatNumber, formatTime } from '../../shared/formatting';
 import { useAppStore } from '../../stores/app';
-import { useCatalogStore } from '../../stores/catalog';
+import { FilterData, useCatalogStore } from '../../stores/catalog';
 import { useEventDetailStore } from '../../stores/eventDetail';
+import { useEventTypeStore } from '../../stores/eventType';
 import { SeismicEvent } from '../../types/event';
 import { CustomError } from '../../types/response';
 import EventDetail from './EventDetail';
@@ -42,6 +49,9 @@ const useEventTableStyles = makeStyles({
     display: 'flex',
     justifyContent: 'center',
     width: '100%',
+  },
+  searchBox: {
+    width: '250px',
   },
 });
 
@@ -66,8 +76,9 @@ const EventTable = () => {
   const navigate = useNavigate();
   const { eventId } = useParams();
   const { useUTC } = useAppStore();
-  const { events, loading, fetchEvents, fetchNextEvents, hasNextEvents } = useCatalogStore();
+  const { events, loading, filterData, fetchEvents, fetchNextEvents, hasNextEvents, setFilterData } = useCatalogStore();
   const { clearCache } = useEventDetailStore();
+  const { eventTypes } = useEventTypeStore();
 
   const toasterId = useId('event-table');
   const { dispatchToast } = useToastController(toasterId);
@@ -96,6 +107,48 @@ const EventTable = () => {
 
   const styles = useEventTableStyles();
 
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const fuseRef = useRef<Fuse<Item> | null>(null);
+
+  useEffect(() => {
+    fuseRef.current = new Fuse(
+      events.map((e) => ({ ...e, formattedTime: formatTime(e.time, { useUTC }) })),
+      {
+        keys: [
+          'time',
+          'formattedTime',
+          'type.code',
+          'preferred_amplitude.amplitude',
+          'preferred_magnitude.magnitude',
+          'preferred_origin.latitude',
+          'preferred_origin.longitude',
+          'preferred_origin.depth',
+          'evaluation_mode',
+          'evaluation_status',
+          'author.name',
+          'author.username',
+        ],
+        threshold: 0.3,
+      }
+    );
+
+    return () => {
+      fuseRef.current = null;
+    };
+  }, [events, useUTC]);
+
+  const handleSearchChange = useCallback((_: SearchBoxChangeEvent, data: InputOnChangeData) => {
+    setSearchQuery(data.value);
+  }, []);
+
+  const filterableEvents = useMemo(() => {
+    if (!searchQuery || !fuseRef.current) {
+      return events;
+    }
+
+    return searchQuery ? fuseRef.current.search(searchQuery).map((item) => item.item) : events;
+  }, [searchQuery, events]);
+
   const {
     getRows,
     sort: { getSortDirection, toggleColumnSort, sort },
@@ -103,7 +156,7 @@ const EventTable = () => {
   } = useTableFeatures<Item>(
     {
       columns,
-      items: events.map((event) => ({ ...event })),
+      items: filterableEvents.map((event) => ({ ...event })),
     },
     [
       useTableSort({
@@ -147,9 +200,87 @@ const EventTable = () => {
     });
   }, [fetchNextEvents, showErrorToast]);
 
+  const handleRefresh = useCallback(() => {
+    fetchEvents().catch((error: CustomError) => {
+      showErrorToast(error);
+    });
+  }, [fetchEvents, showErrorToast]);
+
+  const handleDownload = useCallback(() => {
+    const header =
+      [
+        'Time (UTC)',
+        'Duration (s)',
+        'Type',
+        'Amplitude',
+        'Magnitude',
+        'Latitude (°)',
+        'Longitude (°)',
+        'Depth (km)',
+        'Evaluation Mode',
+        'Evaluation Status',
+        'Author',
+      ].join(',') + '\n';
+
+    const content =
+      'data:text/csv;charset=utf-8,' +
+      header +
+      rows
+        .map((row) =>
+          [
+            row.item.time,
+            row.item.duration,
+            row.item.type.code,
+            row.item.preferred_amplitude?.amplitude,
+            row.item.preferred_magnitude?.magnitude,
+            row.item.preferred_origin?.latitude,
+            row.item.preferred_origin?.longitude,
+            row.item.preferred_origin?.depth,
+            row.item.evaluation_mode,
+            row.item.evaluation_status,
+            row.item.author.name || row.item.author.username,
+          ].join(',')
+        )
+        .join('\n');
+
+    const encodedUri = encodeURI(content);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'events.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }, [rows]);
+
+  const handleFilter = useCallback(
+    (data: FilterData) => {
+      setFilterData(data);
+      fetchEvents().catch((error: CustomError) => {
+        showErrorToast(error);
+      });
+    },
+    [fetchEvents, setFilterData, showErrorToast]
+  );
+
   return (
     <div className="relative h-full w-full">
       <div className="absolute top-0 right-0 bottom-0 left-0 overflow-auto p-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <SearchBox placeholder="Search events" className={styles.searchBox} value={searchQuery} onChange={handleSearchChange} />
+          </div>
+          <div className="flex items-center">
+            <EventTableFilter eventTypes={eventTypes} initialEventTypes={filterData.eventTypes} onFilter={handleFilter} />
+
+            <Tooltip content={'Download'} relationship="label" showDelay={1500}>
+              <Button appearance="transparent" icon={<ArrowDownloadRegular fontSize={20} />} onClick={handleDownload} />
+            </Tooltip>
+            <Tooltip content={'Refresh'} relationship="label" showDelay={1500}>
+              <Button appearance="transparent" icon={<ArrowCounterclockwiseRegular fontSize={20} />} onClick={handleRefresh} />
+            </Tooltip>
+          </div>
+        </div>
+
         <Table aria-label="Event Table" className={styles.table} sortable>
           <TableHeader>
             <TableRow>

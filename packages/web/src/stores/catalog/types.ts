@@ -1,12 +1,20 @@
 import { Catalog } from '../../types/catalog';
 import { SeismicEvent } from '../../types/event';
 
+export interface FilterData {
+  eventTypes?: string[];
+  startDate?: number;
+  endDate?: number;
+  isBookmarked?: boolean;
+}
+
 export interface CatalogStore {
   currentCatalog: Catalog | null;
   allCatalogs: Catalog[];
   events: SeismicEvent[];
   nextEventsUrl: string | null;
   loading: boolean;
+  filterData: FilterData;
   /**
    * Sets the current catalog.
    */
@@ -44,4 +52,8 @@ export interface CatalogStore {
    * Update event in the list of events.
    */
   updateEvent: (event: SeismicEvent) => void;
+  /**
+   * Sets the filter data.
+   */
+  setFilterData: (data: FilterData) => void;
 }

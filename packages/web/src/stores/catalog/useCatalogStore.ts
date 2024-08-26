@@ -3,7 +3,7 @@ import { api } from '../../services/api';
 import apiVersion from '../../services/apiVersion';
 import { createSelectors } from '../../shared/createSelectors';
 import { Catalog } from '../../types/catalog';
-import { SeismicEvent } from '../../types/event';
+import { EventQueryParams, SeismicEvent } from '../../types/event';
 import { Pagination } from '../../types/pagination';
 import { CustomError } from '../../types/response';
 import { useOrganizationStore } from '../organization';
@@ -17,6 +17,12 @@ const catalogStore = create<CatalogStore>((set, get) => {
     events: [],
     nextEventsUrl: null,
     loading: false,
+    filterData: {
+      eventTypes: undefined,
+      startDate: undefined,
+      endDate: undefined,
+      isBookmarked: undefined,
+    },
 
     setCurrentCatalog: (catalog) => set({ currentCatalog: catalog }),
 
@@ -60,12 +66,29 @@ const catalogStore = create<CatalogStore>((set, get) => {
         throw new CustomError('Catalog is not set');
       }
 
+      const { filterData } = get();
+
       const url = apiVersion.listEvent.v1(currentOrganization.id, currentVolcano.id, currentCatalog.id);
+      const { startDate, endDate, eventTypes, isBookmarked } = filterData;
+      const params: EventQueryParams = {
+        page: 1,
+        ordering: 'desc',
+      };
+      if (startDate) {
+        params.start = new Date(startDate).toISOString();
+      }
+      if (endDate) {
+        params.end = new Date(endDate).toISOString();
+      }
+      if (eventTypes) {
+        params.event_types = eventTypes.join(',');
+      }
+      if (isBookmarked) {
+        params.is_bookmarked = 'true';
+      }
+
       const response = await api(url, {
-        params: {
-          page: 1,
-          ordering: 'desc',
-        },
+        params,
       });
       const data: Pagination<SeismicEvent[]> = await response.json();
       set({ events: data.results, nextEventsUrl: data.next });
@@ -100,6 +123,10 @@ const catalogStore = create<CatalogStore>((set, get) => {
       set((state) => ({
         events: state.events.map((e) => (e.id === event.id ? event : e)),
       }));
+    },
+
+    setFilterData: (data) => {
+      set({ filterData: data });
     },
   };
 });

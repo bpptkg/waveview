@@ -135,3 +135,13 @@ export interface EventPayload {
   evaluation_status: EvaluationStatus;
   attachment_ids: string[];
 }
+
+export interface EventQueryParams {
+  page?: number;
+  page_size?: number;
+  ordering?: 'asc' | 'desc';
+  start?: string;
+  end?: string;
+  event_types?: string;
+  is_bookmarked?: 'true' | 'false';
+}
