@@ -41,6 +41,9 @@ export function formatTime(time: unknown, options: FormatTimeOptions = {}): stri
   return formatDate(time, template, useUTC);
 }
 
-export function shortUUID(uuid: string): string {
+export function shortUUID(uuid: string | null | undefined): string {
+  if (!uuid) {
+    return '';
+  }
   return uuid.slice(0, 8);
 }
