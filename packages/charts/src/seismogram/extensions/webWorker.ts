@@ -96,6 +96,7 @@ export class SeismogramWebWorker {
         width,
         mode,
         maxPoints: maxPoints,
+        forceCenter: true,
       },
     };
 
