@@ -271,11 +271,12 @@ export class Axis extends View<AxisModel, AxisEventMap> {
     const index = this._markers.findIndex(
       (marker) =>
         marker.type === "areaMarker" &&
-        almostEquals((marker as AreaMarker).getStart(), start, 1) &&
-        almostEquals((marker as AreaMarker).getEnd(), end, 1)
+        almostEquals((marker as AreaMarker).getStart(), start, 10) &&
+        almostEquals((marker as AreaMarker).getEnd(), end, 10)
     );
     if (index >= 0) {
-      this._markers.splice(index, 1);
+      const markers = this._markers.splice(index, 1);
+      markers[0].dispose();
     }
   }
 
