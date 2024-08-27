@@ -135,17 +135,20 @@ export default function useSeismogramChartApi(options: SeismogramChartInitOption
       },
       activateZoomRectangle: () => {
         if (zoomRectangleExtensionRef.current) {
-          zoomRectangleExtensionRef.current.activate();
+          const api = zoomRectangleExtensionRef.current.getAPI();
+          api.activate();
         }
       },
       deactivateZoomRectangle: () => {
         if (zoomRectangleExtensionRef.current) {
-          zoomRectangleExtensionRef.current.deactivate();
+          const api = zoomRectangleExtensionRef.current.getAPI();
+          api.deactivate();
         }
       },
       isZoomRectangleActive: () => {
         if (zoomRectangleExtensionRef.current) {
-          return zoomRectangleExtensionRef.current.getAPI().isActive();
+          const api = zoomRectangleExtensionRef.current.getAPI();
+          return api.isActive();
         }
         return false;
       },
@@ -173,19 +176,20 @@ export default function useSeismogramChartApi(options: SeismogramChartInitOption
       },
       activatePickMode: () => {
         if (pickerExtensionRef.current) {
-          pickerExtensionRef.current.activate();
+          const api = pickerExtensionRef.current.getAPI();
+          api.enable();
         }
       },
       deactivatePickMode: () => {
         if (pickerExtensionRef.current) {
-          pickerExtensionRef.current.deactivate();
-          pickerExtensionRef.current.getAPI().clearRange();
-          chartRef.current?.render();
+          const api = pickerExtensionRef.current.getAPI();
+          api.disable();
         }
       },
       isPickModeActive: () => {
         if (pickerExtensionRef.current) {
-          return pickerExtensionRef.current.isActive();
+          const api = pickerExtensionRef.current.getAPI();
+          return api.isEnabled();
         }
         return false;
       },
@@ -199,8 +203,6 @@ export default function useSeismogramChartApi(options: SeismogramChartInitOption
         if (pickerExtensionRef.current) {
           const api = pickerExtensionRef.current.getAPI();
           api.disable();
-          api.clearRange();
-          api.clear();
         }
       },
       setPickRange: (range: [number, number]) => {
@@ -256,6 +258,9 @@ export default function useSeismogramChartApi(options: SeismogramChartInitOption
         } else {
           return [0, 0];
         }
+      },
+      render: () => {
+        chartRef.current?.render();
       },
     };
   }, [chartRef, zoomRectangleExtensionRef, pickerExtensionRef, workerRef, resizeObserverRef, fetchAllChannelsData, fetchChannelData]);

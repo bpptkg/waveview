@@ -1,5 +1,6 @@
 import { useCallback, useRef } from 'react';
 import { getEventTypeColor } from '../../shared/theme';
+import { getPickExtent } from '../../shared/time';
 import { uuid4 } from '../../shared/uuid';
 import { useAppStore } from '../../stores/app';
 import { useAuthStore } from '../../stores/auth';
@@ -7,6 +8,7 @@ import { useCatalogStore } from '../../stores/catalog';
 import { useOrganizationStore } from '../../stores/organization';
 import { usePickerStore } from '../../stores/picker';
 import { Channel } from '../../types/channel';
+import { SeismicEventDetail } from '../../types/event';
 import { EventResponseData } from '../../types/fetcher';
 import { usePickerContext } from './PickerContext';
 import { useFetcherWorker } from './useFetchWorker';
@@ -27,7 +29,7 @@ export function useHelicorderCallback() {
     fetchEventMarkers,
   } = usePickerStore();
 
-  const { heliChartRef, seisChartRef, setHeliChartReady } = usePickerContext();
+  const { heliChartRef, seisChartRef, props, setHeliChartReady } = usePickerContext();
   const selectingTrackRef = useRef<boolean | null>(null);
 
   const handleHelicorderShiftViewUp = useCallback(() => {
@@ -132,20 +134,25 @@ export function useHelicorderCallback() {
   const { currentOrganization } = useOrganizationStore();
   const { currentCatalog } = useCatalogStore();
   const { token } = useAuthStore();
-  const { darkMode } = useAppStore();
-  const { props } = usePickerContext();
-  const { showEventMarkers } = props;
+  const { darkMode, useUTC } = useAppStore();
+  const { event, showEventMarkers } = props;
+  const { interval, duration, channelId, offsetDate } = usePickerStore();
 
   const handlePlotEventMarkers = useCallback(() => {
-    eventMarkers.forEach((event) => {
-      const color = getEventTypeColor(event.type, darkMode);
-      heliChartRef.current?.addEventMarker({ value: new Date(event.time).getTime(), color, width: 3 });
-      seisChartRef.current?.addEventMarker({
-        start: new Date(event.time).getTime(),
-        end: new Date(event.time).getTime() + event.duration * 1_000,
-        color,
+    setTimeout(() => {
+      heliChartRef.current?.clearAllEventMarkers();
+      seisChartRef.current?.clearAllEventMarkers();
+
+      eventMarkers.forEach((event) => {
+        const color = getEventTypeColor(event.type, darkMode);
+        heliChartRef.current?.addEventMarker({ value: new Date(event.time).getTime(), color, width: 3 });
+        seisChartRef.current?.addEventMarker({
+          start: new Date(event.time).getTime(),
+          end: new Date(event.time).getTime() + event.duration * 1_000,
+          color,
+        });
       });
-    });
+    }, 100);
   }, [seisChartRef, heliChartRef, eventMarkers, darkMode]);
 
   const { fetcherWorkerRef } = useFetcherWorker({
@@ -160,9 +167,6 @@ export function useHelicorderCallback() {
       events.forEach((event) => {
         addEventMarker(event);
       });
-
-      heliChartRef.current?.clearAllEventMarkers();
-      seisChartRef.current?.clearAllEventMarkers();
 
       handlePlotEventMarkers();
     },
@@ -193,6 +197,33 @@ export function useHelicorderCallback() {
     [heliChartRef, handleFetchEvents]
   );
 
+  const calcHelicorderOffsetDate = (event: SeismicEventDetail) => {
+    const [start, end] = getPickExtent(event);
+    return new Date((start + end) / 2);
+  };
+
+  const getHelicorderInitOptions = useCallback(() => {
+    const initialOffsetDate = event ? calcHelicorderOffsetDate(event) : new Date(offsetDate);
+    const initOptions = {
+      interval,
+      duration,
+      channel: {
+        id: channelId,
+      },
+      darkMode,
+      offsetDate: initialOffsetDate.getTime(),
+      grid: {
+        top: 30,
+        right: 15,
+        bottom: 5,
+        left: 80,
+      },
+      devicePixelRatio: window.devicePixelRatio,
+      useUTC,
+    };
+    return initOptions;
+  }, [interval, duration, channelId, darkMode, offsetDate, useUTC, event]);
+
   return {
     handleHelicorderShiftViewUp,
     handleHelicorderShiftViewDown,
@@ -210,5 +241,6 @@ export function useHelicorderCallback() {
     handleHelicorderSelectionChange,
     handleHelicorderOnReady,
     handlePlotEventMarkers,
+    getHelicorderInitOptions,
   };
 }

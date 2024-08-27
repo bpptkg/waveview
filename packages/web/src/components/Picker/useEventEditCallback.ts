@@ -1,19 +1,13 @@
-import { useCallback, useMemo } from 'react';
-import { getEventTypeColor } from '../../shared/theme';
-import { useAppStore } from '../../stores/app';
+import { useCallback } from 'react';
 import { usePickerStore } from '../../stores/picker';
 import { SeismicEventDetail } from '../../types/event';
 import { usePickerContext } from './PickerContext';
+import { useHelicorderCallback } from './useHelicorderCallback';
 
 export const useEventEditCallback = () => {
-  const { pickStart, pickEnd, clearPick, addEventMarker, setPickRange } = usePickerStore();
-  const { seisChartRef, heliChartRef, props } = usePickerContext();
-  const { event, onCancel, onSave } = props;
-  const { darkMode } = useAppStore();
-
-  const isEditMode = useMemo(() => {
-    return !!event;
-  }, [event]);
+  const { pickStart, clearPick, addEventMarker, setPickRange, resetEditedEvent } = usePickerStore();
+  const { seisChartRef, props } = usePickerContext();
+  const { onCancel, onSave } = props;
 
   const handlePickDurationChange = useCallback(
     (duration: number) => {
@@ -24,36 +18,26 @@ export const useEventEditCallback = () => {
     [seisChartRef, pickStart, setPickRange]
   );
 
+  const { handlePlotEventMarkers } = useHelicorderCallback();
+
   const handlePickCancel = useCallback(() => {
+    resetEditedEvent();
+    handlePlotEventMarkers();
     clearPick();
-    seisChartRef.current?.clearPickRange();
     onCancel?.();
-  }, [seisChartRef, clearPick, onCancel]);
+    seisChartRef.current?.clearPickRange();
+  }, [seisChartRef, clearPick, onCancel, handlePlotEventMarkers, resetEditedEvent]);
 
   const handlePickSave = useCallback(
     (savedEvent: SeismicEventDetail) => {
+      resetEditedEvent();
+      addEventMarker(savedEvent);
+      handlePlotEventMarkers();
+      clearPick();
       onSave?.(savedEvent);
-
-      if (!isEditMode) {
-        addEventMarker(savedEvent);
-      }
-
-      if (pickStart && pickEnd) {
-        const { time, duration } = savedEvent;
-        const start = new Date(time).getTime();
-        const end = start + duration * 1_000;
-        const color = getEventTypeColor(savedEvent.type, darkMode);
-        seisChartRef.current?.addEventMarker({
-          start,
-          end,
-          color,
-        });
-        heliChartRef.current?.addEventMarker({ value: start, color, width: 3 });
-        seisChartRef.current?.clearPickRange();
-        clearPick();
-      }
+      seisChartRef.current?.clearPickRange();
     },
-    [seisChartRef, heliChartRef, pickStart, pickEnd, isEditMode, darkMode, clearPick, addEventMarker, onSave]
+    [seisChartRef, clearPick, addEventMarker, onSave, handlePlotEventMarkers, resetEditedEvent]
   );
   return { handlePickDurationChange, handlePickCancel, handlePickSave };
 };

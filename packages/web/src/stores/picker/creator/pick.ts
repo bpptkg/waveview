@@ -5,13 +5,22 @@ import { EventPayload } from '../../../types/event';
 import { CustomError, ErrorData } from '../../../types/response';
 import { useCatalogStore } from '../../catalog';
 import { useOrganizationStore } from '../../organization';
-import { PickSlice, PickerStore } from '../slices';
 import { useVolcanoStore } from '../../volcano/useVolcanoStore';
+import { PickSlice, PickerStore } from '../slices';
+import { getPickExtent } from '../../../shared/time';
 
 export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (set, get) => {
   return {
     pickStart: 0,
     pickEnd: 0,
+    editedEvent: undefined,
+    setEditedEvent: (editedEvent) => {
+      const [pickStart, pickEnd] = getPickExtent(editedEvent);
+      set({ editedEvent, pickStart, pickEnd });
+    },
+    resetEditedEvent: () => {
+      set({ editedEvent: undefined });
+    },
     isPickEmpty: () => get().pickStart === 0 && get().pickEnd === 0,
     setPickStart: (start) => set({ pickStart: start }),
     setPickEnd: (end) => set({ pickEnd: end }),
@@ -67,6 +76,29 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
       const method: 'PUT' | 'POST' = event.eventId ? 'PUT' : 'POST';
 
       return await makeApiRequest(url, method, payload);
+    },
+
+    fetchEditedEvent: async (eventId) => {
+      const { currentOrganization } = useOrganizationStore.getState();
+      if (!currentOrganization) {
+        throw new CustomError('Organization is not set');
+      }
+      const { currentVolcano } = useVolcanoStore.getState();
+      if (!currentVolcano) {
+        throw new CustomError('Volcano is not set');
+      }
+      const { currentCatalog } = useCatalogStore.getState();
+      if (!currentCatalog) {
+        throw new CustomError('Catalog is not set');
+      }
+
+      const url = apiVersion.getEvent.v1(currentOrganization.id, currentVolcano.id, currentCatalog.id, eventId);
+      const response = await api(url);
+      if (!response.ok) {
+        const err: ErrorData = await response.json();
+        throw CustomError.fromErrorData(err);
+      }
+      return await response.json();
     },
   };
 };

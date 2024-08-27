@@ -58,9 +58,18 @@ export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> =
 
     addEventMarker: (event) => {
       set((state) => {
-        return {
-          eventMarkers: [...state.eventMarkers, event],
-        };
+        const existingIndex = state.eventMarkers.findIndex((e) => e.id === event.id);
+        if (existingIndex !== -1) {
+          const newEventMarkers = [...state.eventMarkers];
+          newEventMarkers[existingIndex] = event;
+          return {
+            eventMarkers: newEventMarkers,
+          };
+        } else {
+          return {
+            eventMarkers: [...state.eventMarkers, event],
+          };
+        }
       });
     },
 

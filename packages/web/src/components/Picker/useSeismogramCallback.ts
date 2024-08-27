@@ -1,10 +1,11 @@
 import { Channel } from '@waveview/charts';
 import { FederatedPointerEvent } from 'pixi.js';
 import { useCallback } from 'react';
-import { getPickExtent } from '../../shared/time';
+import { getPickExtent, ONE_SECOND } from '../../shared/time';
+import { useAppStore } from '../../stores/app';
 import { ComponentType, usePickerStore } from '../../stores/picker';
+import { SeismicEventDetail } from '../../types/event';
 import { usePickerContext } from './PickerContext';
-import { EditedEvent } from './PickerWorkspace.types';
 
 export const useSeismogramCallback = () => {
   const {
@@ -24,10 +25,10 @@ export const useSeismogramCallback = () => {
     getChannelsByStationIndex,
     deactivatePickMode,
     clearPick,
+    setEditedEvent,
   } = usePickerStore();
 
   const { heliChartRef, seisChartRef, contextMenuRef, props, setSeisChartReady } = usePickerContext();
-  const { event } = props;
 
   const handleSeismogramChannelAdd = useCallback(
     (channel: Channel) => {
@@ -204,21 +205,34 @@ export const useSeismogramCallback = () => {
     [setPickRange]
   );
 
-  const setupEventEditing = useCallback(
-    (event: EditedEvent) => {
-      if (event) {
-        const [start, end] = getPickExtent(event);
-        setPickRange([start, end]);
-        seisChartRef.current?.setPickRange([start, end]);
+  const handleContextMenuRequested = useCallback(
+    (e: FederatedPointerEvent) => {
+      if (seisChartRef.current) {
+        contextMenuRef.current?.open(e);
+      }
+    },
+    [seisChartRef, contextMenuRef]
+  );
 
+  const handleSetupEventEditing = useCallback(
+    (event: SeismicEventDetail) => {
+      if (event) {
         handleSeismogramCheckValueChange('options', ['pick-mode']);
         handleSeismogramPickModeChange(true);
         setSelectedChart('seismogram');
         handleSeismogramFocus();
+
+        const [start, end] = getPickExtent(event);
+        setEditedEvent(event);
+        seisChartRef.current?.setPickRange([start, end]);
+        seisChartRef.current?.removeEventMarker(start, end);
       }
     },
-    [seisChartRef, setPickRange, setSelectedChart, handleSeismogramCheckValueChange, handleSeismogramPickModeChange, handleSeismogramFocus]
+    [seisChartRef, setEditedEvent, setSelectedChart, handleSeismogramCheckValueChange, handleSeismogramPickModeChange, handleSeismogramFocus]
   );
+
+  const { event } = props;
+  const { darkMode, useUTC } = useAppStore();
 
   const handleSeismogramOnReady = useCallback(() => {
     setSeisChartReady(true);
@@ -228,25 +242,46 @@ export const useSeismogramCallback = () => {
     }
 
     if (event) {
-      setupEventEditing(event);
+      handleSetupEventEditing(event);
     }
-  }, [seisChartRef, event, setupEventEditing, setLastTrackExtent, setSeisChartReady]);
+  }, [seisChartRef, event, handleSetupEventEditing, setLastTrackExtent, setSeisChartReady]);
 
   const handleClearEventEditing = useCallback(() => {
     handleSeismogramCheckValueChange('options', []);
     handleSeismogramPickModeChange(false);
   }, [handleSeismogramCheckValueChange, handleSeismogramPickModeChange]);
 
-  const handleContextMenuRequested = useCallback(
-    (e: FederatedPointerEvent) => {
-      if (seisChartRef.current) {
-        contextMenuRef.current?.open(e, {
-          chart: seisChartRef.current?.getInstance(),
-        });
+  const getSeismogramInitOptions = useCallback(() => {
+    const determinteInitialExtent = () => {
+      if (event) {
+        const [start, end] = getPickExtent(event);
+        const margin = 10 * ONE_SECOND;
+        return [start - margin, end + margin];
       }
-    },
-    [seisChartRef, contextMenuRef]
-  );
+
+      return [undefined, undefined];
+    };
+    const [startTime, endTime] = determinteInitialExtent();
+
+    const initOptions = {
+      channels: selectedChannels.map((channel) => ({
+        id: channel.id,
+        label: channel.network_station_code,
+      })),
+      grid: {
+        top: 30,
+        right: 20,
+        bottom: 5,
+        left: 80,
+      },
+      darkMode,
+      devicePixelRatio: window.devicePixelRatio,
+      useUTC,
+      startTime,
+      endTime,
+    };
+    return initOptions;
+  }, [selectedChannels, darkMode, useUTC, event]);
 
   return {
     handleSeismogramChannelAdd,
@@ -275,5 +310,7 @@ export const useSeismogramCallback = () => {
     handleSeismogramOnReady,
     handleClearEventEditing,
     handleContextMenuRequested,
+    handleSetupEventEditing,
+    getSeismogramInitOptions,
   };
 };
