@@ -1,6 +1,5 @@
 import * as PIXI from "pixi.js";
 import { AreaMarker, AreaMarkerOptions } from "../marker/area";
-import { LineMarker, LineMarkerOptions } from "../marker/line";
 import { drawDash } from "../util/dashline";
 import { almostEquals } from "../util/math";
 import {
@@ -18,7 +17,7 @@ export interface TickPixel {
   tick: ScaleTick;
 }
 
-export type MarkerView = LineMarker | AreaMarker;
+export type MarkerView = AreaMarker;
 
 export interface AxisEventMap extends EventMap {
   extentChanged: (extent: [number, number]) => void;
@@ -230,30 +229,7 @@ export class Axis extends View<AxisModel, AxisEventMap> {
     return this.model.getScale().contains(value);
   }
 
-  addLineMarker(
-    value: number,
-    options: Partial<LineMarkerOptions>
-  ): LineMarker {
-    const marker = new LineMarker(this, {
-      value,
-      ...options,
-    });
-    this._markers.push(marker);
-    return marker;
-  }
-
-  removeLineMarker(value: number): void {
-    const index = this._markers.findIndex(
-      (marker) =>
-        marker.type === "lineMarker" &&
-        (marker as LineMarker).getValue() === value
-    );
-    if (index >= 0) {
-      this._markers.splice(index, 1);
-    }
-  }
-
-  addAreaMarker(
+  addEventMarker(
     start: number,
     end: number,
     options: Partial<AreaMarkerOptions>
@@ -264,53 +240,38 @@ export class Axis extends View<AxisModel, AxisEventMap> {
       ...options,
     });
     this._markers.push(marker);
+    this.group.addChild(marker.group);
     return marker;
   }
 
-  removeAreaMarker(start: number, end: number): void {
+  removeEventMarker(start: number, end: number): void {
     const index = this._markers.findIndex(
       (marker) =>
-        marker.type === "areaMarker" &&
         almostEquals((marker as AreaMarker).getStart(), start, 10) &&
         almostEquals((marker as AreaMarker).getEnd(), end, 10)
     );
+
     if (index >= 0) {
       const markers = this._markers.splice(index, 1);
-      markers[0].dispose();
+      const marker = markers[0] as AreaMarker;
+      this.group.removeChild(marker.group);
+      marker.dispose();
     }
   }
 
-  getVisibleMarkers(type?: "line" | "area"): MarkerView[] {
-    const markers: MarkerView[] = [];
-    const targetMarkers = type
-      ? this._markers.filter((marker) => marker.type === `${type}Marker`)
-      : this._markers;
-    for (const marker of targetMarkers) {
-      if (marker.type === "lineMarker") {
-        const { value } = (marker as LineMarker).getModel().getOptions();
-        if (this.contains(value)) {
-          markers.push(marker);
-        }
-      } else if (marker.type === "areaMarker") {
-        const { start, end } = (marker as AreaMarker).getModel().getOptions();
-        if (this.contains(start) || this.contains(end)) {
-          markers.push(marker);
-        }
-      }
-    }
-    return markers;
-  }
-
-  showAllMarkers(): void {
+  showAllEventMarkers(): void {
     this._markers.forEach((marker) => marker.show());
   }
 
-  hideAllMarkers(): void {
+  hideAllEventMarkers(): void {
     this._markers.forEach((marker) => marker.hide());
   }
 
-  removeAllMarkers(): void {
-    this._markers.forEach((marker) => marker.dispose());
+  removeAllEventMarkers(): void {
+    this._markers.forEach((marker) => {
+      this.group.removeChild(marker.group);
+      marker.dispose();
+    });
     this._markers = [];
   }
 

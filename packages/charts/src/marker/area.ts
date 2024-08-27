@@ -75,7 +75,6 @@ export class AreaMarker extends View<AreaMarkerModel> {
     this._body = new PIXI.Graphics();
     this.group.addChild(this._head);
     this.group.addChild(this._body);
-    this.axis.group.addChild(this.group);
   }
 
   getStart(): number {

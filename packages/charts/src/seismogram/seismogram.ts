@@ -141,23 +141,23 @@ export class Seismogram extends ChartView<
 
   addEventMarker(marker: SeismogramEventMarkerOptions): void {
     const { start, end, ...options } = marker;
-    this._xAxis.addAreaMarker(start, end, options || {});
+    this._xAxis.addEventMarker(start, end, options || {});
   }
 
   removeEventMarker(start: number, end: number): void {
-    this._xAxis.removeAreaMarker(start, end);
+    this._xAxis.removeEventMarker(start, end);
   }
 
   showAllEventMarkers(): void {
-    this._xAxis.showAllMarkers();
+    this._xAxis.showAllEventMarkers();
   }
 
   hideAllEventMarkers(): void {
-    this._xAxis.hideAllMarkers();
+    this._xAxis.hideAllEventMarkers();
   }
 
   removeAllMarkers(): void {
-    this._xAxis.removeAllMarkers();
+    this._xAxis.removeAllEventMarkers();
   }
 
   selectChannel(index: number): void {
