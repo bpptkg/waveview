@@ -396,6 +396,10 @@ export class Picker extends View<PickerModel> {
     this.model.disable();
   }
 
+  isEnabled(): boolean {
+    return this.model.isEnabled();
+  }
+
   clear(): void {
     this._graphics.clear();
     this._label.text = "";

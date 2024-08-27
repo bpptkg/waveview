@@ -77,7 +77,7 @@ export class PickerModel extends Model<PickerOptions> {
     this.mergeOptions({ enable: false });
   }
 
-  isActive(): boolean {
+  isEnabled(): boolean {
     return this.options.enable;
   }
 }

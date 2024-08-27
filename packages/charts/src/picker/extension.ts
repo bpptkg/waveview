@@ -29,17 +29,4 @@ export class PickerExtension implements Extension<Seismogram> {
     }
     return this.picker;
   }
-
-  activate(): void {
-    this.picker?.model.enable();
-  }
-
-  deactivate(): void {
-    this.picker?.model.disable();
-    this.picker?.clearRange();
-  }
-
-  isActive(): boolean {
-    return this.picker?.model.isActive() || false;
-  }
 }
