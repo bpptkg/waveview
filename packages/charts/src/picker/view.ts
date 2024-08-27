@@ -180,6 +180,9 @@ export class Picker extends View<PickerModel> {
     if (!enable) {
       return;
     }
+    if (event.button !== 0) {
+      return;
+    }
 
     const { x, y } = event.global.clone();
     if (this._isOutsideBounds(x, y)) {
