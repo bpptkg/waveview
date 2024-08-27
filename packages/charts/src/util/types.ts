@@ -76,6 +76,7 @@ export interface StreamRequestData {
 
 export interface StreamResponseData {
   requestId: string;
+  command: string;
   index: Float64Array;
   data: Float64Array;
   extent: [number, number];
