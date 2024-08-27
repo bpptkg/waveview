@@ -161,6 +161,9 @@ export class ZoomRectangle extends View<
     if (!this._isActive) {
       return;
     }
+    if (event.button !== 0) {
+      return;
+    }
 
     this._isDragging = true;
     this._isVisible = true;
@@ -226,14 +229,6 @@ export class ZoomRectangleExtension implements Extension<Seismogram> {
   uninstall(): void {
     this._zoomRectangle?.detachEventListeners();
     this._zoomRectangle?.dispose();
-  }
-
-  activate(): void {
-    this._zoomRectangle?.activate();
-  }
-
-  deactivate(): void {
-    this._zoomRectangle?.deactivate();
   }
 
   dispose(): void {
