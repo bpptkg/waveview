@@ -15,6 +15,7 @@ const refreshToken = async () => {
   const auth = typeof window !== 'undefined' ? window.localStorage.getItem(AUTH_KEY) : null;
   const token = auth ? JSON.parse(auth) : null;
   if (!token || !token.refresh) {
+    localStorage.removeItem(AUTH_KEY);
     window.location.href = '/login';
   }
 
@@ -62,6 +63,7 @@ export const api = async (url: string, options: APIOptions = {}): Promise<Respon
     const auth = typeof window !== 'undefined' ? window.localStorage.getItem(AUTH_KEY) : null;
     const token = auth ? JSON.parse(auth) : null;
     if (!token) {
+      localStorage.removeItem(AUTH_KEY);
       window.location.href = '/login';
     }
 
@@ -80,6 +82,7 @@ export const api = async (url: string, options: APIOptions = {}): Promise<Respon
 
     if (response.status === 401) {
       if (attempts > 0) {
+        localStorage.removeItem(AUTH_KEY);
         window.location.href = '/login';
       }
       await refreshToken();
