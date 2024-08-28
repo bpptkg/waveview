@@ -120,6 +120,9 @@ const hypocenterStore = create<HypocenterStore>((set, get) => {
         return {};
       }
       const { grid } = demxyz;
+      if (!grid) {
+        return {}
+      }
       const { darkMode, useUTC } = useAppStore.getState();
       const option = createHypocenterChartOption({
         data: hypocenter.hypocenters,
