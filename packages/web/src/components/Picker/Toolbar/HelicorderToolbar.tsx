@@ -78,6 +78,10 @@ const useStyles = makeStyles({
   searchBox: {
     width: '200px',
   },
+  popoverSurface: {
+    maxHeight: '500px',
+    overflowY: 'auto',
+  },
 });
 
 const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
@@ -178,7 +182,7 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
               <span className="font-normal">{availableChannels.find((channel) => channel.id === channelId)?.stream_id}</span>
             </ToolbarButton>
           </PopoverTrigger>
-          <PopoverSurface>
+          <PopoverSurface className={styles.popoverSurface}>
             <Field className={styles.searchBoxWrapper}>
               <SearchBox placeholder="Search channel" size="medium" className={styles.searchBox} value={searchQuery} onChange={handleSearchChange} />
             </Field>

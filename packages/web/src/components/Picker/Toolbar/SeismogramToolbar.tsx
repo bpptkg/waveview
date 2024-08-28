@@ -91,6 +91,10 @@ const useStyles = makeStyles({
   searchBox: {
     width: '200px',
   },
+  popoverSurface: {
+    maxHeight: '500px',
+    overflowY: 'auto',
+  },
 });
 
 const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
@@ -202,7 +206,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
               <span className="font-normal">Add station</span>
             </ToolbarButton>
           </PopoverTrigger>
-          <PopoverSurface>
+          <PopoverSurface className={styles.popoverSurface}>
             <Field className={styles.searchBoxWrapper}>
               <SearchBox placeholder="Search station" size="medium" className={styles.searchBox} value={searchQuery} onChange={handleSearchChange} />
             </Field>
