@@ -236,14 +236,14 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & 
           </>
         )}
         <MenuItem onClick={handleMoveChannelUp} icon={<ArrowUp20Regular />} aria-label="Move Channel Up">
-          Move {channel.network_station_code} Up
+          Move {channel?.network_station_code} Up
         </MenuItem>
         <MenuItem onClick={handleMoveChannelDown} icon={<ArrowDown20Regular />} aria-label="Move Channel Down">
-          Move {channel.network_station_code} Down
+          Move {channel?.network_station_code} Down
         </MenuItem>
         <MenuDivider />
         <MenuItem onClick={handleRemoveChannel} icon={<Delete20Regular />} aria-label="Remove Selected Channel">
-          Remove {channel.network_station_code}
+          Remove {channel?.network_station_code}
         </MenuItem>
       </MenuList>
       <Toaster toasterId={toasterId} />
