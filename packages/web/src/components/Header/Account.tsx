@@ -36,7 +36,7 @@ import TimezoneSelector from './TimezoneSelector';
 
 const useAccountStyles = makeStyles({
   popoverSuface: {
-    width: '240px',
+    width: 'auto',
     padding: '8px',
     borderRadius: '16px',
   },
