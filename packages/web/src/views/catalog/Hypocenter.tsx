@@ -136,7 +136,7 @@ const Hypocenter = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [useUTC, darkMode]);
 
-  useMount(async () => {
+  useMount(() => {
     updatePlot({ refreshHypo: true, refreshDem: 'auto' });
     setIsMounted(true);
   });
