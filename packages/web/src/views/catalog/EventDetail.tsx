@@ -10,10 +10,13 @@ import {
   Divider,
   makeStyles,
   Menu,
+  MenuButton,
   MenuItem,
   MenuList,
   MenuPopover,
   MenuTrigger,
+  Overflow,
+  OverflowItem,
   Tab,
   TabList,
   TabListProps,
@@ -22,11 +25,13 @@ import {
   ToastTitle,
   Tooltip,
   useId,
+  useIsOverflowItemVisible,
+  useOverflowMenu,
   useToastController,
 } from '@fluentui/react-components';
-import { Dismiss20Regular, Edit20Regular, MoreHorizontal20Regular, Star20Filled, Star20Regular } from '@fluentui/react-icons';
+import { Dismiss20Regular, Edit20Regular, MoreHorizontal20Regular, MoreHorizontalRegular, Star20Filled, Star20Regular } from '@fluentui/react-icons';
 import React, { useCallback, useState } from 'react';
-import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import { useCatalogStore } from '../../stores/catalog';
 import { useEventDetailStore } from '../../stores/eventDetail';
 import { SeismicEventDetail } from '../../types/event';
@@ -41,15 +46,90 @@ const useEventDetailStyles = makeStyles({
   },
 });
 
-const EventDetail: React.FC<EventDetailProps> = () => {
-  const { eventId } = useParams();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const styles = useEventDetailStyles();
+interface EventTabItem {
+  value: string;
+  label: string;
+}
 
+const OverflowMenuItem: React.FC<{ tab: EventTabItem }> = (props) => {
+  const { tab } = props;
+  const isVisible = useIsOverflowItemVisible(tab.value);
+  const navigate = useNavigate();
+
+  if (isVisible) {
+    return null;
+  }
+
+  return <MenuItem onClick={() => navigate(tab.value)}>{tab.label}</MenuItem>;
+};
+
+const OverflowMenu: React.FC<{ tabs: EventTabItem[] }> = ({ tabs }) => {
+  const { ref, isOverflowing } = useOverflowMenu<HTMLButtonElement>();
+
+  if (!isOverflowing) {
+    return null;
+  }
+
+  return (
+    <Menu>
+      <MenuTrigger disableButtonEnhancement>
+        <MenuButton ref={ref} appearance="transparent" icon={<MoreHorizontalRegular fontSize={20} />}></MenuButton>
+      </MenuTrigger>
+
+      <MenuPopover>
+        <MenuList>
+          {tabs.map((tab) => {
+            return <OverflowMenuItem key={tab.value} tab={tab} />;
+          })}
+        </MenuList>
+      </MenuPopover>
+    </Menu>
+  );
+};
+
+interface EventDetailTabsProps {
+  eventId?: string;
+}
+
+export const EventDetailTabs: React.FC<EventDetailTabsProps> = ({ eventId }) => {
+  const navigate = useNavigate();
   const handleTabSelect: TabListProps['onTabSelect'] = (_, data) => {
     navigate(data.value as string);
   };
+
+  const tabs = [
+    { value: `/catalog/events/${eventId}/summary`, label: 'Summary' },
+    { value: `/catalog/events/${eventId}/amplitude`, label: 'Amplitude' },
+    { value: `/catalog/events/${eventId}/magnitude`, label: 'Magnitude' },
+    { value: `/catalog/events/${eventId}/location`, label: 'Location' },
+    { value: `/catalog/events/${eventId}/waveform`, label: 'Waveform' },
+    { value: `/catalog/events/${eventId}/attachments`, label: 'Attachments' },
+  ];
+
+  if (!eventId) {
+    return null;
+  }
+
+  return (
+    <Overflow>
+      <div className="flex items-center gap-1">
+        <TabList onTabSelect={handleTabSelect} selectedValue={location.pathname}>
+          {tabs.map((tab) => (
+            <OverflowItem key={tab.value} id={tab.value}>
+              <Tab value={tab.value}>{tab.label}</Tab>
+            </OverflowItem>
+          ))}
+        </TabList>
+        <OverflowMenu tabs={tabs} />
+      </div>
+    </Overflow>
+  );
+};
+
+const EventDetail: React.FC<EventDetailProps> = () => {
+  const { eventId } = useParams();
+  const navigate = useNavigate();
+  const styles = useEventDetailStyles();
 
   const handleClose = () => {
     navigate('/catalog/events');
@@ -161,15 +241,7 @@ const EventDetail: React.FC<EventDetailProps> = () => {
       </div>
 
       <Divider alignContent="center" className={styles.divider} />
-
-      <TabList onTabSelect={handleTabSelect} selectedValue={location.pathname}>
-        <Tab value={`/catalog/events/${eventId}/summary`}>Summary</Tab>
-        <Tab value={`/catalog/events/${eventId}/amplitude`}>Amplitude</Tab>
-        <Tab value={`/catalog/events/${eventId}/magnitude`}>Magnitude</Tab>
-        <Tab value={`/catalog/events/${eventId}/location`}>Location</Tab>
-        <Tab value={`/catalog/events/${eventId}/waveform`}>Waveform</Tab>
-        <Tab value={`/catalog/events/${eventId}/attachments`}>Attachments</Tab>
-      </TabList>
+      <EventDetailTabs eventId={eventId} />
       <Outlet />
 
       <Toaster toasterId={toasterId} />
