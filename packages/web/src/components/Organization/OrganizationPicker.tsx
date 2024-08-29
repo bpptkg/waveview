@@ -36,7 +36,7 @@ const OrganizationPicker = () => {
       <Popover open={open} onOpenChange={handleOpenChange}>
         <PopoverTrigger disableButtonEnhancement>
           <MenuButton size="medium" appearance="transparent">
-            <span className="font-semibold text-black dark:text-white">{currentOrganization?.name}</span>
+            <span className="font-normal text-black dark:text-white">{currentOrganization?.name}</span>
           </MenuButton>
         </PopoverTrigger>
 
