@@ -198,7 +198,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
   }, []);
 
   return (
-    <div className="bg-white dark:bg-black mx-2 drop-shadow rounded flex justify-between items-center">
+    <div className="bg-white dark:bg-black mx-2 mt-1 drop-shadow rounded flex justify-between items-center">
       <Toolbar aria-label="Seismogram Toolbar" checkedValues={checkedValues} onCheckedValueChange={handleToolbarCheckedValueChange}>
         <Popover trapFocus open={open} onOpenChange={() => setOpen(!open)}>
           <PopoverTrigger disableButtonEnhancement>

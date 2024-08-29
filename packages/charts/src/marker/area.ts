@@ -46,7 +46,7 @@ export class AreaMarkerModel extends Model<AreaMarkerOptions> {
   static defaultOptions: AreaMarkerOptions = {
     show: true,
     color: "transparent",
-    opacity: 0.1,
+    opacity: 0.4,
     start: 0,
     end: 0,
     pill: true,

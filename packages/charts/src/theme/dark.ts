@@ -1,7 +1,7 @@
 import { ThemeStyle } from "../util/types";
 
 export const darkTheme: ThemeStyle = {
-  backgroundColor: "#000",
+  backgroundColor: "#1F1F1F",
   foregroundColor: "#fff",
   textColor: "#fff",
   fontSize: 11,
