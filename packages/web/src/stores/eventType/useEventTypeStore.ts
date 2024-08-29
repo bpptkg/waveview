@@ -20,6 +20,7 @@ const eventTypeStore = create<EventTypeStore>((set) => ({
       throw CustomError.fromErrorData(await response.json());
     }
     const data: EventType[] = await response.json();
+    data.sort((a, b) => a.code.localeCompare(b.code));
     set({ eventTypes: data });
   },
 }));
