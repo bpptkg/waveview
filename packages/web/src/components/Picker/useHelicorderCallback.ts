@@ -152,7 +152,7 @@ export function useHelicorderCallback() {
           color,
         });
       });
-    }, 100);
+    }, 0);
   }, [seisChartRef, heliChartRef, eventMarkers, darkMode]);
 
   const { fetcherWorkerRef } = useFetcherWorker({

@@ -1,4 +1,5 @@
-import { Button, Field, Input, Select, Textarea, Toast, Toaster, ToastTitle, useId, useToastController } from '@fluentui/react-components';
+import { Button, Dropdown, Field, Input, Option, Textarea, Toast, Toaster, ToastTitle, useId, useToastController } from '@fluentui/react-components';
+import { CircleFilled } from '@fluentui/react-icons';
 import { formatDate } from '@waveview/charts';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useEventTypeStore } from '../../../stores/eventType';
@@ -176,29 +177,42 @@ const PickEdit: React.FC<EventDrawerProps> = (props) => {
       </Field>
 
       <Field label="Event type">
-        <Select defaultValue={eventType} onChange={(_, data) => handleEventTypeChange(data.value)}>
-          <option value="" disabled>
-            Select an event type
-          </option>
+        <Dropdown
+          defaultValue={eventTypes.find((event) => event.id === eventTypeState)?.code}
+          onActiveOptionChange={(_, data) => {
+            const value = data.nextOption?.value;
+            if (value) {
+              handleEventTypeChange(value);
+            }
+          }}
+        >
           {eventTypes.map((event) => (
-            <option key={event.id} value={event.id}>
-              {event.code}
-            </option>
+            <Option key={event.id} value={event.id} text={event.code}>
+              <div className="flex items-center gap-1">
+                <CircleFilled fontSize={20} color={event.color} />
+                <span>{event.code}</span>
+              </div>
+            </Option>
           ))}
-        </Select>
+        </Dropdown>
       </Field>
 
       <Field label="Station of first arrival">
-        <Select defaultValue={stationOfFirstArrival} onChange={(_, data) => handleStationChange(data.value)}>
-          <option value="" disabled>
-            Select station name
-          </option>
+        <Dropdown
+          defaultValue={getSelectedStations().find((station) => station.id === stationOfFirstArrivalState)?.code}
+          onActiveOptionChange={(_, data) => {
+            const value = data.nextOption?.value;
+            if (value) {
+              handleStationChange(value);
+            }
+          }}
+        >
           {getSelectedStations().map((station) => (
-            <option key={station.id} value={station.id}>
+            <Option key={station.id} value={station.id} text={station.code}>
               {station.code}
-            </option>
+            </Option>
           ))}
-        </Select>
+        </Dropdown>
       </Field>
 
       <Field label="Note">
