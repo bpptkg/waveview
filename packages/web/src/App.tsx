@@ -2,6 +2,7 @@ import { FluentProvider, webDarkTheme, webLightTheme } from '@fluentui/react-com
 import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import RequireDesktop from './components/Common/RequireDesktop';
+import WebSocketProvider from './components/WebSocket/WebSocketProvider';
 import { useAppStore } from './stores/app';
 
 const App = () => {
@@ -14,7 +15,9 @@ const App = () => {
   return (
     <FluentProvider theme={darkMode ? webDarkTheme : webLightTheme} applyStylesToPortals>
       <RequireDesktop>
-        <Outlet />
+        <WebSocketProvider>
+          <Outlet />
+        </WebSocketProvider>
       </RequireDesktop>
     </FluentProvider>
   );
