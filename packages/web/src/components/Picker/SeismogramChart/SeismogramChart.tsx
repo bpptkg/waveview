@@ -10,6 +10,7 @@ import classNames from 'classnames';
 import { FederatedPointerEvent } from 'pixi.js';
 import React, { useCallback, useEffect, useImperativeHandle, useRef } from 'react';
 import { debounce } from '../../../shared/debounce';
+import { getJwtToken } from '../../../stores/auth/utils';
 import { SeismogramChartProps, SeismogramChartRef } from './SeismogramChart.types';
 import useSeismogramChartApi from './useSeismogramChartApi';
 
@@ -117,7 +118,9 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
       chartRef.current = new Seismogram(canvasRef.current, initOptions);
       await chartRef.current.init();
 
+      const token = getJwtToken();
       workerRef.current = new Worker(new URL('../../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
+      workerRef.current.postMessage({ type: 'setup', payload: { token } });
       webWorkerRef.current = new SeismogramWebWorker(chartRef.current, workerRef.current);
       axisPointerExtensionRef.current = new AxisPointerExtension();
       eventManagerExtensionRef.current = new SeismogramEventManagerExtension({

@@ -7,6 +7,7 @@ import { useAuthStore } from '../../stores/auth';
 import { useCatalogStore } from '../../stores/catalog';
 import { useOrganizationStore } from '../../stores/organization';
 import { usePickerStore } from '../../stores/picker';
+import { useVolcanoStore } from '../../stores/volcano/useVolcanoStore';
 import { Channel } from '../../types/channel';
 import { SeismicEventDetail } from '../../types/event';
 import { EventResponseData } from '../../types/fetcher';
@@ -133,6 +134,7 @@ export function useHelicorderCallback() {
 
   const { currentOrganization } = useOrganizationStore();
   const { currentCatalog } = useCatalogStore();
+  const { currentVolcano } = useVolcanoStore();
   const { token } = useAuthStore();
   const { darkMode, useUTC } = useAppStore();
   const { event, showEventMarkers } = props;
@@ -174,7 +176,7 @@ export function useHelicorderCallback() {
 
   const handleFetchEvents = useCallback(() => {
     const helicorderExtent = heliChartRef.current?.getChartExtent();
-    if (helicorderExtent && currentOrganization && currentCatalog && token) {
+    if (helicorderExtent && currentOrganization && currentVolcano && currentCatalog && token) {
       const [start, end] = helicorderExtent;
 
       fetcherWorkerRef.current?.fetchEvents({
@@ -182,11 +184,12 @@ export function useHelicorderCallback() {
         start: new Date(start).toISOString(),
         end: new Date(end).toISOString(),
         organizationId: currentOrganization.id,
+        volcanoId: currentVolcano.id,
         catalogId: currentCatalog.id,
         accessToken: token.access,
       });
     }
-  }, [heliChartRef, fetcherWorkerRef, currentOrganization, currentCatalog, token]);
+  }, [heliChartRef, fetcherWorkerRef, currentOrganization, currentVolcano, currentCatalog, token]);
 
   const handleHelicorderSelectOffsetDate = useCallback(
     (date: Date) => {

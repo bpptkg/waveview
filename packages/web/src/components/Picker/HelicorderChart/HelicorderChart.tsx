@@ -1,6 +1,7 @@
 import { Channel, Helicorder, HelicorderEventManagerExtension, HelicorderWebWorkerExtension } from '@waveview/charts';
 import React, { useCallback, useEffect, useImperativeHandle, useRef } from 'react';
 import { debounce } from '../../../shared/debounce';
+import { getJwtToken } from '../../../stores/auth/utils';
 import { HelicorderChartProps, HelicorderChartRef } from './HelicorderChart.types';
 
 export type HelicorderChartType = React.ForwardRefExoticComponent<HelicorderChartProps & React.RefAttributes<HelicorderChartRef>>;
@@ -193,13 +194,13 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
         chartRef.current = new Helicorder(canvasRef.current, initOptions);
         await chartRef.current.init();
 
+        const token = getJwtToken();
         workerRef.current = new Worker(new URL('../../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
+        workerRef.current.postMessage({ type: 'setup', payload: { token } });
         webWorkerExtensionRef.current = new HelicorderWebWorkerExtension(workerRef.current);
         chartRef.current.use(webWorkerExtensionRef.current);
-
         eventManagerExtensionRef.current = new HelicorderEventManagerExtension(webWorkerExtensionRef.current.getAPI());
         chartRef.current.use(eventManagerExtensionRef.current);
-
         chartRef.current.render();
       }
     }

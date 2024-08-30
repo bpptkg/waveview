@@ -1,4 +1,4 @@
-import { AUTH_KEY } from '../stores/auth';
+import { getJwtToken, removeJwtToken, setJwtToken } from '../stores/auth/utils';
 import { JwtToken } from '../types/auth';
 import apiVersion from './apiVersion';
 
@@ -11,13 +11,17 @@ export interface APIOptions {
   params?: Record<string, any>;
 }
 
+const gotoLogin = () => {
+  removeJwtToken();
+  window.location.href = '/login';
+};
+
 const refreshToken = async () => {
-  const auth = typeof window !== 'undefined' ? window.localStorage.getItem(AUTH_KEY) : null;
-  const token = auth ? JSON.parse(auth) : null;
-  if (!token || !token.refresh) {
-    localStorage.removeItem(AUTH_KEY);
-    window.location.href = '/login';
+  const token = getJwtToken();
+  if (!token) {
+    gotoLogin();
   }
+  const { refresh } = token!;
 
   const response = await fetch(`${baseUrl}${apiVersion.refreshToken.v1}`, {
     method: 'POST',
@@ -25,19 +29,17 @@ const refreshToken = async () => {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      refresh: token.refresh,
+      refresh: refresh,
     }),
   });
 
   if (response.status === 401) {
-    localStorage.removeItem(AUTH_KEY);
-    window.location.href = '/login';
+    gotoLogin();
   }
 
   const data = (await response.json()) as JwtToken;
   if (data) {
-    token.access = data.access;
-    window.localStorage.setItem(AUTH_KEY, JSON.stringify(token));
+    setJwtToken(data);
   }
 };
 
@@ -60,13 +62,12 @@ export const api = async (url: string, options: APIOptions = {}): Promise<Respon
   const tryFetch = async () => {
     const { method = 'GET', body, params } = options;
 
-    const auth = typeof window !== 'undefined' ? window.localStorage.getItem(AUTH_KEY) : null;
-    const token = auth ? JSON.parse(auth) : null;
+    const token = getJwtToken();
     if (!token) {
-      localStorage.removeItem(AUTH_KEY);
-      window.location.href = '/login';
+      gotoLogin();
     }
 
+    const { access } = token!;
     const headers: Record<string, string> = body instanceof FormData ? {} : { 'Content-Type': 'application/json' };
     const data = body ? (body instanceof FormData ? body : JSON.stringify(body)) : undefined;
 
@@ -75,15 +76,14 @@ export const api = async (url: string, options: APIOptions = {}): Promise<Respon
       method,
       headers: {
         ...headers,
-        Authorization: `Bearer ${token.access}`,
+        Authorization: `Bearer ${access}`,
       },
       body: data,
     });
 
     if (response.status === 401) {
       if (attempts > 0) {
-        localStorage.removeItem(AUTH_KEY);
-        window.location.href = '/login';
+        gotoLogin();
       }
       await refreshToken();
       attempts += 1;

@@ -48,7 +48,7 @@ export interface Extension<T> {
 
 export type ExtensionConstructor<T> = new (config?: any) => Extension<T>;
 
-export type WorkerRequestType = "ping" | "stream.fetch" | "stream.fetch.error";
+export type WorkerRequestType = string;
 
 export interface WorkerRequestData<T> {
   type: WorkerRequestType;

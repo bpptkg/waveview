@@ -5,8 +5,8 @@ import { SeismicEvent } from '../types/event';
 import { EventRequestData, EventResponseData } from '../types/fetcher';
 
 const fetchEvents = async (payload: EventRequestData) => {
-  const { organizationId, catalogId, start, end } = payload;
-  const url = `${baseUrl}${apiVersion.listEvent.v1(organizationId, catalogId)}?start=${start}&end=${end}`;
+  const { organizationId, volcanoId, catalogId, start, end } = payload;
+  const url = `${baseUrl}${apiVersion.listEvent.v1(organizationId, volcanoId, catalogId)}?start=${start}&end=${end}`;
   const response = await fetch(url, {
     headers: {
       'Content-Type': 'application/json',

@@ -6,16 +6,11 @@ import { JwtToken } from '../../types/auth';
 import { CustomError } from '../../types/response';
 import { AUTH_KEY } from './constants';
 import { AuthStore } from './types';
-
-const getInitialToken = () => {
-  const auth = typeof window !== 'undefined' ? window.localStorage.getItem(AUTH_KEY) : null;
-  const token = auth ? JSON.parse(auth) : null;
-  return token;
-};
+import { getJwtToken, removeJwtToken } from './utils';
 
 const authStore = create<AuthStore>((set, get) => {
   return {
-    token: getInitialToken(),
+    token: getJwtToken(),
 
     setToken: (token) => {
       set({ token });
@@ -26,9 +21,7 @@ const authStore = create<AuthStore>((set, get) => {
 
     clearToken: () => {
       set({ token: null });
-      if (typeof window !== 'undefined') {
-        window.localStorage.removeItem(AUTH_KEY);
-      }
+      removeJwtToken();
     },
 
     fetchToken: async (credentials) => {

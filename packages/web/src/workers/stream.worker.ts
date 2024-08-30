@@ -1,20 +1,26 @@
 import { StreamRequestData, StreamResponseData, WorkerRequestData, WorkerResponseData, readStream } from '@waveview/charts';
 import ReconnectingWebSocket from 'reconnecting-websocket';
-import { WebSocketRequest } from '../types/websocket';
+import { WebSocketRequest, WebSocketSetupData } from '../types/websocket';
 
 import { wsUrl } from '../services/api';
 
-const url = `${wsUrl}/ws/stream/`;
-const socket = new ReconnectingWebSocket(url);
+let socket: ReconnectingWebSocket;
 
-socket.addEventListener('open', () => {});
+function setup(data: WebSocketSetupData): void {
+  const { token } = data;
 
-socket.addEventListener('message', (event: MessageEvent<Blob>) => {
-  const { data } = event;
-  processBlob(data);
-});
+  const url = `${wsUrl}/ws/stream/?token=${token.access}`;
+  socket = new ReconnectingWebSocket(url);
 
-socket.addEventListener('close', () => {});
+  socket.addEventListener('open', () => {});
+
+  socket.addEventListener('message', (event: MessageEvent<Blob>) => {
+    const { data } = event;
+    processBlob(data);
+  });
+
+  socket.addEventListener('close', () => {});
+}
 
 async function processBlob(blob: Blob): Promise<void> {
   const data = await readStream(blob);
@@ -46,14 +52,11 @@ function ping(): void {
 self.addEventListener('message', (event: MessageEvent<WorkerRequestData<unknown>>) => {
   const { type, payload } = event.data;
 
-  switch (type) {
-    case 'stream.fetch':
-      streamFetch(payload as StreamRequestData);
-      break;
-    case 'ping':
-      ping();
-      break;
-    default:
-      break;
+  if (type === 'stream.fetch') {
+    streamFetch(payload as StreamRequestData);
+  } else if (type === 'ping') {
+    ping();
+  } else if (type === 'setup') {
+    setup(payload as WebSocketSetupData);
   }
 });

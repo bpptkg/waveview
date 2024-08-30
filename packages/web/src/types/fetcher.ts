@@ -5,6 +5,7 @@ export interface EventRequestData {
   start: string;
   end: string;
   organizationId: string;
+  volcanoId: string;
   catalogId: string;
   accessToken: string;
 }
