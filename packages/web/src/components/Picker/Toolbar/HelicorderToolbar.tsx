@@ -16,6 +16,7 @@ import {
   Toolbar,
   ToolbarButton,
   ToolbarDivider,
+  Tooltip,
   makeStyles,
   tokens,
 } from '@fluentui/react-components';
@@ -206,9 +207,11 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
 
         <Menu>
           <MenuTrigger>
-            <ToolbarButton aria-label="Select Duration" className={styles.btn}>
-              <span className="font-normal">{durationOptions.find((option) => option.value === duration)?.label}</span> <ChevronDown12Regular />
-            </ToolbarButton>
+            <Tooltip content="Select Helicorder Duration" relationship="label" showDelay={1500}>
+              <ToolbarButton aria-label="Select Duration" className={styles.btn}>
+                <span className="font-normal">{durationOptions.find((option) => option.value === duration)?.label}</span> <ChevronDown12Regular />
+              </ToolbarButton>
+            </Tooltip>
           </MenuTrigger>
           <MenuPopover>
             <MenuList>
@@ -222,9 +225,11 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
         </Menu>
         <Menu>
           <MenuTrigger>
-            <ToolbarButton aria-label="Select Interval" className={styles.btn}>
-              <span className="font-normal">{intervalOptions.find((option) => option.value === interval)?.label}</span> <ChevronDown12Regular />
-            </ToolbarButton>
+            <Tooltip content="Select Helicorder Interval" relationship="label" showDelay={1500}>
+              <ToolbarButton aria-label="Select Interval" className={styles.btn}>
+                <span className="font-normal">{intervalOptions.find((option) => option.value === interval)?.label}</span> <ChevronDown12Regular />
+              </ToolbarButton>
+            </Tooltip>
           </MenuTrigger>
           <MenuPopover>
             <MenuList>
@@ -239,22 +244,36 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
 
         <ToolbarDivider />
 
-        <ToolbarButton aria-label="Shift View Up" icon={<ChevronUp20Regular />} onClick={onShiftViewUp} />
-        <ToolbarButton aria-label="Shift View Down" icon={<ChevronDown20Regular />} onClick={onShiftViewDown} />
-        <ToolbarButton aria-label="Shift View to Now" icon={<ChevronDoubleDown20Regular />} onClick={onShiftViewToNow} />
+        <Tooltip content="Shift View Up" relationship="label" showDelay={1500}>
+          <ToolbarButton aria-label="Shift View Up" icon={<ChevronUp20Regular />} onClick={onShiftViewUp} />
+        </Tooltip>
+        <Tooltip content="Shift View Down" relationship="label" showDelay={1500}>
+          <ToolbarButton aria-label="Shift View Down" icon={<ChevronDown20Regular />} onClick={onShiftViewDown} />
+        </Tooltip>
+        <Tooltip content="Shift View to Now" relationship="label" showDelay={1500}>
+          <ToolbarButton aria-label="Shift View to Now" icon={<ChevronDoubleDown20Regular />} onClick={onShiftViewToNow} />
+        </Tooltip>
 
         <Popover trapFocus open={offsetDatePickerOpen} onOpenChange={() => setOffsetDatePickerOpen(!offsetDatePickerOpen)}>
           <PopoverTrigger disableButtonEnhancement>
-            <ToolbarButton aria-label="Change Offset Date" icon={<Calendar20Regular />} />
+            <Tooltip content="Change Offset Date" relationship="label" showDelay={1500}>
+              <ToolbarButton aria-label="Change Offset Date" icon={<Calendar20Regular />} />
+            </Tooltip>
           </PopoverTrigger>
           <PopoverSurface>
             <Calendar value={offsetDate} onSelectDate={handleSelectDate} />
           </PopoverSurface>
         </Popover>
 
-        <ToolbarButton aria-label="Increase Amplitude" icon={<ChevronUpDown20Regular />} onClick={onIncreaseAmplitude} />
-        <ToolbarButton aria-label="Decrease Amplitude" icon={<ChevronDownUp20Regular />} onClick={onDecreaseAmplitude} />
-        <ToolbarButton aria-label="Reset Amplitude" icon={<AutoFitHeight20Regular />} onClick={onResetAmplitude} />
+        <Tooltip content="Increase Amplitude" relationship="label" showDelay={1500}>
+          <ToolbarButton aria-label="Increase Amplitude" icon={<ChevronUpDown20Regular />} onClick={onIncreaseAmplitude} />
+        </Tooltip>
+        <Tooltip content="Decrease Amplitude" relationship="label" showDelay={1500}>
+          <ToolbarButton aria-label="Decrease Amplitude" icon={<ChevronDownUp20Regular />} onClick={onDecreaseAmplitude} />
+        </Tooltip>
+        <Tooltip content="Reset Amplitude" relationship="label" showDelay={1500}>
+          <ToolbarButton aria-label="Reset Amplitude" icon={<AutoFitHeight20Regular />} onClick={onResetAmplitude} />
+        </Tooltip>
         <ToolbarDivider />
         <Switch checked={showEvent} label={showEvent ? 'Hide Event' : 'Show Event'} onChange={handleShowEventChange} />
       </Toolbar>

@@ -17,6 +17,7 @@ import {
   ToolbarDivider,
   ToolbarProps,
   ToolbarToggleButton,
+  Tooltip,
   makeStyles,
   tokens,
 } from '@fluentui/react-components';
@@ -226,36 +227,56 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
           </PopoverSurface>
         </Popover>
 
-        <ToolbarButton aria-label="Zoom In" icon={<ZoomIn20Regular />} onClick={onZoomIn} />
-        <ToolbarButton aria-label="Zoom Out" icon={<ZoomOut20Regular />} onClick={onZoomOut} />
-        <ToolbarToggleButton
-          aria-label="Zoom Area"
-          icon={<FullScreenMaximize20Regular className={styles.iconZoom} />}
-          name="options"
-          value="zoom-rectangle"
-          appearance="subtle"
-          disabled={checkedValues?.options?.includes('pick-mode')}
-        />
-        <ToolbarButton aria-label="Scroll Left" icon={<ChevronLeft20Regular />} onClick={onScrollLeft} />
-        <ToolbarButton aria-label="Scroll Right" icon={<ChevronRight20Regular />} onClick={onScrollRight} />
-        <ToolbarButton aria-label="Increase Amplitude" icon={<ChevronUpDown20Regular />} onClick={onIncreaseAmplitude} />
-        <ToolbarButton aria-label="Decrease Amplitude" icon={<ChevronDownUp20Regular />} onClick={onDecreaseAmplitude} />
-        <ToolbarButton aria-label="Reset Amplitude" icon={<AutoFitHeight20Regular />} onClick={onResetAmplitude} />
+        <Tooltip content="Zoom In" relationship="label" showDelay={1500}>
+          <ToolbarButton aria-label="Zoom In" icon={<ZoomIn20Regular />} onClick={onZoomIn} />
+        </Tooltip>
+        <Tooltip content="Zoom Out" relationship="label" showDelay={1500}>
+          <ToolbarButton aria-label="Zoom Out" icon={<ZoomOut20Regular />} onClick={onZoomOut} />
+        </Tooltip>
+        <Tooltip content="Zoom Rectangle" relationship="label" showDelay={1500}>
+          <ToolbarToggleButton
+            aria-label="Zoom Rectangle"
+            icon={<FullScreenMaximize20Regular className={styles.iconZoom} />}
+            name="options"
+            value="zoom-rectangle"
+            appearance="subtle"
+            disabled={checkedValues?.options?.includes('pick-mode')}
+          />
+        </Tooltip>
+        <Tooltip content="Scroll Left" relationship="label" showDelay={1500}>
+          <ToolbarButton aria-label="Scroll Left" icon={<ChevronLeft20Regular />} onClick={onScrollLeft} />
+        </Tooltip>
+        <Tooltip content="Scroll Right" relationship="label" showDelay={1500}>
+          <ToolbarButton aria-label="Scroll Right" icon={<ChevronRight20Regular />} onClick={onScrollRight} />
+        </Tooltip>
+        <Tooltip content="Increase Amplitude" relationship="label" showDelay={1500}>
+          <ToolbarButton aria-label="Increase Amplitude" icon={<ChevronUpDown20Regular />} onClick={onIncreaseAmplitude} />
+        </Tooltip>
+        <Tooltip content="Decrease Amplitude" relationship="label" showDelay={1500}>
+          <ToolbarButton aria-label="Decrease Amplitude" icon={<ChevronDownUp20Regular />} onClick={onDecreaseAmplitude} />
+        </Tooltip>
+        <Tooltip content="Reset Amplitude" relationship="label" showDelay={1500}>
+          <ToolbarButton aria-label="Reset Amplitude" icon={<AutoFitHeight20Regular />} onClick={onResetAmplitude} />
+        </Tooltip>
         <ToolbarDivider />
-        <ToolbarToggleButton
-          aria-label="Pick mode"
-          icon={<PickIcon className={styles.iconPick} />}
-          name="options"
-          value="pick-mode"
-          appearance="subtle"
-          disabled={checkedValues?.options?.includes('zoom-rectangle')}
-        />
+        <Tooltip content="Toggle Pick Mode" relationship="label" showDelay={1500}>
+          <ToolbarToggleButton
+            aria-label="Pick mode"
+            icon={<PickIcon className={styles.iconPick} />}
+            name="options"
+            value="pick-mode"
+            appearance="subtle"
+            disabled={checkedValues?.options?.includes('zoom-rectangle')}
+          />
+        </Tooltip>
 
         <Menu hasIcons>
           <MenuTrigger>
-            <ToolbarButton aria-label="Select Component" className={styles.btn} disabled={!!isExpandMode}>
-              <span className="font-normal">{componentOptions.find((option) => option.value === component)?.label}</span> <ChevronDown12Regular />
-            </ToolbarButton>
+            <Tooltip content="Select Component" relationship="label" showDelay={1500}>
+              <ToolbarButton aria-label="Select Component" className={styles.btn} disabled={!!isExpandMode}>
+                <span className="font-normal">{componentOptions.find((option) => option.value === component)?.label}</span> <ChevronDown12Regular />
+              </ToolbarButton>
+            </Tooltip>
           </MenuTrigger>
 
           <MenuPopover>
