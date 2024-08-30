@@ -12,7 +12,6 @@ import { Channel } from '../../types/channel';
 import { SeismicEventDetail } from '../../types/event';
 import { EventResponseData } from '../../types/fetcher';
 import { usePickerContext } from './PickerContext';
-import { useFetcherWorker } from './useFetchWorker';
 
 export function useHelicorderCallback() {
   const {
@@ -157,21 +156,20 @@ export function useHelicorderCallback() {
     }, 0);
   }, [seisChartRef, heliChartRef, eventMarkers, darkMode]);
 
-  const { fetcherWorkerRef } = useFetcherWorker({
-    onMessage: (event: EventResponseData) => {
-      if (!showEventMarkers) {
-        return;
-      }
+  const { fetcherWorkerRef } = usePickerContext();
+  fetcherWorkerRef.current?.onMessage((event: EventResponseData) => {
+    if (!showEventMarkers) {
+      return;
+    }
 
-      clearEventMarkers();
+    clearEventMarkers();
 
-      const { events } = event;
-      events.forEach((event) => {
-        addEventMarker(event);
-      });
+    const { events } = event;
+    events.forEach((event) => {
+      addEventMarker(event);
+    });
 
-      handlePlotEventMarkers();
-    },
+    handlePlotEventMarkers();
   });
 
   const handleFetchEvents = useCallback(() => {
