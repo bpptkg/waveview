@@ -3,6 +3,7 @@ import VolcanoPicker from '../Volcano/VolcanoPicker';
 import Account from './Account';
 import ArrowNavigation from './ArrowNavigation';
 import NotificationPanel from './NotificationPanel';
+import OfflineIndicator from './OfflineIndicator';
 import SearchBox from './SearchBox';
 
 const Header = () => {
@@ -21,6 +22,7 @@ const Header = () => {
       </div>
 
       <div className="flex items-center gap-3">
+        <OfflineIndicator />
         <NotificationPanel />
         <Account />
       </div>
