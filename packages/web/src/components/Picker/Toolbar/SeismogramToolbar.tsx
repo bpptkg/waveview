@@ -233,7 +233,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
         <Tooltip content="Zoom Out" relationship="label" showDelay={1500}>
           <ToolbarButton aria-label="Zoom Out" icon={<ZoomOut20Regular />} onClick={onZoomOut} />
         </Tooltip>
-        <Tooltip content="Zoom Rectangle" relationship="label" showDelay={1500}>
+        <Tooltip content="Toggle Zoom Rectangle" relationship="label" showDelay={1500}>
           <ToolbarToggleButton
             aria-label="Zoom Rectangle"
             icon={<FullScreenMaximize20Regular className={styles.iconZoom} />}
