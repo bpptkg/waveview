@@ -212,7 +212,6 @@ const EventTable = () => {
         'Time (UTC)',
         'Duration (s)',
         'Type',
-        'Amplitude',
         'Magnitude',
         'Latitude (°)',
         'Longitude (°)',
@@ -231,7 +230,6 @@ const EventTable = () => {
             row.item.time,
             row.item.duration,
             row.item.type.code,
-            row.item.preferred_amplitude?.amplitude,
             row.item.preferred_magnitude?.magnitude,
             row.item.preferred_origin?.latitude,
             row.item.preferred_origin?.longitude,
@@ -288,7 +286,6 @@ const EventTable = () => {
               <TableHeaderCell {...headerSortProps('time')}>Time</TableHeaderCell>
               <TableHeaderCell>Duration</TableHeaderCell>
               <TableHeaderCell>Type</TableHeaderCell>
-              <TableHeaderCell>Amplitude</TableHeaderCell>
               <TableHeaderCell>Magnitude</TableHeaderCell>
               <TableHeaderCell>Latitude</TableHeaderCell>
               <TableHeaderCell>Longitude</TableHeaderCell>
@@ -307,7 +304,6 @@ const EventTable = () => {
                   <TableCell>
                     <EventTypeLabel eventType={item.type} />
                   </TableCell>
-                  <TableCell>{formatNumber(item.preferred_amplitude?.amplitude, { unit: item.preferred_amplitude?.unit, precision: 2 })}</TableCell>
                   <TableCell>{formatNumber(item.preferred_magnitude?.magnitude, { precision: 2 })}</TableCell>
                   <TableCell>{formatNumber(item.preferred_origin?.latitude, { unit: '°', precision: 5 })}</TableCell>
                   <TableCell>{formatNumber(item.preferred_origin?.longitude, { unit: '°', precision: 5 })}</TableCell>
