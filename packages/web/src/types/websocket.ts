@@ -22,12 +22,13 @@ export interface WebSocketSetupData {
 }
 
 export interface NewEventNotificationData {
-  title: string;
   event: SeismicEvent;
 }
 
 export interface NotificationMessage<T = any> {
   type: string;
+  title: string;
+  body: string;
   data: T;
 }
 

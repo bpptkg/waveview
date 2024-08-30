@@ -1,4 +1,20 @@
-import { Avatar, Button, Divider, makeStyles, Popover, PopoverProps, PopoverSurface, PopoverTrigger, Tooltip } from '@fluentui/react-components';
+import {
+  Avatar,
+  Button,
+  Divider,
+  makeStyles,
+  Popover,
+  PopoverProps,
+  PopoverSurface,
+  PopoverTrigger,
+  Toast,
+  ToastBody,
+  Toaster,
+  ToastTitle,
+  Tooltip,
+  useId,
+  useToastController,
+} from '@fluentui/react-components';
 import { AlertRegular } from '@fluentui/react-icons';
 import { formatDistanceToNow } from 'date-fns';
 import { useCallback, useEffect, useState } from 'react';
@@ -15,6 +31,11 @@ const useNotificationPanelStyles = makeStyles({
   },
 });
 
+interface NotificationToast {
+  title: string;
+  body?: string;
+}
+
 const NotificationPanel = () => {
   const styles = useNotificationPanelStyles();
   const [open, setOpen] = useState(false);
@@ -23,21 +44,48 @@ const NotificationPanel = () => {
   const [notifications, setNotifications] = useState<NotificationMessage[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  const handleOpenChange: PopoverProps['onOpenChange'] = (_, data) => setOpen(data.open || false);
+  const toasterId = useId('notification-panel');
+  const { dispatchToast } = useToastController(toasterId);
+
+  const showNotificationToast = useCallback(
+    ({ title, body }: NotificationToast) => {
+      dispatchToast(
+        <Toast>
+          <ToastTitle>{title}</ToastTitle>
+          <ToastBody>{body}</ToastBody>
+        </Toast>,
+        { intent: 'info', timeout: 5000 }
+      );
+    },
+    [dispatchToast]
+  );
+
+  const handleNotiticationMessage = useCallback(
+    (event: MessageEvent<string>) => {
+      const response = JSON.parse(event.data);
+      const { type, data } = response as WebSocketResponse;
+      if (type === 'notify') {
+        const notification = data as NotificationMessage;
+        setNotifications((prev) => [...prev, notification]);
+        setUnreadCount((prev) => prev + 1);
+
+        showNotificationToast({ title: notification.title, body: notification.body });
+      }
+    },
+    [showNotificationToast]
+  );
 
   useEffect(() => {
     if (socket) {
-      socket.addEventListener('message', (event: MessageEvent<string>) => {
-        const response = JSON.parse(event.data);
-        const { type, data } = response as WebSocketResponse;
-        if (type === 'notify') {
-          const notification = data as NotificationMessage;
-          setNotifications((prev) => [...prev, notification]);
-          setUnreadCount((prev) => prev + 1);
-        }
-      });
+      socket.addEventListener('message', handleNotiticationMessage);
     }
-  }, [socket]);
+
+    return () => {
+      if (socket) {
+        socket.removeEventListener('message', handleNotiticationMessage);
+      }
+    };
+  }, [socket, handleNotiticationMessage]);
 
   useEffect(() => {
     if (open) {
@@ -45,17 +93,19 @@ const NotificationPanel = () => {
     }
   }, [open]);
 
+  const handleOpenChange: PopoverProps['onOpenChange'] = (_, data) => setOpen(data.open || false);
+
   const clearNotifications = useCallback(() => {
     setNotifications([]);
     setUnreadCount(0);
   }, []);
 
   const renderNewEventNotification = (data: NewEventNotificationData) => {
-    const { title, event } = data;
+    const { event } = data;
     return (
       <div className="flex flex-col gap-1">
         <div className="flex items-center justify-between">
-          <div className="text-sm font-semibold">{title}</div>
+          <div className="text-sm font-semibold">New Event</div>
           <span className="text-xs">{formatDistanceToNow(new Date(event.updated_at), { addSuffix: false })}</span>
         </div>
         <div className="flex justify-between">
@@ -81,41 +131,44 @@ const NotificationPanel = () => {
   };
 
   return (
-    <Popover open={open} onOpenChange={handleOpenChange} withArrow>
-      <PopoverTrigger disableButtonEnhancement>
-        <div className="relative">
-          <Button size="small" appearance="transparent" icon={<AlertRegular fontSize={20} />} />
-          {unreadCount > 0 && <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full text-xs" />}
-        </div>
-      </PopoverTrigger>
-
-      <PopoverSurface tabIndex={-1} className={styles.popoverSurface}>
-        <div>
-          <div className="flex items-center justify-between">
-            <h2 className="text-md font-semibold p-2">Notifications</h2>
-            <Button size="small" appearance="transparent" onClick={clearNotifications} disabled={notifications.length === 0}>
-              Clear all
-            </Button>
+    <>
+      <Popover open={open} onOpenChange={handleOpenChange} withArrow>
+        <PopoverTrigger disableButtonEnhancement>
+          <div className="relative">
+            <Button size="small" appearance="transparent" icon={<AlertRegular fontSize={20} />} />
+            {unreadCount > 0 && <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full text-xs" />}
           </div>
+        </PopoverTrigger>
 
-          <Divider />
+        <PopoverSurface tabIndex={-1} className={styles.popoverSurface}>
+          <div>
+            <div className="flex items-center justify-between">
+              <h2 className="text-md font-semibold p-2">Notifications</h2>
+              <Button size="small" appearance="transparent" onClick={clearNotifications} disabled={notifications.length === 0}>
+                Clear all
+              </Button>
+            </div>
 
-          <div className="p-2 max-h-[476px] overflow-y-auto overflow-x-hidden">
-            {notifications.length ? (
-              <div className="flex flex-col">
-                {notifications.map((notification, index) => (
-                  <div key={index} className="p-2 border-b border-gray-200">
-                    {renderNotification(notification)}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <span>No notification</span>
-            )}
+            <Divider />
+
+            <div className="p-2 max-h-[476px] overflow-y-auto overflow-x-hidden">
+              {notifications.length ? (
+                <div className="flex flex-col">
+                  {notifications.map((notification, index) => (
+                    <div key={index} className="p-2 border-b border-gray-200">
+                      {renderNotification(notification)}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <span>No notification</span>
+              )}
+            </div>
           </div>
-        </div>
-      </PopoverSurface>
-    </Popover>
+        </PopoverSurface>
+      </Popover>
+      <Toaster toasterId={toasterId} />
+    </>
   );
 };
 
