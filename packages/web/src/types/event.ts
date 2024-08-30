@@ -101,7 +101,6 @@ export interface SeismicEvent {
   amplitudes: Amplitude[];
   preferred_origin: Origin | null;
   preferred_magnitude: Magnitude | null;
-  preferred_amplitude: Amplitude | null;
   is_bookmarked: boolean;
 }
 
