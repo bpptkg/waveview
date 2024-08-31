@@ -1,4 +1,4 @@
-import { Button, Checkbox, Field, Popover, PopoverSurface, PopoverTrigger, Tooltip } from '@fluentui/react-components';
+import { Button, Checkbox, Field, makeStyles, Popover, PopoverSurface, PopoverTrigger, Tooltip } from '@fluentui/react-components';
 import { FilterRegular } from '@fluentui/react-icons';
 import { useCallback, useState } from 'react';
 import { EventType } from '../../types/event';
@@ -17,12 +17,20 @@ export interface EventTableFilterProps {
   onFilter?: (data: EventTableFilterData) => void;
 }
 
+const useEventTableFilterStyles = makeStyles({
+  popoverSurface: {
+    maxHeight: '500px',
+    overflowY: 'auto',
+  },
+});
+
 const EventTableFilter: React.FC<EventTableFilterProps> = ({ eventTypes = [], initialEventTypes, onFilter }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [selectedTypes, setSelectedTypes] = useState<string[]>(initialEventTypes ? initialEventTypes : eventTypes.map((item) => item.code));
   const [startDate, setStartDate] = useState<number | undefined>();
   const [endDate, setEndDate] = useState<number | undefined>();
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
+  const styles = useEventTableFilterStyles();
 
   const handleSelect = useCallback(
     (code: string) => {
@@ -72,7 +80,7 @@ const EventTableFilter: React.FC<EventTableFilterProps> = ({ eventTypes = [], in
           <Button appearance="transparent" icon={<FilterRegular fontSize={20} />} />
         </Tooltip>
       </PopoverTrigger>
-      <PopoverSurface>
+      <PopoverSurface className={styles.popoverSurface}>
         <div>
           <p className="font-semibold text-md">Filter Events</p>
           <div className="flex items-center justify-between gap-1 mt-1">
@@ -85,8 +93,8 @@ const EventTableFilter: React.FC<EventTableFilterProps> = ({ eventTypes = [], in
           </div>
           <div className="mt-1">
             <p>Event types</p>
-            <div className="grid grid-cols-6 gap-0">
-              <Checkbox checked={selectedTypes.length === eventTypes.length} label={'All'} onChange={() => handleSelectAll()}></Checkbox>
+            <Checkbox checked={selectedTypes.length === eventTypes.length} label={'All'} onChange={() => handleSelectAll()}></Checkbox>
+            <div className="grid grid-cols-3 gap-0">
               {eventTypes.map((item) => (
                 <Checkbox key={item.id} checked={selectedTypes.includes(item.code)} label={item.code} onChange={() => handleSelect(item.code)}></Checkbox>
               ))}

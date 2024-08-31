@@ -35,13 +35,17 @@ const MethodFilter: React.FC<MethodFilterProps> = ({ methods = [], selected = ''
         </Tooltip>
       </PopoverTrigger>
       <PopoverSurface>
-        <MenuList hasCheckmarks checkedValues={checkedValues} onCheckedValueChange={handleChange}>
-          {methods.map((item) => (
-            <MenuItemRadio key={item} name="methods" checkmark={<CheckmarkRegular fontSize={16} />} value={item}>
-              {item}
-            </MenuItemRadio>
-          ))}
-        </MenuList>
+        {methods.length ? (
+          <MenuList hasCheckmarks checkedValues={checkedValues} onCheckedValueChange={handleChange}>
+            {methods.map((item) => (
+              <MenuItemRadio key={item} name="methods" checkmark={<CheckmarkRegular fontSize={16} />} value={item}>
+                {item}
+              </MenuItemRadio>
+            ))}
+          </MenuList>
+        ) : (
+          <div className="p-2 text-center">No methods available</div>
+        )}
         <div className="flex justify-end mt-2">
           <Button appearance="primary" onClick={handleReset}>
             Reset
