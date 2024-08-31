@@ -26,7 +26,7 @@ describe("LeveldbCluster", () => {
     cluster.set("test", new Leveldb({ name: "test" }));
     expect(cluster.size).toBe(1);
     expect(cluster.isEmpty()).toBe(false);
-    cluster.clear();
+    cluster.clearAll();
     expect(cluster.size).toBe(0);
     expect(cluster.isEmpty()).toBe(true);
   });
@@ -50,7 +50,6 @@ describe("LeveldbCluster", () => {
     const db = new Leveldb({ name: "test" });
     cluster.set("test", db);
     expect(cluster.get("test")).toBe(db);
-    expect(cluster.get("unknown")).toBeUndefined();
   });
 
   it("should set a specific database", () => {

@@ -21,8 +21,12 @@ export class LeveldbCluster {
     return this.size === 0;
   }
 
-  get(key: string): Leveldb | undefined {
-    return this._store.get(key);
+  get(key: string): Leveldb {
+    const db = this._store.get(key);
+    if (!db) {
+      throw new Error(`Leveldb ${key} not found`);
+    }
+    return db;
   }
 
   set(key: string, value: Leveldb): void {
@@ -33,12 +37,19 @@ export class LeveldbCluster {
     this._store.delete(key);
   }
 
-  clear(): void {
-    this._store.clear();
-  }
-
   has(key: string): boolean {
     return this._store.has(key);
+  }
+
+  clear(id: string): void {
+    if (!this.has(id)) {
+      return;
+    }
+    this.get(id).clear();
+  }
+
+  clearAll(): void {
+    this._store.clear();
   }
 
   setDefaultLayer(id: string): void {
