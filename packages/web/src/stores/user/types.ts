@@ -20,7 +20,7 @@ export interface UserStore {
    */
   isSuperuser(): boolean;
   /**
-   * Returns true if the user has the given permission.
+   * Returns true if the user has the specified permission.
    */
   hasPermission(permission: string): boolean;
 }

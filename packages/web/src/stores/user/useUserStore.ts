@@ -3,6 +3,7 @@ import { baseUrl } from '../../services/api';
 import { createSelectors } from '../../shared/createSelectors';
 import { UserDetail } from '../../types/user';
 import { useAuthStore } from '../auth/useAuthStore';
+import { useOrganizationStore } from '../organization';
 import { UserStore } from './types';
 
 const userStore = create<UserStore>((set, get) => ({
@@ -26,7 +27,21 @@ const userStore = create<UserStore>((set, get) => ({
 
   isSuperuser: () => get().user?.is_superuser || false,
 
-  hasPermission: (permission) => get().user?.permissions.includes(permission) || false,
+  hasPermission: (permission) => {
+    const { currentOrganization } = useOrganizationStore.getState();
+    const { user } = get();
+    if (!currentOrganization || !user) {
+      return false;
+    }
+    if (currentOrganization.author.id === user.id) {
+      return true;
+    }
+    const membership = user.organization_memberships.find((m) => m.organization.id === currentOrganization.id);
+    if (!membership) {
+      return false;
+    }
+    return membership.roles.some((r) => r.permissions.includes(permission));
+  },
 }));
 
 export const useUserStore = createSelectors(userStore);

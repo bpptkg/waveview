@@ -36,6 +36,7 @@ import { useAppStore } from '../../stores/app';
 import { FilterData, useCatalogStore } from '../../stores/catalog';
 import { useEventDetailStore } from '../../stores/eventDetail';
 import { useEventTypeStore } from '../../stores/eventType';
+import { useUserStore } from '../../stores/user';
 import { SeismicEvent } from '../../types/event';
 import { CustomError } from '../../types/response';
 import EventDetail from './EventDetail';
@@ -79,6 +80,7 @@ const EventTable = () => {
   const { events, loading, filterData, fetchEvents, fetchNextEvents, hasNextEvents, setFilterData } = useCatalogStore();
   const { clearCache } = useEventDetailStore();
   const { eventTypes } = useEventTypeStore();
+  const { hasPermission } = useUserStore();
 
   const toasterId = useId('event-table');
   const { dispatchToast } = useToastController(toasterId);
@@ -207,19 +209,15 @@ const EventTable = () => {
   }, [fetchEvents, showErrorToast]);
 
   const handleDownload = useCallback(() => {
+    if (!hasPermission('event:download')) {
+      showErrorToast(new CustomError('You do not have permission to download events.'));
+      return;
+    }
+
     const header =
-      [
-        'Time (UTC)',
-        'Duration (s)',
-        'Type',
-        'Magnitude',
-        'Latitude (°)',
-        'Longitude (°)',
-        'Depth (km)',
-        'Evaluation Mode',
-        'Evaluation Status',
-        'Author',
-      ].join(',') + '\n';
+      ['Time (UTC)', 'Duration (s)', 'Type', 'Magnitude', 'Latitude (°)', 'Longitude (°)', 'Depth (km)', 'Evaluation Mode', 'Evaluation Status', 'Author'].join(
+        ','
+      ) + '\n';
 
     const content =
       'data:text/csv;charset=utf-8,' +
@@ -248,7 +246,7 @@ const EventTable = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  }, [rows]);
+  }, [rows, showErrorToast, hasPermission]);
 
   const handleFilter = useCallback(
     (data: FilterData) => {

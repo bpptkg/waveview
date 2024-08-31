@@ -17,3 +17,21 @@ export interface Organization {
   fax_number: string;
   mobile_number: string;
 }
+
+export interface OrganizationRole {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  permissions: string[];
+  order: number;
+}
+
+export interface OrganizationMembership {
+  id: string;
+  organization: Organization;
+  roles: OrganizationRole[];
+  date_added: string;
+  expiration_data?: string;
+  inviter: User;
+}

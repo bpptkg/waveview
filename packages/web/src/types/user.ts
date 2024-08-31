@@ -1,3 +1,5 @@
+import { OrganizationMembership } from './organization';
+
 export interface User {
   id: string;
   username: string;
@@ -12,5 +14,5 @@ export interface UserDetail extends User {
   date_joined: string;
   is_staff: boolean;
   is_superuser: boolean;
-  permissions: string[];
+  organization_memberships: OrganizationMembership[];
 }
