@@ -1,6 +1,7 @@
 import {
   Avatar,
   Button,
+  CounterBadge,
   Divider,
   makeStyles,
   Popover,
@@ -136,7 +137,11 @@ const NotificationPanel = () => {
         <PopoverTrigger disableButtonEnhancement>
           <div className="relative">
             <Button size="small" appearance="transparent" icon={<AlertRegular fontSize={20} />} />
-            {unreadCount > 0 && <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full text-xs" />}
+            {unreadCount > 0 && (
+              <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
+                <CounterBadge count={unreadCount} size="small" appearance="filled" color="danger" />
+              </div>
+            )}
           </div>
         </PopoverTrigger>
 
