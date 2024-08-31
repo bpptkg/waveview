@@ -40,7 +40,7 @@ export class Segment {
     return this._timestamp + this.size * ONE_MINUTE;
   }
 
-  get dataLength(): number {
+  get length(): number {
     return this.data.size;
   }
 
@@ -49,6 +49,9 @@ export class Segment {
   }
 
   set(index: number, value: number): void {
+    if (index < this.start || index >= this.end) {
+      throw new Error("Index out of range");
+    }
     this.data.set(index, value);
   }
 
@@ -61,7 +64,7 @@ export class Segment {
     this.filled = false;
   }
 
-  getDataArray(): [number, number][] {
+  toArray(): [number, number][] {
     return Array.from(this.data.entries()).sort(([a], [b]) => a - b);
   }
 
@@ -80,6 +83,26 @@ export class Segment {
     for (const index of this.data.keys()) {
       if (index > max) {
         max = index;
+      }
+    }
+    return max;
+  }
+
+  dataMin(): number {
+    let min = Infinity;
+    for (const value of this.data.values()) {
+      if (value < min) {
+        min = value;
+      }
+    }
+    return min;
+  }
+
+  dataMax(): number {
+    let max = -Infinity;
+    for (const value of this.data.values()) {
+      if (value > max) {
+        max = value;
       }
     }
     return max;

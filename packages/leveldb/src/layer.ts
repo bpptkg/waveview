@@ -7,9 +7,9 @@ export interface StorageLayerOptions {
    */
   size: number;
   /**
-   * The maximum number of data points to store per segment.
+   * The sample rate for the data points in Hz.
    */
-  maxPoints: number;
+  sampleRate: number;
 }
 
 export class StorageLayer {
@@ -33,56 +33,48 @@ export class StorageLayer {
     this.segments.clear();
   }
 
-  get(timestamp: number): Segment | undefined {
-    return this.segments.get(timestamp);
-  }
-
-  set(timestamp: number, segment: Segment): void {
-    this.segments.set(timestamp, segment);
-  }
-
-  has(timestamp: number): boolean {
-    return this.segments.has(timestamp);
-  }
-
-  delete(timestamp: number): void {
-    this.segments.delete(timestamp);
-  }
-
-  getOrAdd(timestamp: number, factory: () => Segment): Segment {
+  getSegment(timestamp: number): Segment {
     let segment = this.segments.get(timestamp);
     if (!segment) {
-      segment = factory();
+      segment = new Segment(timestamp, this.options.size);
       this.segments.set(timestamp, segment);
+      return segment;
     }
     return segment;
   }
 
-  /**
-   * Returns the data points for the given time range.
-   */
-  getDataPointsInRange(start: number, end: number): [number, number][] {
-    const dataPoints: [number, number][] = [];
-    this.iterateSegmentsInRange(start, end, (segment) => {
-      for (const [index, value] of segment.getDataArray()) {
-        if (index >= start && index <= end) {
-          dataPoints.push([index, value]);
-        }
-      }
-    });
-    return dataPoints;
+  getNextSegment(timestamp: number): Segment {
+    const nextTimestamp = timestamp + this.options.size * ONE_MINUTE;
+    return this.getSegment(nextTimestamp);
+  }
+
+  getPreviousSegment(timestamp: number): Segment {
+    const previousTimestamp = timestamp - this.options.size * ONE_MINUTE;
+    return this.getSegment(previousTimestamp);
+  }
+
+  setSegment(timestamp: number, segment: Segment): void {
+    this.segments.set(timestamp, segment);
+  }
+
+  hasSegment(timestamp: number): boolean {
+    return this.segments.has(timestamp);
+  }
+
+  deleteSegment(timestamp: number): void {
+    this.segments.delete(timestamp);
   }
 
   /**
    * Iterates over the segments for the given time range. If the segment does
    * not exist, it will be created.
    */
-  iterateSegmentsInRange(
+  forEachSegmentInRange(
     start: number,
     end: number,
-    callbackfn: (
+    callback: (
       segment: Segment,
-      key: number,
+      index: number,
       map: Map<number, Segment>
     ) => void
   ): void {
@@ -94,12 +86,24 @@ export class StorageLayer {
       timestamp <= last.timestamp;
       timestamp += this.options.size * ONE_MINUTE
     ) {
-      const segment = this.getOrAdd(
-        timestamp,
-        () => new Segment(timestamp, this.options.size)
-      );
-      callbackfn(segment, timestamp, this.segments);
+      const segment = this.getSegment(timestamp);
+      callback(segment, timestamp, this.segments);
     }
+  }
+
+  /**
+   * Returns the data points for the given time range.
+   */
+  getDataPointsInRange(start: number, end: number): [number, number][] {
+    const dataPoints: [number, number][] = [];
+    this.forEachSegmentInRange(start, end, (segment) => {
+      for (const [index, value] of segment.toArray()) {
+        if (index >= start && index <= end) {
+          dataPoints.push([index, value]);
+        }
+      }
+    });
+    return dataPoints;
   }
 
   /**
@@ -114,7 +118,7 @@ export class StorageLayer {
       timestamp <= last.timestamp;
       timestamp += this.options.size * ONE_MINUTE
     ) {
-      const segment = this.get(timestamp);
+      const segment = this.getSegment(timestamp);
       if (!segment || !segment.filled) {
         return false;
       }

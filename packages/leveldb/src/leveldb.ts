@@ -3,29 +3,29 @@ import { StorageEngine } from "./storage";
 import { ONE_MINUTE, StorageLevel } from "./types";
 
 export interface LeveldbOptions {
-  name: string;
-  layers: StorageLayerOptions[];
+  name?: string;
+  layers?: StorageLayerOptions[];
 }
 
 /**
  * LevelDB is a multi-layered storage engine for storing time-series data. Each
- * layer is defined by a specific time sampling or resolution and the maximum
- * number of data points to store per segment.
+ * layer is defined by a specific time sampling or resolution and the predefined
+ * sample rate of data points to store per segment.
  */
 export class Leveldb {
   readonly name: string;
   private readonly _db: StorageEngine;
 
   static readonly defaultLayerOptions: StorageLayerOptions[] = [
-    { size: 3, maxPoints: 6000 },
-    { size: 5, maxPoints: 6000 },
-    { size: 10, maxPoints: 6000 },
-    { size: 15, maxPoints: 6000 },
-    { size: 30, maxPoints: 6000 },
-    { size: 60, maxPoints: 6000 },
+    { size: 4, sampleRate: 30 },
+    { size: 5, sampleRate: 24 },
+    { size: 10, sampleRate: 12 },
+    { size: 15, sampleRate: 6 },
+    { size: 30, sampleRate: 3 },
+    { size: 60, sampleRate: 1 },
   ];
 
-  constructor(options?: Partial<LeveldbOptions>) {
+  constructor(options?: LeveldbOptions) {
     this._db = new StorageEngine();
     this.name = options?.name ?? "leveldb";
     if (options?.layers) {
@@ -45,6 +45,10 @@ export class Leveldb {
 
   clear(): void {
     this._db.clear();
+  }
+
+  levels(): IterableIterator<StorageLevel> {
+    return this._db.keys();
   }
 
   addLayer(level: StorageLevel, options: StorageLayerOptions): void {
@@ -73,9 +77,9 @@ export class Leveldb {
   determineLevel(start: number, end: number): number {
     const durationInMinutes = (end - start) / ONE_MINUTE;
     const sorted = Array.from(this._db.keys()).sort((a, b) => a - b);
-    for (const segment of sorted) {
-      if (durationInMinutes <= segment) {
-        return segment;
+    for (const level of sorted) {
+      if (durationInMinutes <= level) {
+        return level;
       }
     }
     return sorted[sorted.length - 1];

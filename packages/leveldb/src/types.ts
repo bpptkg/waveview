@@ -1,6 +1,6 @@
 export interface TimeSegment {
   segment: number;
-  maxPoints: number;
+  sampleRate: number;
 }
 
 export interface TimeRange {

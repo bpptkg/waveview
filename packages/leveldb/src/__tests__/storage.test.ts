@@ -7,7 +7,7 @@ describe("StorageEngine", () => {
 
   beforeEach(() => {
     storageEngine = new StorageEngine();
-    mockLayer = new StorageLayer({ size: 5, maxPoints: 100 });
+    mockLayer = new StorageLayer({ size: 5, sampleRate: 100 });
   });
 
   test("should return the size of the layers map", () => {
