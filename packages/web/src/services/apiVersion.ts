@@ -115,11 +115,11 @@ export default {
   },
   getSeismicity: {
     v1: (organizationId: string, volcanoId: string, catalogId: string) =>
-      `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/${catalogId}/analytics/seismicity/`,
+      `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/${catalogId}/seismicity/`,
   },
   getHypocenter: {
     v1: (organizationId: string, volcanoId: string, catalogId: string) =>
-      `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/${catalogId}/analytics/hypocenter/`,
+      `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/${catalogId}/hypocenter/`,
   },
   uploadEventAttachments: {
     v1: '/api/v1/event-attachments/',
