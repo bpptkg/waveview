@@ -25,6 +25,8 @@ const userStore = create<UserStore>((set, get) => ({
   isAdmin: () => get().user?.is_staff || get().user?.is_superuser || false,
 
   isSuperuser: () => get().user?.is_superuser || false,
+
+  hasPermission: (permission) => get().user?.permissions.includes(permission) || false,
 }));
 
 export const useUserStore = createSelectors(userStore);

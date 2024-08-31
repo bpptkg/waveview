@@ -12,4 +12,5 @@ export interface UserDetail extends User {
   date_joined: string;
   is_staff: boolean;
   is_superuser: boolean;
+  permissions: string[];
 }
