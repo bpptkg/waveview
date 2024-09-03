@@ -30,13 +30,13 @@ export function rgbaStr(rgba: number[]): string {
   return "rgba(" + rgba.join(",") + ")";
 }
 
-type ColormapReturnType<T extends ColorMapSpec> = T["format"] extends "hex"
+type ColormapReturnType<T> = T extends "hex"
   ? string[]
-  : T["format"] extends "rgbaString"
+  : T extends "rgbaString"
   ? string[]
   : number[][];
 
-export function createColormap<T extends ColorMapSpec = ColorMapSpec>(
+export function createColormap<T = "hex">(
   spec: ColorMapSpec = {}
 ): ColormapReturnType<T> {
   let indicies: number[],
