@@ -58,10 +58,10 @@ export class Helicorder extends ChartView<
 
     this._channel = opts.channel;
 
-    this._grid = new Grid(this.getRect(), opts.grid);
+    this._grid = new Grid(this, opts.grid);
     this.addComponent(this._grid);
 
-    this._xAxis = new Axis(this._grid.getRect(), {
+    this._xAxis = new Axis(this._grid, {
       position: "top",
       type: "linear",
     });
@@ -397,13 +397,11 @@ export class Helicorder extends ChartView<
     const { width = this.dom.width, height = this.dom.height } = options || {};
     this._rect.width = width;
     this._rect.height = height;
-    this._grid.setRect(this.getRect());
-    this._xAxis.setRect(this._grid.getRect());
-    for (let i = 0; i < this._tracks.length; i++) {
-      const track = this._tracks[i];
-      track.setRect(this._getRectForTrack(i, this.getTrackCount()));
+
+    for (const view of this._views) {
+      view.resize();
     }
-    this._selection.setRect(this._xAxis.getRect());
+
     const rect = this._grid.getRect();
     this._mask.clear();
     this._mask
@@ -413,12 +411,17 @@ export class Helicorder extends ChartView<
     this.app.renderer.resize(width, height);
   }
 
+  getRectForTrack(track: Track): LayoutRect {
+    const index = this._tracks.indexOf(track);
+    return this._getRectForTrack(index, this.getTrackCount());
+  }
+
   private _createTrack(index: number, options?: Partial<TrackOptions>): Track {
     const trackCount = this.getTrackCount();
     const rect = this._getRectForTrack(index, trackCount);
-    const yAxis = new Axis(rect, { position: "left" });
-    yAxis.setExtent(this.getYExtent());
-    const track = new Track(rect, this._xAxis, yAxis, this, options);
+    // const yAxis = new Axis(rect, { position: "left" });
+    // yAxis.setExtent(this.getYExtent());
+    const track = new Track(rect, this._xAxis, this, options);
     return track;
   }
 

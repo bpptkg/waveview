@@ -1,18 +1,21 @@
 import * as PIXI from "pixi.js";
-import { LayoutRect, ResizeOptions, ThemeStyle } from "../util/types";
+import { LayoutRect, ThemeStyle } from "../util/types";
+import { ChartView } from "../view";
 import { View } from "../view/view";
 import { GridModel, GridOptions } from "./gridModel";
 
 export class Grid extends View<GridModel> {
   override readonly type = "grid";
+  readonly chart: ChartView;
   private _rect: LayoutRect;
   private readonly _graphics: PIXI.Graphics;
 
-  constructor(rect: LayoutRect, options?: Partial<GridOptions>) {
+  constructor(chart: ChartView, options?: Partial<GridOptions>) {
     const model = new GridModel(options);
     super(model);
 
-    this._rect = rect;
+    this.chart = chart;
+    this._rect = chart.getRect();
     this._graphics = new PIXI.Graphics();
     this.group.addChild(this._graphics);
   }
@@ -29,9 +32,8 @@ export class Grid extends View<GridModel> {
 
   blur(): void {}
 
-  resize(options: ResizeOptions): void {
-    const { width, height } = options;
-    const { x, y } = this.getRect();
+  resize(): void {
+    const { x, y, width, height } = this.chart.getRect();
     this.setRect(new PIXI.Rectangle(x, y, width, height));
   }
 

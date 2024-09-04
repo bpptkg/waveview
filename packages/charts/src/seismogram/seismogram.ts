@@ -3,6 +3,7 @@ import * as PIXI from "pixi.js";
 import { Axis } from "../axis";
 import { DataStore } from "../data/dataStore";
 import { Grid } from "../grid";
+import { SpectrogramData } from "../spectrogram";
 import { Track } from "../track";
 import { merge } from "../util/merge";
 import { ONE_MINUTE } from "../util/time";
@@ -46,11 +47,11 @@ export class Seismogram extends ChartView<
     ) as SeismogramChartOptions;
     super(dom, opts);
 
-    this._grid = new Grid(this.getRect(), opts.grid);
+    this._grid = new Grid(this, opts.grid);
     this.addComponent(this._grid);
 
     const { startTime, endTime, useUTC } = opts;
-    this._xAxis = new Axis(this._grid.getRect(), {
+    this._xAxis = new Axis(this._grid, {
       position: "top",
       type: "time",
       useUTC,
@@ -99,6 +100,11 @@ export class Seismogram extends ChartView<
   }
 
   getChannelAt(index: number): Channel {
+    return this._trackManager.getChannelByIndex(index);
+  }
+
+  getChannelById(id: string): Channel {
+    const index = this._trackManager.findChannelIndex(id);
     return this._trackManager.getChannelByIndex(index);
   }
 
@@ -307,6 +313,38 @@ export class Seismogram extends ChartView<
     }
   }
 
+  setSpectrogramData(index: number, data: SpectrogramData): void {
+    const track = this._trackManager.getTrackByIndex(index);
+    track.getSpectrogram().setData(data);
+  }
+
+  getSpectrogramData(index: number): SpectrogramData {
+    const track = this._trackManager.getTrackByIndex(index);
+    return track.getSpectrogram().getData();
+  }
+
+  showSpectrogram(index: number): void {
+    const track = this._trackManager.getTrackByIndex(index);
+    track.showSpectrogram();
+  }
+
+  hideSpectrogram(index: number): void {
+    const track = this._trackManager.getTrackByIndex(index);
+    track.hideSpectrogram();
+  }
+
+  showAllSpectrograms(): void {
+    for (const track of this._trackManager.tracks()) {
+      track.showSpectrogram();
+    }
+  }
+
+  hideAllSpectrograms(): void {
+    for (const track of this._trackManager.tracks()) {
+      track.hideSpectrogram();
+    }
+  }
+
   getXAxis(): Axis {
     return this._xAxis;
   }
@@ -366,23 +404,32 @@ export class Seismogram extends ChartView<
     const { width = this.dom.width, height = this.dom.height } = options || {};
     this._rect.width = width;
     this._rect.height = height;
-    this._grid.setRect(this.getRect());
-    this._updateTracksRect();
+
+    for (const view of this._views) {
+      view.resize();
+    }
+
     const rect = this._grid.getRect();
-    this._xAxis.resize({ width: rect.width, height: rect.height });
     this._mask.clear();
     this._mask
       .rect(rect.x, rect.y, rect.width, rect.height)
       .fill({ color: "transparent" });
     this.app.stage.hitArea = new PIXI.Rectangle(0, 0, width, height);
     this.app.renderer.resize(width, height);
+
     this._extensions.forEach((ext) => {
       const api = ext.getAPI();
       if (api.resize) {
         api.resize({ width, height });
       }
     });
+
     this.emit("resize", width, height);
+  }
+
+  getRectForTrack(track: Track): LayoutRect {
+    const index = this._trackManager.findTrackIndex(track);
+    return this._getRectForTrack(index, this._trackManager.count());
   }
 
   private _getRectForTrack(index: number, count: number): LayoutRect {
@@ -402,10 +449,7 @@ export class Seismogram extends ChartView<
     const length = this._trackManager.count();
     const rect = this._getRectForTrack(length, length + 1);
 
-    const yAxis = new Axis(rect, { position: "left" });
-    yAxis.setExtent(this._yExtent);
-
-    const track = new Track(rect, this._xAxis, yAxis, this, {
+    const track = new Track(rect, this._xAxis, this, {
       leftLabel: channel.label ?? channel.id,
     });
     const theme = this.getTheme();

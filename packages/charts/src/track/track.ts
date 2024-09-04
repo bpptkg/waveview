@@ -1,15 +1,20 @@
 import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
+import { Helicorder } from "../helicorder";
+import { Seismogram } from "../seismogram";
 import { LineSeries } from "../series/line";
-import { LayoutRect, ResizeOptions, ThemeStyle } from "../util/types";
-import { ChartView } from "../view/chartView";
+import { Spectrogram } from "../spectrogram";
+import { LayoutRect, ThemeStyle } from "../util/types";
 import { View } from "../view/view";
 import { TrackModel, TrackOptions } from "./trackModel";
+
+export type ChartContainer = Helicorder | Seismogram;
 
 export class Track extends View<TrackModel> {
   override type = "track";
   private _rect: LayoutRect;
   private _series: LineSeries;
+  private _spectrogram: Spectrogram;
   private _highlighted: boolean = false;
   private readonly _leftText: PIXI.Text;
   private readonly _rightText: PIXI.Text;
@@ -17,13 +22,13 @@ export class Track extends View<TrackModel> {
 
   readonly xAxis: Axis;
   readonly yAxis: Axis;
-  readonly chart: ChartView;
+  readonly chart: ChartContainer;
 
   constructor(
     rect: LayoutRect,
     xAxis: Axis,
-    yAxis: Axis,
-    chart: ChartView,
+    // yAxis: Axis,
+    chart: ChartContainer,
     options?: Partial<TrackOptions>
   ) {
     const model = new TrackModel(options);
@@ -31,9 +36,11 @@ export class Track extends View<TrackModel> {
 
     this._rect = rect;
     this.xAxis = xAxis;
-    this.yAxis = yAxis;
+    this.yAxis = new Axis(this, { position: "left" });
+    this.yAxis.setExtent(chart.getYExtent());
     this.chart = chart;
     this._series = new LineSeries(this.xAxis, this.yAxis, this.chart);
+    this._spectrogram = new Spectrogram(this);
 
     this._leftText = new PIXI.Text();
     this._rightText = new PIXI.Text();
@@ -45,6 +52,7 @@ export class Track extends View<TrackModel> {
 
     // Add the series to the masked content container.
     this.chart.group.addChild(this._series.group);
+    this.chart.group.addChild(this._spectrogram.group);
   }
 
   show(): void {
@@ -59,10 +67,12 @@ export class Track extends View<TrackModel> {
 
   blur(): void {}
 
-  resize(options: ResizeOptions): void {
-    const { width, height } = options;
-    const { x, y } = this.getRect();
-    this.setRect(new PIXI.Rectangle(x, y, width, height));
+  resize(): void {
+    const rect = this.chart.getRectForTrack(this);
+    this.setRect(rect);
+    this._series.resize();
+    this._spectrogram.resize();
+    this.yAxis.resize();
   }
 
   applyThemeStyle(theme: ThemeStyle): void {
@@ -96,6 +106,30 @@ export class Track extends View<TrackModel> {
     this._series = series;
   }
 
+  getSpectrogram(): Spectrogram {
+    return this._spectrogram;
+  }
+
+  setSpectrogram(spectrogram: Spectrogram): void {
+    this._spectrogram = spectrogram;
+  }
+
+  showSeries(): void {
+    this._series.show();
+  }
+
+  hideSeries(): void {
+    this._series.hide();
+  }
+
+  showSpectrogram(): void {
+    this._spectrogram.show();
+  }
+
+  hideSpectrogram(): void {
+    this._spectrogram.hide();
+  }
+
   fitY(): void {
     const [ymin, ymax] = this.getYRange();
     if (isFinite(ymin) && isFinite(ymax)) {
@@ -110,7 +144,7 @@ export class Track extends View<TrackModel> {
     }
   }
 
-  fitContent(): void {
+  fit(): void {
     this.fitX();
     this.fitY();
   }
@@ -166,10 +200,12 @@ export class Track extends View<TrackModel> {
     this._renderLabels();
     this._renderSeries();
     this._renderHighlight();
+    this._renderSpectrogram();
   }
 
   dispose(): void {
     this._series.dispose();
+    this._spectrogram.dispose();
     this._leftText.destroy();
     this._rightText.destroy();
     this._highlight.destroy();
@@ -227,5 +263,9 @@ export class Track extends View<TrackModel> {
 
   private _renderSeries(): void {
     this._series.render();
+  }
+
+  private _renderSpectrogram(): void {
+    this._spectrogram.render();
   }
 }

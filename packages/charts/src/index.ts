@@ -35,6 +35,11 @@ export type {
   SeismogramLineMarkerOptions,
   ZoomRectangleOptions,
 } from "./seismogram";
+export { Spectrogram, SpectrogramData, SpectrogramModel } from "./spectrogram";
+export type {
+  SpectrogramDataInitOptions,
+  SpectrogramOptions,
+} from "./spectrogram";
 export {
   ThemeManager,
   darkTheme,
@@ -42,14 +47,17 @@ export {
   lightTheme,
   registerTheme,
 } from "./theme";
-export { readStream } from "./util/stream";
+export { readSpectrogram, readStream } from "./util/stream";
 export { formatDate, parseDate } from "./util/time";
 export type {
   Channel,
+  ConnectionStatus,
   Extension,
   ResampleMode,
   SeriesData,
   SeriesOptions,
+  SpectrogramRequestData,
+  SpectrogramResponseData,
   StreamRequestData,
   StreamResponseData,
   ThemeName,

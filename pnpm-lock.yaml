@@ -17,6 +17,9 @@ importers:
 
   packages/charts:
     dependencies:
+      '@waveview/colormap':
+        specifier: workspace:^
+        version: link:../colormap
       '@waveview/ndarray':
         specifier: workspace:*
         version: link:../ndarray

@@ -85,6 +85,37 @@ export interface StreamResponseData {
   end: number;
 }
 
+export interface SpectrogramRequestData {
+  requestId: string;
+  channelId: string;
+  start: number;
+  end: number;
+  width: number;
+  height: number;
+}
+
+export interface SpectrogramResponseData {
+  requestId: string;
+  command: string;
+  channelId: string;
+  start: number;
+  end: number;
+  data: Float64Array;
+  timeMin: number;
+  timeMax: number;
+  freqMin: number;
+  freqMax: number;
+  timeLength: number;
+  freqLength: number;
+  min: number;
+  max: number;
+}
+
+export interface ConnectionStatus {
+  connected: boolean;
+  error?: Error;
+}
+
 export interface RenderableGroup {
   group: PIXI.Container;
   render(): void;

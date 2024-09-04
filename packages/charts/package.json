@@ -28,6 +28,7 @@
     "vite-plugin-dts": "^3.9.1"
   },
   "dependencies": {
+    "@waveview/colormap": "workspace:*",
     "@waveview/ndarray": "workspace:*",
     "pixi.js": "^8.1.1"
   },

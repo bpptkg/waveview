@@ -2,12 +2,7 @@ import * as PIXI from "pixi.js";
 import { Axis } from "../axis/axis";
 import { SeriesModel } from "../model/series";
 import { merge } from "../util/merge";
-import {
-  LayoutRect,
-  ResizeOptions,
-  SeriesOptions,
-  ThemeStyle,
-} from "../util/types";
+import { LayoutRect, SeriesOptions, ThemeStyle } from "../util/types";
 import { ChartView } from "../view/chartView";
 import { View } from "../view/view";
 
@@ -88,10 +83,9 @@ export class LineSeries extends View<LineSeriesModel> {
     this._rect = rect;
   }
 
-  resize(options: ResizeOptions): void {
-    const { width, height } = options;
-    const { x, y } = this.getRect();
-    this.setRect(new PIXI.Rectangle(x, y, width, height));
+  resize(): void {
+    const rect = this.xAxis.getRect();
+    this.setRect(rect);
   }
 
   render(): void {

@@ -34,6 +34,10 @@ export class TrackManager {
     }
   }
 
+  findTrackIndex(track: Track): number {
+    return this._store.findIndex(([, t]) => t === track);
+  }
+
   getTrackByChannel(channel: Channel): Track | undefined {
     const pair = this._store.find(([c]) => c === channel);
     return pair ? pair[1] : undefined;

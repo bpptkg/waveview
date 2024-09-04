@@ -2,13 +2,7 @@ import * as PIXI from "pixi.js";
 import { AreaMarker, AreaMarkerOptions } from "../marker/area";
 import { drawDash } from "../util/dashline";
 import { almostEquals } from "../util/math";
-import {
-  EventMap,
-  LayoutRect,
-  ResizeOptions,
-  ScaleTick,
-  ThemeStyle,
-} from "../util/types";
+import { EventMap, LayoutRect, ScaleTick, ThemeStyle } from "../util/types";
 import { View } from "../view/view";
 import { AxisModel, AxisOptions } from "./axisModel";
 
@@ -25,6 +19,7 @@ export interface AxisEventMap extends EventMap {
 
 export class Axis extends View<AxisModel, AxisEventMap> {
   override readonly type = "axis";
+  readonly parent: View;
   private _rect: LayoutRect;
   private _markers: MarkerView[] = [];
   private readonly _axisLine: PIXI.Graphics;
@@ -33,11 +28,12 @@ export class Axis extends View<AxisModel, AxisEventMap> {
   private readonly _splitLine: PIXI.Graphics;
   private readonly _labels: PIXI.Text[] = [];
 
-  constructor(rect: LayoutRect, options?: Partial<AxisOptions>) {
+  constructor(parent: View, options?: Partial<AxisOptions>) {
     const model = new AxisModel(options);
     super(model);
 
-    this._rect = rect;
+    this.parent = parent;
+    this._rect = parent.getRect();
     this._axisLine = new PIXI.Graphics();
     this._majorTicks = new PIXI.Graphics();
     this._minorTicks = new PIXI.Graphics();
@@ -64,11 +60,11 @@ export class Axis extends View<AxisModel, AxisEventMap> {
     this.group.zIndex = 0;
   }
 
-  resize(options: ResizeOptions): void {
-    const { width, height } = options;
-    const { x, y } = this.getRect();
+  resize(): void {
+    const rect = this.parent.getRect();
+    const { x, y, width, height } = rect;
     this.setRect(new PIXI.Rectangle(x, y, width, height));
-    this._markers.forEach((marker) => marker.resize(options));
+    this._markers.forEach((marker) => marker.resize());
   }
 
   applyThemeStyle(style: ThemeStyle): void {

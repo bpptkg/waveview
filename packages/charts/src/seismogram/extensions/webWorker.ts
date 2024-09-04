@@ -1,9 +1,13 @@
 import { Series } from "@waveview/ndarray";
+import { SpectrogramData } from "../../spectrogram";
 import { Debounce } from "../../util/decorators";
 import { ONE_MINUTE } from "../../util/time";
 import {
+  Channel,
   Extension,
   ResampleMode,
+  SpectrogramRequestData,
+  SpectrogramResponseData,
   StreamRequestData,
   StreamResponseData,
   WorkerRequestData,
@@ -59,11 +63,18 @@ export class SeismogramWebWorker {
   }
 
   fetchAllChannelsData(): void {
-    const extent = this._chart.getXAxis().getExtent();
     const channels = this._chart.getChannels();
 
     channels.forEach((channel) => {
-      this.postRequestMessage(channel.id, extent);
+      this.postRequestMessage(channel);
+    });
+  }
+
+  fetchAllSpecrogramData(): void {
+    const channels = this._chart.getChannels();
+
+    channels.forEach((channel) => {
+      this.postSpectrogramRequestMessage(channel);
     });
   }
 
@@ -72,12 +83,24 @@ export class SeismogramWebWorker {
     this.fetchAllChannelsData();
   }
 
-  fetchChannelData(channelId: string): void {
-    const extent = this._chart.getXAxis().getExtent();
-    this.postRequestMessage(channelId, extent);
+  @Debounce(300)
+  fetchAllSpecrogramDataDebounced(): void {
+    this.fetchAllSpecrogramData();
   }
 
-  postRequestMessage(channelId: string, extent: [number, number]): void {
+  fetchChannelData(channelId: string): void {
+    const channel = this._chart.getChannelById(channelId);
+    this.postRequestMessage(channel);
+  }
+
+  fetchSpecrogramData(channelId: string): void {
+    const channel = this._chart.getChannelById(channelId);
+    this.postSpectrogramRequestMessage(channel);
+  }
+
+  postRequestMessage(channel: Channel): void {
+    const extent = this._chart.getXAxis().getExtent();
+    const channelId = channel.id;
     const { threshold, maxPoints } = this._options;
     const [start, end] = extent;
     const diffInMinutes = (end - start) / ONE_MINUTE;
@@ -103,6 +126,24 @@ export class SeismogramWebWorker {
     this.postMessage(msg);
   }
 
+  postSpectrogramRequestMessage(channel: Channel): void {
+    const [start, end] = this._chart.getChartExtent();
+    const { width, height } = this._chart.getXAxis().getRect();
+    const payload: SpectrogramRequestData = {
+      requestId: uuid4(),
+      channelId: channel.id,
+      start,
+      end,
+      width,
+      height,
+    };
+    const msg: WorkerRequestData<SpectrogramRequestData> = {
+      type: "stream.spectrogram",
+      payload,
+    };
+    this.postMessage(msg);
+  }
+
   private _onMessage(event: MessageEvent<WorkerResponseData<unknown>>): void {
     const { type, payload } = event.data;
 
@@ -110,7 +151,8 @@ export class SeismogramWebWorker {
       case "stream.fetch":
         this._onStreamFetch(payload as StreamResponseData);
         break;
-      case "stream.fetch.error":
+      case "stream.spectrogram":
+        this._onSpecrogramFetch(payload as SpectrogramResponseData);
         break;
       default:
         break;
@@ -127,6 +169,16 @@ export class SeismogramWebWorker {
     if (idx !== -1) {
       this._chart.setChannelData(idx, seriesData);
       this._chart.refreshData();
+      this._chart.render();
+    }
+  }
+
+  private _onSpecrogramFetch(payload: SpectrogramResponseData): void {
+    const { channelId } = payload;
+    const index = this._chart.getTrackIndexByChannelId(channelId);
+    if (index !== -1) {
+      const data = SpectrogramData.fromSpectrogramResponseData(payload);
+      this._chart.setSpectrogramData(index, data);
       this._chart.render();
     }
   }
