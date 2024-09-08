@@ -7,6 +7,7 @@ import { ONE_MINUTE } from "../util/time";
 import { Channel } from "../util/types";
 import { getDefaultOptions, HelicorderOptions } from "./chartOptions";
 import { HelicorderEventMap } from "./eventMap";
+import { SelectionWindowView } from "./selectionWindow";
 import { SetTrackDataOptions, TrackManager } from "./trackManager";
 
 /**
@@ -25,6 +26,7 @@ export class Helicorder extends ChartView<HelicorderOptions> {
   private readonly xAxis: AxisView;
   private readonly grid: GridView;
   private trackManager: TrackManager;
+  private selectionWindow: SelectionWindowView;
   private yExtent: [number, number] = [-1, 1];
 
   constructor(dom: HTMLCanvasElement, options?: Partial<HelicorderOptions>) {
@@ -45,6 +47,9 @@ export class Helicorder extends ChartView<HelicorderOptions> {
 
     this.trackManager = new TrackManager(this);
     this.trackManager.updateTracks();
+
+    this.selectionWindow = new SelectionWindowView(this);
+    this.addComponent(this.selectionWindow);
   }
 
   setChannel(channel: Channel): void {
@@ -131,6 +136,14 @@ export class Helicorder extends ChartView<HelicorderOptions> {
 
   shiftViewToTime(time: number): void {
     this.setOffsetDate(time);
+  }
+
+  getTrackManager(): TrackManager {
+    return this.trackManager;
+  }
+
+  getSelectionWindow(): SelectionWindowView {
+    return this.selectionWindow;
   }
 
   getGrid(): GridView {

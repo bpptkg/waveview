@@ -61,7 +61,7 @@ export interface AxisOptions {
 }
 
 export class AxisModel extends Model<AxisOptions> {
-  static defaultOptions: AxisOptions = {
+  static readonly defaultOptions: AxisOptions = {
     show: true,
     position: "top",
     type: "linear",

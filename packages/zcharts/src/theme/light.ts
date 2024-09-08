@@ -1,34 +1,34 @@
 import { ThemeStyle } from "../util/types";
 
 export const lightTheme: ThemeStyle = {
-  backgroundColor: "#fff",
-  foregroundColor: "#000",
-  textColor: "#000",
+  backgroundColor: "#FFFFFF",
+  foregroundColor: "#000000",
+  textColor: "#000000",
   fontSize: 11,
   fontFamily: "Arial",
   axisStyle: {
-    axisLineColor: "#000",
-    axisTickColor: "#000",
-    splitLineColor: "#000",
+    axisLineColor: "#000000",
+    axisTickColor: "#000000",
+    splitLineColor: "#000000",
   },
   gridStyle: {
-    lineColor: "#000",
+    lineColor: "#000000",
     lineWidth: 1,
   },
   seriesStyle: {
-    lineColor: "#000",
+    lineColor: "#000000",
     lineWidth: 1,
   },
   highlightStyle: {
-    color: "#9747ff",
+    color: "#9747FF",
     opacity: 0.25,
     borderWidth: 1,
   },
   axisPointerStyle: {
-    lineColor: "#ff0000",
+    lineColor: "#FF0000",
     lineWidth: 1,
-    textColor: "#fff",
+    textColor: "#FFFFFF",
     fontSize: 12,
-    backgroundColor: "#ff0000",
-  }
+    backgroundColor: "#FF0000",
+  },
 };

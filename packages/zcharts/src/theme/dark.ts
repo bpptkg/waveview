@@ -2,21 +2,21 @@ import { ThemeStyle } from "../util/types";
 
 export const darkTheme: ThemeStyle = {
   backgroundColor: "#1F1F1F",
-  foregroundColor: "#fff",
-  textColor: "#fff",
+  foregroundColor: "#FFFFFF",
+  textColor: "#FFFFFF",
   fontSize: 11,
   fontFamily: "Arial",
   axisStyle: {
-    axisLineColor: "#fff",
-    axisTickColor: "#fff",
-    splitLineColor: "#fff",
+    axisLineColor: "#FFFFFF",
+    axisTickColor: "#FFFFFF",
+    splitLineColor: "#FFFFFF",
   },
   gridStyle: {
-    lineColor: "#fff",
+    lineColor: "#FFFFFF",
     lineWidth: 1,
   },
   seriesStyle: {
-    lineColor: "#fff",
+    lineColor: "#FFFFFF",
     lineWidth: 1,
   },
   highlightStyle: {
@@ -25,10 +25,10 @@ export const darkTheme: ThemeStyle = {
     borderWidth: 1,
   },
   axisPointerStyle: {
-    lineColor: "#ff0000",
+    lineColor: "#FF0000",
     lineWidth: 1,
-    textColor: "#fff",
+    textColor: "#FFFFFF",
     fontSize: 12,
-    backgroundColor: "#ff0000",
+    backgroundColor: "#FF0000",
   },
 };

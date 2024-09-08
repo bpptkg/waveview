@@ -8,4 +8,5 @@ export interface HelicorderEventMap extends EventMap {
   amplitudeChanged: (range: [number, number]) => void;
   trackSelected: (index: number) => void;
   trackDeselected: () => void;
+  selectionChanged: (range: [number, number]) => void;
 }

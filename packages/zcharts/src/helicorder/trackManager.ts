@@ -1,6 +1,6 @@
 import { BoundingRect } from "zrender";
 import { TrackView } from "../track/trackView";
-import { formatDate, ONE_HOUR, ONE_MINUTE } from "../util/time";
+import { formatDate, ONE_MINUTE } from "../util/time";
 import { LayoutRect } from "../util/types";
 import { DataStore, HelicorderData, Points, Segment } from "./dataStore";
 import { Helicorder } from "./helicorder";
@@ -58,6 +58,18 @@ export class TrackManager {
     return Math.floor(diff / segment);
   }
 
+  getTrackIndexByPosition(y: number): number {
+    const { y: gridY, height } = this.helicorder.getGrid().getRect();
+    const trackHeight = height / this.count();
+    const row = Math.floor((y - gridY) / trackHeight);
+    return this.count() - row - 1;
+  }
+
+  getTrackByIndex(index: number): TrackView | undefined {
+    const segment = this.getTrackExtentAt(index);
+    return this.get(segment);
+  }
+
   getTrackExtentAt(index: number): [number, number] {
     const model = this.helicorder.getModel();
     const { interval, offsetDate } = model.getOptions();
@@ -72,11 +84,109 @@ export class TrackManager {
     ];
   }
 
+  getTrackExtents(): [number, number][] {
+    const extents: [number, number][] = [];
+    for (let i = 0; i < this.count(); i++) {
+      const [start, end] = this.getTrackExtentAt(i);
+      extents.push([start, end]);
+    }
+    return extents;
+  }
+
+  getChartExtent(): [number, number] {
+    const first = this.getTrackExtentAt(0);
+    const last = this.getTrackExtentAt(this.count() - 1);
+    return [first[0], last[1]];
+  }
+
   timeToOffset(segment: Segment, time: number): number {
     const model = this.helicorder.getModel();
     const { interval } = model.getOptions();
     const [start, end] = segment;
     return ((time - start) / (end - start)) * interval;
+  }
+
+  getTimeAtPoint(x: number, y: number): number {
+    const trackIndex = this.getTrackIndexByPosition(y);
+    const [start, end] = this.getTrackExtentAt(trackIndex);
+    const track = this.get([start, end]);
+    if (!track) {
+      return 0;
+    }
+    const rect = track.getRect();
+    const time = start + (end - start) * ((x - rect.x) / rect.width);
+    return time;
+  }
+
+  getTrackAtPosition(y: number): TrackView | undefined {
+    const { y: gridY, height } = this.helicorder.getGrid().getRect();
+    const trackHeight = height / this.count();
+    const row = Math.floor((y - gridY) / trackHeight);
+    const segment = this.getTrackExtentAt(this.count() - row - 1);
+    return this.get(segment);
+  }
+
+  *segments(): Generator<Segment> {
+    for (let i = 0; i < this.count(); i++) {
+      yield this.getTrackExtentAt(i);
+    }
+  }
+
+  *tracks(): Generator<TrackView> {
+    for (const track of this._tracks.values()) {
+      yield track;
+    }
+  }
+
+  private getNormFactor(): number {
+    let normFactor = Infinity;
+    for (const segment of this.segments()) {
+      const heliData = this.dataStore.get(segment);
+      if (heliData) {
+        const { range } = heliData;
+        const [min, max] = range;
+        normFactor = Math.min(normFactor, Math.abs(max - min));
+      }
+    }
+    return isFinite(normFactor) ? normFactor : 1;
+  }
+
+  setTrackData(
+    segment: Segment,
+    data: Points,
+    options?: SetTrackDataOptions
+  ): void {
+    let range = options?.range;
+    if (!range) {
+      range = data.reduce(
+        (acc, val) => {
+          acc[0] = Math.min(acc[0], val[1]);
+          acc[1] = Math.max(acc[1], val[1]);
+          return acc;
+        },
+        [Infinity, -Infinity]
+      ) as [number, number];
+    }
+    this.dataStore.set(segment, { data, range });
+    this.refreshData();
+  }
+
+  refreshData(): void {
+    const normFactor = this.getNormFactor();
+    for (const segment of this.segments()) {
+      const track = this.get(segment);
+      if (track) {
+        const heliData = this.dataStore.get(segment);
+        if (heliData) {
+          const { data } = heliData;
+          const norm: [number, number][] = [];
+          for (const [x, y] of data) {
+            norm.push([this.timeToOffset(segment, x), y / normFactor]);
+          }
+          track.getSignal().setData(norm);
+        }
+      }
+    }
   }
 
   updateTrackLabels(): void {
@@ -146,7 +256,7 @@ export class TrackManager {
       const track = new TrackView(this.helicorder);
       const [start] = segment;
       const trackIndex = this.getTrackIndexByTime(start);
-      const rect = this.getRectForTrack(trackIndex, this.count() - 1);
+      const rect = this.getRectForTrack(trackIndex, this.count());
       track.setRect(rect);
       this.add(segment, track);
       this.helicorder.addComponent(track);
@@ -154,83 +264,5 @@ export class TrackManager {
 
     this.updateTrackLabels();
     this.refreshData();
-  }
-
-  getTrackExtents(): [number, number][] {
-    const extents: [number, number][] = [];
-    for (let i = 0; i < this.count(); i++) {
-      const [start, end] = this.getTrackExtentAt(i);
-      extents.push([start, end]);
-    }
-    return extents;
-  }
-
-  *segments(): Generator<Segment> {
-    const model = this.helicorder.getModel();
-    const { duration, interval, offsetDate } = model.getOptions();
-    const segment = interval * ONE_MINUTE;
-    const endOf = (value: number) => value + segment - (value % segment);
-    const end = endOf(offsetDate);
-    const start = end - duration * ONE_HOUR;
-    for (let time = end; time > start; time -= segment) {
-      yield [time - segment, time];
-    }
-  }
-
-  *tracks(): Generator<TrackView> {
-    for (const track of this._tracks.values()) {
-      yield track;
-    }
-  }
-
-  private getNormFactor(): number {
-    let normFactor = Infinity;
-    for (const segment of this.segments()) {
-      const heliData = this.dataStore.get(segment);
-      if (heliData) {
-        const { range } = heliData;
-        const [min, max] = range;
-        normFactor = Math.min(normFactor, Math.abs(max - min));
-      }
-    }
-    return isFinite(normFactor) ? normFactor : 1;
-  }
-
-  setTrackData(
-    segment: Segment,
-    data: Points,
-    options?: SetTrackDataOptions
-  ): void {
-    let range = options?.range;
-    if (!range) {
-      range = data.reduce(
-        (acc, val) => {
-          acc[0] = Math.min(acc[0], val[1]);
-          acc[1] = Math.max(acc[1], val[1]);
-          return acc;
-        },
-        [Infinity, -Infinity]
-      ) as [number, number];
-    }
-    this.dataStore.set(segment, { data, range });
-    this.refreshData();
-  }
-
-  refreshData(): void {
-    const normFactor = this.getNormFactor();
-    for (const segment of this.segments()) {
-      const track = this.get(segment);
-      if (track) {
-        const heliData = this.dataStore.get(segment);
-        if (heliData) {
-          const { data } = heliData;
-          const norm: [number, number][] = [];
-          for (const [x, y] of data) {
-            norm.push([this.timeToOffset(segment, x), y / normFactor]);
-          }
-          track.getSignal().setData(norm);
-        }
-      }
-    }
   }
 }

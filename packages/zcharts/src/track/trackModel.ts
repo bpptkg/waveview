@@ -9,7 +9,7 @@ export interface TrackOptions {
 }
 
 export class TrackModel extends Model<TrackOptions> {
-  static defaultOptions: TrackOptions = {
+  static readonly defaultOptions: TrackOptions = {
     label: "",
     margin: 8,
     textColor: "#000",

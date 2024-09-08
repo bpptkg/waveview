@@ -11,7 +11,7 @@ export interface LineSeriesOptions {
 export class LineSeriesModel extends Model<LineSeriesOptions> {
   private _data: LineSeriesData;
 
-  static defaultOptions: LineSeriesOptions = {
+  static readonly defaultOptions: LineSeriesOptions = {
     name: "",
     color: "#000",
     width: 1,

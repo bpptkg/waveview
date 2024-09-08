@@ -16,7 +16,7 @@ export interface AxisPointerOptions {
 }
 
 export class AxisPointerModel extends Model<AxisPointerOptions> {
-  static defaultOptions: AxisPointerOptions = {
+  static readonly defaultOptions: AxisPointerOptions = {
     enable: true,
     lineColor: "#ff0000",
     lineWidth: 1,

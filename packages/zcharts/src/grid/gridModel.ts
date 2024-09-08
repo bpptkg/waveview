@@ -14,7 +14,7 @@ export interface GridOptions extends ModelOptions {
 
 export class GridModel extends Model<GridOptions> {
   readonly type = "grid";
-  static defaultOptions: GridOptions = {
+  static readonly defaultOptions: GridOptions = {
     show: true,
     top: 0,
     bottom: 0,
