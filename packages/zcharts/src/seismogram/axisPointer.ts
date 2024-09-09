@@ -19,7 +19,7 @@ export class AxisPointerModel extends Model<AxisPointerOptions> {
   static readonly defaultOptions: AxisPointerOptions = {
     enable: true,
     lineColor: "#ff0000",
-    lineWidth: 1,
+    lineWidth: 2,
     textColor: "#fff",
     fontSize: 12,
     backgroundColor: "#ff0000",
@@ -130,6 +130,7 @@ export class AxisPointer extends View<AxisPointerModel> {
         stroke: lineColor,
         lineWidth,
       },
+      z: 10,
     });
     line.silent = true;
 

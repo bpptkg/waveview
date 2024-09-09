@@ -4,6 +4,7 @@ import { AxisView } from "../axis/axisView";
 import { ChartView } from "../core/chartView";
 import { EventEmitter } from "../core/eventEmitter";
 import { GridView } from "../grid/gridView";
+import { PickerView } from "../picker/pickerView";
 import { TrackView } from "../track/trackView";
 import { almostEquals } from "../util/math";
 import { ONE_MINUTE, ONE_SECOND } from "../util/time";
@@ -28,6 +29,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   private xAxis: AxisView;
   private trackManager: TrackManager = new TrackManager();
   private axisPointer: AxisPointer;
+  private picker: PickerView;
   private markers: EventMarkerView[] = [];
 
   constructor(dom: HTMLCanvasElement, options?: Partial<SeismogramOptions>) {
@@ -60,6 +62,9 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     this.axisPointer = new AxisPointer(this.xAxis, this);
     this.axisPointer.attachEventListeners();
     this.addComponent(this.axisPointer);
+
+    this.picker = new PickerView(this);
+    this.addComponent(this.picker);
   }
 
   addChannel(channel: Channel): void {
@@ -233,6 +238,14 @@ export class Seismogram extends ChartView<SeismogramOptions> {
 
   getTrackManager(): TrackManager {
     return this.trackManager;
+  }
+
+  getPicker(): PickerView {
+    return this.picker;
+  }
+
+  getAxisPointer(): AxisPointer {
+    return this.axisPointer;
   }
 
   getGrid(): GridView {

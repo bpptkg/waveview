@@ -1,7 +1,7 @@
 import * as zrender from "zrender";
 import { AxisView } from "../axis/axisView";
 import { ChartView } from "../core/chartView";
-import { View, ZChartRenderingContext } from "../core/view";
+import { View } from "../core/view";
 import { LineSeriesView } from "../series/LineSeriesView";
 import { SpectrogramView } from "../spectrogram/spectrogramView";
 import { LayoutRect, ThemeStyle } from "../util/types";
@@ -78,7 +78,7 @@ export class TrackView extends View<TrackModel> {
     this.signal.applyThemeStyle(theme);
   }
 
-  render(context: ZChartRenderingContext): void {
+  render(): void {
     this.clear();
     this.renderLabels();
     this.renderSignal();
