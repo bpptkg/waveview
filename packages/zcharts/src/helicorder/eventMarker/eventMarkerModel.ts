@@ -14,7 +14,7 @@ export class EventMarkerModel extends Model<EventMarkerOptions> {
     start: 0,
     end: 0,
     color: "red",
-    opacity: 0.6,
+    opacity: 0.5,
   };
   constructor(options: EventMarkerOptions) {
     const opts = { ...EventMarkerModel.defaultOptions, ...options };
@@ -23,5 +23,15 @@ export class EventMarkerModel extends Model<EventMarkerOptions> {
 
   getWindow(): [number, number] {
     return [this.options.start, this.options.end];
+  }
+
+  contains(time: number): boolean {
+    const [start, end] = this.getWindow();
+    return time >= start && time <= end;
+  }
+
+  between(start: number, end: number): boolean {
+    const [markerStart, markerEnd] = this.getWindow();
+    return start <= markerStart && end >= markerEnd;
   }
 }

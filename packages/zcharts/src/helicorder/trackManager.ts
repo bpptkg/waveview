@@ -134,9 +134,7 @@ export class TrackManager {
   /**
    * Get the X axis pixel offset for the given time.
    */
-  getPixelForTime(time: number): number {
-    const trackIndex = this.getTrackIndexByTime(time);
-    const segment = this.getTrackExtentAt(trackIndex);
+  getPixelForTime(segment: Segment, time: number): number {
     const offsetSeconds = this.timeToOffset(segment, time);
     return this.helicorder.getXAxis().getPixelForValue(offsetSeconds);
   }
@@ -184,6 +182,33 @@ export class TrackManager {
     }
     this.dataStore.set(segment, { data, range });
     this.refreshData();
+  }
+
+  getTrackData(segment: Segment): HelicorderData | undefined {
+    return this.dataStore.get(segment);
+  }
+
+  sliceData(segment: Segment, start: number, end: number): Points {
+    const heliData = this.dataStore.get(segment);
+    if (!heliData) {
+      return [];
+    }
+    const { data } = heliData;
+    return data.filter(([time]) => time >= start && time <= end);
+  }
+
+  /**
+   * Get the min and max values for the data in the given range.
+   */
+  getDataRange(start: number, end: number): [number, number] {
+    const segment = this.getTrackExtentAt(
+      this.getTrackIndexByTime(start + (end - start) / 2)
+    );
+    const data = this.sliceData(segment, start, end);
+    const min = data.reduce((acc, val) => Math.min(acc, val[1]), Infinity);
+    const max = data.reduce((acc, val) => Math.max(acc, val[1]), -Infinity);
+
+    return [min, max];
   }
 
   refreshData(): void {

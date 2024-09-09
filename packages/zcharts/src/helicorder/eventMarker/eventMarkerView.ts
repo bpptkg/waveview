@@ -4,6 +4,11 @@ import { LayoutRect, ThemeStyle } from "../../util/types";
 import { Helicorder } from "../helicorder";
 import { EventMarkerModel, EventMarkerOptions } from "./eventMarkerModel";
 
+interface MarkerWindowInfo {
+  window: [number, number];
+  range: [number, number];
+}
+
 export class EventMarkerView extends View<EventMarkerModel> {
   override readonly type: string = "eventMarker";
   private rect: LayoutRect;
@@ -36,37 +41,96 @@ export class EventMarkerView extends View<EventMarkerModel> {
     this.clear();
   }
 
+  private getMarkerWindow(): MarkerWindowInfo[] {
+    const [start, end] = this.model.getWindow();
+    const trackManager = this.chart.getTrackManager();
+    const windows: MarkerWindowInfo[] = [];
+    for (const segment of trackManager.segments()) {
+      const [segmentStart, segmentEnd] = segment;
+
+      if (this.model.contains(segmentStart)) {
+        const w: [number, number] = [segmentStart, end];
+        const r = trackManager.getDataRange(segmentStart, end);
+        windows.push({
+          window: w,
+          range: r,
+        });
+      } else if (this.model.contains(segmentEnd)) {
+        const w: [number, number] = [start, segmentEnd];
+        const r = trackManager.getDataRange(start, segmentEnd);
+        windows.push({
+          window: w,
+          range: r,
+        });
+      } else if (this.model.between(segmentStart, segmentEnd)) {
+        const w: [number, number] = [start, end];
+        const r = trackManager.getDataRange(start, end);
+        windows.push({
+          window: w,
+          range: r,
+        });
+      }
+    }
+    return windows;
+  }
+
+  private getMarkerWindowRects(): zrender.BoundingRect[] {
+    const rects: zrender.BoundingRect[] = [];
+    const windows = this.getMarkerWindow();
+    const trackManager = this.chart.getTrackManager();
+    for (const window of windows) {
+      const [start, end] = window.window;
+      const trackIndex = trackManager.getTrackIndexByTime(
+        start + (end - start) / 2
+      );
+      const segment = trackManager.getTrackExtentAt(trackIndex);
+      const startX = trackManager.getPixelForTime(segment, start);
+      const endX = trackManager.getPixelForTime(segment, end);
+
+      const track = trackManager.get(segment);
+      if (!track) {
+        continue;
+      }
+
+      const [yMin, yMax] = window.range;
+      const yMinPixel = track.getSignal().yAxis.getPixelForValue(yMin);
+      const yMaxPixel = track.getSignal().yAxis.getPixelForValue(yMax);
+
+      const { y, height } = track.getRect();
+      const markerX = startX;
+      const markerY = Math.min(yMinPixel, y);
+      const markerWidth = endX - startX;
+      const markerHeight = Math.max(yMaxPixel - yMinPixel, height);
+      rects.push(
+        new zrender.BoundingRect(markerX, markerY, markerWidth, markerHeight)
+      );
+    }
+    return rects;
+  }
+
   render(): void {
     this.clear();
-    const { show, start, end, color, opacity } = this.getModel().getOptions();
+    const { show, color, opacity } = this.getModel().getOptions();
     if (!show) {
       return;
     }
-    const trackManager = this.chart.getTrackManager();
-    const track = trackManager.getTrackByTime(start + (end - start) / 2);
-    if (!track) {
-      return;
-    }
-    const { y, height } = track.getRect();
-    let c1 = trackManager.getPixelForTime(start);
-    let c2 = trackManager.getPixelForTime(end);
-    if (c1 > c2) {
-      [c1, c2] = [c2, c1];
-    }
 
-    const rect = new zrender.Rect({
-      shape: {
-        x: c1,
-        y: y,
-        width: c2 - c1,
-        height: height,
-      },
-      style: {
-        fill: color,
-        opacity,
-      },
-    });
-    rect.silent = true;
-    this.group.add(rect);
+    for (const boundingRect of this.getMarkerWindowRects()) {
+      const { x, y, width, height } = boundingRect;
+      const rect = new zrender.Rect({
+        shape: {
+          x,
+          y,
+          width,
+          height,
+        },
+        style: {
+          fill: color,
+          opacity,
+        },
+      });
+      rect.silent = true;
+      this.group.add(rect);
+    }
   }
 }
