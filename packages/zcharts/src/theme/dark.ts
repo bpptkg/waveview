@@ -20,8 +20,8 @@ export const darkTheme: ThemeStyle = {
     lineWidth: 1,
   },
   highlightStyle: {
-    color: "#9747FF",
-    opacity: 0.25,
+    color: "#FFFF00",
+    opacity: 0.75,
     borderWidth: 1,
   },
   axisPointerStyle: {

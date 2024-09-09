@@ -32,8 +32,8 @@ export class SelectionWindowModel extends Model<SelectionWindowOptions> {
   static readonly defaultOptions: SelectionWindowOptions = {
     size: 4,
     startTime: 0,
-    color: "#9747FF",
-    opacity: 0.7,
+    color: "#FFFF00",
+    opacity: 0.75,
     borderWidth: 1,
     enabled: true,
   };
