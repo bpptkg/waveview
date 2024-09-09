@@ -21,7 +21,7 @@ export interface PickerOptions {
 
 export class PickerModel extends Model<PickerOptions> {
   static readonly defaultOptions: PickerOptions = {
-    enabled: true,
+    enabled: false,
     start: 0,
     end: 0,
     precision: 2,
