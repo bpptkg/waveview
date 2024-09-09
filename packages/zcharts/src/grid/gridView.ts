@@ -6,7 +6,7 @@ import { LayoutRect, ThemeStyle } from "../util/types";
 import { GridModel, GridOptions } from "./gridModel";
 
 export class GridView extends View<GridModel> {
-  readonly type = "grid";
+  override readonly type: string = "grid";
   readonly chart: ChartView;
   private rect: LayoutRect;
 
@@ -19,7 +19,7 @@ export class GridView extends View<GridModel> {
   }
 
   override getRect(): LayoutRect {
-    const { x, y, width, height } = this.chart.getRect();
+    const { x, y, width, height } = this.rect;
     const { top, right, bottom, left } = this.model.getOptions();
     return new BoundingRect(
       x + left,

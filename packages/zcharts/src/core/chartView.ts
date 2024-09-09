@@ -73,6 +73,14 @@ export abstract class ChartView<
     }
   }
 
+  getComponents(): View[] {
+    return this.views;
+  }
+
+  filterComponents(predicate: (view: View) => boolean): View[] {
+    return this.views.filter(predicate);
+  }
+
   clear() {
     this.zr.clear();
   }
@@ -97,6 +105,10 @@ export abstract class ChartView<
       this.group.add(view.group);
     }
     this.zr.add(this.group);
+  }
+
+  refresh(): void {
+    this.zr.refresh();
   }
 
   getThemeStyle(): ThemeStyle {

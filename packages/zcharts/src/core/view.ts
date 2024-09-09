@@ -8,6 +8,7 @@ export interface ZChartRenderingContext {
 }
 
 export abstract class View<T extends Model = Model> {
+  readonly type: string = "view";
   readonly model: T;
   readonly group: Group = new Group();
 

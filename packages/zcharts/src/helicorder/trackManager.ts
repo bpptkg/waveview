@@ -70,6 +70,19 @@ export class TrackManager {
     return this.get(segment);
   }
 
+  getTrackByTime(time: number): TrackView | undefined {
+    const index = this.getTrackIndexByTime(time);
+    return this.getTrackByIndex(index);
+  }
+
+  getTrackByPosition(y: number): TrackView | undefined {
+    const { y: gridY, height } = this.helicorder.getGrid().getRect();
+    const trackHeight = height / this.count();
+    const row = Math.floor((y - gridY) / trackHeight);
+    const segment = this.getTrackExtentAt(this.count() - row - 1);
+    return this.get(segment);
+  }
+
   getTrackExtentAt(index: number): [number, number] {
     const model = this.helicorder.getModel();
     const { interval, offsetDate } = model.getOptions();
@@ -118,12 +131,14 @@ export class TrackManager {
     return time;
   }
 
-  getTrackAtPosition(y: number): TrackView | undefined {
-    const { y: gridY, height } = this.helicorder.getGrid().getRect();
-    const trackHeight = height / this.count();
-    const row = Math.floor((y - gridY) / trackHeight);
-    const segment = this.getTrackExtentAt(this.count() - row - 1);
-    return this.get(segment);
+  /**
+   * Get the X axis pixel offset for the given time.
+   */
+  getPixelForTime(time: number): number {
+    const trackIndex = this.getTrackIndexByTime(time);
+    const segment = this.getTrackExtentAt(trackIndex);
+    const offsetSeconds = this.timeToOffset(segment, time);
+    return this.helicorder.getXAxis().getPixelForValue(offsetSeconds);
   }
 
   *segments(): Generator<Segment> {

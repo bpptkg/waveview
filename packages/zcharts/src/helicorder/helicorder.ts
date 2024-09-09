@@ -3,11 +3,14 @@ import { AxisView } from "../axis/axisView";
 import { ChartView } from "../core/chartView";
 import { EventEmitter } from "../core/eventEmitter";
 import { GridView } from "../grid/gridView";
-import { ONE_MINUTE } from "../util/time";
+import { almostEquals } from "../util/math";
+import { ONE_MINUTE, ONE_SECOND } from "../util/time";
 import { Channel } from "../util/types";
 import { getDefaultOptions, HelicorderOptions } from "./chartOptions";
 import { HelicorderEventMap } from "./eventMap";
-import { SelectionWindowView } from "./selectionWindow";
+import { EventMarkerOptions } from "./eventMarker/eventMarkerModel";
+import { EventMarkerView } from "./eventMarker/eventMarkerView";
+import { SelectionWindowView } from "./selectionWindow/selectionWindowView";
 import { SetTrackDataOptions, TrackManager } from "./trackManager";
 
 /**
@@ -22,12 +25,14 @@ import { SetTrackDataOptions, TrackManager } from "./trackManager";
  * chart.
  */
 export class Helicorder extends ChartView<HelicorderOptions> {
+  override readonly type: string = "helicorder";
   private eventEmitter: EventEmitter<HelicorderEventMap>;
   private readonly xAxis: AxisView;
   private readonly grid: GridView;
   private trackManager: TrackManager;
   private selectionWindow: SelectionWindowView;
   private yExtent: [number, number] = [-1, 1];
+  private markers: EventMarkerView[] = [];
 
   constructor(dom: HTMLCanvasElement, options?: Partial<HelicorderOptions>) {
     const opts = merge(options, getDefaultOptions()) as HelicorderOptions;
@@ -162,12 +167,51 @@ export class Helicorder extends ChartView<HelicorderOptions> {
     return this.trackManager.getTrackExtents();
   }
 
+  getChartExtent(): [number, number] {
+    return this.trackManager.getChartExtent();
+  }
+
   resize(): void {
     const { width, height } = this.getRect();
     this.zr.resize({
       width,
       height,
     });
+  }
+
+  addEventMarker(options: EventMarkerOptions): EventMarkerView {
+    const marker = new EventMarkerView(this, options);
+    this.markers.push(marker);
+    this.addComponent(marker);
+    return marker;
+  }
+
+  removeEventMarker(start: number, end: number): void {
+    const index = this.markers.findIndex((marker) => {
+      const [left, right] = marker.getModel().getWindow();
+      return (
+        almostEquals(left, start, ONE_SECOND) &&
+        almostEquals(right, end, ONE_SECOND)
+      );
+    });
+
+    if (index > -1) {
+      const marker = this.markers[index];
+      this.markers.splice(index, 1);
+      this.removeComponent(marker);
+    }
+  }
+
+  showEventMarkers(): void {
+    for (const marker of this.markers) {
+      marker.show();
+    }
+  }
+
+  hideEventMarkers(): void {
+    for (const marker of this.markers) {
+      marker.hide();
+    }
   }
 
   on<K extends keyof HelicorderEventMap>(

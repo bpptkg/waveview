@@ -14,6 +14,7 @@ export interface AxisEventMap extends EventMap {
 }
 
 export class AxisView extends View<AxisModel> {
+  override readonly type: string = "axis";
   readonly parent: View;
   private rect: LayoutRect;
   private eventEmitter = new EventEmitter<AxisEventMap>();
