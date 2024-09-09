@@ -53,11 +53,7 @@ export interface SeismogramOptions extends ChartOptions {
 export function getDefaultOptions(): SeismogramOptions {
   return {
     backgroundColor: "#ffffff",
-    devicePixelRatio: window.devicePixelRatio,
     darkMode: false,
-    autoDensity: true,
-    antialias: true,
-    autoResize: true,
     startTime: undefined,
     endTime: undefined,
     interval: 30,

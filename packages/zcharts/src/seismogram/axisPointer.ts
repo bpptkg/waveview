@@ -60,9 +60,8 @@ export class AxisPointer extends View<AxisPointerModel> {
   }
 
   private onPointerMove(event: zrender.ElementEvent): void {
-    const dpr = window.devicePixelRatio || 1;
-    this.position.x = event.offsetX * dpr;
-    this.position.y = event.offsetY * dpr;
+    this.position.x = event.offsetX;
+    this.position.y = event.offsetY;
     this.render();
   }
 
