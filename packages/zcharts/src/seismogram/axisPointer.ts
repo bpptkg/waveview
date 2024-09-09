@@ -19,7 +19,7 @@ export class AxisPointerModel extends Model<AxisPointerOptions> {
   static readonly defaultOptions: AxisPointerOptions = {
     enable: true,
     lineColor: "#ff0000",
-    lineWidth: 2,
+    lineWidth: 1,
     textColor: "#fff",
     fontSize: 12,
     backgroundColor: "#ff0000",

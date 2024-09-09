@@ -82,11 +82,17 @@ export class TrackView extends View<TrackModel> {
     this.clear();
     this.renderLabels();
     this.renderSignal();
+    this.renderSpectrogram();
   }
 
   private renderSignal(): void {
     this.signal.render();
     this.group.add(this.signal.group);
+  }
+
+  private renderSpectrogram(): void {
+    this.spectrogram.render();
+    this.group.add(this.spectrogram.group);
   }
 
   private renderLabels(): void {

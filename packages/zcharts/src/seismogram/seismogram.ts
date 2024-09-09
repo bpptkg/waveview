@@ -5,6 +5,7 @@ import { ChartView } from "../core/chartView";
 import { EventEmitter } from "../core/eventEmitter";
 import { GridView } from "../grid/gridView";
 import { PickerView } from "../picker/pickerView";
+import { SpectrogramData } from "../spectrogram/spectrogramModel";
 import { TrackView } from "../track/trackView";
 import { almostEquals } from "../util/math";
 import { ONE_MINUTE, ONE_SECOND } from "../util/time";
@@ -155,6 +156,26 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   getChannelData(index: number): [number, number][] {
     const track = this.trackManager.getTrackByIndex(index);
     return track.getSignal().getData();
+  }
+
+  isChannelEmpty(index: number): boolean {
+    const track = this.trackManager.getTrackByIndex(index);
+    return track.getSignal().isEmpty();
+  }
+
+  setSpectrogramData(index: number, data: SpectrogramData): void {
+    const track = this.trackManager.getTrackByIndex(index);
+    track.getSpectrogram().setData(data);
+  }
+
+  getSpectrogramData(index: number): SpectrogramData {
+    const track = this.trackManager.getTrackByIndex(index);
+    return track.getSpectrogram().getData();
+  }
+
+  isSpectrogramEmpty(index: number): boolean {
+    const track = this.trackManager.getTrackByIndex(index);
+    return track.getSpectrogram().isEmpty();
   }
 
   showSignal(index: number): void {

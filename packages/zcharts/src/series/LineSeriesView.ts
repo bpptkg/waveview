@@ -38,6 +38,10 @@ export class LineSeriesView extends View<LineSeriesModel> {
     return this.model.getData();
   }
 
+  isEmpty(): boolean {
+    return this.model.isEmpty();
+  }
+
   getRect(): LayoutRect {
     return this.rect;
   }

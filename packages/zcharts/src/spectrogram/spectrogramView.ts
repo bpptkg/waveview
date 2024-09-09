@@ -1,13 +1,34 @@
+import * as zrender from "zrender";
 import { View } from "../core/view";
+import { TrackView } from "../track/trackView";
 import { LayoutRect, ThemeStyle } from "../util/types";
-import { SpectrogramModel, SpectrogramOptions } from "./spectrogramModel";
+import {
+  SpectrogramData,
+  SpectrogramModel,
+  SpectrogramOptions,
+} from "./spectrogramModel";
 
 export class SpectrogramView extends View<SpectrogramModel> {
   private rect: LayoutRect;
-  constructor(track: View, options?: SpectrogramOptions) {
+  private track: TrackView;
+
+  constructor(track: TrackView, options?: SpectrogramOptions) {
     const model = new SpectrogramModel(options);
     super(model);
     this.rect = track.getRect();
+    this.track = track;
+  }
+
+  setData(data: SpectrogramData): void {
+    this.model.setData(data);
+  }
+
+  getData(): SpectrogramData {
+    return this.model.getData();
+  }
+
+  isEmpty(): boolean {
+    return this.model.isEmpty();
   }
 
   getRect(): LayoutRect {
@@ -19,14 +40,35 @@ export class SpectrogramView extends View<SpectrogramModel> {
   }
 
   resize(): void {
-    this.setRect(this.rect);
+    this.setRect(this.track.getRect());
   }
 
-  clear(): void {}
+  clear(): void {
+    this.group.removeAll();
+  }
 
-  render() {}
+  render() {
+    this.clear();
+    const { show } = this.model.getOptions();
+    if (!show) {
+      return;
+    }
+
+    const { x, y, width, height } = this.track.getRect();
+    const image = this.model.getData();
+    const specgram = new zrender.Image({
+      style: {
+        x,
+        y,
+        width,
+        height,
+        image,
+      },
+    });
+    this.group.add(specgram);
+  }
 
   dispose(): void {}
 
-  applyThemeStyle(theme: ThemeStyle): void {}
+  applyThemeStyle(_: ThemeStyle): void {}
 }
