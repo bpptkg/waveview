@@ -50,11 +50,7 @@ export interface HelicorderOptions extends ChartOptions {
 export function getDefaultOptions(): HelicorderOptions {
   return {
     backgroundColor: "#ffffff",
-    devicePixelRatio: window.devicePixelRatio,
     darkMode: false,
-    autoDensity: true,
-    antialias: true,
-    autoResize: true,
     channel: {
       id: "",
     },

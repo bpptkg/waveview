@@ -20,9 +20,8 @@ export class SelectionWindowView extends View<SelectionWindowModel> {
   }
 
   private onClick(event: zrender.ElementEvent): void {
-    const dpr = window.devicePixelRatio || 1;
-    const pointX = event.offsetX * dpr;
-    const pointY = event.offsetY * dpr;
+    const pointX = event.offsetX;
+    const pointY = event.offsetY;
     const gridRect = this.chart.getGrid().getRect();
     if (!gridRect.contain(pointX, pointY)) {
       return;
