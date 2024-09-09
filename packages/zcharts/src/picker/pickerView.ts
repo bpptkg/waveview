@@ -122,6 +122,26 @@ export class PickerView extends View<PickerModel> {
     }
   }
 
+  enable(): void {
+    this.model.enable();
+  }
+
+  disable(): void {
+    this.model.disable();
+  }
+
+  isEnabled(): boolean {
+    return this.model.isEnabled();
+  }
+
+  setRange(range: [number, number]): void {
+    this.model.setRange(range);
+  }
+
+  clearRange(): void {
+    this.model.clearRange();
+  }
+
   getRect(): zrender.BoundingRect {
     return this.rect;
   }

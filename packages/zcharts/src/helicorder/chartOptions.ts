@@ -1,12 +1,9 @@
 import { ChartOptions } from "../core/chartModel";
 import { GridOptions } from "../grid/gridModel";
 import { Channel } from "../util/types";
+import { EventMarkerOptions } from "./eventMarker/eventMarkerModel";
 
-export interface HelicorderEventMarkerOptions {
-  start: number;
-  end: number;
-  color: string;
-}
+export type HelicorderEventMarkerOptions = EventMarkerOptions;
 
 export interface HelicorderOptions extends ChartOptions {
   /**

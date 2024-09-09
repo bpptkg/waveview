@@ -34,7 +34,7 @@ export class Helicorder extends ChartView<HelicorderOptions> {
   private yExtent: [number, number] = [-1, 1];
   private markers: EventMarkerView[] = [];
 
-  constructor(dom: HTMLCanvasElement, options?: Partial<HelicorderOptions>) {
+  constructor(dom: HTMLElement, options?: Partial<HelicorderOptions>) {
     const opts = merge(options, getDefaultOptions()) as HelicorderOptions;
     super(dom, opts);
     this.eventEmitter = new EventEmitter<HelicorderEventMap>();

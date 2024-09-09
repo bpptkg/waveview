@@ -1,13 +1,9 @@
 import { ChartOptions } from "../core/chartModel";
 import { GridOptions } from "../grid/gridModel";
 import { Channel } from "../util/types";
+import { EventMarkerOptions } from "./eventMarker/eventMarkerModel";
 
-export interface SeismogramEventMarkerOptions {
-  start: number;
-  end: number;
-  color: string;
-  opacity?: number;
-}
+export type SeismogramEventMarkerOptions = EventMarkerOptions;
 
 export interface SeismogramOptions extends ChartOptions {
   /**

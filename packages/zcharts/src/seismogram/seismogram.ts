@@ -33,7 +33,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   private picker: PickerView;
   private markers: EventMarkerView[] = [];
 
-  constructor(dom: HTMLCanvasElement, options?: Partial<SeismogramOptions>) {
+  constructor(dom: HTMLElement, options?: Partial<SeismogramOptions>) {
     const opts = merge(options, getDefaultOptions()) as SeismogramOptions;
     super(dom, opts);
 
@@ -243,6 +243,13 @@ export class Seismogram extends ChartView<SeismogramOptions> {
       this.markers.splice(index, 1);
       this.removeComponent(marker);
     }
+  }
+
+  removeMarkers(): void {
+    for (const marker of this.markers) {
+      this.removeComponent(marker);
+    }
+    this.markers = [];
   }
 
   showEventMarkers(): void {

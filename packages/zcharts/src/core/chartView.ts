@@ -25,6 +25,7 @@ export abstract class ChartView<
     this.zr = zrender.init(dom, {
       renderer: "canvas",
     });
+    this.zr.add(this.group);
 
     const width = this.zr.getWidth() || dom.clientWidth;
     const height = this.zr.getHeight() || dom.clientHeight;
@@ -52,11 +53,13 @@ export abstract class ChartView<
 
   addComponent(view: View): void {
     this.views.push(view);
+    this.zr.add(view.group);
   }
 
   removeComponent(view: View): void {
     const index = this.views.indexOf(view);
     if (index >= 0) {
+      this.zr.remove(view.group);
       this.views.splice(index, 1);
     }
   }
@@ -85,9 +88,7 @@ export abstract class ChartView<
   render(): void {
     for (const view of this.views) {
       view.render();
-      this.group.add(view.group);
     }
-    this.zr.add(this.group);
   }
 
   refresh(): void {
