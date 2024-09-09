@@ -152,7 +152,7 @@ const Account = () => {
                 setOpen(false);
               }}
             >
-              About WaveView
+              About VEPS
             </MenuItem>
             <Divider />
             <MenuItem icon={<SignOut20Regular />} onClick={handleLogout}>

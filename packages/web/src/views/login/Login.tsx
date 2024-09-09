@@ -3,19 +3,22 @@ import { Checkmark20Regular, Eye20Regular, EyeOff20Regular } from '@fluentui/rea
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LogoImage from '../../components/Header/LogoImage';
-import LogoText from '../../components/Header/LogoText';
 import { useAuthStore } from '../../stores/auth';
 import { CustomError } from '../../types/response';
 
 const WelcomeText = () => {
-  return <h1 className="text-lg font-bold text-gray-800 dark:text-neutral-grey-84">Login to continue</h1>;
+  return (
+    <div>
+      <h1 className="text-xl font-bold text-gray-800 dark:text-neutral-grey-84">Volcanic Earthquake Profiler System</h1>
+      <p className="text-md text-gray-800 dark:text-neutral-grey-84 mt-3">Please login to continue</p>
+    </div>
+  );
 };
 
 const Logo = () => {
   return (
     <div className="inline-flex gap-2 items-center">
       <LogoImage size={32} />
-      <LogoText />
     </div>
   );
 };
@@ -108,12 +111,12 @@ const Login = () => {
 
   return (
     <>
-      <title>Login &middot; WaveView</title>
+      <title>Login &middot; VEPS</title>
       <div className="w-screen h-screen bg-cover bg-center flex items-center justify-center bg-gradient-matcha dark:bg-gradient-matcha-dark">
-        <div className="flex flex-col lg:w-1/2 min-h-[320px]">
+        <div className="flex flex-col lg:w-2/3 max-w-5xl min-h-[350px]">
           <div className="flex flex-grow p-4 gap-4 flex-col rounded-2xl bg-white dark:bg-neutral-grey-14">
             <Logo />
-            <div className="flex flex-col lg:flex-row gap-2">
+            <div className="flex flex-grow flex-col lg:flex-row gap-2">
               <div className="flex-1">
                 <WelcomeText />
               </div>

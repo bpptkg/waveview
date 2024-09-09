@@ -13,12 +13,13 @@ const VersionInfo = () => {
 
   return (
     <div className="flex flex-col gap-2">
+      <span className="text-gray-800 dark:text-neutral-grey-84 mb-2">Volcanic Earthquake Profiler System</span>
       <span className="text-gray-800 dark:text-neutral-grey-84">Version: {packageVersion}</span>
       <span className="text-gray-800 dark:text-neutral-grey-84">Commit: {commitHash}</span>
       <span className="text-gray-800 dark:text-neutral-grey-84">
         Date: {buildDate} ({timeDiff})
       </span>
-      <span className="text-gray-800 dark:text-neutral-grey-84">Copyright © {thisYear} WaveView Developers</span>
+      <span className="text-gray-800 dark:text-neutral-grey-84 mt-2">Copyright © {thisYear} WaveView Developers</span>
     </div>
   );
 };
@@ -35,7 +36,7 @@ const Logo = () => {
 const About = () => {
   return (
     <>
-      <title>About &middot; WaveView</title>
+      <title>About &middot; VEPS</title>
       <div className="w-screen h-screen bg-cover bg-center flex items-center justify-center p-2 bg-gradient-matcha dark:bg-gradient-matcha-dark">
         <div className="flex flex-col gap-4 w-1/2 p-4 rounded-2xl bg-white dark:bg-neutral-grey-14">
           <Logo />

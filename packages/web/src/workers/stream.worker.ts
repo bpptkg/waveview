@@ -1,3 +1,5 @@
+import ReconnectingWebSocket from 'reconnecting-websocket';
+import { WebSocketCommand, WebSocketHeader, WebSocketRequest, WebSocketSetupData } from '../types/websocket';
 import {
   ConnectionStatus,
   SpectrogramRequestData,
@@ -6,13 +8,10 @@ import {
   StreamResponseData,
   WorkerRequestData,
   WorkerResponseData,
-  readSpectrogram,
-  readStream,
-} from '@waveview/charts';
-import ReconnectingWebSocket from 'reconnecting-websocket';
-import { WebSocketCommand, WebSocketHeader, WebSocketRequest, WebSocketSetupData } from '../types/websocket';
+} from '../types/worker';
 
 import { wsUrl } from '../services/api';
+import { readSpectrogram, readStream } from '../shared/stream';
 
 let socket: ReconnectingWebSocket;
 

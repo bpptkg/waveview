@@ -30,7 +30,7 @@ export interface SelectionWindowOptions {
 
 export class SelectionWindowModel extends Model<SelectionWindowOptions> {
   static readonly defaultOptions: SelectionWindowOptions = {
-    size: 4,
+    size: 5,
     startTime: 0,
     color: "#FFFF00",
     opacity: 0.75,

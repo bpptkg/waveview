@@ -1,4 +1,4 @@
-import { formatDate } from '@waveview/charts';
+import { formatTimezonedDate } from './time';
 
 export interface FormatNumberOptions {
   precision?: number;
@@ -33,12 +33,12 @@ export interface FormatTimeOptions {
   template?: string;
 }
 
-export function formatTime(time: unknown, options: FormatTimeOptions = {}): string {
-  const { useUTC = false, template = '{yyyy}-{MM}-{dd} {HH}:{mm}:{ss}' } = options;
+export function formatTime(time: string | number | Date, options: FormatTimeOptions = {}): string {
+  const { useUTC = false, template = 'yyyy-MM-dd HH:mm:ss' } = options;
   if (typeof time === 'undefined' || time === null) {
     return '';
   }
-  return formatDate(time, template, useUTC);
+  return formatTimezonedDate(time, template, useUTC);
 }
 
 export function shortUUID(uuid: string | null | undefined): string {

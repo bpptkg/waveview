@@ -72,7 +72,7 @@ const Dashboard = () => {
   if (error) {
     return (
       <>
-        <title>Error &middot; WaveView</title>
+        <title>Error &middot; VEPS</title>
         <div className="bg-neutral-grey-94 dark:bg-neutral-grey-4 flex flex-col min-h-screen justify-center items-center gap-2">
           <div className="text-red-600 dark:text-red-400">{error}</div>
           <Button appearance="transparent" onClick={() => window.location.reload()} icon={<ArrowClockwise20Regular />}>

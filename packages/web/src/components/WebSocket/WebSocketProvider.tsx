@@ -16,7 +16,7 @@ const WebSocketProvider: React.FC<WebSocketProviderProps> = (props) => {
   useEffect(() => {
     const token = getJwtToken();
     const url = `${wsUrl}/ws/waveview/?token=${token?.access}`;
-    const ws = new ReconnectingWebSocket(url);
+    const ws = new ReconnectingWebSocket(url, [], { connectionTimeout: 5000 });
     setWebSocket(ws);
 
     return () => {

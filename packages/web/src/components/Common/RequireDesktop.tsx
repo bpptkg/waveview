@@ -32,7 +32,7 @@ const RequireDesktop: React.FC<RequireDesktopProps> = ({ children }) => {
             <LogoImage />
             <LogoText />
           </div>
-          <p>We are sorry, but WaveView is only available on desktop devices.</p>
+          <p>We are sorry, but VEPS is only available on desktop devices.</p>
           <p>Please switch to a desktop device to continue using our application.</p>
           <p className="mt-2">Note that we are working on a mobile version of the application, so stay tuned!</p>
         </div>
