@@ -5,12 +5,15 @@ import { ChartView } from "../core/chartView";
 import { EventEmitter } from "../core/eventEmitter";
 import { GridView } from "../grid/gridView";
 import { TrackView } from "../track/trackView";
-import { ONE_MINUTE } from "../util/time";
+import { almostEquals } from "../util/math";
+import { ONE_MINUTE, ONE_SECOND } from "../util/time";
 import { Channel, LayoutRect } from "../util/types";
+import { AxisPointer } from "./axisPointer";
 import { getDefaultOptions, SeismogramOptions } from "./chartOptions";
 import { SeismogramEventMap } from "./eventMap";
+import { EventMarkerOptions } from "./eventMarker/eventMarkerModel";
+import { EventMarkerView } from "./eventMarker/eventMarkerView";
 import { TrackManager } from "./trackManager";
-import { AxisPointer } from "./axisPointer";
 
 /**
  * A seismogram is a type of chart used primarily in seismology to display a
@@ -18,12 +21,14 @@ import { AxisPointer } from "./axisPointer";
  * multiple tracks, each representing a channel of data.
  */
 export class Seismogram extends ChartView<SeismogramOptions> {
+  override type: string = "seismogram";
   private eventEmitter: EventEmitter<SeismogramEventMap>;
   private yExtent: [number, number] = [-1, 1];
   private grid: GridView;
   private xAxis: AxisView;
   private trackManager: TrackManager = new TrackManager();
   private axisPointer: AxisPointer;
+  private markers: EventMarkerView[] = [];
 
   constructor(dom: HTMLCanvasElement, options?: Partial<SeismogramOptions>) {
     const opts = merge(options, getDefaultOptions()) as SeismogramOptions;
@@ -157,13 +162,13 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     track.hideSignal();
   }
 
-  showAllSignals(): void {
+  showSignals(): void {
     for (const track of this.trackManager.tracks()) {
       track.showSignal();
     }
   }
 
-  hideAllSignals(): void {
+  hideSignals(): void {
     for (const track of this.trackManager.tracks()) {
       track.hideSignal();
     }
@@ -179,16 +184,55 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     track.hideSpectrogram();
   }
 
-  showAllSpectrograms(): void {
+  showSpectrograms(): void {
     for (const track of this.trackManager.tracks()) {
       track.showSpectrogram();
     }
   }
 
-  hideAllSpectrograms(): void {
+  hideSpectrograms(): void {
     for (const track of this.trackManager.tracks()) {
       track.hideSpectrogram();
     }
+  }
+
+  addEventMarker(options: EventMarkerOptions): EventMarkerView {
+    const marker = new EventMarkerView(this, options);
+    this.markers.push(marker);
+    this.addComponent(marker);
+    return marker;
+  }
+
+  removeEventMarker(start: number, end: number): void {
+    const index = this.markers.findIndex((marker) => {
+      const [left, right] = marker.getModel().getWindow();
+      return (
+        almostEquals(left, start, ONE_SECOND) &&
+        almostEquals(right, end, ONE_SECOND)
+      );
+    });
+
+    if (index > -1) {
+      const marker = this.markers[index];
+      this.markers.splice(index, 1);
+      this.removeComponent(marker);
+    }
+  }
+
+  showEventMarkers(): void {
+    for (const marker of this.markers) {
+      marker.show();
+    }
+  }
+
+  hideEventMarkers(): void {
+    for (const marker of this.markers) {
+      marker.hide();
+    }
+  }
+
+  getTrackManager(): TrackManager {
+    return this.trackManager;
   }
 
   getGrid(): GridView {
@@ -201,6 +245,10 @@ export class Seismogram extends ChartView<SeismogramOptions> {
 
   getYExtent(): [number, number] {
     return this.yExtent;
+  }
+
+  getChartExtent(): [number, number] {
+    return this.xAxis.getExtent();
   }
 
   resize(): void {
