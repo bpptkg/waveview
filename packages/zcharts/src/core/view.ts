@@ -2,11 +2,6 @@ import { Group } from "zrender";
 import { LayoutRect, ThemeStyle } from "../util/types";
 import { Model } from "./model";
 
-export interface ZChartRenderingContext {
-  ctx: CanvasRenderingContext2D;
-  chart: View;
-}
-
 export abstract class View<T extends Model = Model> {
   readonly type: string = "view";
   readonly model: T;
@@ -36,7 +31,7 @@ export abstract class View<T extends Model = Model> {
 
   abstract clear(): void;
 
-  abstract render(context: ZChartRenderingContext): void;
+  abstract render(): void;
 
   abstract dispose(): void;
 

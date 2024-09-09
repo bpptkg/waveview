@@ -5,18 +5,18 @@ import { GridView } from "../grid/gridView";
 import { getThemeManager } from "../theme/themeManager";
 import { LayoutRect, ThemeName, ThemeStyle } from "../util/types";
 import { ChartModel, ChartOptions } from "./chartModel";
-import { View, ZChartRenderingContext } from "./view";
+import { View } from "./view";
 
 export abstract class ChartView<
   T extends ChartOptions = ChartOptions
 > extends View<ChartModel<T>> {
-  readonly dom: HTMLCanvasElement;
+  readonly dom: HTMLElement;
   readonly zr: ZRenderType;
   private rect: LayoutRect;
   private views: View[] = [];
   private currentTheme: ThemeName = "light";
 
-  constructor(dom: HTMLCanvasElement, options?: T) {
+  constructor(dom: HTMLElement, options?: T) {
     const model = new ChartModel(options);
     super(model);
 
@@ -26,22 +26,10 @@ export abstract class ChartView<
       renderer: "canvas",
     });
 
-    if (options?.autoDensity) {
-      this.autoDensity();
-    }
+    const width = this.zr.getWidth() || dom.clientWidth;
+    const height = this.zr.getHeight() || dom.clientHeight;
 
-    this.rect = new BoundingRect(0, 0, dom.width, dom.height);
-  }
-
-  private autoDensity(): void {
-    const dpr = window.devicePixelRatio || 1;
-    const rect = this.dom.getBoundingClientRect();
-    this.dom.width = rect.width * dpr;
-    this.dom.height = rect.height * dpr;
-    this.dom.style.width = `${rect.width}px`;
-    this.dom.style.height = `${rect.height}px`;
-    const ctx = this.dom.getContext("2d")!;
-    ctx.scale(dpr, dpr);
+    this.rect = new BoundingRect(0, 0, width, height);
   }
 
   getWidth(): number {
@@ -90,18 +78,13 @@ export abstract class ChartView<
   }
 
   toDataURL(type?: string, quality?: number): string {
-    return this.dom.toDataURL(type, quality);
+    const canvas = this.dom.querySelector("canvas");
+    return canvas?.toDataURL(type, quality) || "";
   }
 
   render(): void {
-    this.group.removeAll();
-    const context: ZChartRenderingContext = {
-      ctx: this.dom.getContext("2d")!,
-      chart: this,
-    };
-
     for (const view of this.views) {
-      view.render(context);
+      view.render();
       this.group.add(view.group);
     }
     this.zr.add(this.group);

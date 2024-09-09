@@ -3,11 +3,7 @@ import { Model } from "./model";
 
 export interface ChartOptions extends ModelOptions {
   backgroundColor: string;
-  devicePixelRatio: number;
   darkMode: boolean;
-  antialias: boolean;
-  autoDensity: boolean;
-  autoResize: boolean;
 }
 
 export class ChartModel<T extends ChartOptions> extends Model<T> {
