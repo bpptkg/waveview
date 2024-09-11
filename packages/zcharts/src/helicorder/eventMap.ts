@@ -1,3 +1,4 @@
+import * as zrender from "zrender";
 import { Channel, EventMap } from "../util/types";
 
 export interface HelicorderEventMap extends EventMap {
@@ -9,4 +10,5 @@ export interface HelicorderEventMap extends EventMap {
   trackSelected: (index: number) => void;
   trackDeselected: () => void;
   selectionChanged: (range: [number, number]) => void;
+  click: (event: zrender.ElementEvent) => void;
 }

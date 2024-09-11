@@ -12,9 +12,9 @@ export abstract class ChartView<
 > extends View<ChartModel<T>> {
   readonly dom: HTMLElement;
   readonly zr: ZRenderType;
-  private rect: LayoutRect;
-  private views: View[] = [];
-  private currentTheme: ThemeName = "light";
+  protected rect: LayoutRect;
+  protected views: View[] = [];
+  protected currentTheme: ThemeName = "light";
 
   constructor(dom: HTMLElement, options?: T) {
     const model = new ChartModel(options);
@@ -27,10 +27,7 @@ export abstract class ChartView<
     });
     this.zr.add(this.group);
 
-    const width = this.zr.getWidth() || dom.clientWidth;
-    const height = this.zr.getHeight() || dom.clientHeight;
-
-    this.rect = new BoundingRect(0, 0, width, height);
+    this.rect = new BoundingRect(0, 0, this.getWidth(), this.getHeight());
   }
 
   getWidth(): number {

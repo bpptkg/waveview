@@ -19,6 +19,7 @@ export interface AxisLabelOptions {
   color: string;
   fontSize: number;
   fontFamily: string;
+  reverse: boolean;
   formatter?: (value: number) => string;
 }
 
@@ -42,6 +43,12 @@ export interface MinorTickOptions {
   splitNumber: number;
 }
 
+export interface NameStyleOptions {
+  color: string;
+  fontSize: number;
+  fontFamily: string;
+}
+
 export type ScaleType = LinearScale | TimeScale;
 
 export interface AxisOptions {
@@ -50,6 +57,7 @@ export interface AxisOptions {
   type: "linear" | "time" | "log";
   name: string;
   nameGap: number;
+  nameStyle: NameStyleOptions;
   axisTick: AxisTickOptions;
   minorTick: MinorTickOptions;
   axisLabel: AxisLabelOptions;
@@ -66,7 +74,12 @@ export class AxisModel extends Model<AxisOptions> {
     position: "top",
     type: "linear",
     name: "",
-    nameGap: 10,
+    nameGap: 15,
+    nameStyle: {
+      color: "#000",
+      fontSize: 12,
+      fontFamily: "Arial",
+    },
     axisTick: {
       show: true,
       length: 10,
@@ -93,6 +106,7 @@ export class AxisModel extends Model<AxisOptions> {
       color: "#000",
       fontSize: 12,
       fontFamily: "Arial",
+      reverse: false,
     },
     splitLine: {
       show: false,

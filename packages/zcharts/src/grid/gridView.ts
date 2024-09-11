@@ -34,7 +34,7 @@ export class GridView extends View<GridModel> {
   }
 
   override resize(): void {
-    this.rect = this.chart.getRect();
+    this.setRect(this.chart.getRect());
   }
 
   override clear(): void {

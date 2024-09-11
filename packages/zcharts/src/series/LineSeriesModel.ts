@@ -1,6 +1,7 @@
+import { Series } from "@waveview/ndarray";
 import { Model } from "../core/model";
 
-export type LineSeriesData = [number, number][];
+export type LineSeriesData = Series;
 
 export interface LineSeriesOptions {
   name: string;
@@ -9,7 +10,7 @@ export interface LineSeriesOptions {
 }
 
 export class LineSeriesModel extends Model<LineSeriesOptions> {
-  private _data: LineSeriesData;
+  private data: LineSeriesData;
 
   static readonly defaultOptions: LineSeriesOptions = {
     name: "",
@@ -21,36 +22,30 @@ export class LineSeriesModel extends Model<LineSeriesOptions> {
     const opts = { ...LineSeriesModel.defaultOptions, ...options };
     super(opts);
 
-    this._data = [];
+    this.data = Series.empty();
   }
 
   isEmpty(): boolean {
-    return this._data.length === 0;
+    return this.data.isEmpty();
   }
 
   getData(): LineSeriesData {
-    return this._data;
+    return this.data;
   }
 
   setData(data: LineSeriesData): void {
-    this._data = data;
+    this.data = data;
   }
 
   clearData(): void {
-    this._data = [];
+    this.data = Series.empty();
   }
 
   getXRange(): [number, number] {
-    return [
-      this._data.reduce((min, [x]) => Math.min(min, x), Infinity),
-      this._data.reduce((max, [x]) => Math.max(max, x), -Infinity),
-    ];
+    return [this.data.index.first(), this.data.index.last()];
   }
 
   getYRange(): [number, number] {
-    return [
-      this._data.reduce((min, [, y]) => Math.min(min, y), Infinity),
-      this._data.reduce((max, [, y]) => Math.max(max, y), -Infinity),
-    ];
+    return [this.data.min(), this.data.max()];
   }
 }

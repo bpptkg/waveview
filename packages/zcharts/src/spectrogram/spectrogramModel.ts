@@ -2,6 +2,8 @@ import { Model } from "../core/model";
 
 export interface SpectrogramOptions {
   show: boolean;
+  freqMin: number;
+  freqMax: number;
 }
 
 export type SpectrogramData = string;
@@ -9,6 +11,8 @@ export type SpectrogramData = string;
 export class SpectrogramModel extends Model<SpectrogramOptions> {
   static readonly defaultOptions: SpectrogramOptions = {
     show: false,
+    freqMin: 0,
+    freqMax: 1,
   };
   private data: SpectrogramData = "";
 

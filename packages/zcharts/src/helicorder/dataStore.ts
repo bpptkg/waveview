@@ -1,10 +1,4 @@
 export type Segment = [number, number];
-export type Points = [number, number][];
-
-export interface HelicorderData {
-  data: Points;
-  range: [number, number];
-}
 
 export class DataStore<T> {
   private data: Map<string, T> = new Map();

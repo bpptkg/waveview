@@ -1,7 +1,13 @@
 import * as zrender from "zrender";
 import { EventEmitter } from "../core/eventEmitter";
 import { View } from "../core/view";
-import { EventMap, LayoutRect, ScaleTick, ThemeStyle } from "../util/types";
+import {
+  DeepPartial,
+  EventMap,
+  LayoutRect,
+  ScaleTick,
+  ThemeStyle,
+} from "../util/types";
 import { AxisModel, AxisOptions } from "./axisModel";
 
 export interface TickPixel {
@@ -19,7 +25,7 @@ export class AxisView extends View<AxisModel> {
   private rect: LayoutRect;
   private eventEmitter = new EventEmitter<AxisEventMap>();
 
-  constructor(parent: View, options?: Partial<AxisOptions>) {
+  constructor(parent: View, options?: DeepPartial<AxisOptions>) {
     const model = new AxisModel(options);
     super(model);
     this.parent = parent;
@@ -98,10 +104,15 @@ export class AxisView extends View<AxisModel> {
   }
 
   getTicksPixels(): TickPixel[] {
+    const { fontSize } = this.model.getOptions().axisLabel;
+    const maxTicks = this.isHorizontal()
+      ? Math.floor(this.getRect().width / fontSize)
+      : Math.floor(this.getRect().height / fontSize);
+
     const { scale } = this.model;
     const { x, y, width, height } = this.getRect();
     const range = this.isHorizontal() ? width : height;
-    const ticks = scale.getTicks();
+    const ticks = scale.getTicks({ maxTicks });
 
     const ticksPixels = [];
     for (const tick of ticks) {
@@ -204,7 +215,7 @@ export class AxisView extends View<AxisModel> {
   }
 
   resize(): void {
-    this.setRect(this.rect);
+    this.setRect(this.parent.getRect());
   }
 
   clear(): void {
@@ -230,20 +241,13 @@ export class AxisView extends View<AxisModel> {
     this.eventEmitter.emit(event, ...args);
   }
 
-  getClipPath(): zrender.Path {
-    const { x, y, width, height } = this.getRect();
-    const clipPath = new zrender.Path({
-      shape: { x, y, width, height },
-    });
-    return clipPath;
-  }
-
   render(): void {
     this.clear();
     this.renderAxisLine();
     this.renderAxisMajorTick();
     this.renderAxisMinorTick();
     this.renderAxisLabel();
+    this.renderAxisName();
     this.renderSplitLine();
   }
 
@@ -389,20 +393,34 @@ export class AxisView extends View<AxisModel> {
   }
 
   private renderAxisLabel(): void {
-    const { show, margin, formatter, color, fontFamily, fontSize } =
+    const { show, margin, formatter, color, fontFamily, fontSize, reverse } =
       this.model.options.axisLabel;
     if (!show) {
       return;
     }
 
     // Get ticks and their positions
-    const ticks = this.getTicksPixels().map((tick) => {
+    let tickPixels = this.getTicksPixels().map((tick) => {
+      const { x1, y1 } = this.calcAdjustedTickPositions(tick);
+      return { x: x1, y: y1 };
+    });
+    const tickLabels = this.getTicksPixels().map((tick) => {
       const text = formatter
         ? formatter(tick.tick.value)
         : this.model.scale.getLabel(tick.tick);
-      const { x1, y1 } = this.calcAdjustedTickPositions(tick);
-      return { x: x1, y: y1, text };
+      return text;
     });
+    const ticks: { x: number; y: number; text: string }[] = [];
+    for (let i = 0; i < tickPixels.length; i++) {
+      if (reverse) {
+        ticks.push({
+          ...tickPixels[i],
+          text: tickLabels[tickLabels.length - 1 - i],
+        });
+      } else {
+        ticks.push({ ...tickPixels[i], text: tickLabels[i] });
+      }
+    }
 
     const { position } = this.model.options;
     const labels = new zrender.Group();
@@ -474,5 +492,45 @@ export class AxisView extends View<AxisModel> {
     }
 
     this.group.add(splitLines);
+  }
+
+  private renderAxisName(): void {
+    const { name, nameGap } = this.model.options;
+    const { color, fontFamily, fontSize } = this.model.options.nameStyle;
+    this.model.options;
+    if (!name) {
+      return;
+    }
+
+    const { x, y, width, height } = this.getRect();
+    const rotation = this.isTop() ? 0 : this.isBottom() ? Math.PI : this.isLeft() ? Math.PI / 2 : -Math.PI / 2;
+
+    const nameText = new zrender.Text({
+      style: {
+        text: name,
+        fill: color,
+        fontFamily,
+        fontSize,
+        align: "center",
+        verticalAlign: "middle",
+      },
+      rotation,
+    });
+
+
+    if (this.isHorizontal()) {
+      nameText.attr({
+        x: x + width / 2,
+        y: this.isTop() ? y - nameGap : y + height + nameGap,
+      });
+    } else {
+      nameText.attr({
+        x: this.isLeft() ? x - nameGap : x + width + nameGap,
+        y: y + height / 2,
+      });
+    }
+
+    nameText.silent = true;
+    this.group.add(nameText);
   }
 }

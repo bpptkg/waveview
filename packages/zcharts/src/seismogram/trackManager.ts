@@ -33,6 +33,11 @@ export class TrackManager {
     return this.store[index][1];
   }
 
+  getTrackByChannelId(channelId: string): TrackView | undefined {
+    const item = this.store.find(([channel]) => channel.id === channelId);
+    return item ? item[1] : undefined;
+  }
+
   *items(): Generator<[Channel, TrackView]> {
     for (const item of this.store) {
       yield item;

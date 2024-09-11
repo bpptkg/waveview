@@ -1,12 +1,17 @@
 import { niceNum } from "../util/math";
 import { ScaleTick } from "../util/types";
-import { Scale, ScaleOptions } from "./scale";
+import { GetTicksOptions, Scale, ScaleOptions } from "./scale";
 
 export interface LinearScaleOptions extends ScaleOptions {}
 
 export class LinearScale extends Scale<LinearScaleOptions> {
   constructor(options?: LinearScaleOptions) {
     super(options);
+    if (options?.min !== undefined && options?.max !== undefined) {
+      this.setExtent([options.min, options.max]);
+    } else {
+      this.setExtent([0, 1]);
+    }
   }
 
   override getLabel(tick: ScaleTick): string {
@@ -23,10 +28,9 @@ export class LinearScale extends Scale<LinearScaleOptions> {
     ];
   }
 
-  override getTicks(): ScaleTick[] {
-    const { reverse } = this.getOptions();
+  override getTicks(options?: GetTicksOptions): ScaleTick[] {
+    const { maxTicks = 11, reverse = false } = options || {};
     const [min, max] = this.getExtent();
-    const maxTicks = 11;
 
     const range = niceNum(max - min);
     const spacing = niceNum(range / (maxTicks - 1));

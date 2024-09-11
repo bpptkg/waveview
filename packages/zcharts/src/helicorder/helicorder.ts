@@ -1,3 +1,5 @@
+import { Series } from "@waveview/ndarray";
+import { BoundingRect } from "zrender";
 import { merge } from "zrender/lib/core/util";
 import { AxisView } from "../axis/axisView";
 import { ChartView } from "../core/chartView";
@@ -7,11 +9,12 @@ import { almostEquals } from "../util/math";
 import { ONE_MINUTE, ONE_SECOND } from "../util/time";
 import { Channel } from "../util/types";
 import { getDefaultOptions, HelicorderOptions } from "./chartOptions";
+import { Segment } from "./dataStore";
 import { HelicorderEventMap } from "./eventMap";
 import { EventMarkerOptions } from "./eventMarker/eventMarkerModel";
 import { EventMarkerView } from "./eventMarker/eventMarkerView";
 import { SelectionWindowView } from "./selectionWindow/selectionWindowView";
-import { SetTrackDataOptions, TrackManager } from "./trackManager";
+import { TrackManager } from "./trackManager";
 
 /**
  * A helicorder is a type of chart used primarily in seismology to display a
@@ -33,6 +36,7 @@ export class Helicorder extends ChartView<HelicorderOptions> {
   private selectionWindow: SelectionWindowView;
   private yExtent: [number, number] = [-1, 1];
   private markers: EventMarkerView[] = [];
+  private focused = false;
 
   constructor(dom: HTMLElement, options?: Partial<HelicorderOptions>) {
     const opts = merge(options, getDefaultOptions()) as HelicorderOptions;
@@ -55,6 +59,16 @@ export class Helicorder extends ChartView<HelicorderOptions> {
 
     this.selectionWindow = new SelectionWindowView(this);
     this.addComponent(this.selectionWindow);
+
+    if (opts.darkMode) {
+      this.setTheme("dark");
+    } else {
+      this.setTheme("light");
+    }
+
+    this.zr.on("click", (event) => {
+      this.emit("click", event);
+    });
   }
 
   setChannel(channel: Channel): void {
@@ -89,12 +103,20 @@ export class Helicorder extends ChartView<HelicorderOptions> {
     this.trackManager.updateTrackLabels();
   }
 
-  setTrackData(
-    segment: [number, number],
-    data: [number, number][],
-    options?: SetTrackDataOptions
-  ): void {
-    this.trackManager.setTrackData(segment, data, options);
+  setTrackData(segment: Segment, data: Series): void {
+    this.trackManager.setTrackData(segment, data);
+  }
+
+  getTrackData(segment: Segment): Series | undefined {
+    return this.trackManager.getTrackData(segment);
+  }
+
+  isTrackDataEmpty(segment: Segment): boolean {
+    return this.trackManager.isTrackEmpty(segment);
+  }
+
+  refreshTrackData(): void {
+    this.trackManager.refreshData();
   }
 
   increaseAmplitude(by: number): void {
@@ -172,11 +194,23 @@ export class Helicorder extends ChartView<HelicorderOptions> {
   }
 
   resize(): void {
-    const { width, height } = this.getRect();
-    this.zr.resize({
-      width,
-      height,
-    });
+    this.setRect(new BoundingRect(0, 0, this.getWidth(), this.getHeight()));
+    for (const view of this.views) {
+      view.resize();
+    }
+    this.zr.resize();
+  }
+
+  focus(): void {
+    this.focused = true;
+  }
+
+  blur(): void {
+    this.focused = false;
+  }
+
+  isFocused(): boolean {
+    return this.focused;
   }
 
   addEventMarker(options: EventMarkerOptions): EventMarkerView {

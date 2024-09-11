@@ -1,3 +1,4 @@
+import * as zrender from "zrender";
 import { Channel, EventMap } from "../util/types";
 
 export interface SeismogramEventMap extends EventMap {
@@ -9,4 +10,5 @@ export interface SeismogramEventMap extends EventMap {
   trackUnselected: () => void;
   extentChanged: (extent: [number, number]) => void;
   trackDoubleClicked: (index: number) => void;
+  click: (event: zrender.ElementEvent) => void;
 }

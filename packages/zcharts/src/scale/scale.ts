@@ -1,9 +1,13 @@
 import { ScaleTick } from "../util/types";
 
 export interface ScaleOptions {
-  reverse?: boolean;
   min?: number;
   max?: number;
+}
+
+export interface GetTicksOptions {
+  maxTicks?: number;
+  reverse?: boolean;
 }
 
 export abstract class Scale<T extends ScaleOptions = ScaleOptions> {
@@ -75,7 +79,7 @@ export abstract class Scale<T extends ScaleOptions = ScaleOptions> {
 
   abstract getLabel(tick: ScaleTick): string;
 
-  abstract getTicks(): ScaleTick[];
+  abstract getTicks(options?: GetTicksOptions): ScaleTick[];
 
   abstract getMinorTicks(splitNumber: number): ScaleTick[];
 }

@@ -2,7 +2,11 @@ import * as zrender from "zrender";
 import { AxisView } from "../axis/axisView";
 import { View } from "../core/view";
 import { LayoutRect, ThemeStyle } from "../util/types";
-import { LineSeriesModel, LineSeriesOptions } from "./LineSeriesModel";
+import {
+  LineSeriesData,
+  LineSeriesModel,
+  LineSeriesOptions,
+} from "./LineSeriesModel";
 
 export class LineSeriesView extends View<LineSeriesModel> {
   private rect: LayoutRect;
@@ -30,11 +34,11 @@ export class LineSeriesView extends View<LineSeriesModel> {
     this.xAxis.setExtent(extent);
   }
 
-  setData(data: [number, number][]): void {
+  setData(data: LineSeriesData): void {
     this.model.setData(data);
   }
 
-  getData(): [number, number][] {
+  getData(): LineSeriesData {
     return this.model.getData();
   }
 
@@ -63,7 +67,7 @@ export class LineSeriesView extends View<LineSeriesModel> {
 
     const points: [number, number][] = [];
     const data = this.model.getData();
-    for (const [x, y] of data) {
+    for (const [x, y] of data.iterIndexValuePairs()) {
       if (!this.xAxis.contains(x)) {
         continue;
       }
@@ -81,6 +85,7 @@ export class LineSeriesView extends View<LineSeriesModel> {
         stroke: color,
         lineWidth: width,
       },
+      z: 1,
     });
     line.silent = true;
     const clipRect = this.xAxis.getRect();

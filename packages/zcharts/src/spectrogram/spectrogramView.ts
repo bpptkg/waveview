@@ -1,4 +1,5 @@
 import * as zrender from "zrender";
+import { AxisView } from "../axis/axisView";
 import { View } from "../core/view";
 import { TrackView } from "../track/trackView";
 import { LayoutRect, ThemeStyle } from "../util/types";
@@ -11,12 +12,23 @@ import {
 export class SpectrogramView extends View<SpectrogramModel> {
   private rect: LayoutRect;
   private track: TrackView;
+  // @ts-ignore
+  private xAxis: AxisView;
+  // @ts-ignore
+  private yAxis: AxisView;
 
-  constructor(track: TrackView, options?: SpectrogramOptions) {
+  constructor(
+    xAxis: AxisView,
+    yAxis: AxisView,
+    track: TrackView,
+    options?: SpectrogramOptions
+  ) {
     const model = new SpectrogramModel(options);
     super(model);
     this.rect = track.getRect();
     this.track = track;
+    this.xAxis = xAxis;
+    this.yAxis = yAxis;
   }
 
   setData(data: SpectrogramData): void {
@@ -49,10 +61,6 @@ export class SpectrogramView extends View<SpectrogramModel> {
 
   render() {
     this.clear();
-    const { show } = this.model.getOptions();
-    if (!show) {
-      return;
-    }
 
     const { x, y, width, height } = this.track.getRect();
     const image = this.model.getData();
@@ -64,6 +72,7 @@ export class SpectrogramView extends View<SpectrogramModel> {
         height,
         image,
       },
+      z: -1,
     });
     this.group.add(specgram);
   }

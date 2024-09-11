@@ -27,7 +27,6 @@ export interface SeismogramOptions extends ChartOptions {
    * Whether to use UTC time.
    */
   useUTC: boolean;
-
   /**
    * The grid options.
    */
@@ -61,6 +60,7 @@ export function getDefaultOptions(): SeismogramOptions {
       right: 50,
       bottom: 50,
       left: 80,
+      show: false,
     },
     timezone: "UTC",
     channels: [],

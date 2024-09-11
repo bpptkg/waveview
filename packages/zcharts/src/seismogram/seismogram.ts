@@ -1,3 +1,4 @@
+import { Series } from "@waveview/ndarray";
 import { BoundingRect } from "zrender";
 import { merge } from "zrender/lib/core/util";
 import { AxisView } from "../axis/axisView";
@@ -12,6 +13,7 @@ import { ONE_MINUTE, ONE_SECOND } from "../util/time";
 import { Channel, LayoutRect } from "../util/types";
 import { AxisPointer } from "./axisPointer";
 import { getDefaultOptions, SeismogramOptions } from "./chartOptions";
+import { DataStore } from "./dataStore";
 import { SeismogramEventMap } from "./eventMap";
 import { EventMarkerOptions } from "./eventMarker/eventMarkerModel";
 import { EventMarkerView } from "./eventMarker/eventMarkerView";
@@ -32,6 +34,10 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   private axisPointer: AxisPointer;
   private picker: PickerView;
   private markers: EventMarkerView[] = [];
+  private dataStore: DataStore<Series> = new DataStore();
+  private spectrogramDataStore: DataStore<SpectrogramData> = new DataStore();
+  private focused = false;
+  private spectrogramShown = false;
 
   constructor(dom: HTMLElement, options?: Partial<SeismogramOptions>) {
     const opts = merge(options, getDefaultOptions()) as SeismogramOptions;
@@ -66,6 +72,20 @@ export class Seismogram extends ChartView<SeismogramOptions> {
 
     this.picker = new PickerView(this);
     this.addComponent(this.picker);
+
+    if (opts.darkMode) {
+      this.setTheme("dark");
+    } else {
+      this.setTheme("light");
+    }
+
+    for (const channel of opts.channels) {
+      this.addChannelInternal(channel);
+    }
+
+    this.zr.on("click", (event) => {
+      this.emit("click", event);
+    });
   }
 
   addChannel(channel: Channel): void {
@@ -76,6 +96,14 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   removeChannel(index: number): void {
     const channel = this.removeChannelInternal(index);
     this.emit("channelRemoved", channel);
+  }
+
+  getChannels(): Channel[] {
+    const channels: Channel[] = [];
+    for (const channel of this.trackManager.channels()) {
+      channels.push(channel);
+    }
+    return channels;
   }
 
   moveChannel(from: number, to: number): void {
@@ -148,44 +176,67 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     this.getXAxis().getModel().setUseUTC(useUTC);
   }
 
-  setChannelData(index: number, data: [number, number][]): void {
-    const track = this.trackManager.getTrackByIndex(index);
-    track.getSignal().setData(data);
+  setChannelData(channelId: string, data: Series): void {
+    this.dataStore.set(channelId, data);
   }
 
-  getChannelData(index: number): [number, number][] {
-    const track = this.trackManager.getTrackByIndex(index);
-    return track.getSignal().getData();
+  getChannelData(channelId: string): Series | undefined {
+    return this.dataStore.get(channelId);
   }
 
-  isChannelEmpty(index: number): boolean {
-    const track = this.trackManager.getTrackByIndex(index);
-    return track.getSignal().isEmpty();
+  isChannelDataEmpty(channelId: string): boolean {
+    return !this.dataStore.has(channelId);
   }
 
-  setSpectrogramData(index: number, data: SpectrogramData): void {
-    const track = this.trackManager.getTrackByIndex(index);
+  clearChannelData(): void {
+    this.dataStore.clear();
+  }
+
+  refreshChannelData(): void {
+    let normFactor = Infinity;
+    for (const channel of this.trackManager.channels()) {
+      const series = this.dataStore.get(channel.id);
+      if (!series || series.isEmpty()) {
+        continue;
+      }
+
+      const factor = series.max() - series.min();
+      normFactor = Math.min(normFactor, factor);
+    }
+
+    for (const [channel, track] of this.trackManager.items()) {
+      const series = this.getChannelData(channel.id);
+      if (!series || series.isEmpty()) {
+        continue;
+      }
+      const norm = series.scalarDivide(normFactor);
+      track.getSignal().setData(norm);
+    }
+  }
+
+  setSpectrogramData(channelId: string, data: SpectrogramData): void {
+    const track = this.trackManager.getTrackByChannelId(channelId);
+    if (!track) {
+      return;
+    }
     track.getSpectrogram().setData(data);
+    this.spectrogramDataStore.set(channelId, data);
   }
 
-  getSpectrogramData(index: number): SpectrogramData {
-    const track = this.trackManager.getTrackByIndex(index);
-    return track.getSpectrogram().getData();
+  getSpectrogramData(channelId: string): SpectrogramData {
+    const data = this.spectrogramDataStore.get(channelId);
+    if (!data) {
+      return "";
+    }
+    return data;
   }
 
-  isSpectrogramEmpty(index: number): boolean {
-    const track = this.trackManager.getTrackByIndex(index);
-    return track.getSpectrogram().isEmpty();
+  isSpectrogramDataEmpty(channelId: string): boolean {
+    return !this.spectrogramDataStore.has(channelId);
   }
 
-  showSignal(index: number): void {
-    const track = this.trackManager.getTrackByIndex(index);
-    track.showSignal();
-  }
-
-  hideSignal(index: number): void {
-    const track = this.trackManager.getTrackByIndex(index);
-    track.hideSignal();
+  clearSpectrogramData(): void {
+    this.spectrogramDataStore.clear();
   }
 
   showSignals(): void {
@@ -200,26 +251,34 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     }
   }
 
-  showSpectrogram(index: number): void {
-    const track = this.trackManager.getTrackByIndex(index);
-    track.showSpectrogram();
-  }
-
-  hideSpectrogram(index: number): void {
-    const track = this.trackManager.getTrackByIndex(index);
-    track.hideSpectrogram();
-  }
-
   showSpectrograms(): void {
     for (const track of this.trackManager.tracks()) {
       track.showSpectrogram();
     }
+    this.spectrogramShown = true;
   }
 
   hideSpectrograms(): void {
     for (const track of this.trackManager.tracks()) {
       track.hideSpectrogram();
     }
+    this.spectrogramShown = false;
+  }
+
+  isSpectrogramShown(): boolean {
+    return this.spectrogramShown;
+  }
+
+  focus(): void {
+    this.focused = true;
+  }
+
+  blur(): void {
+    this.focused = false;
+  }
+
+  isFocused(): boolean {
+    return this.focused;
   }
 
   addEventMarker(options: EventMarkerOptions): EventMarkerView {
@@ -293,11 +352,11 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   }
 
   resize(): void {
-    const { width, height } = this.getRect();
-    this.zr.resize({
-      width,
-      height,
-    });
+    this.setRect(new BoundingRect(0, 0, this.getWidth(), this.getHeight()));
+    for (const view of this.views) {
+      view.resize();
+    }
+    this.zr.resize();
   }
 
   on<K extends keyof SeismogramEventMap>(
@@ -328,8 +387,10 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     }
 
     const { x, y, width, height } = rect;
-    const trackHeight = height / count;
-    const trackY = y + index * trackHeight;
+    const gap = 10;
+    const spacing = gap * (count + 1);
+    const trackHeight = (height - spacing) / count;
+    const trackY = y + gap + index * (trackHeight + gap);
 
     return new BoundingRect(x, trackY, width, trackHeight);
   }
@@ -337,6 +398,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   private addChannelInternal(channel: Channel): Channel {
     const track = new TrackView(this, {
       label: channel.label ?? channel.id,
+      style: "bracket",
     });
     const theme = this.getThemeStyle();
     track.applyThemeStyle(theme);

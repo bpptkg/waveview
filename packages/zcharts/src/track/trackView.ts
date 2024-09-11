@@ -11,16 +11,40 @@ export class TrackView extends View<TrackModel> {
   private spectrogram: SpectrogramView;
   private signal: LineSeriesView;
   private rect: LayoutRect;
-  private yAxis: AxisView;
+  private leftYAxis: AxisView;
+  private rightYAxis: AxisView;
 
   constructor(chart: ChartView, options?: Partial<TrackOptions>) {
     const model = new TrackModel(options);
     super(model);
     this.rect = new zrender.BoundingRect(0, 0, 0, 0);
-    this.spectrogram = new SpectrogramView(this);
-    this.yAxis = new AxisView(this, { position: "left" });
-    this.yAxis.setExtent(chart.getYExtent());
-    this.signal = new LineSeriesView(chart.getXAxis(), this.yAxis, this);
+
+    this.leftYAxis = new AxisView(this, { position: "left" });
+    this.leftYAxis.setExtent(chart.getYExtent());
+    this.signal = new LineSeriesView(chart.getXAxis(), this.leftYAxis, this);
+
+    this.rightYAxis = new AxisView(this, {
+      position: "right",
+      minorTick: {
+        show: false,
+      },
+      axisLabel: {
+        fontSize: 9,
+        reverse: true,
+      },
+      name: "Hz",
+      nameGap: 20,
+      nameStyle: {
+        fontSize: 9,
+      },
+    });
+    this.rightYAxis.setExtent([0, 50]);
+    this.spectrogram = new SpectrogramView(
+      chart.getXAxis(),
+      this.rightYAxis,
+      this
+    );
+    this.rightYAxis.hide();
   }
 
   getSignal(): LineSeriesView {
@@ -37,6 +61,7 @@ export class TrackView extends View<TrackModel> {
 
   showSpectrogram(): void {
     this.spectrogram.show();
+    this.rightYAxis.show();
   }
 
   hideSignal(): void {
@@ -45,6 +70,7 @@ export class TrackView extends View<TrackModel> {
 
   hideSpectrogram(): void {
     this.spectrogram.hide();
+    this.rightYAxis.hide();
   }
 
   getRect(): LayoutRect {
@@ -53,7 +79,8 @@ export class TrackView extends View<TrackModel> {
 
   setRect(rect: LayoutRect): void {
     this.rect = rect;
-    this.yAxis.setRect(rect);
+    this.leftYAxis.setRect(rect);
+    this.rightYAxis.setRect(rect);
   }
 
   resize(): void {
@@ -70,10 +97,13 @@ export class TrackView extends View<TrackModel> {
   }
 
   applyThemeStyle(theme: ThemeStyle): void {
+    const { lineColor, lineWidth } = theme.gridStyle;
     this.model.mergeOptions({
       textColor: theme.textColor,
       fontSize: theme.fontSize,
       fontFamily: theme.fontFamily,
+      borderColor: lineColor,
+      borderWidth: lineWidth,
     });
     this.signal.applyThemeStyle(theme);
   }
@@ -81,6 +111,7 @@ export class TrackView extends View<TrackModel> {
   render(): void {
     this.clear();
     this.renderLabels();
+    this.renderStyle();
     this.renderSignal();
     this.renderSpectrogram();
   }
@@ -92,6 +123,8 @@ export class TrackView extends View<TrackModel> {
 
   private renderSpectrogram(): void {
     this.spectrogram.render();
+    this.rightYAxis.render();
+    this.group.add(this.rightYAxis.group);
     this.group.add(this.spectrogram.group);
   }
 
@@ -115,5 +148,57 @@ export class TrackView extends View<TrackModel> {
     });
     text.silent = true;
     this.group.add(text);
+  }
+
+  private renderStyle(): void {
+    const { style } = this.model.getOptions();
+    if (style === "bracket") {
+      this.renderBracketStyle();
+    }
+  }
+
+  private renderBracketStyle(): void {
+    const { borderColor, borderWidth } = this.model.getOptions();
+    const { x, y, height } = this.getRect();
+    const tickLength = 5;
+    const leftBorder = new zrender.Line({
+      shape: {
+        x1: x,
+        y1: y,
+        x2: x,
+        y2: y + height,
+      },
+      style: {
+        stroke: borderColor,
+        lineWidth: borderWidth,
+      },
+    });
+    const topTick = new zrender.Line({
+      shape: {
+        x1: x,
+        y1: y,
+        x2: x + tickLength,
+        y2: y,
+      },
+      style: {
+        stroke: borderColor,
+        lineWidth: borderWidth,
+      },
+    });
+    const bottomTick = new zrender.Line({
+      shape: {
+        x1: x,
+        y1: y + height,
+        x2: x + tickLength,
+        y2: y + height,
+      },
+      style: {
+        stroke: borderColor,
+        lineWidth: borderWidth,
+      },
+    });
+    this.group.add(leftBorder);
+    this.group.add(topTick);
+    this.group.add(bottomTick);
   }
 }

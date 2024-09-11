@@ -6,6 +6,9 @@ export interface TrackOptions {
   textColor: string;
   fontSize: number;
   fontFamily: string;
+  borderColor: string;
+  borderWidth: number;
+  style: "default" | "bracket";
 }
 
 export class TrackModel extends Model<TrackOptions> {
@@ -15,6 +18,9 @@ export class TrackModel extends Model<TrackOptions> {
     textColor: "#000",
     fontSize: 12,
     fontFamily: "Arial",
+    style: "default",
+    borderColor: "#000",
+    borderWidth: 1,
   };
 
   constructor(options?: Partial<TrackOptions>) {
