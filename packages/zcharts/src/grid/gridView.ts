@@ -43,12 +43,12 @@ export class GridView extends View<GridModel> {
 
   override render(): void {
     this.clear();
-
-    const { show, backgroundColor, borderColor, borderWidth } =
-      this.model.getOptions();
-    if (!show) {
+    if (!this.visible) {
       return;
     }
+
+    const { backgroundColor, borderColor, borderWidth } =
+      this.model.getOptions();
 
     const { x, y, width, height } = this.getRect();
 

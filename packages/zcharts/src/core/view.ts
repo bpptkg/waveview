@@ -6,6 +6,7 @@ export abstract class View<T extends Model = Model> {
   readonly type: string = "view";
   readonly model: T;
   readonly group: Group = new Group();
+  visible: boolean = true;
 
   constructor(model: T) {
     this.model = model;
@@ -16,11 +17,11 @@ export abstract class View<T extends Model = Model> {
   }
 
   show(): void {
-    this.group.show();
+    this.visible = true;
   }
 
   hide(): void {
-    this.group.hide();
+    this.visible = false;
   }
 
   abstract getRect(): LayoutRect;

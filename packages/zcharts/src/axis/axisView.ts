@@ -252,6 +252,9 @@ export class AxisView extends View<AxisModel> {
 
   render(): void {
     this.clear();
+    if (!this.visible) {
+      return;
+    }
     this.renderAxisLine();
     this.renderAxisMajorTick();
     this.renderAxisMinorTick();

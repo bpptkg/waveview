@@ -34,10 +34,12 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   private axisPointer: AxisPointer;
   private picker: PickerView;
   private markers: EventMarkerView[] = [];
-  private dataStore: DataStore<Series> = new DataStore();
+  private channelDataStore: DataStore<Series> = new DataStore();
   private spectrogramDataStore: DataStore<SpectrogramData> = new DataStore();
   private focused = false;
   private spectrogramShown = false;
+  private inExpandMode = false;
+  private expandIndex = -1;
 
   constructor(dom: HTMLElement, options?: Partial<SeismogramOptions>) {
     const opts = merge(options, getDefaultOptions()) as SeismogramOptions;
@@ -46,6 +48,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     this.eventEmitter = new EventEmitter<SeismogramEventMap>();
 
     this.grid = new GridView(this, opts.grid);
+    this.grid.hide();
     this.addComponent(this.grid);
 
     const { startTime, endTime, useUTC } = opts;
@@ -177,25 +180,25 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   }
 
   setChannelData(channelId: string, data: Series): void {
-    this.dataStore.set(channelId, data);
+    this.channelDataStore.set(channelId, data);
   }
 
   getChannelData(channelId: string): Series | undefined {
-    return this.dataStore.get(channelId);
+    return this.channelDataStore.get(channelId);
   }
 
   isChannelDataEmpty(channelId: string): boolean {
-    return !this.dataStore.has(channelId);
+    return !this.channelDataStore.has(channelId);
   }
 
   clearChannelData(): void {
-    this.dataStore.clear();
+    this.channelDataStore.clear();
   }
 
   refreshChannelData(): void {
     let normFactor = Infinity;
     for (const channel of this.trackManager.channels()) {
-      const series = this.dataStore.get(channel.id);
+      const series = this.channelDataStore.get(channel.id);
       if (!series || series.isEmpty()) {
         continue;
       }
@@ -271,6 +274,21 @@ export class Seismogram extends ChartView<SeismogramOptions> {
 
   isSpectrogramShown(): boolean {
     return this.spectrogramShown;
+  }
+
+  expandView(index: number): void {
+    if (index < 0 || index >= this.trackManager.count()) {
+      return;
+    }
+    this.inExpandMode = true;
+    this.expandIndex = index;
+    this.updateTracksRect();
+  }
+
+  restoreView(): void {
+    this.inExpandMode = false;
+    this.expandIndex = -1;
+    this.updateTracksRect();
   }
 
   focus(): void {
@@ -422,11 +440,24 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   }
 
   private updateTracksRect(): void {
-    const trackCount = this.trackManager.count();
-    for (let i = 0; i < trackCount; i++) {
-      const track = this.trackManager.getTrackByIndex(i);
-      const rect = this.getRectForTrack(i, trackCount);
-      track.setRect(rect);
+    if (this.inExpandMode) {
+      for (let i = 0; i < this.trackManager.count(); i++) {
+        const track = this.trackManager.getTrackByIndex(i);
+        if (i === this.expandIndex) {
+          const rect = this.getRectForTrack(i, 1);
+          track.setRect(rect);
+        } else {
+          track.hide();
+        }
+      }
+    } else {
+      const trackCount = this.trackManager.count();
+      for (let i = 0; i < trackCount; i++) {
+        const track = this.trackManager.getTrackByIndex(i);
+        const rect = this.getRectForTrack(i, trackCount);
+        track.setRect(rect);
+        track.show();
+      }
     }
   }
 }

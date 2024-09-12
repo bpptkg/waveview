@@ -130,6 +130,9 @@ export class TrackView extends View<TrackModel> {
 
   render(): void {
     this.clear();
+    if (!this.visible) {
+      return;
+    }
     this.renderLabels();
     this.renderStyle();
     this.renderSignal();
