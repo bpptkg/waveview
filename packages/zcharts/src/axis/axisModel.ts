@@ -3,6 +3,7 @@ import { Model } from "../core/model";
 import { LinearScale } from "../scale/linear";
 import { Scale } from "../scale/scale";
 import { TimeScale } from "../scale/time";
+import { DeepPartial } from "../util/types";
 
 export interface AxisTickOptions {
   show: boolean;
@@ -118,7 +119,7 @@ export class AxisModel extends Model<AxisOptions> {
 
   readonly scale: Scale;
 
-  constructor(options?: Partial<AxisOptions>) {
+  constructor(options?: DeepPartial<AxisOptions>) {
     const opts = merge(
       clone(AxisModel.defaultOptions),
       options || {},

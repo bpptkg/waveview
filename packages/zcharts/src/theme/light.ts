@@ -20,7 +20,7 @@ export const lightTheme: ThemeStyle = {
     lineWidth: 1,
   },
   highlightStyle: {
-    color: "#FFFF00",
+    color: "#9747ff",
     opacity: 0.75,
     borderWidth: 1,
   },

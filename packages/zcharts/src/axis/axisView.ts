@@ -104,7 +104,7 @@ export class AxisView extends View<AxisModel> {
   }
 
   getTicksPixels(): TickPixel[] {
-    const { fontSize } = this.model.getOptions().axisLabel;
+    const { fontSize, reverse } = this.model.getOptions().axisLabel;
     const maxTicks = this.isHorizontal()
       ? Math.floor(this.getRect().width / fontSize)
       : Math.floor(this.getRect().height / fontSize);
@@ -112,11 +112,15 @@ export class AxisView extends View<AxisModel> {
     const { scale } = this.model;
     const { x, y, width, height } = this.getRect();
     const range = this.isHorizontal() ? width : height;
-    const ticks = scale.getTicks({ maxTicks });
+    const ticks = scale.getTicks({ maxTicks, reverse });
 
     const ticksPixels = [];
     for (const tick of ticks) {
-      const percent = scale.valueToPercentage(tick.value);
+      let percent = scale.valueToPercentage(tick.value);
+      if (reverse) {
+        percent = 1 - percent;
+      }
+
       let pixel;
       if (this.isHorizontal()) {
         pixel = x + range * percent;
@@ -393,34 +397,21 @@ export class AxisView extends View<AxisModel> {
   }
 
   private renderAxisLabel(): void {
-    const { show, margin, formatter, color, fontFamily, fontSize, reverse } =
+    const { show, margin, formatter, color, fontFamily, fontSize, inside } =
       this.model.options.axisLabel;
     if (!show) {
       return;
     }
+    const { length } = this.model.getOptions().axisTick;
 
     // Get ticks and their positions
-    let tickPixels = this.getTicksPixels().map((tick) => {
-      const { x1, y1 } = this.calcAdjustedTickPositions(tick);
-      return { x: x1, y: y1 };
-    });
-    const tickLabels = this.getTicksPixels().map((tick) => {
+    const ticks = this.getTicksPixels().map((tick) => {
       const text = formatter
         ? formatter(tick.tick.value)
         : this.model.scale.getLabel(tick.tick);
-      return text;
+      const { x1, y1 } = this.calcAdjustedTickPositions(tick);
+      return { x: x1, y: y1, text };
     });
-    const ticks: { x: number; y: number; text: string }[] = [];
-    for (let i = 0; i < tickPixels.length; i++) {
-      if (reverse) {
-        ticks.push({
-          ...tickPixels[i],
-          text: tickLabels[tickLabels.length - 1 - i],
-        });
-      } else {
-        ticks.push({ ...tickPixels[i], text: tickLabels[i] });
-      }
-    }
 
     const { position } = this.model.options;
     const labels = new zrender.Group();
@@ -444,7 +435,13 @@ export class AxisView extends View<AxisModel> {
         });
       } else {
         label.attr({
-          x: position === "left" ? x - margin : x + margin,
+          x: inside
+            ? position === "left"
+              ? x - margin
+              : x + margin
+            : position === "left"
+            ? x - length - margin
+            : x + length + margin,
           y,
         });
       }
@@ -503,7 +500,13 @@ export class AxisView extends View<AxisModel> {
     }
 
     const { x, y, width, height } = this.getRect();
-    const rotation = this.isTop() ? 0 : this.isBottom() ? Math.PI : this.isLeft() ? Math.PI / 2 : -Math.PI / 2;
+    const rotation = this.isTop()
+      ? 0
+      : this.isBottom()
+      ? Math.PI
+      : this.isLeft()
+      ? Math.PI / 2
+      : -Math.PI / 2;
 
     const nameText = new zrender.Text({
       style: {
@@ -516,7 +519,6 @@ export class AxisView extends View<AxisModel> {
       },
       rotation,
     });
-
 
     if (this.isHorizontal()) {
       nameText.attr({

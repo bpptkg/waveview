@@ -28,12 +28,16 @@ export class TrackView extends View<TrackModel> {
       minorTick: {
         show: false,
       },
+      axisTick: {
+        inside: false,
+        length: 5,
+      },
       axisLabel: {
         fontSize: 9,
         reverse: true,
       },
       name: "Hz",
-      nameGap: 20,
+      nameGap: 25,
       nameStyle: {
         fontSize: 9,
       },
