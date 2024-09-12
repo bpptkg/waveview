@@ -52,6 +52,11 @@ export class AxisView extends View<AxisModel> {
       splitLine: {
         color: axisStyle.splitLineColor,
       },
+      nameStyle: {
+        color: textColor,
+        fontSize,
+        fontFamily,
+      },
     });
   }
 

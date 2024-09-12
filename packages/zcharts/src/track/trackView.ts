@@ -112,6 +112,9 @@ export class TrackView extends View<TrackModel> {
       borderWidth: lineWidth,
     });
     this.signal.applyThemeStyle(theme);
+    this.spectrogram.applyThemeStyle(theme);
+    this.leftYAxis.applyThemeStyle(theme);
+    this.rightYAxis.applyThemeStyle(theme);
   }
 
   render(): void {

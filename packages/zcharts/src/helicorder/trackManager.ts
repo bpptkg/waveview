@@ -280,6 +280,7 @@ export class TrackManager {
 
     for (const segment of this.segments()) {
       const track = new TrackView(this.helicorder);
+      track.applyThemeStyle(this.helicorder.getThemeStyle());
       const [start] = segment;
       const trackIndex = this.getTrackIndexByTime(start);
       const rect = this.getRectForTrack(trackIndex, this.count());
