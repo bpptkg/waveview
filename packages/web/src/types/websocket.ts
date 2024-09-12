@@ -1,7 +1,7 @@
 import { JwtToken } from './auth';
 import { SeismicEvent } from './event';
 
-export type WebSocketCommand = 'stream.fetch' | 'stream.spectrogram' | 'ping' | 'notify';
+export type WebSocketCommand = 'stream.fetch' | 'stream.spectrogram' | 'stream.filter' | 'ping' | 'notify';
 export type WebSocketMessageType = 'request' | 'response' | 'notify';
 export type WebSocketMessageStatus = 'success' | 'error';
 

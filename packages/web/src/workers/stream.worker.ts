@@ -2,6 +2,7 @@ import ReconnectingWebSocket from 'reconnecting-websocket';
 import { WebSocketCommand, WebSocketHeader, WebSocketRequest, WebSocketSetupData } from '../types/websocket';
 import {
   ConnectionStatus,
+  FilterRequestData,
   SpectrogramRequestData,
   SpectrogramResponseData,
   StreamRequestData,
@@ -61,6 +62,8 @@ async function onMessage(data: Blob): Promise<void> {
     onStreamFetchMessage(data);
   } else if (command === 'stream.spectrogram') {
     onStreamSpectrogramMessage(data);
+  } else if (command === 'stream.filter') {
+    onStreamFilterMessage(data);
   }
 }
 
@@ -86,6 +89,16 @@ async function onStreamSpectrogramMessage(blob: Blob): Promise<void> {
   self.postMessage(msg);
 }
 
+async function onStreamFilterMessage(blob: Blob): Promise<void> {
+  const data = await readStream(blob);
+
+  const msg: WorkerResponseData<StreamResponseData> = {
+    type: 'stream.filter',
+    payload: data,
+  };
+  self.postMessage(msg);
+}
+
 self.addEventListener('message', (event: MessageEvent<WorkerRequestData<unknown>>) => {
   const { type, payload } = event.data;
 
@@ -93,6 +106,8 @@ self.addEventListener('message', (event: MessageEvent<WorkerRequestData<unknown>
     onStreamFetch(payload as StreamRequestData);
   } else if (type === 'stream.spectrogram') {
     onStreamSpectrogram(payload as SpectrogramRequestData);
+  } else if (type === 'stream.filter') {
+    onStreamFilter(payload as FilterRequestData);
   } else if (type === 'ping') {
     onPing();
   } else if (type === 'setup') {
@@ -111,6 +126,14 @@ function onStreamFetch(data: StreamRequestData): void {
 function onStreamSpectrogram(data: SpectrogramRequestData): void {
   const msg: WebSocketRequest<SpectrogramRequestData> = {
     command: 'stream.spectrogram',
+    data,
+  };
+  socket.send(JSON.stringify(msg));
+}
+
+function onStreamFilter(data: FilterRequestData): void {
+  const msg: WebSocketRequest<FilterRequestData> = {
+    command: 'stream.filter',
     data,
   };
   socket.send(JSON.stringify(msg));

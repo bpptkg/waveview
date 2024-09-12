@@ -1,3 +1,4 @@
+import { FilterOptions, FilterType, TaperType } from './filter';
 
 export type WorkerRequestType = string;
 
@@ -11,7 +12,7 @@ export interface WorkerResponseData<T> {
   payload: T;
 }
 
-export type ResampleMode = "match_width" | "max_points" | "none" | "auto";
+export type ResampleMode = 'match_width' | 'max_points' | 'none' | 'auto';
 
 export interface StreamRequestData {
   requestId: string;
@@ -43,6 +44,7 @@ export interface SpectrogramRequestData {
   end: number;
   width: number;
   height: number;
+  darkMode: boolean;
 }
 
 export interface SpectrogramResponseData {
@@ -51,7 +53,7 @@ export interface SpectrogramResponseData {
   channelId: string;
   start: number;
   end: number;
-  data: Float64Array;
+  image: Uint8Array;
   timeMin: number;
   timeMax: number;
   freqMin: number;
@@ -65,4 +67,15 @@ export interface SpectrogramResponseData {
 export interface ConnectionStatus {
   connected: boolean;
   error?: Error;
+}
+
+export interface FilterRequestData {
+  requestId: string;
+  channelId: string;
+  start: number;
+  end: number;
+  filterType: FilterType;
+  filterOptions: FilterOptions;
+  taperType: TaperType;
+  taperWidth: number;
 }

@@ -16,9 +16,9 @@ export interface HelicorderSlice {
    */
   offsetDate: number;
   /**
-   * The last extent of the selected track in the helicorder chart.
+   * Selection window in the helicorder chart.
    */
-  lastTrackExtent: [number, number];
+  selectionWindow?: [number, number];
   /**
    * The value of the last selection (pointer to the selected track) in the
    * helicorder chart.
@@ -28,6 +28,5 @@ export interface HelicorderSlice {
   setHelicorderDuration: (duration: number) => void;
   setHelicorderInterval: (interval: number) => void;
   setHelicorderOffsetDate: (offsetDate: number) => void;
-  setLastTrackExtent: (extent: [number, number]) => void;
-  setLastSelection: (value: number) => void;
+  setSelectionWindow: (extent: [number, number]) => void;
 }
