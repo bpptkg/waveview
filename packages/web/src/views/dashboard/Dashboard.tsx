@@ -46,13 +46,22 @@ const Dashboard = () => {
 
       const { pickerConfig } = usePickerStore.getState();
       if (!pickerConfig) {
-        throw new CustomError('Picker configuration is not available');
+        return;
       }
 
+      const helicorderConfig = pickerConfig.helicorder_config;
+      if (!helicorderConfig) {
+        return;
+      }
       setHelicorderChannelId(pickerConfig.helicorder_config.channel.id);
-      const seismogramComponent = pickerConfig.seismogram_config.component;
+
+      const seismogramConfig = pickerConfig.seismogram_config;
+      if (!seismogramConfig) {
+        return;
+      }
+      const seismogramComponent = seismogramConfig.component;
       const availableChannels = useInventoryStore.getState().channels();
-      const selectedChannels = pickerConfig.seismogram_config.station_configs.map((stationConfig) => {
+      const selectedChannels = seismogramConfig.station_configs.map((stationConfig) => {
         const channel = availableChannels.find((channel) => channel.station_id === stationConfig.station.id && channel.code.includes(seismogramComponent));
         if (!channel) {
           throw new CustomError(`Channel for station ${stationConfig.station.id} not found.`);
