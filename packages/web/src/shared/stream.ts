@@ -1,18 +1,12 @@
-import { SpectrogramResponseData, StreamResponseData } from "../types/worker";
+import { SpectrogramResponseData, StreamResponseData } from '../types/worker';
 
 export async function readStream(blob: Blob): Promise<StreamResponseData> {
   const buffer = await blob.arrayBuffer();
-  const requestId = new TextDecoder("utf-8")
-    .decode(new Uint8Array(buffer, 0, 64))
-    .replace(/\0+$/, "")
-    .trim();
-  const command = new TextDecoder("utf-8")
-    .decode(new Uint8Array(buffer, 64, 64))
-    .replace(/\0+$/, "")
-    .trim();
-  const channelId = new TextDecoder("utf-8")
+  const requestId = new TextDecoder('utf-8').decode(new Uint8Array(buffer, 0, 64)).replace(/\0+$/, '').trim();
+  const command = new TextDecoder('utf-8').decode(new Uint8Array(buffer, 64, 64)).replace(/\0+$/, '').trim();
+  const channelId = new TextDecoder('utf-8')
     .decode(new Uint8Array(buffer, 64 * 2, 64))
-    .replace(/\0+$/, "")
+    .replace(/\0+$/, '')
     .trim();
   const header = new BigUint64Array(buffer, 64 * 3, 8);
   const start = Number(header[0]);
@@ -43,21 +37,13 @@ export async function readStream(blob: Blob): Promise<StreamResponseData> {
   };
 }
 
-export async function readSpectrogram(
-  blob: Blob
-): Promise<SpectrogramResponseData> {
+export async function readSpectrogram(blob: Blob): Promise<SpectrogramResponseData> {
   const buffer = await blob.arrayBuffer();
-  const requestId = new TextDecoder("utf-8")
-    .decode(new Uint8Array(buffer, 0, 64))
-    .replace(/\0+$/, "")
-    .trim();
-  const command = new TextDecoder("utf-8")
-    .decode(new Uint8Array(buffer, 64, 64))
-    .replace(/\0+$/, "")
-    .trim();
-  const channelId = new TextDecoder("utf-8")
+  const requestId = new TextDecoder('utf-8').decode(new Uint8Array(buffer, 0, 64)).replace(/\0+$/, '').trim();
+  const command = new TextDecoder('utf-8').decode(new Uint8Array(buffer, 64, 64)).replace(/\0+$/, '').trim();
+  const channelId = new TextDecoder('utf-8')
     .decode(new Uint8Array(buffer, 64 * 2, 64))
-    .replace(/\0+$/, "")
+    .replace(/\0+$/, '')
     .trim();
   const header = new Float64Array(buffer, 64 * 3, 10);
   const start = Number(header[0]);
@@ -71,8 +57,7 @@ export async function readSpectrogram(
   const min = Number(header[8]);
   const max = Number(header[9]);
 
-  const length = timeLength * freqLength;
-  const data = new Float64Array(buffer, 64 * 3 + 10 * 8, length);
+  const image = new Uint8Array(buffer, 64 * 3 + 10 * 8);
 
   return {
     requestId,
@@ -80,7 +65,7 @@ export async function readSpectrogram(
     channelId,
     start,
     end,
-    data,
+    image,
     timeMin,
     timeMax,
     freqMin,
