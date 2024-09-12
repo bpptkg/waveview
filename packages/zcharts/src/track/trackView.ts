@@ -37,6 +37,9 @@ export class TrackView extends View<TrackModel> {
       axisLabel: {
         fontSize: 9,
         reverse: true,
+        formatter(value) {
+          return value.toFixed(0);
+        },
       },
       name: "Hz",
       nameGap: 25,
@@ -77,6 +80,14 @@ export class TrackView extends View<TrackModel> {
   hideSpectrogram(): void {
     this.spectrogram.hide();
     this.rightYAxis.hide();
+  }
+
+  getLeftYAxis(): AxisView {
+    return this.leftYAxis;
+  }
+
+  getRightYAxis(): AxisView {
+    return this.rightYAxis;
   }
 
   getRect(): LayoutRect {
