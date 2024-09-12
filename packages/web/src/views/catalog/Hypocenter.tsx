@@ -195,7 +195,7 @@ const Hypocenter = () => {
 
   return (
     <div className="relative h-full w-full flex flex-col">
-      <div className="bg-white dark:bg-black mx-2 drop-shadow rounded flex justify-between items-center relative z-10">
+      <div className="bg-white dark:bg-black mx-2 mt-1 border dark:border-none rounded flex justify-between items-center relative z-10">
         <Toolbar aria-label="Hypocenter Toolbar">
           <div className="flex gap-1 mr-1">
             <HypocenterWorkspaceSwitcher workspace={workspace} onChange={handleWorkspaceChange} />
