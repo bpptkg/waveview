@@ -13,11 +13,13 @@ export class TrackView extends View<TrackModel> {
   private rect: LayoutRect;
   private leftYAxis: AxisView;
   private rightYAxis: AxisView;
+  readonly chart: ChartView;
 
   constructor(chart: ChartView, options?: Partial<TrackOptions>) {
     const model = new TrackModel(options);
     super(model);
     this.rect = new zrender.BoundingRect(0, 0, 0, 0);
+    this.chart = chart;
 
     this.leftYAxis = new AxisView(this, { position: "left" });
     this.leftYAxis.setExtent(chart.getYExtent());

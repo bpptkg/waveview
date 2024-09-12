@@ -39,6 +39,10 @@ export class SpectrogramView extends View<SpectrogramModel> {
     return this.model.getData();
   }
 
+  clearData(): void {
+    this.model.clearData();
+  }
+
   isEmpty(): boolean {
     return this.model.isEmpty();
   }
@@ -59,22 +63,39 @@ export class SpectrogramView extends View<SpectrogramModel> {
     this.group.removeAll();
   }
 
+  override show(): void {
+    this.model.mergeOptions({ show: true });
+  }
+
+  override hide(): void {
+    this.model.mergeOptions({ show: false });
+  }
+
   render() {
     this.clear();
+    const { show } = this.model.getOptions();
+    if (!show) {
+      return;
+    }
 
-    const { x, y, width, height } = this.track.getRect();
-    const image = this.model.getData();
-    const specgram = new zrender.Image({
+    const { y, height } = this.track.getRect();
+    const data = this.model.getData();
+    const x1 = this.xAxis.getPixelForValue(data.timeMin);
+    const x2 = this.xAxis.getPixelForValue(data.timeMax);
+    const image = new zrender.Image({
       style: {
-        x,
+        x: x1,
         y,
-        width,
+        width: x2 - x1,
         height,
-        image,
+        image: data.getImageURL(),
       },
       z: -1,
     });
-    this.group.add(specgram);
+    image.silent = true;
+    const clipRect = this.xAxis.getRect();
+    image.setClipPath(new zrender.Rect({ shape: clipRect }));
+    this.group.add(image);
   }
 
   dispose(): void {}

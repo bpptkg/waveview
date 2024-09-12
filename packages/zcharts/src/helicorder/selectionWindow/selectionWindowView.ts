@@ -132,6 +132,7 @@ export class SelectionWindowView extends View<SelectionWindowModel> {
           lineWidth: borderWidth,
           stroke: color,
         },
+        z: 100,
       });
       rectShape.silent = true;
       this.group.add(rectShape);

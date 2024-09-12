@@ -226,7 +226,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   getSpectrogramData(channelId: string): SpectrogramData {
     const data = this.spectrogramDataStore.get(channelId);
     if (!data) {
-      return "";
+      return new SpectrogramData();
     }
     return data;
   }
@@ -237,6 +237,9 @@ export class Seismogram extends ChartView<SeismogramOptions> {
 
   clearSpectrogramData(): void {
     this.spectrogramDataStore.clear();
+    for (const track of this.trackManager.tracks()) {
+      track.getSpectrogram().clearData();
+    }
   }
 
   showSignals(): void {
