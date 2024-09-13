@@ -45,19 +45,28 @@ export class DataStore<T> {
   }
 }
 
+export interface SeismogramWebWorkerOptions {
+  window?: [number, number];
+}
+
 export class SeismogramWebWorker {
   private worker: Worker;
   private chart: Seismogram;
   private onExtentChangeDebounced: () => void;
   private selectionWindow: [number, number] = [0, 0];
 
-  constructor(chart: Seismogram, worker: Worker) {
+  constructor(chart: Seismogram, worker: Worker, options: SeismogramWebWorkerOptions = {}) {
     this.worker = worker;
     this.chart = chart;
     this.worker.addEventListener('message', this.onMessage.bind(this));
 
     this.onExtentChangeDebounced = debounce(this.onExtentChange.bind(this), 300);
     this.chart.on('extentChanged', this.onExtentChangeDebounced);
+
+    const { window } = options;
+    if (window) {
+      this.setSelectionWindow(window);
+    }
   }
 
   setSelectionWindow(window: [number, number]): void {

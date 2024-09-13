@@ -24,7 +24,7 @@ export interface SeismogramSlice {
    */
   component: ComponentType;
   /**
-   * List of channels to display in the seismogram chart.
+   * List of default channels configured.
    */
   selectedChannels: Channel[];
   setSelectedChannels: (channels: Channel[]) => void;
@@ -42,7 +42,5 @@ export interface SeismogramSlice {
   getChannelByStreamId: (streamId: string) => Channel | undefined;
   getChannelById: (id: string) => Channel | undefined;
   getSelectedStations: () => StationWithChannel[];
-  // isPickModeActive(): boolean;
-  // deactivatePickMode(): void;
-  // deactivateZoomRectangle(): void;
+  getChannels: () => Channel[];
 }

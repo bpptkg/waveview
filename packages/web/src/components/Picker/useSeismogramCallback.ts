@@ -8,22 +8,21 @@ import { usePickerContext } from './PickerContext';
 
 export const useSeismogramCallback = () => {
   const {
-    selectedChannels,
+    lastSeismogramExtent,
     addSeismogramChannel,
     setShowEvent,
     setSelectedChart,
     seismogramToolbarSetCheckedValues,
     removeSeismogramChannel,
     moveChannel,
-    setExpandMode,
     setComponent,
-    setExpandedChannelIndex,
     setPickRange,
     getChannelById,
-    getChannelsByStationIndex,
     setPickMode,
     clearPick,
     setEditedEvent,
+    setLastSeismogramExtent,
+    getChannels,
   } = usePickerStore();
 
   const { heliChartRef, seisChartRef, props, setSeisChartReady } = usePickerContext();
@@ -55,10 +54,6 @@ export const useSeismogramCallback = () => {
     seisChartRef.current?.scrollRight(0.1);
   }, [seisChartRef]);
 
-  const handleSeismogramScrollToNow = useCallback(() => {
-    seisChartRef.current?.scrollToNow();
-  }, [seisChartRef]);
-
   const handleSeismogramIncreaseAmplitude = useCallback(() => {
     seisChartRef.current?.increaseAmplitude(0.1);
   }, [seisChartRef]);
@@ -75,13 +70,13 @@ export const useSeismogramCallback = () => {
     (component: string) => {
       setComponent(component as ComponentType);
       seisChartRef.current?.setChannels(
-        selectedChannels.map((channel) => ({
+        getChannels().map((channel) => ({
           id: channel.id,
           label: channel.network_station_code,
         }))
       );
     },
-    [seisChartRef, setComponent, selectedChannels]
+    [seisChartRef, setComponent, getChannels]
   );
 
   const handleSeismogramShowEvent = useCallback(
@@ -156,35 +151,25 @@ export const useSeismogramCallback = () => {
 
   const handleSeismogramMoveChannelDown = useCallback(
     (index: number) => {
-      if (index < selectedChannels.length - 1) {
+      if (index < getChannels().length - 1) {
         moveChannel(index, index + 1);
         seisChartRef.current?.moveChannelDown(index);
       }
     },
-    [seisChartRef, moveChannel, selectedChannels]
+    [seisChartRef, moveChannel, getChannels]
   );
-
-  const handleTrackDoubleClicked = useCallback(
-    (index: number) => {
-      const channels = getChannelsByStationIndex(index);
-      seisChartRef.current?.setChannels(channels);
-      setExpandMode(true);
-      setExpandedChannelIndex(index);
-    },
-    [seisChartRef, setExpandMode, getChannelsByStationIndex, setExpandedChannelIndex]
-  );
-
-  const handleRestoreChannels = useCallback(() => {
-    seisChartRef.current?.setChannels(selectedChannels);
-    setExpandMode(false);
-  }, [seisChartRef, selectedChannels, setExpandMode]);
 
   const handleSeismogramFocus = useCallback(() => {
     heliChartRef.current?.blur();
     setSelectedChart('seismogram');
   }, [heliChartRef, setSelectedChart]);
 
-  const handleSeismogramExtentChange = useCallback(() => {}, []);
+  const handleSeismogramExtentChange = useCallback(() => {
+    const extent = seisChartRef.current?.getChartExtent();
+    if (extent) {
+      setLastSeismogramExtent(extent);
+    }
+  }, [setLastSeismogramExtent, seisChartRef]);
 
   const handleSeismogramPickChange = useCallback(
     (pick: [number, number]) => {
@@ -235,12 +220,12 @@ export const useSeismogramCallback = () => {
         return [start - margin, end + margin];
       }
 
-      return [undefined, undefined];
+      return lastSeismogramExtent;
     };
     const [startTime, endTime] = determinteInitialExtent();
 
     const initOptions = {
-      channels: selectedChannels.map((channel) => ({
+      channels: getChannels().map((channel) => ({
         id: channel.id,
         label: channel.network_station_code,
       })),
@@ -257,7 +242,7 @@ export const useSeismogramCallback = () => {
       endTime,
     };
     return initOptions;
-  }, [selectedChannels, darkMode, useUTC, event]);
+  }, [darkMode, useUTC, event, lastSeismogramExtent, getChannels]);
 
   return {
     handleSeismogramChannelAdd,
@@ -265,7 +250,6 @@ export const useSeismogramCallback = () => {
     handleSeismogramZoomOut,
     handleSeismogramScrollLeft,
     handleSeismogramScrollRight,
-    handleSeismogramScrollToNow,
     handleSeismogramIncreaseAmplitude,
     handleSeismogramDecreaseAmplitude,
     handleSeismogramResetAmplitude,
@@ -276,8 +260,6 @@ export const useSeismogramCallback = () => {
     handleSeismogramRemoveChannel,
     handleSeismogramMoveChannelUp,
     handleSeismogramMoveChannelDown,
-    handleTrackDoubleClicked,
-    handleRestoreChannels,
     handleSeismogramFocus,
     handleSeismogramExtentChange,
     handleSeismogramPickChange,

@@ -12,6 +12,7 @@ import { usePickerStore } from '../../stores/picker';
 import { useUserStore } from '../../stores/user';
 import { useVolcanoStore } from '../../stores/volcano/useVolcanoStore';
 import { CustomError } from '../../types/response';
+import { Channel } from '../../types/channel';
 
 const PickerIcon = CursorHover24Regular;
 const CatalogIcon = Folder24Regular;
@@ -61,12 +62,12 @@ const Dashboard = () => {
       }
       const seismogramComponent = seismogramConfig.component;
       const availableChannels = useInventoryStore.getState().channels();
-      const selectedChannels = seismogramConfig.station_configs.map((stationConfig) => {
+      const selectedChannels: Channel[] = [];
+      seismogramConfig.station_configs.forEach((stationConfig) => {
         const channel = availableChannels.find((channel) => channel.station_id === stationConfig.station.id && channel.code.includes(seismogramComponent));
-        if (!channel) {
-          throw new CustomError(`Channel for station ${stationConfig.station.id} not found.`);
+        if (channel) {
+          selectedChannels.push(channel);
         }
-        return channel;
       });
       setSelectedChannels(selectedChannels);
     };

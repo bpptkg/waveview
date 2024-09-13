@@ -14,6 +14,16 @@ export default function useSeismogramChartApi(options: SeismogramChartInitOption
   return useMemo(() => {
     return {
       getInstance: () => chartRef.current!,
+      setChannels: (channels: Channel[]) => {
+        if (chartRef.current) {
+          chartRef.current.setChannels(channels);
+          chartRef.current.render();
+          webWorkerRef.current?.fetchAllChannelsData();
+          if (chartRef.current.isSpectrogramShown()) {
+            webWorkerRef.current?.fetchAllSpectrogramData();
+          }
+        }
+      },
       addChannel: (channel: Channel) => {
         if (chartRef.current) {
           chartRef.current.addChannel(channel);

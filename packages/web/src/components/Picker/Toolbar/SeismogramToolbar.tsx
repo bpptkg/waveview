@@ -50,7 +50,6 @@ export interface SeismogramToolbarProps {
   onZoomOut?: () => void;
   onScrollLeft?: () => void;
   onScrollRight?: () => void;
-  onScrollToNow?: () => void;
   onScrollToDate?: (date: number) => void;
   onIncreaseAmplitude?: () => void;
   onDecreaseAmplitude?: () => void;

@@ -37,7 +37,6 @@ const PickerToolbar = () => {
     handleSeismogramZoomOut,
     handleSeismogramScrollLeft,
     handleSeismogramScrollRight,
-    handleSeismogramScrollToNow,
     handleSeismogramIncreaseAmplitude,
     handleSeismogramDecreaseAmplitude,
     handleSeismogramResetAmplitude,
@@ -87,7 +86,6 @@ const PickerToolbar = () => {
           onZoomOut={handleSeismogramZoomOut}
           onScrollLeft={handleSeismogramScrollLeft}
           onScrollRight={handleSeismogramScrollRight}
-          onScrollToNow={handleSeismogramScrollToNow}
           onIncreaseAmplitude={handleSeismogramIncreaseAmplitude}
           onDecreaseAmplitude={handleSeismogramDecreaseAmplitude}
           onResetAmplitude={handleSeismogramResetAmplitude}

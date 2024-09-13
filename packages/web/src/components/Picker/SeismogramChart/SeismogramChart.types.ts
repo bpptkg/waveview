@@ -54,6 +54,7 @@ export interface SeismogramChartProps {
 
 export interface SeismogramChartRef {
   getInstance: () => Seismogram;
+  setChannels: (channels: Channel[]) => void;
   addChannel: (channel: Channel) => void;
   removeChannel: (index: number) => void;
   moveChannelUp: (index: number) => void;

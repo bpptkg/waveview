@@ -95,6 +95,22 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     });
   }
 
+  setChannels(channels: Channel[]): void {
+    this.channelDataStore.clear();
+    this.spectrogramDataStore.clear();
+
+    for (const track of this.trackManager.tracks()) {
+      this.removeComponent(track);
+      track.dispose();
+    }
+    this.trackManager.clear();
+
+    for (const channel of channels) {
+      this.addChannelInternal(channel);
+    }
+    this.updateTracksRect();
+  }
+
   addChannel(channel: Channel): void {
     this.addChannelInternal(channel);
     this.emit("channelAdded", channel);

@@ -22,6 +22,7 @@ export function useHelicorderCallback() {
     setSelectionWindow,
     setSelectedChart,
     fetchEventMarkers,
+    setLastSeismogramExtent,
   } = usePickerStore();
 
   const { heliChartRef, seisChartRef, props } = usePickerContext();
@@ -88,8 +89,9 @@ export function useHelicorderCallback() {
       seisChartRef.current?.clearPickRange();
       setSelectionWindow(range);
       setAppliedFilter(null);
+      setLastSeismogramExtent(range);
     },
-    [seisChartRef, setSelectionWindow, setAppliedFilter]
+    [seisChartRef, setSelectionWindow, setAppliedFilter, setLastSeismogramExtent]
   );
 
   const { currentOrganization } = useOrganizationStore();

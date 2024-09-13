@@ -36,6 +36,8 @@ export class AxisPointer extends View<AxisPointerModel> {
   private rect: LayoutRect;
   private onPointerMoveBound: (event: zrender.ElementEvent) => void;
   private position: zrender.Point = new zrender.Point();
+  private line: zrender.Line;
+  private label: zrender.Text;
 
   constructor(
     axis: AxisView,
@@ -47,6 +49,10 @@ export class AxisPointer extends View<AxisPointerModel> {
     this.chart = chart;
     this.axis = axis;
     this.rect = axis.getRect();
+    this.line = new zrender.Line();
+    this.label = new zrender.Text();
+    this.group.add(this.line);
+    this.group.add(this.label);
 
     this.onPointerMoveBound = this.onPointerMove.bind(this);
   }
@@ -99,7 +105,9 @@ export class AxisPointer extends View<AxisPointerModel> {
   }
 
   render(): void {
-    this.clear();
+    if (!this.visible) {
+      return;
+    }
 
     const {
       lineColor,
@@ -110,16 +118,20 @@ export class AxisPointer extends View<AxisPointerModel> {
       enable,
     } = this.getModel().getOptions();
     if (!enable) {
+      this.line.hide();
+      this.label.hide();
       return;
     }
 
     const { x, y } = this.position;
     if (!this.axis.getRect().contain(x, y)) {
+      this.line.hide();
+      this.label.hide();
       return;
     }
 
     const { y: y0, height } = this.axis.getRect();
-    const line = new zrender.Line({
+    this.line.attr({
       shape: {
         x1: x,
         y1: y0,
@@ -131,8 +143,8 @@ export class AxisPointer extends View<AxisPointerModel> {
         lineWidth,
       },
       z: 10,
+      silent: true,
     });
-    line.silent = true;
 
     const value = this.axis.getValueForPixel(x);
     const padding = 5;
@@ -140,7 +152,7 @@ export class AxisPointer extends View<AxisPointerModel> {
     const template = "{yyyy}-{MM}-{dd} {HH}:{mm}:{ss}.{SSS}";
     const valueFormatted = formatDate(value, template, useUTC);
 
-    const label = new zrender.Text({
+    this.label.attr({
       style: {
         text: valueFormatted,
         fill: textColor,
@@ -152,10 +164,10 @@ export class AxisPointer extends View<AxisPointerModel> {
       x,
       y: y0,
       anchorY: 20,
+      silent: true,
     });
-    label.silent = true;
 
-    this.group.add(line);
-    this.group.add(label);
+    this.line.show();
+    this.label.show();
   }
 }

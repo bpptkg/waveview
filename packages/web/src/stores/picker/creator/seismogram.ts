@@ -1,11 +1,16 @@
 import { StateCreator } from 'zustand';
+import { ONE_MINUTE } from '../../../shared/time';
 import { Channel } from '../../../types/channel';
 import { useInventoryStore } from '../../inventory';
 import { PickerStore, SeismogramSlice } from '../slices';
+import { usePickerStore } from '../usePickerStore';
 
 export const createSeismogramSlice: StateCreator<PickerStore, [], [], SeismogramSlice> = (set, get) => {
+  const end = Date.now();
+  const start = end - 5 * ONE_MINUTE;
+
   return {
-    lastSeismogramExtent: [0, 0],
+    lastSeismogramExtent: [start, end],
     seismogramToolbarCheckedValues: {
       options: [],
     },
@@ -13,6 +18,8 @@ export const createSeismogramSlice: StateCreator<PickerStore, [], [], Seismogram
     expandedChannelIndex: -1,
     component: 'Z',
     selectedChannels: [],
+
+    getChannels: () => get().selectedChannels,
 
     setLastSeismogramExtent: (extent) => set({ lastSeismogramExtent: extent }),
 
@@ -82,17 +89,24 @@ export const createSeismogramSlice: StateCreator<PickerStore, [], [], Seismogram
     setExpandMode: (isExpandMode) => set({ isExpandMode }),
 
     setComponent: (component) => {
-      const oldChannels = get().selectedChannels;
-      const selectedStationIds = oldChannels.map((channel) => channel.station_id);
-      const channels = useInventoryStore.getState().channels();
-      const filteredChannels = channels.filter((channel) => channel.code.includes(component));
-      const newChannels = selectedStationIds
-        .map((stationId) => {
-          return filteredChannels.find((channel) => channel.station_id === stationId);
-        })
-        .filter((channel) => channel !== undefined) as Channel[];
+      const { pickerConfig } = usePickerStore.getState();
+      if (!pickerConfig) {
+        return;
+      }
+      const seismogramConfig = pickerConfig?.seismogram_config;
+      if (!seismogramConfig) {
+        return;
+      }
+      const availableChannels = useInventoryStore.getState().channels();
+      const selectedChannels: Channel[] = [];
+      seismogramConfig.station_configs.forEach((stationConfig) => {
+        const channel = availableChannels.find((channel) => channel.station_id === stationConfig.station.id && channel.code.includes(component));
+        if (channel) {
+          selectedChannels.push(channel);
+        }
+      });
 
-      set({ component, selectedChannels: newChannels });
+      set({ component, selectedChannels });
     },
 
     getChannelsByStationIndex: (index: number) => {
@@ -119,31 +133,5 @@ export const createSeismogramSlice: StateCreator<PickerStore, [], [], Seismogram
       const stations = useInventoryStore.getState().stations();
       return stations.filter((station) => selectedStationIds.includes(station.id));
     },
-
-    // isPickModeActive() {
-    //   return get().seismogramToolbarCheckedValues.options.includes('pick-mode');
-    // },
-
-    // deactivatePickMode() {
-    //   set((state) => {
-    //     return {
-    //       seismogramToolbarCheckedValues: {
-    //         ...state.seismogramToolbarCheckedValues,
-    //         options: state.seismogramToolbarCheckedValues.options.filter((value) => value !== 'pick-mode'),
-    //       },
-    //     };
-    //   });
-    // },
-
-    // deactivateZoomRectangle() {
-    //   set((state) => {
-    //     return {
-    //       seismogramToolbarCheckedValues: {
-    //         ...state.seismogramToolbarCheckedValues,
-    //         options: state.seismogramToolbarCheckedValues.options.filter((value) => value !== 'zoom-rectangle'),
-    //       },
-    //     };
-    //   });
-    // },
   };
 };
