@@ -215,6 +215,13 @@ export class TrackManager {
     }
   }
 
+  clearData(): void {
+    this.dataStore.clear();
+    for (const track of this.tracks()) {
+      track.getSignal().getModel().clearData();
+    }
+  }
+
   updateTrackLabels(): void {
     const model = this.helicorder.getModel();
     const { useUTC } = model.getOptions();
@@ -302,7 +309,6 @@ export class TrackManager {
           this.count()
         );
         track.setRect(rect);
-        track.resize();
       }
     }
   }

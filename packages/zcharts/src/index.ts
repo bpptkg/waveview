@@ -1,3 +1,4 @@
+export { EventEmitter } from "./core/eventEmitter";
 export type {
   HelicorderEventMarkerOptions,
   HelicorderOptions,
@@ -9,4 +10,4 @@ export type {
 } from "./seismogram/chartOptions";
 export { Seismogram } from "./seismogram/seismogram";
 export { SpectrogramData } from "./spectrogram/spectrogramModel";
-export type { Channel } from "./util/types";
+export type { Channel, EventMap } from "./util/types";

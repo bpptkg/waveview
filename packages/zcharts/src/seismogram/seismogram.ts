@@ -313,6 +313,15 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     return marker;
   }
 
+  addEventMarkers(markers: EventMarkerOptions[]): EventMarkerView[] {
+    const addedMarkers: EventMarkerView[] = [];
+    for (const options of markers) {
+      const marker = this.addEventMarker(options);
+      addedMarkers.push(marker);
+    }
+    return addedMarkers;
+  }
+
   removeEventMarker(start: number, end: number): void {
     const index = this.markers.findIndex((marker) => {
       const [left, right] = marker.getModel().getWindow();
@@ -329,7 +338,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     }
   }
 
-  removeMarkers(): void {
+  clearEventMarkers(): void {
     for (const marker of this.markers) {
       this.removeComponent(marker);
     }

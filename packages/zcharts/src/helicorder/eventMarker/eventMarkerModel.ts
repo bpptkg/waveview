@@ -1,10 +1,10 @@
 import { Model } from "../../core/model";
 
 export interface EventMarkerOptions {
-  show: boolean;
   start: number;
   end: number;
   color: string;
+  show?: boolean;
   opacity?: number;
 }
 

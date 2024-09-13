@@ -115,7 +115,11 @@ export class Helicorder extends ChartView<HelicorderOptions> {
     return this.trackManager.isTrackEmpty(segment);
   }
 
-  refreshTrackData(): void {
+  clearData(): void {
+    this.trackManager.clearData();
+  }
+
+  refreshData(): void {
     this.trackManager.refreshData();
   }
 
@@ -221,6 +225,15 @@ export class Helicorder extends ChartView<HelicorderOptions> {
     return marker;
   }
 
+  addEventMarkers(markers: EventMarkerOptions[]): EventMarkerView[] {
+    const addedMarkers: EventMarkerView[] = [];
+    for (const options of markers) {
+      const marker = this.addEventMarker(options);
+      addedMarkers.push(marker);
+    }
+    return addedMarkers;
+  }
+
   removeEventMarker(start: number, end: number): void {
     const index = this.markers.findIndex((marker) => {
       const [left, right] = marker.getModel().getWindow();
@@ -247,6 +260,13 @@ export class Helicorder extends ChartView<HelicorderOptions> {
     for (const marker of this.markers) {
       marker.hide();
     }
+  }
+
+  clearEventMarkers(): void {
+    for (const marker of this.markers) {
+      this.removeComponent(marker);
+    }
+    this.markers = [];
   }
 
   on<K extends keyof HelicorderEventMap>(
