@@ -220,6 +220,9 @@ export class TrackView extends View<TrackModel> {
         lineWidth: borderWidth,
       },
     });
+    leftBorder.silent = true;
+    topTick.silent = true;
+    bottomTick.silent = true;
     this.group.add(leftBorder);
     this.group.add(topTick);
     this.group.add(bottomTick);

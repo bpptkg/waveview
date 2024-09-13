@@ -292,4 +292,18 @@ export class TrackManager {
     this.updateTrackLabels();
     this.refreshData();
   }
+
+  resizeTracks(): void {
+    for (const segment of this.segments()) {
+      const track = this.get(segment);
+      if (track) {
+        const rect = this.getRectForTrack(
+          this.getTrackIndexByTime(segment[0]),
+          this.count()
+        );
+        track.setRect(rect);
+        track.resize();
+      }
+    }
+  }
 }

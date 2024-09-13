@@ -378,6 +378,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     for (const view of this.views) {
       view.resize();
     }
+    this.updateTracksRect();
     this.zr.resize();
   }
 

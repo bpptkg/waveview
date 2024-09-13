@@ -198,6 +198,7 @@ export class Helicorder extends ChartView<HelicorderOptions> {
     for (const view of this.views) {
       view.resize();
     }
+    this.trackManager.resizeTracks();
     this.zr.resize();
   }
 
