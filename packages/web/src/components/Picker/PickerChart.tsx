@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react';
+import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { usePickerStore } from '../../stores/picker';
 import { HelicorderChart, HelicorderChartRef } from './HelicorderChart';
 import { usePickerContext } from './PickerContext';
@@ -66,9 +67,9 @@ const PickerChart = () => {
 
   return (
     <div className="flex-grow relative flex mt-1 border-t dark:border-transparent">
-      <div className="flex flex-1 relative">
+      <PanelGroup direction="horizontal" className="relative">
         {showHelicorder && (
-          <div className="relative w-1/4 h-full">
+          <Panel defaultSize={25} minSize={20} className="relative">
             <HelicorderChart
               ref={heliChartRef}
               className={helicorderClassName}
@@ -77,11 +78,13 @@ const PickerChart = () => {
               onSelectionChange={handleHelicorderSelectionChange}
               onReady={handleHelicorderOnReady}
             />
-          </div>
+          </Panel>
         )}
 
+        <PanelResizeHandle />
+
         {showSeismogram && (
-          <div className="relative flex-1 h-full">
+          <Panel minSize={20} className="relative">
             <SeismogramChart
               ref={seisChartRef}
               className={seismogramClassName}
@@ -99,11 +102,15 @@ const PickerChart = () => {
               onMoveChannelDown={handleSeismogramMoveChannelDown}
               ref={contextMenuRef}
             />
-          </div>
+          </Panel>
         )}
 
-        <Sidebar />
-      </div>
+        <PanelResizeHandle />
+
+        <Panel defaultSize={20} minSize={15}>
+          <Sidebar />
+        </Panel>
+      </PanelGroup>
     </div>
   );
 };

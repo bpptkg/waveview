@@ -1,6 +1,7 @@
 import { Seismogram } from '@waveview/zcharts';
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useImperativeHandle, useRef } from 'react';
+import { debounce } from '../../../shared/debounce';
 import { getJwtToken } from '../../../stores/auth/utils';
 import { SeismogramChartProps, SeismogramChartRef } from './SeismogramChart.types';
 import { SeismogramWebWorker } from './SeismogramWebWorker';
@@ -12,7 +13,6 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
   const { initOptions, className, onFocus, onBlur, onExtentChange, onTrackDoubleClick, onContextMenuRequested, onPick, onReady } = props;
 
   const parentRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Seismogram | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const workerRef = useRef<Worker | null>(null);
@@ -63,10 +63,6 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
         return;
       }
 
-      canvasRef.current?.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-      });
-
       chartRef.current = new Seismogram(parentRef.current, initOptions);
       const token = getJwtToken();
       workerRef.current = new Worker(new URL('../../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
@@ -83,13 +79,13 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
       chartRef.current.render();
     }
 
-    const onResize = (entries: ResizeObserverEntry[]) => {
+    const onResize = debounce((entries: ResizeObserverEntry[]) => {
       for (const entry of entries) {
         const { width, height } = entry.contentRect;
         chartRef.current?.resize({ width, height });
       }
       chartRef.current?.render();
-    };
+    }, 100);
 
     resizeObserverRef.current = new ResizeObserver(onResize);
     if (parentRef.current) {
@@ -112,9 +108,5 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return (
-    <div className={classNames('absolute top-0 right-0 bottom-0 left-0', className)} ref={parentRef}>
-      <canvas ref={canvasRef} />
-    </div>
-  );
+  return <div className={classNames('absolute top-0 right-0 bottom-0 left-0', className)} ref={parentRef}></div>;
 });

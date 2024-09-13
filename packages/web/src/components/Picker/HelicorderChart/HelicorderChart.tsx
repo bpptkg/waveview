@@ -1,6 +1,7 @@
 import { Channel, Helicorder } from '@waveview/zcharts';
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useImperativeHandle, useRef } from 'react';
+import { debounce } from '../../../shared/debounce';
 import { getJwtToken } from '../../../stores/auth/utils';
 import { HelicorderChartProps, HelicorderChartRef } from './HelicorderChart.types';
 import { HelicorderWebWorker } from './HelicorderWebWorker';
@@ -17,7 +18,7 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
   const workerRef = useRef<Worker | null>(null);
   const webWorkerRef = useRef<HelicorderWebWorker | null>(null);
 
-  const fetchDataDebounced = useCallback(() => {
+  const fetchData = useCallback(() => {
     webWorkerRef.current?.fetchAllTracksData();
   }, []);
 
@@ -27,21 +28,21 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
       if (chartRef.current) {
         chartRef.current.shiftViewUp(by);
         chartRef.current.render();
-        fetchDataDebounced();
+        fetchData();
       }
     },
     shiftViewDown: (by: number = 1) => {
       if (chartRef.current) {
         chartRef.current.shiftViewDown(by);
         chartRef.current.render();
-        fetchDataDebounced();
+        fetchData();
       }
     },
     shiftViewToNow: () => {
       if (chartRef.current) {
         chartRef.current.shiftViewToNow();
         chartRef.current.render();
-        fetchDataDebounced();
+        fetchData();
       }
     },
     increaseAmplitude: (by: number) => {
@@ -66,28 +67,28 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
       if (chartRef.current) {
         chartRef.current.clearData();
         chartRef.current.setChannel(channel);
-        fetchDataDebounced();
+        fetchData();
       }
     },
     setOffsetDate: (date: number) => {
       if (chartRef.current) {
         chartRef.current.setOffsetDate(date);
         chartRef.current.render();
-        fetchDataDebounced();
+        fetchData();
       }
     },
     setInterval: (interval: number) => {
       if (chartRef.current) {
         chartRef.current.setInterval(interval);
         chartRef.current.render();
-        fetchDataDebounced();
+        fetchData();
       }
     },
     setDuration: (duration: number) => {
       if (chartRef.current) {
         chartRef.current.setDuration(duration);
         chartRef.current.render();
-        fetchDataDebounced();
+        fetchData();
       }
     },
     setTheme: (theme: 'light' | 'dark') => {
@@ -185,10 +186,6 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
         return;
       }
 
-      // canvasRef.current?.addEventListener('contextmenu', (e) => {
-      //   e.preventDefault();
-      // });
-
       chartRef.current = new Helicorder(parentRef.current, initOptions);
       const token = getJwtToken();
       workerRef.current = new Worker(new URL('../../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
@@ -199,13 +196,13 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
       chartRef.current.render();
     }
 
-    const onResize = (entries: ResizeObserverEntry[]) => {
+    const onResize = debounce((entries: ResizeObserverEntry[]) => {
       for (const entry of entries) {
         const { width, height } = entry.contentRect;
         chartRef.current?.resize({ width, height });
       }
       chartRef.current?.render();
-    };
+    }, 100);
 
     resizeObserverRef.current = new ResizeObserver(onResize);
     if (parentRef.current) {
@@ -228,9 +225,5 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return (
-    <div className={classNames('absolute top-0 right-0 bottom-0 left-0', className)} ref={parentRef}>
-      {/* <canvas ref={canvasRef} /> */}
-    </div>
-  );
+  return <div className={classNames('absolute top-0 right-0 bottom-0 left-0', className)} ref={parentRef}></div>;
 });
