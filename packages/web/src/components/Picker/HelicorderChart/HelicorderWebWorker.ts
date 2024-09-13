@@ -3,6 +3,12 @@ import { Helicorder } from '@waveview/zcharts';
 import { uuid4 } from '../../../shared/uuid';
 import { StreamRequestData, StreamResponseData, WorkerRequestData, WorkerResponseData } from '../../../types/worker';
 
+const cache = new Map<string, Series>();
+
+export interface RefreshOptions {
+  mode: 'lazy' | 'force' | 'cache';
+}
+
 export class HelicorderWebWorker {
   private worker: Worker;
   private chart: Helicorder;
@@ -13,13 +19,50 @@ export class HelicorderWebWorker {
     this.worker.addEventListener('message', this.onMessage.bind(this));
   }
 
-  fetchAllTracksData(): void {
+  fetchAllTracksData(options?: RefreshOptions): void {
+    const { mode } = options || { mode: 'lazy' };
+    switch (mode) {
+      case 'lazy':
+        this.fetchAllTracksDataLazy();
+        break;
+      case 'force':
+        this.fetchAllTracksDataForce();
+        break;
+      case 'cache':
+        this.fetchAllTracksDataCache();
+        break;
+    }
+  }
+
+  private fetchAllTracksDataForce(): void {
+    const trackManager = this.chart.getTrackManager();
+    for (const segment of trackManager.segments()) {
+      this.postMessage(segment);
+    }
+  }
+
+  private fetchAllTracksDataLazy(): void {
     const trackManager = this.chart.getTrackManager();
     for (const segment of trackManager.segments()) {
       if (this.chart.isTrackDataEmpty(segment)) {
         this.postMessage(segment);
       }
     }
+  }
+
+  private fetchAllTracksDataCache(): void {
+    const trackManager = this.chart.getTrackManager();
+    for (const segment of trackManager.segments()) {
+      const key = JSON.stringify(segment);
+      const series = cache.get(key);
+      if (series) {
+        this.chart.setTrackData(segment, series);
+      } else {
+        this.postMessage(segment);
+      }
+    }
+    this.chart.refreshData();
+    this.chart.render();
   }
 
   postMessage(extent: [number, number]): void {
@@ -61,6 +104,8 @@ export class HelicorderWebWorker {
       name: channelId,
     });
     const segment: [number, number] = [start, end];
+    const key = JSON.stringify(segment);
+    cache.set(key, series);
     this.chart.setTrackData(segment, series);
     this.chart.refreshData();
     this.chart.render();
