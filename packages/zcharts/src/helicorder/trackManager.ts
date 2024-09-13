@@ -250,10 +250,13 @@ export class TrackManager {
     for (const segment of this.segments()) {
       const track = this.get(segment);
       if (track) {
-        const [start] = segment;
+        const [start, end] = segment;
+        const trackIndex = this.getTrackIndexByTime(start + (end - start) / 2);
         const formatString = adjustLabel(
-          this.getTrackIndexByTime(start),
-          isMidnight(start) ? "{MM}-{dd} {HH}:{mm}" : "{HH}:{mm}"
+          trackIndex,
+          isMidnight(start) || trackIndex === this.count() - 1
+            ? "{MM}-{dd} {HH}:{mm}"
+            : "{HH}:{mm}"
         );
 
         const label = formatDate(start, formatString, useUTC);
