@@ -14,7 +14,7 @@ export class EventMarkerModel extends Model<EventMarkerOptions> {
     start: 0,
     end: 0,
     color: "red",
-    opacity: 0.5,
+    opacity: 0.65,
   };
   constructor(options: EventMarkerOptions) {
     const opts = { ...EventMarkerModel.defaultOptions, ...options };
