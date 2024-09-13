@@ -8,11 +8,11 @@ const PickActivate = () => {
   };
 
   return (
-    <div className="h-full w-full flex flex-col gap-2 justify-start p-2">
+    <div className="h-full w-full flex flex-col gap-2 justify-center p-2">
       <h1 className="font-bold text-center text-base">Pick a new event</h1>
       <p className="text-center">To pick new event, click the button to activate pick mode.</p>
       <Button appearance="primary" onClick={handleActivatePickMode}>
-        Pick a new event
+        Activate Pick Mode
       </Button>
     </div>
   );
