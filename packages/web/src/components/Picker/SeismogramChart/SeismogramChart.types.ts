@@ -1,5 +1,5 @@
-import { Channel, Seismogram, SeismogramChartOptions, SeismogramEventMarkerOptions } from '@waveview/charts';
-import { FederatedPointerEvent } from 'pixi.js';
+import { Channel, Seismogram, SeismogramEventMarkerOptions, SeismogramOptions } from '@waveview/zcharts';
+import { FilterOperationOptions } from '../../../types/filter';
 
 export interface SeismogramChartProps {
   /**
@@ -9,7 +9,7 @@ export interface SeismogramChartProps {
   /**
    * The initial options to be applied to the chart.
    */
-  initOptions?: Partial<SeismogramChartOptions>;
+  initOptions?: Partial<SeismogramOptions>;
   /**
    * Callback fired when the chart is focused.
    */
@@ -41,7 +41,7 @@ export interface SeismogramChartProps {
   /**
    * Callback fired when context menu is requested.
    */
-  onContextMenuRequested?: (e: FederatedPointerEvent) => void;
+  onContextMenuRequested?: () => void;
   /**
    * Callback fired when the user picks a range.
    */
@@ -49,12 +49,11 @@ export interface SeismogramChartProps {
   /**
    * Callback fired when the chart is ready.
    */
-  onReady?: () => void;
+  onReady?: (chart: Seismogram) => void;
 }
 
 export interface SeismogramChartRef {
   getInstance: () => Seismogram;
-  setChannels: (channels: Channel[]) => void;
   addChannel: (channel: Channel) => void;
   removeChannel: (index: number) => void;
   moveChannelUp: (index: number) => void;
@@ -63,32 +62,32 @@ export interface SeismogramChartRef {
   zoomOut: (by: number) => void;
   scrollLeft: (by: number) => void;
   scrollRight: (by: number) => void;
-  scrollToNow: () => void;
   increaseAmplitude: (by: number) => void;
   decreaseAmplitude: (by: number) => void;
   resetAmplitude: () => void;
   setExtent: (extent: [number, number]) => void;
   setTheme: (theme: 'light' | 'dark') => void;
-  activateZoomRectangle: () => void;
-  deactivateZoomRectangle: () => void;
-  isZoomRectangleActive: () => boolean;
   focus(): void;
   blur(): void;
   isFocused(): boolean;
   setUseUTC: (useUTC: boolean) => void;
-  activatePickMode: () => void;
-  deactivatePickMode: () => void;
   enablePickMode: () => void;
   disablePickMode: () => void;
-  isPickModeActive: () => boolean;
+  isPickModeEnabled: () => boolean;
   setPickRange: (range: [number, number]) => void;
   clearPickRange(): void;
   addEventMarker: (marker: SeismogramEventMarkerOptions) => void;
+  addEventMarkers: (markers: SeismogramEventMarkerOptions[]) => void;
   removeEventMarker: (start: number, end: number) => void;
-  showAllEventMarkers: () => void;
-  hideAllEventMarkers: () => void;
-  clearAllEventMarkers: () => void;
+  showEventMarkers: () => void;
+  hideEventMarkers: () => void;
+  clearEventMarkers: () => void;
   getChartExtent: () => [number, number];
+  fetchAllChannelsData: () => void;
+  applyFilter: (options: FilterOperationOptions) => void;
+  resetFilter: () => void;
+  showSpectrogram: () => void;
+  hideSpectrogram: () => void;
   dispose: () => void;
   render: () => void;
 }

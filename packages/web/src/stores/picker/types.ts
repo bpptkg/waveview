@@ -1,10 +1,10 @@
-import { EvaluationMode, EvaluationStatus } from '../../types/event';
+import { Attachment, EvaluationMode, EvaluationStatus } from '../../types/event';
 
 export type PickerChart = 'helicorder' | 'seismogram';
 export type SeismogramCheckedValue = 'zoom-rectangle' | 'pick-mode';
 export type ComponentType = 'E' | 'N' | 'Z';
 
-export interface PickedEvent {
+export interface PickEvent {
   /**
    * Event ID of the event. If not provided, a new event will be created.
    */
@@ -12,37 +12,37 @@ export interface PickedEvent {
   /**
    * The time of the event in milliseconds since the Unix epoch.
    */
-  time: number;
+  time?: number;
   /**
    * The duration of the event in seconds.
    */
-  duration: number;
+  duration?: number;
   /**
    * Station ID of the first arrival.
    */
-  stationOfFirstArrival: string;
+  stationOfFirstArrivalId?: string;
   /**
    * Event type ID of the event.
    */
-  eventType: string;
+  eventTypeId?: string;
   /**
    * Additional note for the event.
    */
-  note: string;
+  note?: string;
   /**
    *  The method used to create the event.
    */
-  method: string;
+  method?: string;
   /**
    * The evaluation mode of the event.
    */
-  evaluation_mode: EvaluationMode;
+  evaluation_mode?: EvaluationMode;
   /**
    * The evaluation status of the event.
    */
-  evaluation_status: EvaluationStatus;
+  evaluation_status?: EvaluationStatus;
   /**
    * Attachment IDs associated with the event.
    */
-  attachment_ids: string[];
+  attachments?: Attachment[];
 }

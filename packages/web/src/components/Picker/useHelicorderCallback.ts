@@ -1,36 +1,31 @@
-import { useCallback, useRef } from 'react';
+import { Helicorder } from '@waveview/zcharts';
+import { useCallback } from 'react';
 import { getEventTypeColor } from '../../shared/theme';
 import { getPickExtent } from '../../shared/time';
-import { uuid4 } from '../../shared/uuid';
 import { useAppStore } from '../../stores/app';
 import { useAuthStore } from '../../stores/auth';
 import { useCatalogStore } from '../../stores/catalog';
+import { useFilterStore } from '../../stores/filter';
 import { useOrganizationStore } from '../../stores/organization';
 import { usePickerStore } from '../../stores/picker';
 import { useVolcanoStore } from '../../stores/volcano/useVolcanoStore';
 import { Channel } from '../../types/channel';
 import { SeismicEventDetail } from '../../types/event';
-import { EventResponseData } from '../../types/fetcher';
 import { usePickerContext } from './PickerContext';
 
 export function useHelicorderCallback() {
   const {
-    eventMarkers,
-    addEventMarker,
-    clearEventMarkers,
     setHelicorderOffsetDate,
     setHelicorderChannelId,
     setHelicorderInterval,
     setHelicorderDuration,
-    setLastTrackExtent,
-    seismogramToolbarRemoveCheckedValue,
+    setSelectionWindow,
     setSelectedChart,
-    setLastSelection,
     fetchEventMarkers,
   } = usePickerStore();
 
-  const { heliChartRef, seisChartRef, props, setHeliChartReady } = usePickerContext();
-  const selectingTrackRef = useRef<boolean | null>(null);
+  const { heliChartRef, seisChartRef, props } = usePickerContext();
+  const { setAppliedFilter } = useFilterStore();
 
   const handleHelicorderShiftViewUp = useCallback(() => {
     heliChartRef.current?.shiftViewUp();
@@ -82,112 +77,65 @@ export function useHelicorderCallback() {
     [heliChartRef, setHelicorderDuration]
   );
 
-  const handleTrackSelected = useCallback(
-    (trackIndex: number) => {
-      if (selectingTrackRef.current) {
-        return;
-      }
-
-      if (heliChartRef.current && seisChartRef.current) {
-        const extent = heliChartRef.current.getTrackExtent(trackIndex);
-        seisChartRef.current.setExtent(extent);
-
-        setLastTrackExtent(extent);
-      }
-    },
-    [heliChartRef, seisChartRef, setLastTrackExtent]
-  );
-
   const handleHelicorderFocus = useCallback(() => {
     seisChartRef.current?.blur();
-    seisChartRef.current?.deactivateZoomRectangle();
-    seismogramToolbarRemoveCheckedValue('options', 'zoom-rectangle');
     setSelectedChart('helicorder');
-  }, [seisChartRef, seismogramToolbarRemoveCheckedValue, setSelectedChart]);
-
-  const handleHelicorderOffsetChange = useCallback(
-    (date: number) => {
-      setHelicorderOffsetDate(date);
-    },
-    [setHelicorderOffsetDate]
-  );
+  }, [seisChartRef, setSelectedChart]);
 
   const handleHelicorderSelectionChange = useCallback(
-    (selection: number) => {
-      setLastSelection(selection);
+    (range: [number, number]) => {
+      seisChartRef.current?.setExtent(range);
+      seisChartRef.current?.clearPickRange();
+      setSelectionWindow(range);
+      setAppliedFilter(null);
     },
-    [setLastSelection]
+    [seisChartRef, setSelectionWindow, setAppliedFilter]
   );
-
-  const handleHelicorderOnReady = useCallback(() => {
-    setHeliChartReady(true);
-
-    async function fetchEvents() {
-      const helicorderExtent = heliChartRef.current?.getChartExtent();
-      if (helicorderExtent) {
-        await fetchEventMarkers(helicorderExtent[0], helicorderExtent[1]);
-      }
-    }
-    fetchEvents();
-  }, [heliChartRef, fetchEventMarkers, setHeliChartReady]);
 
   const { currentOrganization } = useOrganizationStore();
   const { currentCatalog } = useCatalogStore();
   const { currentVolcano } = useVolcanoStore();
   const { token } = useAuthStore();
   const { darkMode, useUTC } = useAppStore();
-  const { event, showEventMarkers } = props;
-  const { interval, duration, channelId, offsetDate } = usePickerStore();
+  const { event } = props;
+  const { helicorderDuration, helicorderInterval, channelId, offsetDate, eventMarkers } = usePickerStore();
+  const { setHeliChartReady } = usePickerContext();
 
-  const handlePlotEventMarkers = useCallback(() => {
-    setTimeout(() => {
-      heliChartRef.current?.clearAllEventMarkers();
-      seisChartRef.current?.clearAllEventMarkers();
+  const handleUpdateEventMarkers = useCallback(async () => {
+    seisChartRef.current?.clearEventMarkers();
+    heliChartRef.current?.clearEventMarkers();
 
-      eventMarkers.forEach((event) => {
-        const color = getEventTypeColor(event.type, darkMode);
-        heliChartRef.current?.addEventMarker({ value: new Date(event.time).getTime(), color, width: 3 });
-        seisChartRef.current?.addEventMarker({
-          start: new Date(event.time).getTime(),
-          end: new Date(event.time).getTime() + event.duration * 1_000,
-          color,
-        });
-      });
-    }, 0);
-  }, [seisChartRef, heliChartRef, eventMarkers, darkMode]);
-
-  const { fetcherWorkerRef } = usePickerContext();
-  fetcherWorkerRef.current?.onMessage((event: EventResponseData) => {
-    if (!showEventMarkers) {
-      return;
-    }
-
-    clearEventMarkers();
-
-    const { events } = event;
-    events.forEach((event) => {
-      addEventMarker(event);
+    const markers = eventMarkers.map((event) => {
+      const [start, end] = getPickExtent(event);
+      return {
+        start,
+        end,
+        color: getEventTypeColor(event.type, darkMode),
+      };
     });
-
-    handlePlotEventMarkers();
-  });
+    seisChartRef.current?.addEventMarkers(markers);
+    heliChartRef.current?.addEventMarkers(markers);
+  }, [seisChartRef, heliChartRef, eventMarkers, darkMode]);
 
   const handleFetchEvents = useCallback(() => {
     const helicorderExtent = heliChartRef.current?.getChartExtent();
     if (helicorderExtent && currentOrganization && currentVolcano && currentCatalog && token) {
       const [start, end] = helicorderExtent;
-
-      fetcherWorkerRef.current?.fetchEvents({
-        requestId: uuid4(),
-        start: new Date(start).toISOString(),
-        end: new Date(end).toISOString(),
-        organizationId: currentOrganization.id,
-        volcanoId: currentVolcano.id,
-        catalogId: currentCatalog.id,
-        accessToken: token.access,
-      });
+      fetchEventMarkers(start, end);
     }
-  }, [heliChartRef, fetcherWorkerRef, currentOrganization, currentVolcano, currentCatalog, token]);
+  }, [heliChartRef, currentOrganization, currentVolcano, currentCatalog, token, fetchEventMarkers]);
+
+  const handleHelicorderOnReady = useCallback(
+    (chart: Helicorder) => {
+      setHeliChartReady(true);
+      async function fetchEvents() {
+        const [start, end] = chart.getChartExtent();
+        await fetchEventMarkers(start, end);
+      }
+      fetchEvents();
+    },
+    [setHeliChartReady, fetchEventMarkers]
+  );
 
   const handleHelicorderSelectOffsetDate = useCallback(
     (date: Date) => {
@@ -206,8 +154,8 @@ export function useHelicorderCallback() {
   const getHelicorderInitOptions = useCallback(() => {
     const initialOffsetDate = event ? calcHelicorderOffsetDate(event) : new Date(offsetDate);
     const initOptions = {
-      interval,
-      duration,
+      interval: helicorderInterval,
+      duration: helicorderDuration,
       channel: {
         id: channelId,
       },
@@ -223,7 +171,7 @@ export function useHelicorderCallback() {
       useUTC,
     };
     return initOptions;
-  }, [interval, duration, channelId, darkMode, offsetDate, useUTC, event]);
+  }, [helicorderDuration, helicorderInterval, channelId, darkMode, offsetDate, useUTC, event]);
 
   return {
     handleHelicorderShiftViewUp,
@@ -236,12 +184,10 @@ export function useHelicorderCallback() {
     handleHelicorderChangeInterval,
     handleHelicorderChangeDuration,
     handleHelicorderSelectOffsetDate,
-    handleTrackSelected,
     handleHelicorderFocus,
-    handleHelicorderOffsetChange,
     handleHelicorderSelectionChange,
     handleHelicorderOnReady,
-    handlePlotEventMarkers,
+    handleUpdateEventMarkers,
     getHelicorderInitOptions,
   };
 }

@@ -6,8 +6,18 @@ import SeismogramToolbar from './Toolbar/SeismogramToolbar';
 import { usePickerCallback } from './usePickerCallback';
 
 const PickerToolbar = () => {
-  const { channelId, component, duration, interval, isExpandMode, offsetDate, seismogramToolbarCheckedValues, selectedChart, showEvent, selectedChannels } =
-    usePickerStore();
+  const {
+    channelId,
+    component,
+    helicorderDuration,
+    helicorderInterval,
+    isExpandMode,
+    offsetDate,
+    seismogramToolbarCheckedValues,
+    selectedChart,
+    showEvent,
+    selectedChannels,
+  } = usePickerStore();
 
   const { channels } = useInventoryStore();
 
@@ -33,9 +43,8 @@ const PickerToolbar = () => {
     handleSeismogramResetAmplitude,
     handleSeismogramComponentChange,
     handleSeismogramShowEvent,
-    handleSeismogramZoomRectangleChange,
-    handleSeismogramPickModeChange,
     handleSeismogramCheckValueChange,
+    handleSeismogramSpectrogramChange,
   } = usePickerCallback();
 
   const { props } = usePickerContext();
@@ -46,8 +55,8 @@ const PickerToolbar = () => {
       {selectedChart === 'helicorder' && showHelicorder && (
         <HelicorderToolbar
           channelId={channelId}
-          interval={interval}
-          duration={duration}
+          interval={helicorderInterval}
+          duration={helicorderDuration}
           showEvent={showEvent}
           offsetDate={new Date(offsetDate)}
           availableChannels={channels()}
@@ -83,10 +92,9 @@ const PickerToolbar = () => {
           onDecreaseAmplitude={handleSeismogramDecreaseAmplitude}
           onResetAmplitude={handleSeismogramResetAmplitude}
           onShowEventChange={handleSeismogramShowEvent}
-          onZoomRectangleChange={handleSeismogramZoomRectangleChange}
           onCheckedValueChange={handleSeismogramCheckValueChange}
           onComponentChange={handleSeismogramComponentChange}
-          onPickModeChange={handleSeismogramPickModeChange}
+          onSpectrogramChange={handleSeismogramSpectrogramChange}
         />
       )}
     </>

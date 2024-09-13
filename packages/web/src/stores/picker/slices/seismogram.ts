@@ -42,7 +42,7 @@ export interface SeismogramSlice {
   getChannelByStreamId: (streamId: string) => Channel | undefined;
   getChannelById: (id: string) => Channel | undefined;
   getSelectedStations: () => StationWithChannel[];
-  isPickModeActive(): boolean;
-  deactivatePickMode(): void;
-  deactivateZoomRectangle(): void;
+  // isPickModeActive(): boolean;
+  // deactivatePickMode(): void;
+  // deactivateZoomRectangle(): void;
 }

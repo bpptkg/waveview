@@ -1,6 +1,6 @@
 import { Menu, MenuButton, MenuItem, MenuList, MenuPopover, MenuTrigger, makeStyles } from '@fluentui/react-components';
 import { Checkmark20Regular } from '@fluentui/react-icons';
-import { useAppStore } from '../../stores/app';
+import { useAppStore } from '../../../stores/app';
 
 const useStyles = makeStyles({
   btn: {

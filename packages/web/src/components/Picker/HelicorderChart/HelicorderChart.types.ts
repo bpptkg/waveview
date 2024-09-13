@@ -1,4 +1,4 @@
-import { Channel, Helicorder, HelicorderChartOptions, HelicorderEventMarkerOptions } from '@waveview/charts';
+import { Channel, Helicorder, HelicorderOptions, HelicorderEventMarkerOptions } from '@waveview/zcharts';
 
 export interface HelicorderChartProps {
   /**
@@ -8,15 +8,7 @@ export interface HelicorderChartProps {
   /**
    * The initial options to be applied to the chart.
    */
-  initOptions?: Partial<HelicorderChartOptions>;
-  /**
-   * Callback fired when a track is selected.
-   */
-  onTrackSelected?: (index: number) => void;
-  /**
-   * Callback fired when a track is deselected.
-   */
-  onTrackDeselected?: () => void;
+  initOptions?: Partial<HelicorderOptions>;
   /**
    * Callback fired when the chart is focused.
    */
@@ -26,17 +18,10 @@ export interface HelicorderChartProps {
    */
   onBlur?: () => void;
   /**
-   * Callback fired when the offset date is changed.
-   */
-  onOffsetChange?: (date: number) => void;
-  /**
    * Callback fired when the selection is changed.
    */
-  onSelectionChange?: (value: number) => void;
-  /**
-   * Callback fired when the chart is ready.
-   */
-  onReady?: () => void;
+  onSelectionChange?: (range: [number, number]) => void;
+  onReady?: (chart: Helicorder) => void;
 }
 
 export interface HelicorderChartRef {
@@ -53,17 +38,15 @@ export interface HelicorderChartRef {
   setInterval: (interval: number) => void;
   setDuration: (duration: number) => void;
   setTheme: (theme: 'light' | 'dark') => void;
-  getTrackExtent: (index: number) => [number, number];
   getChartExtent: () => [number, number];
   focus: () => void;
   blur: () => void;
   isFocused: () => boolean;
-  selectTrack: (index: number) => void;
-  setSelection: (value: number) => void;
   addEventMarker: (marker: HelicorderEventMarkerOptions) => void;
-  removeEventMarker: (value: number) => void;
-  showAllEventMarkers: () => void;
-  hideAllEventMarkers: () => void;
-  clearAllEventMarkers: () => void;
+  addEventMarkers: (markers: HelicorderEventMarkerOptions[]) => void;
+  removeEventMarker: (start: number, end: number) => void;
+  showEventMarkers: () => void;
+  hideEventMarkers: () => void;
+  clearEventMarkers: () => void;
   dispose: () => void;
 }

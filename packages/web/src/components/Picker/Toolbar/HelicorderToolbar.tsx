@@ -34,7 +34,6 @@ import {
 import Fuse from 'fuse.js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Channel } from '../../../types/channel';
-import CatalogPicker from '../../Catalog/CatalogPicker';
 
 export interface HelicorderToolbarProps {
   channelId: string;
@@ -82,6 +81,9 @@ const useStyles = makeStyles({
   popoverSurface: {
     maxHeight: '500px',
     overflowY: 'auto',
+  },
+  offsetDate: {
+    marginLeft: '5px',
   },
 });
 
@@ -175,7 +177,7 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
   }, [searchQuery, candidateChannels]);
 
   return (
-    <div className="bg-white dark:bg-black mx-2 mt-1 drop-shadow rounded flex justify-between items-center">
+    <div className="bg-white dark:bg-black mx-2 mt-1 border dark:border-transparent rounded flex justify-between items-center">
       <Toolbar aria-label="Helicorder Toolbar">
         <Popover trapFocus open={open} onOpenChange={() => setOpen(!open)}>
           <PopoverTrigger disableButtonEnhancement>
@@ -202,6 +204,17 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
                 </MenuItem>
               ))}
             </MenuList>
+          </PopoverSurface>
+        </Popover>
+
+        <Popover trapFocus open={offsetDatePickerOpen} onOpenChange={() => setOffsetDatePickerOpen(!offsetDatePickerOpen)}>
+          <PopoverTrigger disableButtonEnhancement>
+            <Tooltip content="Change Offset Date" relationship="label" showDelay={1500}>
+              <ToolbarButton className={styles.offsetDate} aria-label="Change Offset Date" icon={<Calendar20Regular />} />
+            </Tooltip>
+          </PopoverTrigger>
+          <PopoverSurface>
+            <Calendar value={offsetDate} onSelectDate={handleSelectDate} />
           </PopoverSurface>
         </Popover>
 
@@ -254,17 +267,6 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
           <ToolbarButton aria-label="Shift View to Now" icon={<ChevronDoubleDown20Regular />} onClick={onShiftViewToNow} />
         </Tooltip>
 
-        <Popover trapFocus open={offsetDatePickerOpen} onOpenChange={() => setOffsetDatePickerOpen(!offsetDatePickerOpen)}>
-          <PopoverTrigger disableButtonEnhancement>
-            <Tooltip content="Change Offset Date" relationship="label" showDelay={1500}>
-              <ToolbarButton aria-label="Change Offset Date" icon={<Calendar20Regular />} />
-            </Tooltip>
-          </PopoverTrigger>
-          <PopoverSurface>
-            <Calendar value={offsetDate} onSelectDate={handleSelectDate} />
-          </PopoverSurface>
-        </Popover>
-
         <Tooltip content="Increase Amplitude" relationship="label" showDelay={1500}>
           <ToolbarButton aria-label="Increase Amplitude" icon={<ChevronUpDown20Regular />} onClick={onIncreaseAmplitude} />
         </Tooltip>
@@ -277,7 +279,6 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
         <ToolbarDivider />
         <Switch checked={showEvent} label={showEvent ? 'Hide Event' : 'Show Event'} onChange={handleShowEventChange} />
       </Toolbar>
-      <CatalogPicker />
     </div>
   );
 };

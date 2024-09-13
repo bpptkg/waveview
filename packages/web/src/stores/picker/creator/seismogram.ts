@@ -120,30 +120,30 @@ export const createSeismogramSlice: StateCreator<PickerStore, [], [], Seismogram
       return stations.filter((station) => selectedStationIds.includes(station.id));
     },
 
-    isPickModeActive() {
-      return get().seismogramToolbarCheckedValues.options.includes('pick-mode');
-    },
+    // isPickModeActive() {
+    //   return get().seismogramToolbarCheckedValues.options.includes('pick-mode');
+    // },
 
-    deactivatePickMode() {
-      set((state) => {
-        return {
-          seismogramToolbarCheckedValues: {
-            ...state.seismogramToolbarCheckedValues,
-            options: state.seismogramToolbarCheckedValues.options.filter((value) => value !== 'pick-mode'),
-          },
-        };
-      });
-    },
+    // deactivatePickMode() {
+    //   set((state) => {
+    //     return {
+    //       seismogramToolbarCheckedValues: {
+    //         ...state.seismogramToolbarCheckedValues,
+    //         options: state.seismogramToolbarCheckedValues.options.filter((value) => value !== 'pick-mode'),
+    //       },
+    //     };
+    //   });
+    // },
 
-    deactivateZoomRectangle() {
-      set((state) => {
-        return {
-          seismogramToolbarCheckedValues: {
-            ...state.seismogramToolbarCheckedValues,
-            options: state.seismogramToolbarCheckedValues.options.filter((value) => value !== 'zoom-rectangle'),
-          },
-        };
-      });
-    },
+    // deactivateZoomRectangle() {
+    //   set((state) => {
+    //     return {
+    //       seismogramToolbarCheckedValues: {
+    //         ...state.seismogramToolbarCheckedValues,
+    //         options: state.seismogramToolbarCheckedValues.options.filter((value) => value !== 'zoom-rectangle'),
+    //       },
+    //     };
+    //   });
+    // },
   };
 };

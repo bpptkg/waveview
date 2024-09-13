@@ -1,6 +1,6 @@
 import { MenuDivider, MenuItem, MenuList, Toast, ToastTitle, Toaster, makeStyles, tokens, useId, useToastController } from '@fluentui/react-components';
 import { ArrowDown20Regular, ArrowUp20Regular, Delete20Regular, EditRegular } from '@fluentui/react-icons';
-import { Seismogram } from '@waveview/charts';
+import { Seismogram } from '@waveview/zcharts';
 import { FederatedPointerEvent } from 'pixi.js';
 import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { ONE_SECOND, formatTimezonedDate } from '../../shared/time';
@@ -59,7 +59,7 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & 
   const { seisChartRef } = usePickerContext();
   const { useUTC } = useAppStore();
 
-  const { eventMarkers, editedEvent, isPickModeActive } = usePickerStore();
+  const { eventMarkers, editedEvent, } = usePickerStore();
 
   const toasterId = useId('seismogram-contextmneu');
   const { dispatchToast } = useToastController(toasterId);
@@ -78,9 +78,9 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & 
 
   const setupContext = useCallback(() => {
     const { x } = point;
-    if (isPickModeActive()) {
-      seisChartRef.current?.disablePickMode();
-    }
+    // if (isPickModeActive()) {
+    //   seisChartRef.current?.disablePickMode();
+    // }
 
     const chart = seisChartRef.current?.getInstance() as Seismogram;
     const xAxis = chart.getXAxis();
@@ -95,7 +95,7 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & 
     } else {
       setSelectedEvent(null);
     }
-  }, [seisChartRef, eventMarkers, point, editedEvent, isPickModeActive]);
+  }, [seisChartRef, eventMarkers, point, editedEvent,]);
 
   useEffect(() => {
     if (!menuRef.current) {
@@ -126,8 +126,8 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & 
           return;
         }
 
-        const index = chart.getChannelIndexAtPosition(y);
-        setChannelIndex(index);
+        // const index = chart.getChannelIndexAtPosition(y);
+        // setChannelIndex(index);
 
         if (e.pageX > window.innerWidth - width) {
           x -= width;
@@ -149,11 +149,11 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & 
     if (menuRef.current) {
       menuRef.current.style.visibility = 'hidden';
     }
-    if (isPickModeActive()) {
-      seisChartRef.current?.enablePickMode();
-    }
+    // if (isPickModeActive()) {
+    //   seisChartRef.current?.enablePickMode();
+    // }
     setVisible(false);
-  }, [seisChartRef, isPickModeActive]);
+  }, [seisChartRef]);
 
   useImperativeHandle(ref, () => ({
     open: handleOpen,

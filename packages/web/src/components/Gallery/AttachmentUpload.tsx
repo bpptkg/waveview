@@ -1,4 +1,20 @@
-import { Button, ProgressBar, Toast, Toaster, ToastTitle, Tooltip, useId, useToastController } from '@fluentui/react-components';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogBody,
+  DialogContent,
+  DialogSurface,
+  DialogTitle,
+  DialogTrigger,
+  ProgressBar,
+  Toast,
+  Toaster,
+  ToastTitle,
+  Tooltip,
+  useId,
+  useToastController,
+} from '@fluentui/react-components';
 import { ArrowCounterclockwiseRegular, DeleteRegular, DismissRegular, DocumentRegular, ImageRegular, VideoRegular } from '@fluentui/react-icons';
 import React, { useCallback, useState } from 'react';
 import { api, baseUrl } from '../../services/api';
@@ -111,6 +127,17 @@ const AttachmentUpload: React.FC<AttachmentUploadProps> = ({ initialAttachments 
     [dispatchToast]
   );
 
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [attachmentToDelete, setAttachmentToDelete] = useState<Attachment | null>(null);
+
+  const handleRemoveAttachment = () => {
+    if (attachmentToDelete) {
+      removeAttachment(attachmentToDelete);
+      setAttachmentToDelete(null);
+      setDeleteDialogOpen(false);
+    }
+  };
+
   const removeAttachment = (attachment: Attachment) => {
     if (attachment.id) {
       deleteEventAttachment(attachment.id).catch((error) => {
@@ -206,8 +233,7 @@ const AttachmentUpload: React.FC<AttachmentUploadProps> = ({ initialAttachments 
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center justify-between">
-        <span>Attachments</span>
+      <div className="flex items-center justify-end">
         <AttachmentPicker onFilesSelected={handleFilesUpload} />
       </div>
 
@@ -267,7 +293,15 @@ const AttachmentUpload: React.FC<AttachmentUploadProps> = ({ initialAttachments 
 
             <div>
               <Tooltip content={'Remove Attachment'} relationship="label" showDelay={1500}>
-                <Button size="small" appearance="transparent" icon={<DeleteRegular />} onClick={() => removeAttachment(attachment)} />
+                <Button
+                  size="small"
+                  appearance="transparent"
+                  icon={<DeleteRegular />}
+                  onClick={() => {
+                    setAttachmentToDelete(attachment);
+                    setDeleteDialogOpen(true);
+                  }}
+                />
               </Tooltip>
             </div>
           </div>
@@ -275,6 +309,25 @@ const AttachmentUpload: React.FC<AttachmentUploadProps> = ({ initialAttachments 
       </div>
 
       <Toaster toasterId={toasterId} />
+
+      <Dialog open={deleteDialogOpen} onOpenChange={(_, data) => setDeleteDialogOpen(data.open)}>
+        <DialogSurface>
+          <DialogBody>
+            <DialogTitle>Delete Attachment</DialogTitle>
+            <DialogContent>Are you sure you want this attachment?</DialogContent>
+            <DialogActions>
+              <DialogTrigger disableButtonEnhancement>
+                <Button appearance="secondary" onClick={() => setDeleteDialogOpen(false)}>
+                  No
+                </Button>
+              </DialogTrigger>
+              <Button appearance="primary" onClick={handleRemoveAttachment}>
+                Yes
+              </Button>
+            </DialogActions>
+          </DialogBody>
+        </DialogSurface>
+      </Dialog>
     </div>
   );
 };

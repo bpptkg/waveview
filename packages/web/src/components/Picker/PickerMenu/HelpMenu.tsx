@@ -18,7 +18,8 @@ const HelpMenu = () => {
 
       <MenuPopover>
         <MenuList>
-          <MenuItem>Action</MenuItem>
+          <MenuItem>Keyboard Shortcuts</MenuItem>
+          <MenuItem>About Picker</MenuItem>
         </MenuList>
       </MenuPopover>
     </Menu>

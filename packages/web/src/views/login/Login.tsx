@@ -9,8 +9,9 @@ import { CustomError } from '../../types/response';
 const WelcomeText = () => {
   return (
     <div>
-      <h1 className="text-xl font-bold text-gray-800 dark:text-neutral-grey-84">Volcanic Earthquake Profiler System</h1>
-      <p className="text-md text-gray-800 dark:text-neutral-grey-84 mt-3">Please login to continue</p>
+      <h1 className="text-xl font-bold text-gray-800 dark:text-neutral-grey-84">Volcanic Earthquake</h1>
+      <h1 className="text-xl font-bold text-gray-800 dark:text-neutral-grey-84">Profiler System</h1>
+      <p className="text-md text-gray-800 dark:text-neutral-grey-84 mt-4">Please login to continue</p>
     </div>
   );
 };
@@ -113,7 +114,7 @@ const Login = () => {
     <>
       <title>Login &middot; VEPS</title>
       <div className="w-screen h-screen bg-cover bg-center flex items-center justify-center bg-gradient-matcha dark:bg-gradient-matcha-dark">
-        <div className="flex flex-col lg:w-2/3 max-w-5xl min-h-[350px]">
+        <div className="flex flex-col w-3/5 max-w-5xl min-h-[350px]">
           <div className="flex flex-grow p-4 gap-4 flex-col rounded-2xl bg-white dark:bg-neutral-grey-14">
             <Logo />
             <div className="flex flex-grow flex-col lg:flex-row gap-2">

@@ -20,3 +20,23 @@ export function getPickExtent(event: SeismicEvent | SeismicEventDetail) {
 export function formatTimezonedDate(date: Date | string | number, template: string, useUTC: boolean): string {
   return useUTC ? formatInTimeZone(date, 'UTC', template) : format(date, template);
 }
+
+/**
+ * Get the start of the interval. For example, if the interval is 30 minutes,
+ * and the date is 2024-06-11T11:00:00Z, the start of the interval is
+ * 2024-06-11T10:30:00Z.
+ */
+export function startOf(date: number, interval: number): number {
+  const segment = interval * ONE_MINUTE;
+  return date - (date % segment);
+}
+
+/**
+ * Get the end of the interval. For example, if the interval is 30 minutes,
+ * and the date is 2024-06-11T11:00:00Z, the end of the interval is
+ * 2024-06-11T11:30:00Z.
+ */
+export function endOf(date: number, interval: number): number {
+  const segment = interval * ONE_MINUTE;
+  return date + segment - (date % segment);
+}

@@ -24,21 +24,19 @@ import {
 import {
   Add20Regular,
   AutoFitHeight20Regular,
+  BezierCurveSquareRegular,
   Checkmark20Regular,
   ChevronDown12Regular,
   ChevronDownUp20Regular,
   ChevronLeft20Regular,
   ChevronRight20Regular,
   ChevronUpDown20Regular,
-  FullScreenMaximize20Regular,
   ZoomIn20Regular,
   ZoomOut20Regular,
 } from '@fluentui/react-icons';
 import Fuse from 'fuse.js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Channel } from '../../../types/channel';
-import CatalogPicker from '../../Catalog/CatalogPicker';
-import PickIcon from '../../Icons/PickIcon';
 
 export interface SeismogramToolbarProps {
   showEvent?: boolean;
@@ -57,11 +55,10 @@ export interface SeismogramToolbarProps {
   onIncreaseAmplitude?: () => void;
   onDecreaseAmplitude?: () => void;
   onResetAmplitude?: () => void;
-  onPickModeChange?: (active: boolean) => void;
   onComponentChange?: (component: string) => void;
   onShowEventChange?: (showEvent: boolean) => void;
-  onZoomRectangleChange?: (active: boolean) => void;
   onCheckedValueChange?: (name: string, values: string[]) => void;
+  onSpectrogramChange?: (active: boolean) => void;
 }
 
 const componentOptions = [
@@ -84,7 +81,9 @@ const useStyles = makeStyles({
     fill: tokens.colorNeutralForeground1,
     '&:hover': {
       fill: tokens.colorNeutralForeground2BrandHover,
+      color: tokens.colorNeutralForeground2BrandHover,
     },
+    color: tokens.colorNeutralForeground1,
   },
   searchBoxWrapper: {
     marginBottom: tokens.spacingVerticalMNudge,
@@ -95,6 +94,9 @@ const useStyles = makeStyles({
   popoverSurface: {
     maxHeight: '500px',
     overflowY: 'auto',
+  },
+  zoomInButton: {
+    marginLeft: '5px',
   },
 });
 
@@ -114,11 +116,10 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
     onIncreaseAmplitude,
     onDecreaseAmplitude,
     onResetAmplitude,
-    onPickModeChange,
     onComponentChange,
     onShowEventChange,
-    onZoomRectangleChange,
     onCheckedValueChange,
+    onSpectrogramChange,
   } = props;
 
   const styles = useStyles();
@@ -142,21 +143,16 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
   const handleToolbarCheckedValueChange = useCallback<NonNullable<ToolbarProps['onCheckedValueChange']>>(
     (_e, { name, checkedItems }) => {
       if (name === 'options') {
-        if (checkedItems.includes('pick-mode')) {
-          onPickModeChange?.(true);
+        if (checkedItems.includes('spectrogram')) {
+          onSpectrogramChange?.(true);
         } else {
-          onPickModeChange?.(false);
-        }
-        if (checkedItems.includes('zoom-rectangle')) {
-          onZoomRectangleChange?.(true);
-        } else {
-          onZoomRectangleChange?.(false);
+          onSpectrogramChange?.(false);
         }
       }
 
       onCheckedValueChange?.(name, checkedItems);
     },
-    [onPickModeChange, onZoomRectangleChange, onCheckedValueChange]
+    [onCheckedValueChange, onSpectrogramChange]
   );
 
   const handleChannelAdd = useCallback(
@@ -199,7 +195,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
   }, []);
 
   return (
-    <div className="bg-white dark:bg-black mx-2 mt-1 drop-shadow rounded flex justify-between items-center">
+    <div className="bg-white dark:bg-black mx-2 mt-1 border dark:border-transparent rounded flex justify-between items-center">
       <Toolbar aria-label="Seismogram Toolbar" checkedValues={checkedValues} onCheckedValueChange={handleToolbarCheckedValueChange}>
         <Popover trapFocus open={open} onOpenChange={() => setOpen(!open)}>
           <PopoverTrigger disableButtonEnhancement>
@@ -228,21 +224,12 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
         </Popover>
 
         <Tooltip content="Zoom In" relationship="label" showDelay={1500}>
-          <ToolbarButton aria-label="Zoom In" icon={<ZoomIn20Regular />} onClick={onZoomIn} />
+          <ToolbarButton className={styles.zoomInButton} aria-label="Zoom In" icon={<ZoomIn20Regular />} onClick={onZoomIn} />
         </Tooltip>
         <Tooltip content="Zoom Out" relationship="label" showDelay={1500}>
           <ToolbarButton aria-label="Zoom Out" icon={<ZoomOut20Regular />} onClick={onZoomOut} />
         </Tooltip>
-        <Tooltip content="Toggle Zoom Rectangle" relationship="label" showDelay={1500}>
-          <ToolbarToggleButton
-            aria-label="Zoom Rectangle"
-            icon={<FullScreenMaximize20Regular className={styles.iconZoom} />}
-            name="options"
-            value="zoom-rectangle"
-            appearance="subtle"
-            disabled={checkedValues?.options?.includes('pick-mode')}
-          />
-        </Tooltip>
+
         <Tooltip content="Scroll Left" relationship="label" showDelay={1500}>
           <ToolbarButton aria-label="Scroll Left" icon={<ChevronLeft20Regular />} onClick={onScrollLeft} />
         </Tooltip>
@@ -259,16 +246,6 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
           <ToolbarButton aria-label="Reset Amplitude" icon={<AutoFitHeight20Regular />} onClick={onResetAmplitude} />
         </Tooltip>
         <ToolbarDivider />
-        <Tooltip content="Toggle Pick Mode" relationship="label" showDelay={1500}>
-          <ToolbarToggleButton
-            aria-label="Pick mode"
-            icon={<PickIcon className={styles.iconPick} />}
-            name="options"
-            value="pick-mode"
-            appearance="subtle"
-            disabled={checkedValues?.options?.includes('zoom-rectangle')}
-          />
-        </Tooltip>
 
         <Menu hasIcons>
           <MenuTrigger>
@@ -294,11 +271,20 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
           </MenuPopover>
         </Menu>
 
+        <Tooltip content="Toggle Spectrogram" relationship="label" showDelay={1500}>
+          <ToolbarToggleButton
+            aria-label="Toggle Spectrogram"
+            icon={<BezierCurveSquareRegular className={styles.iconPick} />}
+            name="options"
+            value="spectrogram"
+            appearance="subtle"
+          />
+        </Tooltip>
+
         <ToolbarDivider />
 
         <Switch checked={showEvent} label={showEvent ? 'Hide Event' : 'Show Event'} onChange={handleShowEventChange} />
       </Toolbar>
-      <CatalogPicker />
     </div>
   );
 };

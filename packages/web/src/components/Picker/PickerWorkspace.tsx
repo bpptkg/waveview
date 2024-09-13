@@ -1,21 +1,21 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { HelicorderChartRef } from './HelicorderChart';
 import PickerChart from './PickerChart';
-import { FetcherWorker, PickerContext, PickerContextValue, useDefaultProps } from './PickerContext';
+import { PickerContext, PickerContextValue, useDefaultProps } from './PickerContext';
+import PickerMenu from './PickerMenu/PickerMenu';
 import PickerRoot from './PickerRoot';
 import PickerToolbar from './PickerToolbar';
 import { PickerWorkspaceProps } from './PickerWorkspace.types';
 import { SeismogramChartRef } from './SeismogramChart';
 import { ContextMenuRef } from './SeismogramContextMenu';
-import StatusBar from './StatusBar';
+import StatusBar from './StatusBar/StatusBar';
 
 const PickerWorkspace: React.FC<PickerWorkspaceProps> = (props) => {
   const heliChartRef = useRef<HelicorderChartRef | null>(null);
   const seisChartRef = useRef<SeismogramChartRef | null>(null);
   const contextMenuRef = useRef<ContextMenuRef | null>(null);
-  const fetcherWorkerRef = useRef<FetcherWorker | null>(null);
-  const heliChartReadyRef = useRef<boolean>(false);
   const seisChartReadyRef = useRef<boolean>(false);
+  const heliChartReadyRef = useRef<boolean>(false);
 
   const setHeliChartRef = (ref: HelicorderChartRef | null) => {
     heliChartRef.current = ref;
@@ -26,11 +26,11 @@ const PickerWorkspace: React.FC<PickerWorkspaceProps> = (props) => {
   const setContextMenuRef = (ref: ContextMenuRef | null) => {
     contextMenuRef.current = ref;
   };
-  const setHeliChartReady = (ready: boolean) => {
-    heliChartReadyRef.current = ready;
-  };
   const setSeisChartReady = (ready: boolean) => {
     seisChartReadyRef.current = ready;
+  };
+  const setHeliChartReady = (ready: boolean) => {
+    heliChartReadyRef.current = ready;
   };
 
   const context: PickerContextValue = {
@@ -38,27 +38,19 @@ const PickerWorkspace: React.FC<PickerWorkspaceProps> = (props) => {
     seisChartRef,
     heliChartRef,
     contextMenuRef,
-    heliChartReadyRef,
     seisChartReadyRef,
-    fetcherWorkerRef,
+    heliChartReadyRef,
     setSeisChartRef,
     setHeliChartRef,
     setContextMenuRef,
-    setHeliChartReady,
     setSeisChartReady,
+    setHeliChartReady,
   };
-
-  useEffect(() => {
-    const worker = new FetcherWorker();
-    fetcherWorkerRef.current = worker;
-    return () => {
-      worker.terminate();
-    };
-  }, []);
 
   return (
     <PickerContext.Provider value={context}>
       <PickerRoot>
+        <PickerMenu />
         <PickerToolbar />
         <PickerChart />
         <StatusBar />

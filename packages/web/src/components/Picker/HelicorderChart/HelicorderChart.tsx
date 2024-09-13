@@ -1,81 +1,94 @@
-import { Channel, Helicorder, HelicorderEventManagerExtension, HelicorderWebWorkerExtension } from '@waveview/charts';
+import { Channel, Helicorder } from '@waveview/zcharts';
+import classNames from 'classnames';
 import React, { useCallback, useEffect, useImperativeHandle, useRef } from 'react';
-import { debounce } from '../../../shared/debounce';
 import { getJwtToken } from '../../../stores/auth/utils';
 import { HelicorderChartProps, HelicorderChartRef } from './HelicorderChart.types';
+import { HelicorderWebWorker } from './HelicorderWebWorker';
 
 export type HelicorderChartType = React.ForwardRefExoticComponent<HelicorderChartProps & React.RefAttributes<HelicorderChartRef>>;
 
 export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref) => {
-  const { initOptions, className, onTrackSelected, onTrackDeselected, onFocus, onBlur, onOffsetChange, onSelectionChange, onReady } = props;
+  const { initOptions, className, onFocus, onSelectionChange, onReady } = props;
 
+  const parentRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Helicorder | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
-  const initialResizeCompleteRef = useRef<boolean | null>(null);
-
   const workerRef = useRef<Worker | null>(null);
-  const webWorkerExtensionRef = useRef<HelicorderWebWorkerExtension | null>(null);
-  const eventManagerExtensionRef = useRef<HelicorderEventManagerExtension | null>(null);
+  const webWorkerRef = useRef<HelicorderWebWorker | null>(null);
 
   const fetchDataDebounced = useCallback(() => {
-    webWorkerExtensionRef.current?.getAPI().fetchAllTracksDataDebounced();
+    webWorkerRef.current?.fetchAllTracksData();
   }, []);
 
   useImperativeHandle(ref, () => ({
     getInstance: () => chartRef.current!,
     shiftViewUp: (by: number = 1) => {
-      chartRef.current?.shiftViewUp(by);
-      chartRef.current?.refreshData();
-      chartRef.current?.render();
-      fetchDataDebounced();
+      if (chartRef.current) {
+        chartRef.current.shiftViewUp(by);
+        chartRef.current.render();
+        fetchDataDebounced();
+      }
     },
     shiftViewDown: (by: number = 1) => {
-      chartRef.current?.shiftViewDown(by);
-      chartRef.current?.refreshData();
-      chartRef.current?.render();
-      fetchDataDebounced();
+      if (chartRef.current) {
+        chartRef.current.shiftViewDown(by);
+        chartRef.current.render();
+        fetchDataDebounced();
+      }
     },
     shiftViewToNow: () => {
-      chartRef.current?.shiftViewToNow();
-      chartRef.current?.refreshData();
-      chartRef.current?.render();
-      fetchDataDebounced();
+      if (chartRef.current) {
+        chartRef.current.shiftViewToNow();
+        chartRef.current.render();
+        fetchDataDebounced();
+      }
     },
     increaseAmplitude: (by: number) => {
-      chartRef.current?.increaseAmplitude(by);
-      chartRef.current?.render();
+      if (chartRef.current) {
+        chartRef.current.increaseAmplitude(by);
+        chartRef.current.render();
+      }
     },
     decreaseAmplitude: (by: number) => {
-      chartRef.current?.decreaseAmplitude(by);
-      chartRef.current?.render();
+      if (chartRef.current) {
+        chartRef.current.decreaseAmplitude(by);
+        chartRef.current.render();
+      }
     },
     resetAmplitude: () => {
-      chartRef.current?.resetAmplitude();
-      chartRef.current?.render();
+      if (chartRef.current) {
+        chartRef.current.resetAmplitude();
+        chartRef.current.render();
+      }
     },
     setChannel: (channel: Channel) => {
-      chartRef.current?.clearData();
-      chartRef.current?.setChannel(channel);
-      fetchDataDebounced();
+      if (chartRef.current) {
+        chartRef.current.clearData();
+        chartRef.current.setChannel(channel);
+        fetchDataDebounced();
+      }
     },
     setOffsetDate: (date: number) => {
-      chartRef.current?.setOffsetDate(date);
-      chartRef.current?.refreshData();
-      chartRef.current?.render();
-      fetchDataDebounced();
+      if (chartRef.current) {
+        chartRef.current.setOffsetDate(date);
+        chartRef.current.render();
+        fetchDataDebounced();
+      }
     },
     setInterval: (interval: number) => {
-      chartRef.current?.setInterval(interval);
-      chartRef.current?.refreshData();
-      chartRef.current?.render();
-      fetchDataDebounced();
+      if (chartRef.current) {
+        chartRef.current.setInterval(interval);
+        chartRef.current.render();
+        fetchDataDebounced();
+      }
     },
     setDuration: (duration: number) => {
-      chartRef.current?.setDuration(duration);
-      chartRef.current?.refreshData();
-      chartRef.current?.render();
-      fetchDataDebounced();
+      if (chartRef.current) {
+        chartRef.current.setDuration(duration);
+        chartRef.current.render();
+        fetchDataDebounced();
+      }
     },
     setTheme: (theme: 'light' | 'dark') => {
       if (chartRef.current) {
@@ -84,70 +97,65 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
       }
     },
     setUseUTC: (useUTC: boolean) => {
-      chartRef.current?.setUseUTC(useUTC);
-      chartRef.current?.render();
-    },
-    getTrackExtent: (trackId: number) => {
       if (chartRef.current) {
-        return chartRef.current?.getTrackExtentAt(trackId);
-      } else {
-        return [0, 0];
+        chartRef.current.setUseUTC(useUTC);
+        chartRef.current.render();
       }
     },
     focus: () => {
-      chartRef.current?.focus();
+      if (chartRef.current) {
+        chartRef.current.focus();
+      }
     },
     blur: () => {
-      chartRef.current?.blur();
+      if (chartRef.current) {
+        chartRef.current?.blur();
+      }
     },
     isFocused: () => {
       return chartRef.current?.isFocused() ?? false;
     },
-    selectTrack: (index: number) => {
-      if (chartRef.current) {
-        chartRef.current.selectTrack(index);
-      }
-    },
-    setSelection: (value: number) => {
-      if (chartRef.current) {
-        chartRef.current.getSelection().setValue(value);
-        chartRef.current.render();
-      }
-    },
+
     addEventMarker: (marker) => {
       if (chartRef.current) {
         chartRef.current.addEventMarker(marker);
         chartRef.current.render();
       }
     },
-    removeEventMarker: (value: number) => {
+    addEventMarkers: (markers) => {
       if (chartRef.current) {
-        chartRef.current.removeEventMarker(value);
+        chartRef.current.addEventMarkers(markers);
         chartRef.current.render();
       }
     },
-    showAllEventMarkers: () => {
+    removeEventMarker: (start, end) => {
       if (chartRef.current) {
-        chartRef.current.showAllEventMarkers();
+        chartRef.current.removeEventMarker(start, end);
         chartRef.current.render();
       }
     },
-    hideAllEventMarkers: () => {
+    showEventMarkers: () => {
       if (chartRef.current) {
-        chartRef.current.hideAllEventMarkers();
+        chartRef.current.showEventMarkers();
         chartRef.current.render();
       }
     },
-    clearAllEventMarkers: () => {
+    hideEventMarkers: () => {
       if (chartRef.current) {
-        chartRef.current.clearAllEventMarkers();
+        chartRef.current.hideEventMarkers();
+        chartRef.current.render();
+      }
+    },
+    clearEventMarkers: () => {
+      if (chartRef.current) {
+        chartRef.current.clearEventMarkers();
         chartRef.current.render();
       }
     },
     dispose: () => {
-      chartRef.current?.dispose();
-      workerRef.current?.terminate();
-      resizeObserverRef.current?.disconnect();
+      if (chartRef.current) {
+        chartRef.current?.dispose();
+      }
     },
     getChartExtent: () => {
       if (chartRef.current) {
@@ -158,83 +166,55 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
     },
   }));
 
-  const handleTrackSelected = useCallback(
-    (index: number) => {
-      onTrackSelected?.(index);
+  const handleSelectionChange = useCallback(
+    (range: [number, number]) => {
       if (chartRef.current) {
-        const value = chartRef.current.getSelection().getValue();
-        onSelectionChange?.(value);
+        onSelectionChange?.(range);
       }
     },
-    [onTrackSelected, onSelectionChange]
+    [onSelectionChange]
   );
-
-  const handleTrackDeselected = useCallback(() => {
-    onTrackDeselected?.();
-  }, [onTrackDeselected]);
 
   const handleFocus = useCallback(() => {
     onFocus?.();
   }, [onFocus]);
 
-  const handleBlur = useCallback(() => {
-    onBlur?.();
-  }, [onBlur]);
-
-  const handleOffsetChange = useCallback(
-    (date: number) => {
-      onOffsetChange?.(date);
-    },
-    [onOffsetChange]
-  );
-
   useEffect(() => {
-    async function init() {
-      if (canvasRef.current) {
-        chartRef.current = new Helicorder(canvasRef.current, initOptions);
-        await chartRef.current.init();
-
-        const token = getJwtToken();
-        workerRef.current = new Worker(new URL('../../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
-        workerRef.current.postMessage({ type: 'setup', payload: { token } });
-        webWorkerExtensionRef.current = new HelicorderWebWorkerExtension(workerRef.current);
-        chartRef.current.use(webWorkerExtensionRef.current);
-        eventManagerExtensionRef.current = new HelicorderEventManagerExtension(webWorkerExtensionRef.current.getAPI());
-        chartRef.current.use(eventManagerExtensionRef.current);
-        chartRef.current.render();
+    function init() {
+      if (!parentRef.current) {
+        return;
       }
+
+      canvasRef.current?.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+      });
+
+      chartRef.current = new Helicorder(parentRef.current, initOptions);
+      const token = getJwtToken();
+      workerRef.current = new Worker(new URL('../../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
+      workerRef.current.postMessage({ type: 'setup', payload: { token } });
+      webWorkerRef.current = new HelicorderWebWorker(chartRef.current, workerRef.current);
+      chartRef.current.on('click', handleFocus);
+      chartRef.current.on('selectionChanged', handleSelectionChange);
+      chartRef.current.render();
     }
 
-    const onResize = (entries: ResizeObserverEntry[]) => {
-      for (const entry of entries) {
-        const { width, height } = entry.contentRect;
-        chartRef.current?.resize({ width, height });
-        chartRef.current?.render();
-      }
+    const onResize = () => {
+      chartRef.current?.resize();
+      chartRef.current?.render();
     };
 
-    const onResizeDebounced = debounce(onResize, 200);
+    resizeObserverRef.current = new ResizeObserver(onResize);
+    if (parentRef.current) {
+      resizeObserverRef.current.observe(parentRef.current);
+    }
 
-    const handleResize = (entries: ResizeObserverEntry[]) => {
-      if (!initialResizeCompleteRef.current) {
-        initialResizeCompleteRef.current = true;
-        onResize(entries);
-      } else {
-        onResizeDebounced(entries);
-      }
-    };
+    init();
+    onReady?.(chartRef.current!);
 
-    init()
-      .then(() => {
-        resizeObserverRef.current = new ResizeObserver(handleResize);
-        if (canvasRef.current) {
-          resizeObserverRef.current.observe(canvasRef.current.parentElement!);
-        }
-      })
-      .finally(() => {
-        webWorkerExtensionRef.current?.getAPI().fetchAllTracksData();
-        onReady?.();
-      });
+    setTimeout(() => {
+      webWorkerRef.current?.fetchAllTracksData();
+    }, 100);
 
     return () => {
       chartRef.current?.dispose();
@@ -245,24 +225,8 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    chartRef.current?.on('trackSelected', handleTrackSelected);
-    chartRef.current?.on('trackDeselected', handleTrackDeselected);
-    chartRef.current?.on('focus', handleFocus);
-    chartRef.current?.on('blur', handleBlur);
-    chartRef.current?.on('offsetChanged', handleOffsetChange);
-
-    return () => {
-      chartRef.current?.off('trackSelected', handleTrackSelected);
-      chartRef.current?.off('trackDeselected', handleTrackDeselected);
-      chartRef.current?.off('focus', handleFocus);
-      chartRef.current?.off('blur', handleBlur);
-      chartRef.current?.off('offsetChanged', handleOffsetChange);
-    };
-  }, [handleTrackSelected, handleTrackDeselected, handleFocus, handleBlur, handleOffsetChange]);
-
   return (
-    <div className={`absolute top-0 right-0 bottom-0 left-0 ${className ?? ''}`}>
+    <div className={classNames('absolute top-0 right-0 bottom-0 left-0', className)} ref={parentRef}>
       <canvas ref={canvasRef} />
     </div>
   );

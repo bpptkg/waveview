@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { usePickerStore } from '../../stores/picker';
-import EventEditor from './EventEditor';
 import { HelicorderChart, HelicorderChartRef } from './HelicorderChart';
 import { usePickerContext } from './PickerContext';
 import { SeismogramChart, SeismogramChartRef } from './SeismogramChart';
 import SeismogramContextMenu, { ContextMenuRef } from './SeismogramContextMenu';
+import Sidebar from './Sidebar/Sidebar';
 import { usePickerCallback } from './usePickerCallback';
 import { useThemeEffect } from './useThemeEffect';
 import { useTimeZoneEffect } from './useTimeZoneEffect';
@@ -14,8 +14,41 @@ const PickerChart = () => {
   const seisChartRef = useRef<SeismogramChartRef | null>(null);
   const contextMenuRef = useRef<ContextMenuRef | null>(null);
 
-  const { props, heliChartReadyRef, seisChartReadyRef, setSeisChartRef, setHeliChartRef, setContextMenuRef } = usePickerContext();
+  const { props, setSeisChartRef, setHeliChartRef, setContextMenuRef } = usePickerContext();
+  const {
+    handleHelicorderFocus,
+    handleHelicorderSelectionChange,
+    handleHelicorderOnReady,
+    handleSeismogramFocus,
+    handleSeismogramExtentChange,
+    handleContextMenuRequested,
+    handleSeismogramPickChange,
+    handleSeismogramRemoveChannel,
+    handleSeismogramMoveChannelUp,
+    handleSeismogramMoveChannelDown,
+    getSeismogramInitOptions,
+    getHelicorderInitOptions,
+    handleSeismogramOnReady,
+  } = usePickerCallback();
 
+  const { showHelicorder, showSeismogram } = props;
+  const { selectedChart, eventId } = usePickerStore();
+
+  const helicorderClassName = useMemo(() => {
+    if (eventId) {
+      return 'border border-transparent';
+    }
+    return selectedChart === 'helicorder' ? 'border border-brand-hosts-80' : 'border border-transparent';
+  }, [selectedChart, eventId]);
+
+  const seismogramClassName = useMemo(() => {
+    if (eventId) {
+      return 'border border-transparent';
+    }
+    return selectedChart === 'seismogram' ? 'border border-brand-hosts-80' : 'border border-transparent';
+  }, [selectedChart, eventId]);
+
+  // Set refs on mount
   useEffect(() => {
     setSeisChartRef(seisChartRef.current);
     setHeliChartRef(heliChartRef.current);
@@ -28,70 +61,11 @@ const PickerChart = () => {
     };
   }, [setSeisChartRef, setHeliChartRef, setContextMenuRef]);
 
-  const { showHelicorder, showSeismogram, showEventMarkers } = props;
-  const { selectedChart, editedEvent, isPickModeActive } = usePickerStore();
-
-  const helicorderClassName = useMemo(() => {
-    if (editedEvent) {
-      return 'border border-transparent';
-    }
-    return selectedChart === 'helicorder' ? 'border border-brand-hosts-80' : 'border border-transparent';
-  }, [selectedChart, editedEvent]);
-
-  const seismogramClassName = useMemo(() => {
-    if (editedEvent) {
-      return 'border border-transparent';
-    }
-    return selectedChart === 'seismogram' ? 'border border-brand-hosts-80' : 'border border-transparent';
-  }, [selectedChart, editedEvent]);
-
-  const {
-    handleTrackSelected,
-    handleHelicorderFocus,
-    handleHelicorderOffsetChange,
-    handleHelicorderSelectionChange,
-    handleHelicorderOnReady,
-    handleSeismogramFocus,
-    handleSeismogramExtentChange,
-    handleContextMenuRequested,
-    handleSeismogramPickChange,
-    handleSeismogramOnReady,
-    handleSeismogramRemoveChannel,
-    handleSeismogramMoveChannelUp,
-    handleSeismogramMoveChannelDown,
-    handleClearEventEditing,
-    handlePlotEventMarkers,
-    getSeismogramInitOptions,
-    getHelicorderInitOptions,
-  } = usePickerCallback();
-
-  const { deactivatePickMode, clearPick } = usePickerStore();
-
-  // Plot event markers
-  useEffect(() => {
-    if (!showEventMarkers) {
-      return;
-    }
-
-    if (heliChartReadyRef.current && seisChartReadyRef.current) {
-      handlePlotEventMarkers();
-    }
-  }, [showEventMarkers, heliChartReadyRef, seisChartReadyRef, handlePlotEventMarkers]);
-
-  // Cleanup when unmount
-  useEffect(() => {
-    return () => {
-      deactivatePickMode();
-      clearPick();
-      handleClearEventEditing();
-    };
-  }, [deactivatePickMode, clearPick, handleClearEventEditing]);
-
   useThemeEffect(heliChartRef, seisChartRef);
   useTimeZoneEffect(heliChartRef, seisChartRef);
 
   return (
-    <div className="flex-grow relative flex mt-1">
+    <div className="flex-grow relative flex mt-1 border-t dark:border-transparent">
       <div className="flex flex-1 relative">
         {showHelicorder && (
           <div className="relative w-1/4 h-full">
@@ -99,9 +73,7 @@ const PickerChart = () => {
               ref={heliChartRef}
               className={helicorderClassName}
               initOptions={getHelicorderInitOptions()}
-              onTrackSelected={handleTrackSelected}
               onFocus={handleHelicorderFocus}
-              onOffsetChange={handleHelicorderOffsetChange}
               onSelectionChange={handleHelicorderSelectionChange}
               onReady={handleHelicorderOnReady}
             />
@@ -130,7 +102,7 @@ const PickerChart = () => {
           </div>
         )}
 
-        {isPickModeActive() && <EventEditor />}
+        <Sidebar />
       </div>
     </div>
   );

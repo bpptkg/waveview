@@ -76,5 +76,9 @@ export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> =
     clearEventMarkers: () => {
       set({ eventMarkers: [] });
     },
+
+    setEventMarkers: (eventMarkers) => {
+      set({ eventMarkers });
+    },
   };
 };

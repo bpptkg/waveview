@@ -1,5 +1,8 @@
 import React, { useEffect, useRef } from 'react';
+import { useFilterStore } from '../../stores/filter';
+import { usePickerStore } from '../../stores/picker';
 import { usePickerContext } from './PickerContext';
+import { usePickerCallback } from './usePickerCallback';
 
 export interface PickerRootProps {
   children?: React.ReactNode;
@@ -7,7 +10,7 @@ export interface PickerRootProps {
 
 const PickerRoot: React.FC<PickerRootProps> = ({ children }) => {
   const workspaceRef = useRef<HTMLDivElement | null>(null);
-  const { heliChartRef, seisChartRef } = usePickerContext();
+  const { heliChartRef, seisChartRef, props, seisChartReadyRef, heliChartReadyRef } = usePickerContext();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -22,6 +25,32 @@ const PickerRoot: React.FC<PickerRootProps> = ({ children }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [heliChartRef, seisChartRef]);
+
+  const { showEventMarkers } = props;
+  const { handleUpdateEventMarkers } = usePickerCallback();
+
+  // Plot event markers.
+  useEffect(() => {
+    if (!showEventMarkers) {
+      return;
+    }
+
+    if (heliChartReadyRef.current && seisChartReadyRef.current) {
+      handleUpdateEventMarkers();
+    }
+  }, [showEventMarkers, heliChartReadyRef, seisChartReadyRef, handleUpdateEventMarkers]);
+
+  const { resetEditing, setPickMode } = usePickerStore();
+  const { setAppliedFilter } = useFilterStore();
+
+  // Cleanup when unmount.
+  useEffect(() => {
+    return () => {
+      resetEditing();
+      setPickMode(false);
+      setAppliedFilter(null);
+    };
+  }, [resetEditing, setAppliedFilter, setPickMode]);
 
   return (
     <div className="flex flex-col flex-grow relative overflow-hidden" ref={workspaceRef}>

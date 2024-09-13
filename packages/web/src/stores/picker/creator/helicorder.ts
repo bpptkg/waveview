@@ -1,19 +1,25 @@
 import { StateCreator } from 'zustand';
+import { endOf, ONE_HOUR, startOf } from '../../../shared/time';
 import { HelicorderSlice, PickerStore } from '../slices';
 
-export const createHelicorderSlice: StateCreator<PickerStore, [], [], HelicorderSlice> = (set) => {
+export const createHelicorderSlice: StateCreator<PickerStore, [], [], HelicorderSlice> = (set, get) => {
+  const offsetDate = new Date('2024-06-11T11:00:00Z').getTime();
   return {
     channelId: '',
-    duration: 12,
-    interval: 30,
-    offsetDate: Date.now(),
-    lastTrackExtent: [0, 0],
+    helicorderDuration: 12,
+    helicorderInterval: 30,
+    offsetDate,
+    selectionWindow: undefined,
     lastSelection: 0,
     setHelicorderChannelId: (channelId) => set({ channelId }),
-    setHelicorderDuration: (duration) => set({ duration }),
-    setHelicorderInterval: (interval) => set({ interval }),
+    setHelicorderDuration: (helicorderDuration) => set({ helicorderDuration }),
+    setHelicorderInterval: (helicorderInterval) => set({ helicorderInterval }),
     setHelicorderOffsetDate: (offsetDate) => set({ offsetDate }),
-    setLastTrackExtent: (extent) => set({ lastTrackExtent: extent }),
-    setLastSelection: (value) => set({ lastSelection: value }),
+    setSelectionWindow: (extent) => set({ selectionWindow: extent }),
+    getHelicorderExtent: () => {
+      const { helicorderDuration, helicorderInterval, offsetDate } = get();
+      const start = offsetDate - helicorderDuration * ONE_HOUR;
+      return [startOf(start, helicorderInterval), endOf(offsetDate, helicorderInterval)];
+    },
   };
 };

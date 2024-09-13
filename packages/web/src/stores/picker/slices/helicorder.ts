@@ -6,11 +6,11 @@ export interface HelicorderSlice {
   /**
    * The duration of the helicorder chart in hours.
    */
-  duration: number;
+  helicorderDuration: number;
   /**
    * The interval of the helicorder track in minutes.
    */
-  interval: number;
+  helicorderInterval: number;
   /**
    * The offset date of the helicorder chart.
    */
@@ -28,5 +28,6 @@ export interface HelicorderSlice {
   setHelicorderDuration: (duration: number) => void;
   setHelicorderInterval: (interval: number) => void;
   setHelicorderOffsetDate: (offsetDate: number) => void;
+  getHelicorderExtent: () => [number, number];
   setSelectionWindow: (extent: [number, number]) => void;
 }
