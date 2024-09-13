@@ -63,6 +63,12 @@ export interface AxisPointerStyle {
   backgroundColor: string;
 }
 
+export interface PickerStyle {
+  color: string;
+  opacity: number;
+  borderWidth: number;
+}
+
 export interface ThemeStyle {
   backgroundColor: string;
   foregroundColor: string;
@@ -74,6 +80,7 @@ export interface ThemeStyle {
   seriesStyle: SeriesStyle;
   highlightStyle: HighlightStyle;
   axisPointerStyle: AxisPointerStyle;
+  pickerStyle: PickerStyle;
 }
 
 export interface Channel {

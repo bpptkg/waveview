@@ -74,6 +74,9 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     this.addComponent(this.axisPointer);
 
     this.picker = new PickerView(this);
+    this.picker.on("change", (extent) => {
+      this.emit("pickChanged", extent);
+    });
     this.addComponent(this.picker);
 
     if (opts.darkMode) {

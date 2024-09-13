@@ -63,12 +63,10 @@ export class PickerView extends View<PickerModel> {
     }
     if (this.model.isEmpty()) {
       this.operationMode = "select";
-      const { devicePixelRatio } = this.chart.model.getOptions();
-      const offsetX = devicePixelRatio * e.offsetX;
       const xAxis = this.chart.getXAxis();
 
       this.isDragging = true;
-      const start = xAxis.getValueForPixel(offsetX);
+      const start = xAxis.getValueForPixel(e.offsetX);
       this.model.setStart(start);
       this.render();
     }
@@ -155,13 +153,13 @@ export class PickerView extends View<PickerModel> {
   }
 
   applyThemeStyle(theme: ThemeStyle): void {
-    const { highlightStyle } = theme;
+    const { pickerStyle } = theme;
     this.graphics.attr({
       style: {
-        fill: highlightStyle.color,
-        opacity: highlightStyle.opacity,
-        stroke: highlightStyle.color,
-        lineWidth: highlightStyle.borderWidth,
+        fill: pickerStyle.color,
+        opacity: pickerStyle.opacity,
+        stroke: pickerStyle.color,
+        lineWidth: pickerStyle.borderWidth,
       },
     });
   }
@@ -201,6 +199,13 @@ export class PickerView extends View<PickerModel> {
   }
 
   render(): void {
+    if (!this.visible) {
+      return;
+    }
+    if (this.model.isEmpty()) {
+      this.clearGraphics();
+      return;
+    }
     const [start, end] = this.model.getRange();
     const xAxis = this.chart.getXAxis();
     const x1 = xAxis.getPixelForValue(start);
@@ -221,6 +226,33 @@ export class PickerView extends View<PickerModel> {
     if (this.operationMode === "move" || this.operationMode === "resize") {
       this.updateHandles();
     }
+  }
+
+  private clearGraphics(): void {
+    this.graphics.attr({
+      shape: {
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+      },
+    });
+    this.leftHandle.attr({
+      shape: {
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+      },
+    });
+    this.rightHandle.attr({
+      shape: {
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+      },
+    });
   }
 
   private updateHandles(): void {

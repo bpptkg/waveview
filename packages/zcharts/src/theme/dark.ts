@@ -31,4 +31,9 @@ export const darkTheme: ThemeStyle = {
     fontSize: 12,
     backgroundColor: "#FF0000",
   },
+  pickerStyle: {
+    color: "#9747ff",
+    opacity: 0.4,
+    borderWidth: 1,
+  },
 };
