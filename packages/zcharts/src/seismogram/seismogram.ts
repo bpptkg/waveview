@@ -4,6 +4,7 @@ import { merge } from "zrender/lib/core/util";
 import { AxisView } from "../axis/axisView";
 import { ChartView } from "../core/chartView";
 import { EventEmitter } from "../core/eventEmitter";
+import { ResizeOptions } from "../core/view";
 import { GridView } from "../grid/gridView";
 import { PickerView } from "../picker/pickerView";
 import { SpectrogramData } from "../spectrogram/spectrogramModel";
@@ -385,13 +386,13 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     return this.xAxis.getExtent();
   }
 
-  resize(): void {
+  resize(options?: ResizeOptions): void {
+    this.zr.resize(options);
     this.setRect(new BoundingRect(0, 0, this.getWidth(), this.getHeight()));
     for (const view of this.views) {
       view.resize();
     }
     this.updateTracksRect();
-    this.zr.resize();
   }
 
   on<K extends keyof SeismogramEventMap>(

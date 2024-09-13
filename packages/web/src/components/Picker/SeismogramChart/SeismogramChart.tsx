@@ -81,8 +81,11 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
       chartRef.current.render();
     }
 
-    const onResize = () => {
-      chartRef.current?.resize();
+    const onResize = (entries: ResizeObserverEntry[]) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        chartRef.current?.resize({ width, height });
+      }
       chartRef.current?.render();
     };
 

@@ -4,6 +4,7 @@ import { merge } from "zrender/lib/core/util";
 import { AxisView } from "../axis/axisView";
 import { ChartView } from "../core/chartView";
 import { EventEmitter } from "../core/eventEmitter";
+import { ResizeOptions } from "../core/view";
 import { GridView } from "../grid/gridView";
 import { almostEquals } from "../util/math";
 import { ONE_MINUTE, ONE_SECOND } from "../util/time";
@@ -197,13 +198,14 @@ export class Helicorder extends ChartView<HelicorderOptions> {
     return this.trackManager.getChartExtent();
   }
 
-  resize(): void {
+  resize(options?: ResizeOptions): void {
+    this.zr.resize(options);
     this.setRect(new BoundingRect(0, 0, this.getWidth(), this.getHeight()));
     for (const view of this.views) {
       view.resize();
     }
     this.trackManager.resizeTracks();
-    this.zr.resize();
+    this.render();
   }
 
   focus(): void {

@@ -2,6 +2,11 @@ import { Group } from "zrender";
 import { LayoutRect, ThemeStyle } from "../util/types";
 import { Model } from "./model";
 
+export interface ResizeOptions {
+  width?: number;
+  height?: number;
+}
+
 export abstract class View<T extends Model = Model> {
   readonly type: string = "view";
   readonly model: T;
@@ -28,7 +33,7 @@ export abstract class View<T extends Model = Model> {
 
   abstract setRect(rect: LayoutRect): void;
 
-  abstract resize(): void;
+  abstract resize(options?: ResizeOptions): void;
 
   abstract clear(): void;
 

@@ -11,7 +11,7 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
   const { initOptions, className, onFocus, onSelectionChange, onReady } = props;
 
   const parentRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  // const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Helicorder | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const workerRef = useRef<Worker | null>(null);
@@ -185,9 +185,9 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
         return;
       }
 
-      canvasRef.current?.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-      });
+      // canvasRef.current?.addEventListener('contextmenu', (e) => {
+      //   e.preventDefault();
+      // });
 
       chartRef.current = new Helicorder(parentRef.current, initOptions);
       const token = getJwtToken();
@@ -199,8 +199,11 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
       chartRef.current.render();
     }
 
-    const onResize = () => {
-      chartRef.current?.resize();
+    const onResize = (entries: ResizeObserverEntry[]) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        chartRef.current?.resize({ width, height });
+      }
       chartRef.current?.render();
     };
 
@@ -227,7 +230,7 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
 
   return (
     <div className={classNames('absolute top-0 right-0 bottom-0 left-0', className)} ref={parentRef}>
-      <canvas ref={canvasRef} />
+      {/* <canvas ref={canvasRef} /> */}
     </div>
   );
 });

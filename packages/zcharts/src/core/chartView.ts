@@ -32,12 +32,12 @@ export abstract class ChartView<
 
   getWidth(): number {
     const width = this.zr.getWidth();
-    return width || this.dom.clientWidth;
+    return width || 300;
   }
 
   getHeight(): number {
     const height = this.zr.getHeight();
-    return height || this.dom.clientHeight;
+    return height || 150;
   }
 
   getRect(): LayoutRect {
