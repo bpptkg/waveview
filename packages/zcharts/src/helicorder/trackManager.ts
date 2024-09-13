@@ -108,8 +108,8 @@ export class TrackManager {
   }
 
   getChartExtent(): [number, number] {
-    const first = this.getTrackExtentAt(0);
-    const last = this.getTrackExtentAt(this.count() - 1);
+    const last = this.getTrackExtentAt(0);
+    const first = this.getTrackExtentAt(this.count() - 1);
     return [first[0], last[1]];
   }
 

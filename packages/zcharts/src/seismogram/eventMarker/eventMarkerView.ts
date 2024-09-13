@@ -38,11 +38,11 @@ export class EventMarkerView extends View<EventMarkerModel> {
 
   render(): void {
     this.clear();
-    const { show, start, end, color, opacity } = this.getModel().getOptions();
-    if (!show) {
+    if (!this.visible) {
       return;
     }
 
+    const { start, end, color, opacity } = this.getModel().getOptions();
     const xAxis = this.chart.getXAxis();
     const [left, right] = xAxis.getExtent();
     const p1 = xAxis.getPixelForValue(left);
@@ -72,6 +72,7 @@ export class EventMarkerView extends View<EventMarkerModel> {
         fill: color,
         opacity,
       },
+      z: 5,
     });
     rect.silent = true;
 
@@ -85,6 +86,7 @@ export class EventMarkerView extends View<EventMarkerModel> {
       style: {
         fill: color,
       },
+      z: 5,
     });
     pillRect.silent = true;
 

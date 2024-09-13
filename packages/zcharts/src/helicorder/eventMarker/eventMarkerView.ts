@@ -92,15 +92,11 @@ export class EventMarkerView extends View<EventMarkerModel> {
         continue;
       }
 
-      const [yMin, yMax] = window.range;
-      const yMinPixel = track.getSignal().yAxis.getPixelForValue(yMin);
-      const yMaxPixel = track.getSignal().yAxis.getPixelForValue(yMax);
-
       const { y, height } = track.getRect();
       const markerX = startX;
-      const markerY = Math.min(yMinPixel, y);
+      const markerY = y;
       const markerWidth = endX - startX;
-      const markerHeight = Math.max(yMaxPixel - yMinPixel, height);
+      const markerHeight = height;
       rects.push(
         new zrender.BoundingRect(markerX, markerY, markerWidth, markerHeight)
       );
@@ -110,10 +106,10 @@ export class EventMarkerView extends View<EventMarkerModel> {
 
   render(): void {
     this.clear();
-    const { show, color, opacity } = this.getModel().getOptions();
-    if (!show) {
+    if (!this.visible) {
       return;
     }
+    const { color, opacity } = this.getModel().getOptions();
 
     for (const boundingRect of this.getMarkerWindowRects()) {
       const { x, y, width, height } = boundingRect;
@@ -128,6 +124,7 @@ export class EventMarkerView extends View<EventMarkerModel> {
           fill: color,
           opacity,
         },
+        z: 5,
       });
       rect.silent = true;
       this.group.add(rect);
