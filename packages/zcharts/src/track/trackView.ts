@@ -42,7 +42,7 @@ export class TrackView extends View<TrackModel> {
         },
       },
       name: "Hz",
-      nameGap: 25,
+      nameGap: 28,
       nameStyle: {
         fontSize: 9,
       },
