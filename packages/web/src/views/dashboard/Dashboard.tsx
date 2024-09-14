@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AppBar, AppBarTab } from '../../components/AppBar';
 import Header from '../../components/Header/Header';
+import WebSocketProvider from '../../components/WebSocket/WebSocketProvider';
 import { useCatalogStore } from '../../stores/catalog';
 import { useEventTypeStore } from '../../stores/eventType';
 import { useInventoryStore } from '../../stores/inventory';
@@ -11,8 +12,8 @@ import { useOrganizationStore } from '../../stores/organization';
 import { usePickerStore } from '../../stores/picker';
 import { useUserStore } from '../../stores/user';
 import { useVolcanoStore } from '../../stores/volcano/useVolcanoStore';
-import { CustomError } from '../../types/response';
 import { Channel } from '../../types/channel';
+import { CustomError } from '../../types/response';
 
 const PickerIcon = CursorHover24Regular;
 const CatalogIcon = Folder24Regular;
@@ -106,34 +107,36 @@ const Dashboard = () => {
 
   return (
     <>
-      <title>{currentOrganization?.name}</title>
-      <div className="bg-neutral-grey-94 dark:bg-neutral-grey-4 flex flex-col min-h-screen">
-        <Header />
+      <WebSocketProvider>
+        <title>{currentOrganization?.name}</title>
+        <div className="bg-neutral-grey-94 dark:bg-neutral-grey-4 flex flex-col min-h-screen">
+          <Header />
 
-        <div className="flex flex-grow">
-          <AppBar selectedValue={location.pathname}>
-            <AppBarTab
-              value="/picker"
-              icon={PickerIcon}
-              onClick={() => {
-                navigate('/picker');
-              }}
-            >
-              Picker
-            </AppBarTab>
-            <AppBarTab value="/catalog" icon={CatalogIcon} onClick={() => navigate('/catalog')}>
-              Catalog
-            </AppBarTab>
-            <AppBarTab value="/help" icon={HelpIcon} onClick={() => navigate('/help')}>
-              Help
-            </AppBarTab>
-          </AppBar>
+          <div className="flex flex-grow">
+            <AppBar selectedValue={location.pathname}>
+              <AppBarTab
+                value="/picker"
+                icon={PickerIcon}
+                onClick={() => {
+                  navigate('/picker');
+                }}
+              >
+                Picker
+              </AppBarTab>
+              <AppBarTab value="/catalog" icon={CatalogIcon} onClick={() => navigate('/catalog')}>
+                Catalog
+              </AppBarTab>
+              <AppBarTab value="/help" icon={HelpIcon} onClick={() => navigate('/help')}>
+                Help
+              </AppBarTab>
+            </AppBar>
 
-          <div className="bg-neutral-grey-98 dark:bg-neutral-grey-12 flex flex-col flex-grow relative">
-            <Outlet />
+            <div className="bg-neutral-grey-98 dark:bg-neutral-grey-12 flex flex-col flex-grow relative">
+              <Outlet />
+            </div>
           </div>
         </div>
-      </div>
+      </WebSocketProvider>
     </>
   );
 };
