@@ -1,8 +1,8 @@
 import { useRef } from 'react';
 import { HelicorderChartRef } from './HelicorderChart';
-import PickerChart from './PickerChart';
 import { PickerContext, PickerContextValue, useDefaultProps } from './PickerContext';
 import PickerMenu from './PickerMenu/PickerMenu';
+import PickerPanel from './PickerPanel';
 import PickerRoot from './PickerRoot';
 import PickerToolbar from './PickerToolbar';
 import { PickerWorkspaceProps } from './PickerWorkspace.types';
@@ -52,7 +52,7 @@ const PickerWorkspace: React.FC<PickerWorkspaceProps> = (props) => {
       <PickerRoot>
         <PickerMenu />
         <PickerToolbar />
-        <PickerChart />
+        <PickerPanel />
         <StatusBar />
       </PickerRoot>
     </PickerContext.Provider>

@@ -1,16 +1,18 @@
-import { useEffect, useMemo, useRef } from 'react';
-import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { ImperativePanelHandle, Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { usePickerStore } from '../../stores/picker';
+import { useSidebarStore } from '../../stores/sidebar';
 import { HelicorderChart, HelicorderChartRef } from './HelicorderChart';
 import { usePickerContext } from './PickerContext';
 import { SeismogramChart, SeismogramChartRef } from './SeismogramChart';
 import SeismogramContextMenu, { ContextMenuRef } from './SeismogramContextMenu';
 import Sidebar from './Sidebar/Sidebar';
+import SidebarTabList from './Sidebar/SidebarTabList';
 import { usePickerCallback } from './usePickerCallback';
 import { useThemeEffect } from './useThemeEffect';
 import { useTimeZoneEffect } from './useTimeZoneEffect';
 
-const PickerChart = () => {
+const PickerPanel = () => {
   const heliChartRef = useRef<HelicorderChartRef | null>(null);
   const seisChartRef = useRef<SeismogramChartRef | null>(null);
   const contextMenuRef = useRef<ContextMenuRef | null>(null);
@@ -65,11 +67,49 @@ const PickerChart = () => {
   useThemeEffect(heliChartRef, seisChartRef);
   useTimeZoneEffect(heliChartRef, seisChartRef);
 
+  const sidebarRef = useRef<ImperativePanelHandle | null>(null);
+  const isResizing = useRef(false);
+  const { visible, size, defaultSize, setSize, setVisible } = useSidebarStore();
+  const handleSidebarVisibleChange = useCallback(
+    (value: boolean) => {
+      if (isResizing.current) {
+        return;
+      }
+      setVisible(value);
+      if (!sidebarRef.current) {
+        return;
+      }
+      if (value) {
+        const newSize = Math.max(size, defaultSize);
+        sidebarRef.current.resize(newSize);
+      } else {
+        sidebarRef.current.resize(0);
+      }
+    },
+    [setVisible, size, defaultSize]
+  );
+  const handleSidebarResize = useCallback(
+    (size: number) => {
+      setVisible(size > 0);
+      if (size > 0) {
+        setSize(size);
+      }
+    },
+    [setVisible, setSize]
+  );
+  const handleResizeHandleDragging = useCallback((isDragging: boolean) => {
+    isResizing.current = isDragging;
+  }, []);
+
+  useEffect(() => {
+    handleSidebarVisibleChange(visible);
+  }, [visible, handleSidebarVisibleChange]);
+
   return (
     <div className="flex-grow relative flex mt-1 border-t dark:border-transparent">
       <PanelGroup direction="horizontal" className="relative">
         {showHelicorder && (
-          <Panel defaultSize={25} minSize={20} className="relative">
+          <Panel defaultSize={25} minSize={20} order={1} className="relative">
             <HelicorderChart
               ref={heliChartRef}
               className={helicorderClassName}
@@ -80,11 +120,9 @@ const PickerChart = () => {
             />
           </Panel>
         )}
-
         <PanelResizeHandle />
-
         {showSeismogram && (
-          <Panel minSize={20} className="relative">
+          <Panel minSize={20} order={2} className="relative">
             <SeismogramChart
               ref={seisChartRef}
               className={seismogramClassName}
@@ -104,15 +142,14 @@ const PickerChart = () => {
             />
           </Panel>
         )}
-
-        <PanelResizeHandle />
-
-        <Panel defaultSize={20} minSize={15}>
+        <PanelResizeHandle onDragging={handleResizeHandleDragging} />
+        <Panel ref={sidebarRef} order={3} defaultSize={0} onResize={handleSidebarResize}>
           <Sidebar />
         </Panel>
       </PanelGroup>
+      <SidebarTabList />
     </div>
   );
 };
 
-export default PickerChart;
+export default PickerPanel;
