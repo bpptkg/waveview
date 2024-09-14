@@ -23,6 +23,7 @@ export const useSeismogramCallback = () => {
     setEditedEvent,
     setLastSeismogramExtent,
     getChannels,
+    resetEditing,
   } = usePickerStore();
 
   const { heliChartRef, seisChartRef, props, setSeisChartReady } = usePickerContext();
@@ -183,7 +184,6 @@ export const useSeismogramCallback = () => {
   const handleSetupEventEditing = useCallback(
     (event: SeismicEventDetail) => {
       if (event) {
-        handleSeismogramCheckValueChange('options', ['pick-mode']);
         handleSeismogramPickModeChange(true);
         setSelectedChart('seismogram');
         handleSeismogramFocus();
@@ -194,7 +194,7 @@ export const useSeismogramCallback = () => {
         seisChartRef.current?.removeEventMarker(start, end);
       }
     },
-    [seisChartRef, setEditedEvent, setSelectedChart, handleSeismogramCheckValueChange, handleSeismogramPickModeChange, handleSeismogramFocus]
+    [seisChartRef, setEditedEvent, setSelectedChart, handleSeismogramPickModeChange, handleSeismogramFocus]
   );
 
   const { event } = props;
@@ -208,9 +208,13 @@ export const useSeismogramCallback = () => {
   }, [event, handleSetupEventEditing, setSeisChartReady]);
 
   const handleClearEventEditing = useCallback(() => {
-    handleSeismogramCheckValueChange('options', []);
     handleSeismogramPickModeChange(false);
-  }, [handleSeismogramCheckValueChange, handleSeismogramPickModeChange]);
+    resetEditing();
+  }, [handleSeismogramPickModeChange, resetEditing]);
+
+  const handleSeismogramOnDestroy = useCallback(() => {
+    handleClearEventEditing();
+  }, [handleClearEventEditing]);
 
   const getSeismogramInitOptions = useCallback(() => {
     const determinteInitialExtent = () => {
@@ -264,6 +268,7 @@ export const useSeismogramCallback = () => {
     handleSeismogramExtentChange,
     handleSeismogramPickChange,
     handleSeismogramOnReady,
+    handleSeismogramOnDestroy,
     handleClearEventEditing,
     handleContextMenuRequested,
     handleSetupEventEditing,

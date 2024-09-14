@@ -1,7 +1,7 @@
 import { StateCreator } from 'zustand';
 import { api } from '../../../services/api';
 import apiVersion from '../../../services/apiVersion';
-import { ONE_SECOND } from '../../../shared/time';
+import { getPickExtent, ONE_SECOND } from '../../../shared/time';
 import { CustomError, ErrorData } from '../../../types/response';
 import { useCatalogStore } from '../../catalog';
 import { useOrganizationStore } from '../../organization';
@@ -11,7 +11,6 @@ import { PickerStore, PickSlice } from '../slices';
 export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (set, get) => {
   return {
     pickRange: [0, 0],
-    editedEvent: undefined,
     pickMode: false,
     eventId: undefined,
     time: 0,
@@ -56,13 +55,17 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
     resetEditing: () => {
       set({ eventId: undefined, time: 0, duration: 0, eventTypeId: '', stationOfFirstArrivalId: '', note: '', attachments: [], pickRange: [0, 0] });
     },
-
     setEditedEvent: (editedEvent) => {
-      // const [pickStart, pickEnd] = getPickExtent(editedEvent);
-      // set({ editedEvent, pickStart, pickEnd });
-    },
-    resetEditedEvent: () => {
-      set({ editedEvent: undefined });
+      const [pickStart, pickEnd] = getPickExtent(editedEvent);
+      const pickRange: [number, number] = [pickStart, pickEnd];
+      const time = pickStart;
+      const duration = (pickEnd - pickStart) / ONE_SECOND;
+      const eventTypeId = editedEvent.type.id;
+      const stationOfFirstArrivalId = editedEvent.station_of_first_arrival_id;
+      const note = editedEvent.note;
+      const attachments = editedEvent.attachments;
+      const eventId = editedEvent.id;
+      set({ pickRange, eventId, time, duration, eventTypeId, stationOfFirstArrivalId, note, attachments });
     },
     isPickEmpty: () => {
       const { pickRange } = get();

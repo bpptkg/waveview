@@ -2,7 +2,6 @@ import { Attachment, SeismicEventDetail } from '../../../types/event';
 
 export interface PickSlice {
   pickRange: [number, number];
-  editedEvent?: SeismicEventDetail;
   pickMode: boolean;
   eventId?: string;
   time: number;
@@ -21,7 +20,6 @@ export interface PickSlice {
   resetEditing: () => void;
   setPickMode: (isActive: boolean) => void;
   setEditedEvent: (event: SeismicEventDetail) => void;
-  resetEditedEvent: () => void;
   isPickEmpty: () => boolean;
   clearPick: () => void;
   setPickRange: (range: [number, number]) => void;

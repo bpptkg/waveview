@@ -11,10 +11,6 @@ export interface PickerWorkspaceProps {
    */
   showHelicorder?: boolean;
   /**
-   * Whether the seismogram chart should be shown.
-   */
-  showSeismogram?: boolean;
-  /**
    * Whether the event markers should be shown on the charts.
    */
   showEventMarkers?: boolean;

@@ -37,12 +37,14 @@ const PickEdit = () => {
   }, []);
 
   const { resetEditing } = usePickerStore();
-  const { seisChartRef } = usePickerContext();
+  const { seisChartRef, props } = usePickerContext();
+  const { onCancel, onSave } = props;
   const handleResetPick = useCallback(() => {
     resetEditing();
     setCancelDialogOpen(false);
     seisChartRef.current?.clearPickRange();
-  }, [resetEditing, seisChartRef]);
+    onCancel?.();
+  }, [resetEditing, onCancel, seisChartRef]);
 
   const toasterId = useId('pick-editor');
   const { dispatchToast } = useToastController(toasterId);
@@ -67,27 +69,28 @@ const PickEdit = () => {
     return time !== 0 && duration !== 0 && eventTypeId !== '' && stationOfFirstArrivalId !== '';
   }, [time, duration, eventTypeId, stationOfFirstArrivalId]);
 
-  const onSaved = useCallback(
+  const onSavedCallback = useCallback(
     (event: SeismicEventDetail) => {
       seisChartRef.current?.clearPickRange();
       resetEditing();
       addEventMarker(event);
       handleUpdateEventMarkers();
+      onSave?.(event);
     },
-    [resetEditing, addEventMarker, handleUpdateEventMarkers, seisChartRef]
+    [resetEditing, addEventMarker, handleUpdateEventMarkers, onSave, seisChartRef]
   );
 
   const handleSave = useCallback(async () => {
     setLoading(true);
     try {
       const event = await savePickedEvent();
-      onSaved(event);
+      onSavedCallback(event);
     } catch (error) {
       showErrorToast(error as CustomError);
     } finally {
       setLoading(false);
     }
-  }, [savePickedEvent, showErrorToast, onSaved]);
+  }, [savePickedEvent, showErrorToast, onSavedCallback]);
 
   return (
     <div>

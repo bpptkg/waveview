@@ -34,7 +34,7 @@ const PickerPanel = () => {
     handleSeismogramOnReady,
   } = usePickerCallback();
 
-  const { showHelicorder, showSeismogram } = props;
+  const { showHelicorder } = props;
   const { selectedChart, eventId } = usePickerStore();
 
   const helicorderClassName = useMemo(() => {
@@ -109,39 +109,39 @@ const PickerPanel = () => {
     <div className="flex-grow relative flex mt-1 border-t dark:border-transparent">
       <PanelGroup direction="horizontal" className="relative">
         {showHelicorder && (
-          <Panel defaultSize={25} minSize={20} order={1} className="relative">
-            <HelicorderChart
-              ref={heliChartRef}
-              className={helicorderClassName}
-              initOptions={getHelicorderInitOptions()}
-              onFocus={handleHelicorderFocus}
-              onSelectionChange={handleHelicorderSelectionChange}
-              onReady={handleHelicorderOnReady}
-            />
-          </Panel>
+          <>
+            <Panel defaultSize={25} minSize={20} order={1} className="relative">
+              <HelicorderChart
+                ref={heliChartRef}
+                className={helicorderClassName}
+                initOptions={getHelicorderInitOptions()}
+                onFocus={handleHelicorderFocus}
+                onSelectionChange={handleHelicorderSelectionChange}
+                onReady={handleHelicorderOnReady}
+              />
+            </Panel>
+            <PanelResizeHandle />
+          </>
         )}
-        <PanelResizeHandle />
-        {showSeismogram && (
-          <Panel minSize={20} order={2} className="relative">
-            <SeismogramChart
-              ref={seisChartRef}
-              className={seismogramClassName}
-              initOptions={getSeismogramInitOptions()}
-              onFocus={handleSeismogramFocus}
-              onExtentChange={handleSeismogramExtentChange}
-              onContextMenuRequested={handleContextMenuRequested}
-              onPick={handleSeismogramPickChange}
-              onReady={handleSeismogramOnReady}
-            />
+        <Panel minSize={20} order={2} className="relative">
+          <SeismogramChart
+            ref={seisChartRef}
+            className={seismogramClassName}
+            initOptions={getSeismogramInitOptions()}
+            onFocus={handleSeismogramFocus}
+            onExtentChange={handleSeismogramExtentChange}
+            onContextMenuRequested={handleContextMenuRequested}
+            onPick={handleSeismogramPickChange}
+            onReady={handleSeismogramOnReady}
+          />
 
-            <SeismogramContextMenu
-              onRemoveChannel={handleSeismogramRemoveChannel}
-              onMoveChannelUp={handleSeismogramMoveChannelUp}
-              onMoveChannelDown={handleSeismogramMoveChannelDown}
-              ref={contextMenuRef}
-            />
-          </Panel>
-        )}
+          <SeismogramContextMenu
+            onRemoveChannel={handleSeismogramRemoveChannel}
+            onMoveChannelUp={handleSeismogramMoveChannelUp}
+            onMoveChannelDown={handleSeismogramMoveChannelDown}
+            ref={contextMenuRef}
+          />
+        </Panel>
         <PanelResizeHandle onDragging={handleResizeHandleDragging} />
         <Panel ref={sidebarRef} order={3} defaultSize={0} onResize={handleSidebarResize}>
           <Sidebar />

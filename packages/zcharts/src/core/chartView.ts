@@ -31,13 +31,11 @@ export abstract class ChartView<
   }
 
   getWidth(): number {
-    const width = this.zr.getWidth();
-    return width || 300;
+    return Math.max(this.zr.getWidth() || this.dom.clientWidth, 300);
   }
 
   getHeight(): number {
-    const height = this.zr.getHeight();
-    return height || 150;
+    return Math.max(this.zr.getHeight() || this.dom.clientHeight, 150);
   }
 
   getRect(): LayoutRect {

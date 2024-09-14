@@ -8,7 +8,7 @@ import PickerToolbar from './PickerToolbar';
 import { PickerWorkspaceProps } from './PickerWorkspace.types';
 import { SeismogramChartRef } from './SeismogramChart';
 import { ContextMenuRef } from './SeismogramContextMenu';
-import StatusBar from './StatusBar/StatusBar';
+import StatusBar from './Statusbar/StatusBar';
 
 const PickerWorkspace: React.FC<PickerWorkspaceProps> = (props) => {
   const heliChartRef = useRef<HelicorderChartRef | null>(null);
