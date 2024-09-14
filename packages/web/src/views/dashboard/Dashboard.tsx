@@ -12,7 +12,6 @@ import { useOrganizationStore } from '../../stores/organization';
 import { usePickerStore } from '../../stores/picker';
 import { useUserStore } from '../../stores/user';
 import { useVolcanoStore } from '../../stores/volcano/useVolcanoStore';
-import { Channel } from '../../types/channel';
 import { CustomError } from '../../types/response';
 
 const PickerIcon = CursorHover24Regular;
@@ -27,50 +26,38 @@ const Dashboard = () => {
   const [error, setError] = useState<string | null>(null);
 
   const { currentOrganization, fetchAllOrganizations } = useOrganizationStore();
-  const { fetchInventory } = useInventoryStore();
-  const { fetchUser } = useUserStore();
-  const { setHelicorderChannelId, setSelectedChannels, fetchPickerConfig } = usePickerStore();
-  const { fetchEventTypes } = useEventTypeStore();
-  const { fetchAllVolcanoes } = useVolcanoStore();
-  const { fetchAllCatalogs } = useCatalogStore();
+  const { inventory, fetchInventory } = useInventoryStore();
+  const { user, fetchUser } = useUserStore();
+  const { pickerConfig, fetchPickerConfig } = usePickerStore();
+  const { eventTypes, fetchEventTypes } = useEventTypeStore();
+  const { currentVolcano, fetchAllVolcanoes } = useVolcanoStore();
+  const { currentCatalog, fetchAllCatalogs } = useCatalogStore();
 
   useEffect(() => {
     const initializeApp = async () => {
-      await fetchUser();
-      await fetchAllOrganizations();
-      await fetchInventory();
-      await fetchAllVolcanoes();
-      await fetchAllCatalogs();
-      await fetchEventTypes();
-      await fetchPickerConfig();
+      if (!user) {
+        await fetchUser();
+      }
+      if (!currentOrganization) {
+        await fetchAllOrganizations();
+      }
+      if (!inventory) {
+        await fetchInventory();
+      }
+      if (!currentVolcano) {
+        await fetchAllVolcanoes();
+      }
+      if (!currentCatalog) {
+        await fetchAllCatalogs();
+      }
+      if (eventTypes.length === 0) {
+        await fetchEventTypes();
+      }
+      if (!pickerConfig) {
+        await fetchPickerConfig();
+      }
 
       setIsInitialized(true);
-
-      const { pickerConfig } = usePickerStore.getState();
-      if (!pickerConfig) {
-        return;
-      }
-
-      const helicorderConfig = pickerConfig.helicorder_config;
-      if (!helicorderConfig) {
-        return;
-      }
-      setHelicorderChannelId(pickerConfig.helicorder_config.channel.id);
-
-      const seismogramConfig = pickerConfig.seismogram_config;
-      if (!seismogramConfig) {
-        return;
-      }
-      const seismogramComponent = seismogramConfig.component;
-      const availableChannels = useInventoryStore.getState().channels();
-      const selectedChannels: Channel[] = [];
-      seismogramConfig.station_configs.forEach((stationConfig) => {
-        const channel = availableChannels.find((channel) => channel.station_id === stationConfig.station.id && channel.code.includes(seismogramComponent));
-        if (channel) {
-          selectedChannels.push(channel);
-        }
-      });
-      setSelectedChannels(selectedChannels);
     };
 
     initializeApp().catch((error: CustomError) => {
