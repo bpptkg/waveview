@@ -7,6 +7,7 @@ export interface EventMarkerOptions {
   show?: boolean;
   opacity?: number;
   pill?: boolean;
+  data?: any;
 }
 
 export class EventMarkerModel extends Model<EventMarkerOptions> {
@@ -17,6 +18,7 @@ export class EventMarkerModel extends Model<EventMarkerOptions> {
     color: "red",
     opacity: 0.5,
     pill: true,
+    data: undefined,
   };
   constructor(options: EventMarkerOptions) {
     const opts = { ...EventMarkerModel.defaultOptions, ...options };

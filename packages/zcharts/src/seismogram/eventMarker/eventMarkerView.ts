@@ -8,12 +8,24 @@ export class EventMarkerView extends View<EventMarkerModel> {
   override readonly type: string = "eventMarker";
   private rect: LayoutRect;
   private chart: Seismogram;
+  private markerRect: zrender.Rect;
+  private markerPillRect: zrender.Rect;
 
   constructor(chart: Seismogram, options: EventMarkerOptions) {
     const model = new EventMarkerModel(options);
     super(model);
     this.rect = new zrender.BoundingRect(0, 0, 0, 0);
     this.chart = chart;
+    this.markerRect = new zrender.Rect();
+    this.markerPillRect = new zrender.Rect();
+    this.group.add(this.markerRect);
+    this.group.add(this.markerPillRect);
+    this.markerRect.on("contextmenu", (e) => {
+      this.chart.emit("eventMarkerContextMenu", e, this);
+    });
+    this.markerRect.on("click", () => {
+      this.chart.emit("eventMarkerClicked", this);
+    });
   }
 
   getRect(): LayoutRect {
@@ -37,8 +49,9 @@ export class EventMarkerView extends View<EventMarkerModel> {
   }
 
   render(): void {
-    this.clear();
     if (!this.visible) {
+      this.markerRect.hide();
+      this.markerPillRect.hide();
       return;
     }
 
@@ -61,7 +74,7 @@ export class EventMarkerView extends View<EventMarkerModel> {
     const { y, height } = xAxis.getRect();
 
     const pillHeight = 5;
-    const rect = new zrender.Rect({
+    this.markerRect.attr({
       shape: {
         x: c1,
         y: y,
@@ -74,9 +87,8 @@ export class EventMarkerView extends View<EventMarkerModel> {
       },
       z: 5,
     });
-    rect.silent = true;
 
-    const pillRect = new zrender.Rect({
+    this.markerPillRect.attr({
       shape: {
         x: c1,
         y: y + height - pillHeight,
@@ -87,10 +99,10 @@ export class EventMarkerView extends View<EventMarkerModel> {
         fill: color,
       },
       z: 5,
+      silent: true,
     });
-    pillRect.silent = true;
 
-    this.group.add(pillRect);
-    this.group.add(rect);
+    this.markerRect.show();
+    this.markerPillRect.show();
   }
 }
