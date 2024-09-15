@@ -1,12 +1,13 @@
 import { Tab, TabList, TabListProps, Tooltip } from '@fluentui/react-components';
 import { CopySelectRegular, SoundWaveCircleRegular } from '@fluentui/react-icons';
 import { useSidebarStore } from '../../../stores/sidebar';
+import { SidebarTab } from '../../../stores/sidebar/types';
 
 const SidebarTabList = () => {
   const { visible, selectedTab, setSelectedTab, setVisible } = useSidebarStore();
 
   const handleTabSelect: TabListProps['onTabSelect'] = (_, data) => {
-    const tab = data.value as string;
+    const tab = data.value as SidebarTab;
     if (tab === selectedTab) {
       setVisible(!visible);
     } else {

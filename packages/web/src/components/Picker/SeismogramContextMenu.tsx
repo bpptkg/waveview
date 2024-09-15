@@ -16,6 +16,7 @@ export interface ContextMenuProps {
   onRemoveChannel?: (index: number) => void;
   onMoveChannelUp?: (index: number) => void;
   onMoveChannelDown?: (index: number) => void;
+  onEditEvent?: (event: SeismicEvent) => void;
 }
 
 export interface ContextMenuData {
@@ -28,7 +29,7 @@ const useStyles = makeStyles({
     visibility: 'hidden',
     left: 0,
     top: 0,
-    width: '300px',
+    width: '250px',
     maxHeight: '500px',
     overflowY: 'auto',
     overflowX: 'hidden',

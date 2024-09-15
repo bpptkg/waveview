@@ -123,7 +123,7 @@ const PickerPanel = () => {
             <PanelResizeHandle />
           </>
         )}
-        <Panel minSize={20} order={2} className="relative">
+        <Panel minSize={20} order={2} className="relative overflow-visible">
           <SeismogramChart
             ref={seisChartRef}
             className={seismogramClassName}
@@ -134,7 +134,6 @@ const PickerPanel = () => {
             onPick={handleSeismogramPickChange}
             onReady={handleSeismogramOnReady}
           />
-
           <SeismogramContextMenu
             onRemoveChannel={handleSeismogramRemoveChannel}
             onMoveChannelUp={handleSeismogramMoveChannelUp}
