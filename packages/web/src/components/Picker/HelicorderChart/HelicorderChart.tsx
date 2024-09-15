@@ -177,6 +177,7 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
   );
 
   const handleFocus = useCallback(() => {
+    chartRef.current?.focus();
     onFocus?.();
   }, [onFocus]);
 

@@ -1,9 +1,36 @@
-import React, { useEffect } from 'react';
-import { usePickerStore } from '../../stores/picker';
+import React, { useCallback, useEffect } from 'react';
 import { SeismogramChartRef } from './SeismogramChart';
 
-export function useKeyboardShortcuts(seisChartRef: React.MutableRefObject<SeismogramChartRef | null>) {
-  const { seismogramToolbarAddCheckedValue, seismogramToolbarRemoveCheckedValue } = usePickerStore();
+export function useSeismogramKeyboardShortcuts(seisChartRef: React.MutableRefObject<SeismogramChartRef | null>) {
+  const onArrowLeft = useCallback(() => {
+    seisChartRef.current?.scrollLeft(0.1);
+    seisChartRef.current?.render();
+  }, [seisChartRef]);
+
+  const onArrowRight = useCallback(() => {
+    seisChartRef.current?.scrollRight(0.1);
+    seisChartRef.current?.render();
+  }, [seisChartRef]);
+
+  const onArrowUp = useCallback(() => {
+    seisChartRef.current?.increaseAmplitude(0.1);
+    seisChartRef.current?.render();
+  }, [seisChartRef]);
+
+  const onArrowDown = useCallback(() => {
+    seisChartRef.current?.decreaseAmplitude(0.1);
+    seisChartRef.current?.render();
+  }, [seisChartRef]);
+
+  const onArrowUpShift = useCallback(() => {
+    seisChartRef.current?.zoomIn(0.1);
+    seisChartRef.current?.render();
+  }, [seisChartRef]);
+
+  const onArrowDownShift = useCallback(() => {
+    seisChartRef.current?.zoomOut(0.1);
+    seisChartRef.current?.render();
+  }, [seisChartRef]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -12,42 +39,36 @@ export function useKeyboardShortcuts(seisChartRef: React.MutableRefObject<Seismo
       }
 
       switch (event.key) {
-        case 'z':
-        case 'Z': {
-          if (seisChartRef.current.isZoomRectangleActive()) {
-            seisChartRef.current.deactivateZoomRectangle();
-            seismogramToolbarRemoveCheckedValue('options', 'zoom-rectangle');
+        case 'ArrowLeft':
+          onArrowLeft();
+          break;
+        case 'ArrowRight':
+          onArrowRight();
+          break;
+        case 'ArrowUp': {
+          if (event.shiftKey) {
+            onArrowUpShift();
           } else {
-            seisChartRef.current?.activateZoomRectangle();
-            seismogramToolbarAddCheckedValue('options', 'zoom-rectangle');
+            onArrowUp();
           }
-
-          seisChartRef.current.deactivatePickMode();
-          seismogramToolbarRemoveCheckedValue('options', 'pick-mode');
           break;
         }
-
-        case 'p':
-        case 'P': {
-          if (seisChartRef.current.isPickModeActive()) {
-            seisChartRef.current.deactivatePickMode();
-            seismogramToolbarRemoveCheckedValue('options', 'pick-mode');
+        case 'ArrowDown': {
+          if (event.shiftKey) {
+            onArrowDownShift();
           } else {
-            seisChartRef.current.activatePickMode();
-            seismogramToolbarAddCheckedValue('options', 'pick-mode');
+            onArrowDown();
           }
-
-          seisChartRef.current.deactivateZoomRectangle();
-          seismogramToolbarRemoveCheckedValue('options', 'zoom-rectangle');
           break;
         }
+        default:
+          break;
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
-
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [seisChartRef, seismogramToolbarAddCheckedValue, seismogramToolbarRemoveCheckedValue]);
+  }, [seisChartRef, onArrowLeft, onArrowRight, onArrowUp, onArrowDown, onArrowUpShift, onArrowDownShift]);
 }

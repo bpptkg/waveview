@@ -25,6 +25,7 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
   useImperativeHandle(ref, () => api);
 
   const handleFocus = useCallback(() => {
+    chartRef.current?.focus();
     onFocus?.();
   }, [onFocus]);
 
@@ -46,9 +47,12 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
     [onTrackDoubleClick]
   );
 
-  const handleContextMenuRequested = useCallback((e: ElementEvent) => {
-    onContextMenuRequested?.(e);
-  }, [onContextMenuRequested]);
+  const handleContextMenuRequested = useCallback(
+    (e: ElementEvent) => {
+      onContextMenuRequested?.(e);
+    },
+    [onContextMenuRequested]
+  );
 
   const handlePickRangeChange = useCallback(
     (range: [number, number]) => {
