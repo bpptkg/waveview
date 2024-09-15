@@ -139,11 +139,16 @@ export class AxisView extends View<AxisModel> {
   }
 
   getMinorTicksPixels(): TickPixel[] {
+    const { fontSize, reverse } = this.model.getOptions().axisLabel;
+    const maxTicks = this.isHorizontal()
+      ? Math.floor(this.getRect().width / fontSize)
+      : Math.floor(this.getRect().height / fontSize);
+
     const { scale } = this.model;
     const { x, y, width, height } = this.getRect();
     const { splitNumber } = this.model.options.minorTick;
     const range = this.isHorizontal() ? width : height;
-    const ticks = scale.getMinorTicks(splitNumber);
+    const ticks = scale.getMinorTicks(splitNumber, { maxTicks, reverse });
 
     const ticksPixels = [];
     for (const tick of ticks) {

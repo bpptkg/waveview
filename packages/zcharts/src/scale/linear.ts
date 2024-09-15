@@ -46,8 +46,11 @@ export class LinearScale extends Scale<LinearScaleOptions> {
     return ticks;
   }
 
-  override getMinorTicks(splitNumber: number): ScaleTick[] {
-    let ticks = this.getTicks();
+  override getMinorTicks(
+    splitNumber: number,
+    options?: GetTicksOptions
+  ): ScaleTick[] {
+    let ticks = this.getTicks(options);
     const minorTicks: ScaleTick[] = [];
     if (ticks.length > 2) {
       const step = (ticks[1].value - ticks[0].value) / splitNumber;

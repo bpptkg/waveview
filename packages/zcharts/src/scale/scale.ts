@@ -81,5 +81,8 @@ export abstract class Scale<T extends ScaleOptions = ScaleOptions> {
 
   abstract getTicks(options?: GetTicksOptions): ScaleTick[];
 
-  abstract getMinorTicks(splitNumber: number): ScaleTick[];
+  abstract getMinorTicks(
+    splitNumber: number,
+    options?: GetTicksOptions
+  ): ScaleTick[];
 }
