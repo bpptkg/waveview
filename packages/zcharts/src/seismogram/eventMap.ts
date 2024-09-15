@@ -1,6 +1,6 @@
 import * as zrender from "zrender";
 import { Channel, EventMap } from "../util/types";
-import { EventMarkerView } from "./eventMarker/eventMarkerView";
+import { SeismogramEventMarkerData } from "./eventMarker/eventMarkerModel";
 
 export interface SeismogramEventMap extends EventMap {
   channelAdded: (channel: Channel) => void;
@@ -16,7 +16,7 @@ export interface SeismogramEventMap extends EventMap {
   pickChanged: (pick: [number, number]) => void;
   eventMarkerContextMenu: (
     event: zrender.ElementEvent,
-    marker: EventMarkerView
+    marker: SeismogramEventMarkerData
   ) => void;
-  eventMarkerClicked: (marker: EventMarkerView) => void;
+  eventMarkerClicked: (marker: SeismogramEventMarkerData) => void;
 }

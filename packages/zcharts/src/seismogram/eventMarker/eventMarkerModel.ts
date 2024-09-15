@@ -29,3 +29,5 @@ export class EventMarkerModel extends Model<EventMarkerOptions> {
     return [this.options.start, this.options.end];
   }
 }
+
+export type SeismogramEventMarkerData = EventMarkerOptions;

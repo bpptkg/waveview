@@ -21,10 +21,10 @@ export class EventMarkerView extends View<EventMarkerModel> {
     this.group.add(this.markerRect);
     this.group.add(this.markerPillRect);
     this.markerRect.on("contextmenu", (e) => {
-      this.chart.emit("eventMarkerContextMenu", e, this);
+      this.chart.emit("eventMarkerContextMenu", e, this.model.getOptions());
     });
     this.markerRect.on("click", () => {
-      this.chart.emit("eventMarkerClicked", this);
+      this.chart.emit("eventMarkerClicked", this.model.getOptions());
     });
   }
 
