@@ -1,8 +1,14 @@
 import { TrackView } from "../track/trackView";
 import { Channel } from "../util/types";
+import { Seismogram } from "./seismogram";
 
 export class TrackManager {
   private store: [Channel, TrackView][] = [];
+  private chart: Seismogram;
+
+  constructor(chart: Seismogram) {
+    this.chart = chart;
+  }
 
   count(): number {
     return this.store.length;
@@ -36,6 +42,13 @@ export class TrackManager {
   getTrackByChannelId(channelId: string): TrackView | undefined {
     const item = this.store.find(([channel]) => channel.id === channelId);
     return item ? item[1] : undefined;
+  }
+
+  getTrackIndexByY(y: number): number {
+    const trackCount = this.count();
+    const trackHeight = this.chart.getRect().height / trackCount;
+    const index = Math.floor(y / trackHeight);
+    return Math.min(index, trackCount - 1);
   }
 
   *items(): Generator<[Channel, TrackView]> {

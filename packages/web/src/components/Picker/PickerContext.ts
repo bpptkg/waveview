@@ -32,7 +32,6 @@ export const useDefaultProps = (props: PickerWorkspaceProps): PickerWorkspacePro
   return {
     ...props,
     showHelicorder: props.showHelicorder ?? true,
-    showSeismogram: props.showSeismogram ?? true,
     showEventMarkers: props.showEventMarkers ?? true,
   };
 };

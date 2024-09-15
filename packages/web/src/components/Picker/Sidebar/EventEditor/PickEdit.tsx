@@ -116,12 +116,14 @@ const PickEdit = () => {
   const { resetEditing } = usePickerStore();
   const { seisChartRef, props } = usePickerContext();
   const { onCancel, onSave } = props;
+  const { handleUpdateEventMarkers } = usePickerCallback();
   const handleResetPick = useCallback(() => {
     resetEditing();
     setCancelDialogOpen(false);
     seisChartRef.current?.clearPickRange();
+    handleUpdateEventMarkers();
     onCancel?.();
-  }, [resetEditing, onCancel, seisChartRef]);
+  }, [seisChartRef, resetEditing, onCancel, handleUpdateEventMarkers]);
 
   const toasterId = useId('pick-editor');
   const { dispatchToast } = useToastController(toasterId);
@@ -140,7 +142,6 @@ const PickEdit = () => {
 
   const [loading, setLoading] = useState(false);
   const { time, duration, eventTypeId, stationOfFirstArrivalId, savePickedEvent, addEventMarker } = usePickerStore();
-  const { handleUpdateEventMarkers } = usePickerCallback();
 
   const canSave = useMemo(() => {
     return time !== 0 && duration !== 0 && eventTypeId !== '' && stationOfFirstArrivalId !== '';
@@ -154,7 +155,7 @@ const PickEdit = () => {
       handleUpdateEventMarkers();
       onSave?.(event);
     },
-    [resetEditing, addEventMarker, handleUpdateEventMarkers, onSave, seisChartRef]
+    [seisChartRef, resetEditing, addEventMarker, handleUpdateEventMarkers, onSave]
   );
 
   const handleSave = useCallback(async () => {

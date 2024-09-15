@@ -1,4 +1,4 @@
-import { Seismogram } from '@waveview/zcharts';
+import { ElementEvent, Seismogram } from '@waveview/zcharts';
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useImperativeHandle, useRef } from 'react';
 import { debounce } from '../../../shared/debounce';
@@ -46,8 +46,8 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
     [onTrackDoubleClick]
   );
 
-  const handleContextMenuRequested = useCallback(() => {
-    onContextMenuRequested?.();
+  const handleContextMenuRequested = useCallback((e: ElementEvent) => {
+    onContextMenuRequested?.(e);
   }, [onContextMenuRequested]);
 
   const handlePickRangeChange = useCallback(
@@ -74,7 +74,7 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
       chartRef.current.on('blur', handleBlur);
       chartRef.current.on('extentChanged', handleExtentChange);
       chartRef.current.on('trackDoubleClicked', handleTrackDoubleClick);
-      chartRef.current.on('contextMenuRequested', handleContextMenuRequested);
+      chartRef.current.on('contextmenu', handleContextMenuRequested);
       chartRef.current.on('pickChanged', handlePickRangeChange);
       chartRef.current.render();
     }

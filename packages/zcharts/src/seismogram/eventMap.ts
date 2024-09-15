@@ -11,5 +11,6 @@ export interface SeismogramEventMap extends EventMap {
   extentChanged: (extent: [number, number]) => void;
   trackDoubleClicked: (index: number) => void;
   click: (event: zrender.ElementEvent) => void;
+  contextmenu: (event: zrender.ElementEvent) => void;
   pickChanged: (pick: [number, number]) => void;
 }

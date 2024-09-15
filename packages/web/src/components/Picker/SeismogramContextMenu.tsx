@@ -1,11 +1,11 @@
 import { MenuDivider, MenuItem, MenuList, Toast, ToastTitle, Toaster, makeStyles, tokens, useId, useToastController } from '@fluentui/react-components';
 import { ArrowDown20Regular, ArrowUp20Regular, Delete20Regular, EditRegular } from '@fluentui/react-icons';
-import { Seismogram } from '@waveview/zcharts';
-import { FederatedPointerEvent } from 'pixi.js';
+import { ElementEvent, Seismogram } from '@waveview/zcharts';
 import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { ONE_SECOND, formatTimezonedDate } from '../../shared/time';
 import { useAppStore } from '../../stores/app';
 import { usePickerStore } from '../../stores/picker';
+import { useSidebarStore } from '../../stores/sidebar';
 import { SeismicEvent } from '../../types/event';
 import { CustomError } from '../../types/response';
 import { usePickerContext } from './PickerContext';
@@ -41,7 +41,7 @@ const useStyles = makeStyles({
 });
 
 export interface ContextMenuRef {
-  open: (e: FederatedPointerEvent) => void;
+  open: (e: ElementEvent) => void;
   close: () => void;
 }
 
@@ -59,7 +59,7 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & 
   const { seisChartRef } = usePickerContext();
   const { useUTC } = useAppStore();
 
-  const { eventMarkers, editedEvent, } = usePickerStore();
+  const { eventMarkers, pickMode, eventId } = usePickerStore();
 
   const toasterId = useId('seismogram-contextmneu');
   const { dispatchToast } = useToastController(toasterId);
@@ -78,9 +78,9 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & 
 
   const setupContext = useCallback(() => {
     const { x } = point;
-    // if (isPickModeActive()) {
-    //   seisChartRef.current?.disablePickMode();
-    // }
+    if (pickMode) {
+      seisChartRef.current?.disablePickMode();
+    }
 
     const chart = seisChartRef.current?.getInstance() as Seismogram;
     const xAxis = chart.getXAxis();
@@ -90,12 +90,12 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & 
       const eventTime = new Date(e.time).getTime();
       return time >= eventTime && time <= eventTime + e.duration * ONE_SECOND;
     });
-    if (marker && !editedEvent) {
+    if (marker && !eventId) {
       setSelectedEvent(marker);
     } else {
       setSelectedEvent(null);
     }
-  }, [seisChartRef, eventMarkers, point, editedEvent,]);
+  }, [seisChartRef, eventMarkers, point, pickMode, eventId]);
 
   useEffect(() => {
     if (!menuRef.current) {
@@ -109,7 +109,7 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & 
   }, [visible, setupContext]);
 
   const handleOpen = useCallback(
-    (e: FederatedPointerEvent) => {
+    (e: ElementEvent) => {
       if (menuRef.current) {
         const chart = seisChartRef.current?.getInstance() as Seismogram;
         if (!chart) {
@@ -118,22 +118,24 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & 
 
         const width = 200;
         const height = menuRef.current.clientHeight;
-        let { x, y } = e.global;
+        let x = e.offsetX;
+        let y = e.offsetY;
         setPoint({ x, y });
 
         const rect = chart.getGrid().getRect();
-        if (x > rect.x + rect.width || y < rect.y || y > rect.y + rect.height) {
+        if (!rect.contain(x, y)) {
           return;
         }
 
-        // const index = chart.getChannelIndexAtPosition(y);
-        // setChannelIndex(index);
+        const trackManager = chart.getTrackManager();
+        const index = trackManager.getTrackIndexByY(y);
+        setChannelIndex(index);
 
-        if (e.pageX > window.innerWidth - width) {
+        if (e.offsetX > window.innerWidth - width) {
           x -= width;
         }
 
-        if (e.pageY > window.innerHeight - height) {
+        if (e.offsetY > window.innerHeight - height) {
           y -= height;
         }
 
@@ -149,11 +151,11 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & 
     if (menuRef.current) {
       menuRef.current.style.visibility = 'hidden';
     }
-    // if (isPickModeActive()) {
-    //   seisChartRef.current?.enablePickMode();
-    // }
+    if (pickMode) {
+      seisChartRef.current?.enablePickMode();
+    }
     setVisible(false);
-  }, [seisChartRef]);
+  }, [seisChartRef, pickMode]);
 
   useImperativeHandle(ref, () => ({
     open: handleOpen,
@@ -200,6 +202,7 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & 
   const { selectedChannels, fetchEditedEvent } = usePickerStore();
   const channel = useMemo(() => selectedChannels[channelIndex ?? 0], [selectedChannels, channelIndex]);
   const { handleSetupEventEditing } = usePickerCallback();
+  const sidebar = useSidebarStore();
 
   const handleEditEvent = useCallback(() => {
     if (!selectedEvent) {
@@ -208,6 +211,8 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & 
     fetchEditedEvent(selectedEvent.id)
       .then((event) => {
         handleSetupEventEditing(event);
+        sidebar.setSelectedTab('pick');
+        sidebar.setVisible(true);
       })
       .catch((error) => {
         showErrorToast(error);
@@ -215,7 +220,7 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & 
       .finally(() => {
         handleClose();
       });
-  }, [selectedEvent, fetchEditedEvent, showErrorToast, handleClose, handleSetupEventEditing]);
+  }, [selectedEvent, sidebar, fetchEditedEvent, showErrorToast, handleClose, handleSetupEventEditing]);
 
   return (
     <div

@@ -266,7 +266,7 @@ importers:
         specifier: workspace:*
         version: link:../custompiecewise
       '@waveview/ndarray':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../ndarray
       '@waveview/react-echarts':
         specifier: workspace:*
@@ -304,9 +304,6 @@ importers:
       libphonenumber-js:
         specifier: ^1.11.7
         version: 1.11.7
-      pixi.js:
-        specifier: ^8.1.1
-        version: 8.1.1
       react:
         specifier: ^18.2.0
         version: 18.3.1

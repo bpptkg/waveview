@@ -1,5 +1,4 @@
 import React from 'react';
-import SpectrogramToolbox from '../../../../../../nocommit/SpectrogramToolbox';
 import { useSidebarStore } from '../../../stores/sidebar';
 import EventEditor from './EventEditor/EventEditor';
 import FilterToolbox from './FilterToolbox';
@@ -13,7 +12,6 @@ const Sidebar: React.FC = () => {
         <div className="absolute top-0 right-0 bottom-0 left-0 overflow-auto">
           {selectedTab === 'pick' && <EventEditor />}
           {selectedTab === 'filter' && <FilterToolbox />}
-          {selectedTab === 'spectrogram' && <SpectrogramToolbox />}
         </div>
       </div>
     </div>

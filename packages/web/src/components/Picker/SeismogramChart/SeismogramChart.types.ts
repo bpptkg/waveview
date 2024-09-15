@@ -1,4 +1,4 @@
-import { Channel, Seismogram, SeismogramEventMarkerOptions, SeismogramOptions } from '@waveview/zcharts';
+import { Channel, ElementEvent, Seismogram, SeismogramEventMarkerOptions, SeismogramOptions } from '@waveview/zcharts';
 import { FilterOperationOptions } from '../../../types/filter';
 
 export interface SeismogramChartProps {
@@ -41,7 +41,7 @@ export interface SeismogramChartProps {
   /**
    * Callback fired when context menu is requested.
    */
-  onContextMenuRequested?: () => void;
+  onContextMenuRequested?: (event: ElementEvent) => void;
   /**
    * Callback fired when the user picks a range.
    */

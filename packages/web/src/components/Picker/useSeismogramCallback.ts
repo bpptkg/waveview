@@ -1,4 +1,4 @@
-import { Channel } from '@waveview/zcharts';
+import { Channel, ElementEvent } from '@waveview/zcharts';
 import { useCallback } from 'react';
 import { getPickExtent, ONE_SECOND } from '../../shared/time';
 import { useAppStore } from '../../stores/app';
@@ -26,7 +26,7 @@ export const useSeismogramCallback = () => {
     resetEditing,
   } = usePickerStore();
 
-  const { heliChartRef, seisChartRef, props, setSeisChartReady } = usePickerContext();
+  const { heliChartRef, seisChartRef, contextMenuRef, props, setSeisChartReady } = usePickerContext();
 
   const handleSeismogramChannelAdd = useCallback(
     (channel: Channel) => {
@@ -179,7 +179,12 @@ export const useSeismogramCallback = () => {
     [setPickRange]
   );
 
-  const handleContextMenuRequested = useCallback(() => {}, []);
+  const handleContextMenuRequested = useCallback(
+    (e: ElementEvent) => {
+      contextMenuRef.current?.open(e);
+    },
+    [contextMenuRef]
+  );
 
   const handleSetupEventEditing = useCallback(
     (event: SeismicEventDetail) => {

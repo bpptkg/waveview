@@ -31,7 +31,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   private yExtent: [number, number] = [-1, 1];
   private grid: GridView;
   private xAxis: AxisView;
-  private trackManager: TrackManager = new TrackManager();
+  private trackManager: TrackManager;
   private axisPointer: AxisPointer;
   private picker: PickerView;
   private markers: EventMarkerView[] = [];
@@ -47,6 +47,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     super(dom, opts);
 
     this.eventEmitter = new EventEmitter<SeismogramEventMap>();
+    this.trackManager = new TrackManager(this);
 
     this.grid = new GridView(this, opts.grid);
     this.grid.hide();
@@ -93,6 +94,14 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     this.zr.on("click", (event) => {
       this.emit("click", event);
     });
+    this.zr.on(
+      "contextmenu",
+      (event) => {
+        event.event.preventDefault();
+        this.emit("contextmenu", event);
+      },
+      this
+    );
   }
 
   setChannels(channels: Channel[]): void {

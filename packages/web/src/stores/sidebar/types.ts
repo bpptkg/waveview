@@ -1,11 +1,13 @@
+export type SidebarTab = 'pick' | 'filter';
+
 export interface SidebarStore {
   visible: boolean;
   size: number;
   defaultSize: number;
   minSize: number;
   collapseSize: number;
-  selectedTab: string;
-  setSelectedTab: (tab: string) => void;
+  selectedTab: SidebarTab;
+  setSelectedTab: (tab: SidebarTab) => void;
   setVisible: (visible: boolean) => void;
   setSize: (size: number) => void;
 }

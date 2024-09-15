@@ -47,7 +47,7 @@ const PickerToolbar = () => {
   } = usePickerCallback();
 
   const { props } = usePickerContext();
-  const { showHelicorder, showSeismogram } = props;
+  const { showHelicorder } = props;
 
   return (
     <>
@@ -73,7 +73,7 @@ const PickerToolbar = () => {
         />
       )}
 
-      {selectedChart === 'seismogram' && showSeismogram && (
+      {selectedChart === 'seismogram' && (
         <SeismogramToolbar
           showEvent={showEvent}
           checkedValues={seismogramToolbarCheckedValues}

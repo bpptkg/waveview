@@ -11,3 +11,4 @@ export type {
 export { Seismogram } from "./seismogram/seismogram";
 export { SpectrogramData } from "./spectrogram/spectrogramModel";
 export type { Channel, EventMap } from "./util/types";
+export type { ElementEvent } from "zrender";
