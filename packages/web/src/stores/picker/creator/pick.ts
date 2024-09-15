@@ -2,9 +2,19 @@ import { StateCreator } from 'zustand';
 import { api } from '../../../services/api';
 import apiVersion from '../../../services/apiVersion';
 import { getPickExtent, ONE_SECOND } from '../../../shared/time';
+import { EventPayload, SeismicEventDetail } from '../../../types/event';
+import { ExplosionEvent, ObservationPayload, PyroclasticFlowEvent, RockfallEvent, TectonicEvent, VolcanicEmissionEvent } from '../../../types/observation';
 import { CustomError, ErrorData } from '../../../types/response';
 import { useCatalogStore } from '../../catalog';
+import { useEventTypeStore } from '../../eventType';
 import { useOrganizationStore } from '../../organization';
+import {
+  useExplosionEventStore,
+  usePyroclasticFlowEventStore,
+  useRockfallEventStore,
+  useTectonicEventStore,
+  useVolcanicEmissionEventStore,
+} from '../../visual';
 import { useVolcanoStore } from '../../volcano/useVolcanoStore';
 import { PickerStore, PickSlice } from '../slices';
 
@@ -53,7 +63,16 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
       });
     },
     resetEditing: () => {
-      set({ eventId: undefined, time: 0, duration: 0, eventTypeId: '', stationOfFirstArrivalId: '', note: '', attachments: [], pickRange: [0, 0] });
+      set({
+        eventId: undefined,
+        time: 0,
+        duration: 0,
+        eventTypeId: '',
+        stationOfFirstArrivalId: '',
+        note: '',
+        attachments: [],
+        pickRange: [0, 0],
+      });
     },
     setEditedEvent: (editedEvent) => {
       const [pickStart, pickEnd] = getPickExtent(editedEvent);
@@ -65,7 +84,39 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
       const note = editedEvent.note;
       const attachments = editedEvent.attachments;
       const eventId = editedEvent.id;
+
       set({ pickRange, eventId, time, duration, eventTypeId, stationOfFirstArrivalId, note, attachments });
+
+      const { observation } = editedEvent;
+      if (observation) {
+        const explosionEventStore = useExplosionEventStore.getState();
+        const pyroclasticFlowEventStore = usePyroclasticFlowEventStore.getState();
+        const rockfallEventStore = useRockfallEventStore.getState();
+        const tectonicEventStore = useTectonicEventStore.getState();
+        const volcanicEmissionEventStore = useVolcanicEmissionEventStore.getState();
+
+        const { eventTypes } = useEventTypeStore.getState();
+        const observationType = eventTypes.find((et) => et.id === eventTypeId)?.observation_type;
+        switch (observationType) {
+          case 'explosion':
+            explosionEventStore.fromEvent(observation as ExplosionEvent);
+            break;
+          case 'pyroclastic_flow':
+            pyroclasticFlowEventStore.fromEvent(observation as PyroclasticFlowEvent);
+            break;
+          case 'rockfall':
+            rockfallEventStore.fromEvent(observation as RockfallEvent);
+            break;
+          case 'tectonic':
+            tectonicEventStore.fromEvent(observation as TectonicEvent);
+            break;
+          case 'volcanic_emission':
+            volcanicEmissionEventStore.fromEvent(observation as VolcanicEmissionEvent);
+            break;
+          default:
+            break;
+        }
+      }
     },
     isPickEmpty: () => {
       const { pickRange } = get();
@@ -97,7 +148,36 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
 
       const { eventId, time, duration, eventTypeId, stationOfFirstArrivalId, note, attachments } = get();
 
-      const payload = {
+      const explosionEventStore = useExplosionEventStore.getState();
+      const pyroclasticFlowEventStore = usePyroclasticFlowEventStore.getState();
+      const rockfallEventStore = useRockfallEventStore.getState();
+      const tectonicEventStore = useTectonicEventStore.getState();
+      const volcanicEmissionEventStore = useVolcanicEmissionEventStore.getState();
+
+      const { eventTypes } = useEventTypeStore.getState();
+      const observationType = eventTypes.find((et) => et.id === eventTypeId)?.observation_type;
+      let observation: ObservationPayload | null = null;
+      switch (observationType) {
+        case 'explosion':
+          observation = explosionEventStore.getPayload();
+          break;
+        case 'pyroclastic_flow':
+          observation = pyroclasticFlowEventStore.getPayload();
+          break;
+        case 'rockfall':
+          observation = rockfallEventStore.getPayload();
+          break;
+        case 'tectonic':
+          observation = tectonicEventStore.getPayload();
+          break;
+        case 'volcanic_emission':
+          observation = volcanicEmissionEventStore.getPayload();
+          break;
+        default:
+          break;
+      }
+
+      const payload: EventPayload = {
         station_of_first_arrival_id: stationOfFirstArrivalId,
         time: new Date(time).toISOString(),
         duration: duration,
@@ -107,6 +187,7 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
         evaluation_mode: 'automatic',
         evaluation_status: 'confirmed',
         attachment_ids: attachments.map((attachment) => attachment.id),
+        observation: observation,
       };
 
       const makeApiRequest = async (url: string, method: 'PUT' | 'POST', payload: any) => {
@@ -126,10 +207,16 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
         : apiVersion.createEvent.v1(currentOrganization.id, currentVolcano.id, currentCatalog.id);
 
       const method: 'PUT' | 'POST' = eventId ? 'PUT' : 'POST';
+      const eventDetail: SeismicEventDetail = await makeApiRequest(url, method, payload);
 
-      return await makeApiRequest(url, method, payload);
+      explosionEventStore.reset();
+      pyroclasticFlowEventStore.reset();
+      rockfallEventStore.reset();
+      tectonicEventStore.reset();
+      volcanicEmissionEventStore.reset();
+
+      return eventDetail;
     },
-
     fetchEditedEvent: async (eventId) => {
       const { currentOrganization } = useOrganizationStore.getState();
       if (!currentOrganization) {

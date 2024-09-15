@@ -127,4 +127,7 @@ export default {
   deleteEventAttachment: {
     v1: (id: string) => `/api/v1/event-attachments/${id}/`,
   },
+  listFallDirection: {
+    v1: (organizationId: string, volcanoId: string) => `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/fall-directions/`,
+  },
 };

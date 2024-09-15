@@ -1,8 +1,10 @@
 import { MediaType } from './media';
+import { ObservationEvent, ObservationPayload } from './observation';
 import { User } from './user';
 
 export type EvaluationMode = 'automatic' | 'manual';
 export type EvaluationStatus = 'preliminary' | 'confirmed' | 'reviewed' | 'final' | 'rejected';
+export type ObservationType = 'explosion' | 'pyroclastic_flow' | 'rockfall' | 'tectonic' | 'volcanic_emission' | 'lahar' | 'sound';
 
 export interface EventType {
   id: string;
@@ -15,6 +17,7 @@ export interface EventType {
   color_dark: string;
   created_at: number;
   updated_at: number;
+  observation_type: ObservationType;
 }
 
 export interface Attachment {
@@ -109,6 +112,7 @@ export interface SeismicEventDetail extends SeismicEvent {
   amplitudes: Amplitude[];
   magnitudes: Magnitude[];
   origins: Origin[];
+  observation: ObservationEvent | null;
 }
 
 export interface PaginatedSeismicEvents {
@@ -133,6 +137,7 @@ export interface EventPayload {
   evaluation_mode: EvaluationMode;
   evaluation_status: EvaluationStatus;
   attachment_ids: string[];
+  observation: ObservationPayload | null;
 }
 
 export interface EventQueryParams {

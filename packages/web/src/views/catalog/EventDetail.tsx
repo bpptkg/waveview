@@ -104,6 +104,7 @@ export const EventDetailTabs: React.FC<EventDetailTabsProps> = ({ eventId }) => 
     { value: `/catalog/events/${eventId}/location`, label: 'Location' },
     { value: `/catalog/events/${eventId}/waveform`, label: 'Waveform' },
     { value: `/catalog/events/${eventId}/attachments`, label: 'Attachments' },
+    { value: `/catalog/events/${eventId}/visual`, label: 'Visual' },
   ];
 
   if (!eventId) {

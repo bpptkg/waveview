@@ -110,7 +110,7 @@ const PickerPanel = () => {
       <PanelGroup direction="horizontal" className="relative">
         {showHelicorder && (
           <>
-            <Panel defaultSize={25} minSize={20} order={1} className="relative">
+            <Panel defaultSize={30} minSize={20} order={1} className="relative">
               <HelicorderChart
                 ref={heliChartRef}
                 className={helicorderClassName}

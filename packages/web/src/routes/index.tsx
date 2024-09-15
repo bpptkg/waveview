@@ -22,6 +22,7 @@ import Login from '../views/login/Login';
 import Picker from '../views/picker/Picker';
 import Profile from '../views/profile/Profile';
 import TermsOfService from '../views/tos/TermsOfService';
+import EventDetailVisual from '../views/catalog/EventDetailVisual';
 
 const router = createBrowserRouter([
   {
@@ -71,6 +72,10 @@ const router = createBrowserRouter([
                   {
                     path: ':eventId/attachments',
                     element: <EventDetailAttachments />,
+                  },
+                  {
+                    path: ':eventId/visual',
+                    element: <EventDetailVisual />,
                   },
                   {
                     path: ':eventId',

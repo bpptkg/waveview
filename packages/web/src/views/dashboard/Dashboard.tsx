@@ -11,6 +11,7 @@ import { useInventoryStore } from '../../stores/inventory';
 import { useOrganizationStore } from '../../stores/organization';
 import { usePickerStore } from '../../stores/picker';
 import { useUserStore } from '../../stores/user';
+import { useFallDirectionStore } from '../../stores/visual';
 import { useVolcanoStore } from '../../stores/volcano/useVolcanoStore';
 import { CustomError } from '../../types/response';
 
@@ -32,6 +33,7 @@ const Dashboard = () => {
   const { eventTypes, fetchEventTypes } = useEventTypeStore();
   const { currentVolcano, fetchAllVolcanoes } = useVolcanoStore();
   const { currentCatalog, fetchAllCatalogs } = useCatalogStore();
+  const { allFallDirections, fetchAllFallDirections } = useFallDirectionStore();
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -55,6 +57,9 @@ const Dashboard = () => {
       }
       if (!pickerConfig) {
         await fetchPickerConfig();
+      }
+      if (allFallDirections.length === 0) {
+        await fetchAllFallDirections();
       }
 
       setIsInitialized(true);

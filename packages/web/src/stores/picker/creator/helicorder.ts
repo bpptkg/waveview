@@ -3,12 +3,11 @@ import { endOf, ONE_HOUR, startOf } from '../../../shared/time';
 import { HelicorderSlice, PickerStore } from '../slices';
 
 export const createHelicorderSlice: StateCreator<PickerStore, [], [], HelicorderSlice> = (set, get) => {
-  const offsetDate = new Date('2024-06-11T11:00:00Z').getTime();
   return {
     channelId: '',
     helicorderDuration: 12,
     helicorderInterval: 30,
-    offsetDate,
+    offsetDate: Date.now(),
     selectionWindow: undefined,
     lastSelection: 0,
     setHelicorderChannelId: (channelId) => set({ channelId }),

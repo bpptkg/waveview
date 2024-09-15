@@ -7,15 +7,27 @@ import {
   DialogSurface,
   DialogTitle,
   DialogTrigger,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  MenuPopover,
+  MenuTrigger,
+  Overflow,
+  OverflowItem,
+  ProgressBar,
   Tab,
   TabList,
-  TabListProps,
   Toast,
+  Toaster,
   ToastTitle,
   useId,
+  useIsOverflowItemVisible,
+  useOverflowMenu,
   useToastController,
 } from '@fluentui/react-components';
-import { useCallback, useMemo, useState } from 'react';
+import { MoreHorizontalRegular } from '@fluentui/react-icons';
+import React, { useCallback, useMemo, useState } from 'react';
 import { usePickerStore } from '../../../../stores/picker';
 import { SeismicEventDetail } from '../../../../types/event';
 import { CustomError } from '../../../../types/response';
@@ -25,11 +37,76 @@ import PickEditAttachments from './PickEditAttachments';
 import PickEditEvent from './PickEditEvent';
 import PickEditVisual from './PickEditVisual';
 
+interface EditTabItem {
+  value: string;
+  label: string;
+}
+
+const OverflowMenuItem: React.FC<{ tab: EditTabItem; onTabSelect?: (tab: string) => void }> = (props) => {
+  const { tab, onTabSelect } = props;
+  const isVisible = useIsOverflowItemVisible(tab.value);
+
+  if (isVisible) {
+    return null;
+  }
+
+  return <MenuItem onClick={() => onTabSelect?.(tab.value)}>{tab.label}</MenuItem>;
+};
+
+const OverflowMenu: React.FC<{ tabs: EditTabItem[]; onTabSelect?: (tab: string) => void }> = ({ tabs, onTabSelect }) => {
+  const { ref, isOverflowing } = useOverflowMenu<HTMLButtonElement>();
+
+  if (!isOverflowing) {
+    return null;
+  }
+
+  return (
+    <Menu>
+      <MenuTrigger disableButtonEnhancement>
+        <MenuButton ref={ref} appearance="transparent" icon={<MoreHorizontalRegular fontSize={20} />}></MenuButton>
+      </MenuTrigger>
+
+      <MenuPopover>
+        <MenuList>
+          {tabs.map((tab) => {
+            return <OverflowMenuItem onTabSelect={onTabSelect} key={tab.value} tab={tab} />;
+          })}
+        </MenuList>
+      </MenuPopover>
+    </Menu>
+  );
+};
+
+const EditItemTabList: React.FC<{ selectedValue?: string; onTabSelect?: (tab: string) => void }> = ({ selectedValue, onTabSelect }) => {
+  const tabs: EditTabItem[] = [
+    { value: 'event', label: 'Event' },
+    { value: 'attachment', label: 'Attachments' },
+    { value: 'visual', label: 'Visual' },
+  ];
+
+  return (
+    <Overflow>
+      <div className="flex items-center gap-1">
+        <TabList selectedValue={selectedValue} onTabSelect={(_, data) => onTabSelect?.(data.value as string)}>
+          {tabs.map((tab) => (
+            <OverflowItem key={tab.value} id={tab.value}>
+              <Tab key={tab.value} value={tab.value}>
+                {tab.label}
+              </Tab>
+            </OverflowItem>
+          ))}
+        </TabList>
+        <OverflowMenu onTabSelect={onTabSelect} tabs={tabs} />
+      </div>
+    </Overflow>
+  );
+};
+
 const PickEdit = () => {
   const [tab, setTab] = useState('event');
-  const handleTabSelect: TabListProps['onTabSelect'] = (_, data) => {
-    setTab(data.value as string);
-  };
+  const handleTabSelect = useCallback((tab: string) => {
+    setTab(tab);
+  }, []);
 
   const [cancelDialogOptn, setCancelDialogOpen] = useState(false);
   const handleCancel = useCallback(() => {
@@ -94,6 +171,7 @@ const PickEdit = () => {
 
   return (
     <div>
+      {loading && <ProgressBar shape="square" />}
       <div className="flex items-center justify-between px-2 border-b h-[60px]">
         <h1 className="font-bold">Create</h1>
         <div className="flex items-center gap-1">
@@ -105,14 +183,13 @@ const PickEdit = () => {
           </Button>
         </div>
       </div>
-      <TabList selectedValue={tab} onTabSelect={handleTabSelect}>
-        <Tab value={'event'}>Event</Tab>
-        <Tab value={'attachment'}>Attachments</Tab>
-        <Tab value={'visual'}>Visual</Tab>
-      </TabList>
+
+      <EditItemTabList selectedValue={tab} onTabSelect={handleTabSelect} />
       {tab === 'event' && <PickEditEvent />}
       {tab === 'attachment' && <PickEditAttachments />}
       {tab === 'visual' && <PickEditVisual />}
+
+      <Toaster toasterId={toasterId} />
 
       <Dialog open={cancelDialogOptn} onOpenChange={(_, data) => setCancelDialogOpen(data.open)}>
         <DialogSurface>

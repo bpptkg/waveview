@@ -60,7 +60,7 @@ export class EventMarkerView extends View<EventMarkerModel> {
 
     const { y, height } = xAxis.getRect();
 
-    const pillHeight = 8;
+    const pillHeight = 5;
     const rect = new zrender.Rect({
       shape: {
         x: c1,

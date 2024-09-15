@@ -33,7 +33,7 @@ export interface FormatTimeOptions {
   template?: string;
 }
 
-export function formatTime(time: string | number | Date, options: FormatTimeOptions = {}): string {
+export function formatTime(time: string | number | Date | undefined, options: FormatTimeOptions = {}): string {
   const { useUTC = false, template = 'yyyy-MM-dd HH:mm:ss' } = options;
   if (typeof time === 'undefined' || time === null) {
     return '';
