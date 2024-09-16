@@ -485,8 +485,9 @@ export class Seismogram extends ChartView<SeismogramOptions> {
       for (let i = 0; i < this.trackManager.count(); i++) {
         const track = this.trackManager.getTrackByIndex(i);
         if (i === this.expandIndex) {
-          const rect = this.getRectForTrack(i, 1);
+          const rect = this.getRectForTrack(0, 1);
           track.setRect(rect);
+          track.show();
         } else {
           track.hide();
         }
