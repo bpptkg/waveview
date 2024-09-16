@@ -140,6 +140,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
 
   moveChannel(from: number, to: number): void {
     this.trackManager.move(from, to);
+    this.updateTracksRect();
     this.eventEmitter.emit("channelMoved", from, to);
   }
 

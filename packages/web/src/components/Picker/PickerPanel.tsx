@@ -27,9 +27,6 @@ const PickerPanel = () => {
     handleSeismogramExtentChange,
     handleContextMenuRequested,
     handleSeismogramPickChange,
-    handleSeismogramRemoveChannel,
-    handleSeismogramMoveChannelUp,
-    handleSeismogramMoveChannelDown,
     getSeismogramInitOptions,
     getHelicorderInitOptions,
     handleSeismogramOnReady,
@@ -126,7 +123,7 @@ const PickerPanel = () => {
             <PanelResizeHandle />
           </>
         )}
-        <Panel minSize={20} order={2} className="relative overflow-visible">
+        <Panel minSize={20} order={2} className="relative">
           <SeismogramChart
             ref={seisChartRef}
             className={seismogramClassName}
@@ -137,12 +134,7 @@ const PickerPanel = () => {
             onPick={handleSeismogramPickChange}
             onReady={handleSeismogramOnReady}
           />
-          <SeismogramContextMenu
-            onRemoveChannel={handleSeismogramRemoveChannel}
-            onMoveChannelUp={handleSeismogramMoveChannelUp}
-            onMoveChannelDown={handleSeismogramMoveChannelDown}
-            ref={contextMenuRef}
-          />
+          <SeismogramContextMenu ref={contextMenuRef} />
         </Panel>
         <PanelResizeHandle onDragging={handleResizeHandleDragging} />
         <Panel ref={sidebarRef} order={3} defaultSize={0} onResize={handleSidebarResize}>

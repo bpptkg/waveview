@@ -45,5 +45,9 @@ export interface CommonSlice {
    * Removes all event markers from the helicorder or seismogram chart.
    */
   clearEventMarkers: () => void;
+  /**
+   * Sets the list of event markers to display in the helicorder or seismogram
+   * chart.
+   */
   setEventMarkers: (eventMarkers: SeismicEvent[]) => void;
 }

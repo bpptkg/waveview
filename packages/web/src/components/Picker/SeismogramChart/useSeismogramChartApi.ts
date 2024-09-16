@@ -253,6 +253,18 @@ export default function useSeismogramChartApi(options: SeismogramChartInitOption
           return '';
         }
       },
+      expandView: (index: number) => {
+        if (chartRef.current) {
+          chartRef.current.expandView(index);
+          chartRef.current.render();
+        }
+      },
+      restoreView: () => {
+        if (chartRef.current) {
+          chartRef.current.restoreView();
+          chartRef.current.render();
+        }
+      },
     };
   }, [chartRef, webWorkerRef]);
 }

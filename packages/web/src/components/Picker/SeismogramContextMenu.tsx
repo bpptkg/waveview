@@ -1,8 +1,23 @@
-import { MenuDivider, MenuItem, MenuList, Toast, ToastTitle, Toaster, makeStyles, tokens, useId, useToastController } from '@fluentui/react-components';
-import { ArrowDown20Regular, ArrowUp20Regular, Delete20Regular, EditRegular } from '@fluentui/react-icons';
+import {
+  FluentProvider,
+  MenuDivider,
+  MenuItem,
+  MenuList,
+  Toast,
+  ToastTitle,
+  Toaster,
+  makeStyles,
+  tokens,
+  useId,
+  useToastController,
+  webDarkTheme,
+  webLightTheme,
+} from '@fluentui/react-components';
+import { ArrowDownRegular, ArrowMaximizeRegular, ArrowMinimizeRegular, ArrowUpRegular, DeleteRegular, EditRegular } from '@fluentui/react-icons';
 import { ElementEvent, Seismogram } from '@waveview/zcharts';
 import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
-import { ONE_SECOND, formatTimezonedDate } from '../../shared/time';
+import { createPortal } from 'react-dom';
+import { ONE_SECOND } from '../../shared/time';
 import { useAppStore } from '../../stores/app';
 import { usePickerStore } from '../../stores/picker';
 import { useSidebarStore } from '../../stores/sidebar';
@@ -12,20 +27,13 @@ import { usePickerContext } from './PickerContext';
 import { SeismogramChartRef } from './SeismogramChart';
 import { usePickerCallback } from './usePickerCallback';
 
-export interface ContextMenuProps {
-  onRemoveChannel?: (index: number) => void;
-  onMoveChannelUp?: (index: number) => void;
-  onMoveChannelDown?: (index: number) => void;
-  onEditEvent?: (event: SeismicEvent) => void;
-}
-
 export interface ContextMenuData {
   chartRef: SeismogramChartRef;
 }
 
 const useStyles = makeStyles({
   root: {
-    position: 'absolute',
+    position: 'fixed',
     visibility: 'hidden',
     left: 0,
     top: 0,
@@ -46,7 +54,7 @@ export interface ContextMenuRef {
   close: () => void;
 }
 
-const SeismogramContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & React.RefAttributes<ContextMenuRef>> = React.forwardRef((props, ref) => {
+const SeismogramContextMenu: React.ForwardRefExoticComponent<React.RefAttributes<ContextMenuRef>> = React.forwardRef((_, ref) => {
   const styles = useStyles();
 
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -58,7 +66,7 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & 
   const [point, setPoint] = useState({ x: 0, y: 0 });
 
   const { seisChartRef } = usePickerContext();
-  const { useUTC } = useAppStore();
+  const { darkMode } = useAppStore();
 
   const { eventMarkers, pickMode, eventId } = usePickerStore();
 
@@ -111,39 +119,44 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & 
 
   const handleOpen = useCallback(
     (e: ElementEvent) => {
-      if (menuRef.current) {
-        const chart = seisChartRef.current?.getInstance() as Seismogram;
-        if (!chart) {
-          return;
-        }
-
-        const width = 200;
-        const height = menuRef.current.clientHeight;
-        let x = e.offsetX;
-        let y = e.offsetY;
-        setPoint({ x, y });
-
-        const rect = chart.getGrid().getRect();
-        if (!rect.contain(x, y)) {
-          return;
-        }
-
-        const trackManager = chart.getTrackManager();
-        const index = trackManager.getTrackIndexByY(y);
-        setChannelIndex(index);
-
-        if (e.offsetX > window.innerWidth - width) {
-          x -= width;
-        }
-
-        if (e.offsetY > window.innerHeight - height) {
-          y -= height;
-        }
-
-        setLeft(x);
-        setTop(y);
-        setVisible(true);
+      if (!menuRef.current) {
+        return;
       }
+
+      const chart = seisChartRef.current?.getInstance() as Seismogram;
+      if (!chart) {
+        return;
+      }
+
+      const width = 250;
+      const height = menuRef.current.clientHeight;
+      const x = e.offsetX;
+      const y = e.offsetY;
+      setPoint({ x, y });
+
+      const rect = chart.getGrid().getRect();
+      if (!rect.contain(x, y)) {
+        return;
+      }
+
+      const trackManager = chart.getTrackManager();
+      const index = trackManager.getTrackIndexByY(y);
+      setChannelIndex(index);
+
+      const ev = e.event as unknown as PointerEvent;
+      let px = ev.x;
+      let py = ev.y;
+      if (px > window.innerWidth - width) {
+        px -= width;
+      }
+
+      if (py > window.innerHeight - height) {
+        py -= height;
+      }
+
+      setLeft(px);
+      setTop(py);
+      setVisible(true);
     },
     [menuRef, seisChartRef]
   );
@@ -177,30 +190,30 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & 
     };
   }, [handleClose, menuRef]);
 
-  const { onRemoveChannel, onMoveChannelUp, onMoveChannelDown } = props;
+  const { handleSeismogramRemoveChannel, handleSeismogramMoveChannelUp, handleSeismogramMoveChannelDown } = usePickerCallback();
 
   const handleRemoveChannel = useCallback(() => {
     if (channelIndex !== null) {
-      onRemoveChannel?.(channelIndex);
+      handleSeismogramRemoveChannel(channelIndex);
     }
     handleClose();
-  }, [channelIndex, handleClose, onRemoveChannel]);
+  }, [channelIndex, handleClose, handleSeismogramRemoveChannel]);
 
   const handleMoveChannelUp = useCallback(() => {
     if (channelIndex !== null) {
-      onMoveChannelUp?.(channelIndex);
+      handleSeismogramMoveChannelUp(channelIndex);
     }
     handleClose();
-  }, [channelIndex, handleClose, onMoveChannelUp]);
+  }, [channelIndex, handleClose, handleSeismogramMoveChannelUp]);
 
   const handleMoveChannelDown = useCallback(() => {
     if (channelIndex !== null) {
-      onMoveChannelDown?.(channelIndex);
+      handleSeismogramMoveChannelDown(channelIndex);
     }
     handleClose();
-  }, [channelIndex, handleClose, onMoveChannelDown]);
+  }, [channelIndex, handleClose, handleSeismogramMoveChannelDown]);
 
-  const { selectedChannels, fetchEditedEvent } = usePickerStore();
+  const { selectedChannels, isExpandMode, fetchEditedEvent, setExpandMode } = usePickerStore();
   const channel = useMemo(() => selectedChannels[channelIndex ?? 0], [selectedChannels, channelIndex]);
   const { handleSetupEventEditing } = usePickerCallback();
   const sidebar = useSidebarStore();
@@ -223,37 +236,66 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & 
       });
   }, [selectedEvent, sidebar, fetchEditedEvent, showErrorToast, handleClose, handleSetupEventEditing]);
 
-  return (
-    <div
-      className={styles.root}
-      ref={menuRef}
-      style={{
-        left: `${left}px`,
-        top: `${top}px`,
-      }}
-    >
-      <MenuList hasIcons>
-        {selectedEvent && (
-          <>
-            <MenuItem onClick={handleEditEvent} icon={<EditRegular fontSize={20} />}>
-              Edit {formatTimezonedDate(selectedEvent.time, 'yyyy-MM-dd HH:mm:ss', useUTC)} ({selectedEvent.type.code})
+  const handleExpandView = useCallback(() => {
+    if (channelIndex !== null) {
+      seisChartRef.current?.expandView(channelIndex);
+      setExpandMode(true);
+      handleClose();
+    }
+  }, [channelIndex, seisChartRef, setExpandMode, handleClose]);
+
+  const handleRestoreView = useCallback(() => {
+    seisChartRef.current?.restoreView();
+    setExpandMode(false);
+    handleClose();
+  }, [seisChartRef, setExpandMode, handleClose]);
+
+  return createPortal(
+    <FluentProvider theme={darkMode ? webDarkTheme : webLightTheme}>
+      <div
+        className={styles.root}
+        ref={menuRef}
+        style={{
+          left: `${left}px`,
+          top: `${top}px`,
+        }}
+      >
+        <MenuList hasIcons>
+          {selectedEvent && (
+            <>
+              <MenuItem onClick={handleEditEvent} icon={<EditRegular fontSize={20} />}>
+                Edit Event: {selectedEvent.type.code}
+              </MenuItem>
+              <MenuDivider />
+            </>
+          )}
+          {isExpandMode ? (
+            <MenuItem onClick={handleRestoreView} icon={<ArrowMinimizeRegular />} aria-label="Restore View">
+              Restore View
             </MenuItem>
-            <MenuDivider />
-          </>
-        )}
-        <MenuItem onClick={handleMoveChannelUp} icon={<ArrowUp20Regular />} aria-label="Move Channel Up">
-          Move {channel?.network_station_code} Up
-        </MenuItem>
-        <MenuItem onClick={handleMoveChannelDown} icon={<ArrowDown20Regular />} aria-label="Move Channel Down">
-          Move {channel?.network_station_code} Down
-        </MenuItem>
-        <MenuDivider />
-        <MenuItem onClick={handleRemoveChannel} icon={<Delete20Regular />} aria-label="Remove Selected Channel">
-          Remove {channel?.network_station_code}
-        </MenuItem>
-      </MenuList>
-      <Toaster toasterId={toasterId} />
-    </div>
+          ) : (
+            <>
+              <MenuItem onClick={handleMoveChannelUp} icon={<ArrowUpRegular />} aria-label="Move Channel Up">
+                Move {channel?.network_station_code} Up
+              </MenuItem>
+              <MenuItem onClick={handleMoveChannelDown} icon={<ArrowDownRegular />} aria-label="Move Channel Down">
+                Move {channel?.network_station_code} Down
+              </MenuItem>
+              <MenuDivider />
+              <MenuItem onClick={handleRemoveChannel} icon={<DeleteRegular />} aria-label="Remove Selected Channel">
+                Remove {channel?.network_station_code}
+              </MenuItem>
+              <MenuDivider />
+              <MenuItem onClick={handleExpandView} icon={<ArrowMaximizeRegular />} aria-label="Expand View">
+                Expand View
+              </MenuItem>
+            </>
+          )}
+        </MenuList>
+        <Toaster toasterId={toasterId} />
+      </div>
+    </FluentProvider>,
+    document.getElementById('root') as HTMLElement
   );
 });
 
