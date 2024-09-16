@@ -9,11 +9,15 @@ import EventDetailAttachments from '../views/catalog/EventDetailAttachments';
 import EventDetailLocation from '../views/catalog/EventDetailLocation';
 import EventDetailMagnitude from '../views/catalog/EventDetailMagnitude';
 import EventDetailSummary from '../views/catalog/EventDetailSummary';
+import EventDetailVisual from '../views/catalog/EventDetailVisual';
 import EventDetailWaveform from '../views/catalog/EventDetailWaveform';
 import EventTable from '../views/catalog/EventTable';
 import Hypocenter from '../views/catalog/Hypocenter';
 import Seismicity from '../views/catalog/Seismicity';
 import Dashboard from '../views/dashboard/Dashboard';
+import OrganizationRedirect from '../views/dashboard/OrganizationRedirect';
+import RootRedirect from '../views/dashboard/RootRedirect';
+import VolcanoRedirect from '../views/dashboard/VolcanoRedirect';
 import Error404 from '../views/error/Error404';
 import Error500 from '../views/error/Error500';
 import ForgotYourPassword from '../views/help/ForgotYourPassword';
@@ -22,7 +26,6 @@ import Login from '../views/login/Login';
 import Picker from '../views/picker/Picker';
 import Profile from '../views/profile/Profile';
 import TermsOfService from '../views/tos/TermsOfService';
-import EventDetailVisual from '../views/catalog/EventDetailVisual';
 
 const router = createBrowserRouter([
   {
@@ -38,22 +41,22 @@ const router = createBrowserRouter([
         ),
         children: [
           {
-            path: '',
-            element: <Navigate to=":org" replace />,
+            index: true,
+            element: <RootRedirect />,
           },
           {
             path: ':org',
             children: [
               {
-                path: '',
-                element: <Navigate to=":volcano" replace />,
+                index: true,
+                element: <OrganizationRedirect />,
               },
               {
                 path: ':volcano',
                 children: [
                   {
-                    path: '',
-                    element: <Navigate to="picker" replace />,
+                    index: true,
+                    element: <VolcanoRedirect />,
                   },
                   {
                     path: 'picker',

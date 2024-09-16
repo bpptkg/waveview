@@ -115,7 +115,6 @@ const Dashboard = () => {
         <title>{currentOrganization?.name}</title>
         <div className="bg-neutral-grey-94 dark:bg-neutral-grey-4 flex flex-col min-h-screen">
           <Header />
-
           <div className="flex flex-grow">
             <AppBar selectedValue={location.pathname}>
               <AppBarTab value={pickerUrl} icon={PickerIcon} onClick={() => navigate(pickerUrl)}>
@@ -128,7 +127,6 @@ const Dashboard = () => {
                 Help
               </AppBarTab>
             </AppBar>
-
             <div className="bg-neutral-grey-98 dark:bg-neutral-grey-12 flex flex-col flex-grow relative">
               <Outlet />
             </div>
