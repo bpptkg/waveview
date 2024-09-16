@@ -1,4 +1,7 @@
 import { Button, Menu, MenuItem, MenuList, MenuPopover, MenuTrigger, makeStyles } from '@fluentui/react-components';
+import { useCallback } from 'react';
+import { usePickerStore } from '../../../stores/picker';
+import { useSidebarStore } from '../../../stores/sidebar';
 
 const useStyles = makeStyles({
   btn: {
@@ -8,6 +11,31 @@ const useStyles = makeStyles({
 
 const ViewMenu = () => {
   const styles = useStyles();
+  const { setSelectedChart } = usePickerStore();
+
+  const handleHelicorder = useCallback(() => {
+    setSelectedChart('helicorder');
+  }, [setSelectedChart]);
+
+  const handleSeismogram = useCallback(() => {
+    setSelectedChart('seismogram');
+  }, [setSelectedChart]);
+
+  const { visible, selectedTab, setSelectedTab, setVisible } = useSidebarStore();
+  const handleEventEditor = useCallback(() => {
+    setSelectedTab('pick');
+    if (selectedTab === 'pick') {
+      setVisible(!visible);
+    }
+  }, [visible, selectedTab, setSelectedTab, setVisible]);
+
+  const handleFilterToolbox = useCallback(() => {
+    setSelectedTab('filter');
+    if (selectedTab === 'filter') {
+      setVisible(!visible);
+    }
+  }, [visible, selectedTab, setSelectedTab, setVisible]);
+
   return (
     <Menu>
       <MenuTrigger>
@@ -15,10 +43,12 @@ const ViewMenu = () => {
           View
         </Button>
       </MenuTrigger>
-
       <MenuPopover>
         <MenuList>
-          <MenuItem>Action</MenuItem>
+          <MenuItem onClick={handleHelicorder}>Helicorder</MenuItem>
+          <MenuItem onClick={handleSeismogram}>Seismogram</MenuItem>
+          <MenuItem onClick={handleEventEditor}>Event Editor</MenuItem>
+          <MenuItem onClick={handleFilterToolbox}>Filter Toolbox</MenuItem>
         </MenuList>
       </MenuPopover>
     </Menu>

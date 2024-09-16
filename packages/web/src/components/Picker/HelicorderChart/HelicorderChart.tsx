@@ -12,7 +12,6 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
   const { initOptions, className, onFocus, onSelectionChange, onReady } = props;
 
   const parentRef = useRef<HTMLDivElement>(null);
-  // const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<Helicorder | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const workerRef = useRef<Worker | null>(null);
@@ -163,6 +162,18 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
         return chartRef.current.getChartExtent();
       } else {
         return [0, 0];
+      }
+    },
+    render: () => {
+      if (chartRef.current) {
+        chartRef.current.render();
+      }
+    },
+    toDataURL: (type?: string, quality?: number) => {
+      if (chartRef.current) {
+        return chartRef.current.toDataURL(type, quality);
+      } else {
+        return '';
       }
     },
   }));

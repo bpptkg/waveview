@@ -1,4 +1,4 @@
-import { Channel, Helicorder, HelicorderOptions, HelicorderEventMarkerOptions } from '@waveview/zcharts';
+import { Channel, Helicorder, HelicorderEventMarkerOptions, HelicorderOptions } from '@waveview/zcharts';
 
 export interface HelicorderChartProps {
   /**
@@ -21,6 +21,9 @@ export interface HelicorderChartProps {
    * Callback fired when the selection is changed.
    */
   onSelectionChange?: (range: [number, number]) => void;
+  /**
+   * Callback fired when the chart is ready.
+   */
   onReady?: (chart: Helicorder) => void;
 }
 
@@ -49,4 +52,6 @@ export interface HelicorderChartRef {
   hideEventMarkers: () => void;
   clearEventMarkers: () => void;
   dispose: () => void;
+  render(): void;
+  toDataURL: (type?: string, quality?: number) => string;
 }

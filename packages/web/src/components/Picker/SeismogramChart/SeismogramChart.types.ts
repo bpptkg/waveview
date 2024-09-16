@@ -91,4 +91,5 @@ export interface SeismogramChartRef {
   hideSpectrogram: () => void;
   dispose: () => void;
   render: () => void;
+  toDataURL: (type?: string, quality?: number) => string;
 }
