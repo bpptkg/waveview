@@ -9,14 +9,16 @@ import { useVolcanoStore } from '../volcano/useVolcanoStore';
 import { DEMXYZStore } from './types';
 
 export class LocalStorageCache {
-  private cache: Record<string, string> = {};
+  has(key: string): boolean {
+    return localStorage.getItem(key) !== null;
+  }
 
   get(key: string): string | null {
-    return this.cache[key];
+    return localStorage.getItem(key);
   }
 
   set(key: string, value: string): void {
-    this.cache[key] = value;
+    localStorage.setItem(key, value);
   }
 }
 
