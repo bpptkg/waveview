@@ -3,7 +3,7 @@ import RealtimeClock from './RealtimeClock';
 import TimeRangeLabel from './TimeRangeLabel';
 import TimeZoneSelector from './TimezoneSelector';
 
-const StatusBar = () => {
+const Statusbar = () => {
   return (
     <div className="bg-white dark:bg-black relative flex items-center justify-between gap-2 px-2 h-[20px] border-t dark:border-transparent">
       <div className="flex gap-1 items-center">
@@ -18,4 +18,4 @@ const StatusBar = () => {
   );
 };
 
-export default StatusBar;
+export default Statusbar;
