@@ -11,6 +11,12 @@ export const AppBarTab: React.ForwardRefExoticComponent<AppBarTabProps & React.R
     const { onClick, context } = state;
 
     function handleTabClick() {
+      if (state.disabled) {
+        return;
+      }
+      if (selected) {
+        return;
+      }
       context?.handleTabClick(state.value);
       onClick?.();
     }

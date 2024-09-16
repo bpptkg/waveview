@@ -118,13 +118,7 @@ const Dashboard = () => {
 
           <div className="flex flex-grow">
             <AppBar selectedValue={location.pathname}>
-              <AppBarTab
-                value={pickerUrl}
-                icon={PickerIcon}
-                onClick={() => {
-                  navigate(pickerUrl);
-                }}
-              >
+              <AppBarTab value={pickerUrl} icon={PickerIcon} onClick={() => navigate(pickerUrl)}>
                 Picker
               </AppBarTab>
               <AppBarTab value={catalogUrl} icon={CatalogIcon} onClick={() => navigate(catalogUrl)}>
