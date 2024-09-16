@@ -1,4 +1,4 @@
-export type SidebarTab = 'pick' | 'filter';
+export type SidebarTab = 'eventEditor' | 'filterToolbox';
 
 export interface SidebarStore {
   visible: boolean;

@@ -8,7 +8,7 @@ const sidebarStore = create<SidebarStore>((set) => ({
   defaultSize: 20,
   minSize: 15,
   collapseSize: 5,
-  selectedTab: 'pick',
+  selectedTab: 'eventEditor',
   setSelectedTab: (selectedTab) => set({ selectedTab }),
   setVisible: (visible) => set({ visible }),
   setSize: (size) => set({ size }),

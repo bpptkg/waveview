@@ -19,10 +19,10 @@ const SidebarTabList = () => {
     <div className="relative bg-white dark:bg-neutral-grey-4">
       <TabList vertical size="large" onTabSelect={handleTabSelect} selectedValue={selectedTab} className="absolute right-0 top-0 bottom-0">
         <Tooltip content="Event Editor" relationship="label" showDelay={1500}>
-          <Tab value={'pick'} icon={<CopySelectRegular />}></Tab>
+          <Tab value={'eventEditor'} icon={<CopySelectRegular />}></Tab>
         </Tooltip>
         <Tooltip content="Filter Toolbox" relationship="label" showDelay={1500}>
-          <Tab value={'filter'} icon={<SoundWaveCircleRegular />}></Tab>
+          <Tab value={'filterToolbox'} icon={<SoundWaveCircleRegular />}></Tab>
         </Tooltip>
       </TabList>
     </div>

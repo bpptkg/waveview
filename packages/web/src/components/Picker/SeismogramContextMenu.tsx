@@ -212,7 +212,7 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<ContextMenuProps & 
     fetchEditedEvent(selectedEvent.id)
       .then((event) => {
         handleSetupEventEditing(event);
-        sidebar.setSelectedTab('pick');
+        sidebar.setSelectedTab('eventEditor');
         sidebar.setVisible(true);
       })
       .catch((error) => {

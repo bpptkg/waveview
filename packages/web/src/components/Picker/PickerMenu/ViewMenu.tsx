@@ -23,15 +23,15 @@ const ViewMenu = () => {
 
   const { visible, selectedTab, setSelectedTab, setVisible } = useSidebarStore();
   const handleEventEditor = useCallback(() => {
-    setSelectedTab('pick');
-    if (selectedTab === 'pick') {
+    setSelectedTab('eventEditor');
+    if (selectedTab === 'eventEditor') {
       setVisible(!visible);
     }
   }, [visible, selectedTab, setSelectedTab, setVisible]);
 
   const handleFilterToolbox = useCallback(() => {
-    setSelectedTab('filter');
-    if (selectedTab === 'filter') {
+    setSelectedTab('filterToolbox');
+    if (selectedTab === 'filterToolbox') {
       setVisible(!visible);
     }
   }, [visible, selectedTab, setSelectedTab, setVisible]);
