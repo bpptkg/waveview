@@ -78,7 +78,7 @@ export class AxisModel extends Model<AxisOptions> {
     nameGap: 15,
     nameStyle: {
       color: "#000",
-      fontSize: 12,
+      fontSize: 11,
       fontFamily: "Arial",
     },
     axisTick: {
@@ -105,7 +105,7 @@ export class AxisModel extends Model<AxisOptions> {
       inside: false,
       margin: 8,
       color: "#000",
-      fontSize: 12,
+      fontSize: 11,
       fontFamily: "Arial",
       reverse: false,
     },

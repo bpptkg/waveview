@@ -19,7 +19,22 @@ export const createSeismogramSlice: StateCreator<PickerStore, [], [], Seismogram
     component: 'Z',
     selectedChannels: [],
 
-    getChannels: () => get().selectedChannels,
+    getChannelsConfig: () => {
+      const { pickerConfig, selectedChannels } = get();
+      if (!pickerConfig) {
+        return [];
+      }
+      const seismogramConfig = pickerConfig?.seismogram_config;
+      if (!seismogramConfig) {
+        return [];
+      }
+      return selectedChannels.map((channel, index) => {
+        return {
+          channel,
+          color: seismogramConfig.station_configs[index].color,
+        };
+      });
+    },
 
     setLastSeismogramExtent: (extent) => set({ lastSeismogramExtent: extent }),
 

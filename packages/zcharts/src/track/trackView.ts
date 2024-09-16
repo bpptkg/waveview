@@ -152,19 +152,25 @@ export class TrackView extends View<TrackModel> {
   }
 
   private renderLabels(): void {
-    const { label, margin, textColor, fontSize, fontFamily } =
+    const { label, margin, textColor, fontSize, fontFamily, markerColor } =
       this.model.getOptions();
 
     const { x, y, height } = this.getRect();
+    let fillColor = textColor;
+    if (markerColor) {
+      fillColor = "white";
+    }
 
     const text = new zrender.Text({
       style: {
         text: label,
-        fill: textColor,
+        fill: fillColor,
         fontFamily,
         fontSize,
         align: "right",
         verticalAlign: "middle",
+        backgroundColor: markerColor,
+        padding: [2, 2],
       },
       x: x - margin,
       y: y + height / 2,

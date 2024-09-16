@@ -163,7 +163,7 @@ export class AxisPointer extends View<AxisPointerModel> {
       },
       x,
       y: y0,
-      anchorY: 20,
+      anchorY: 22,
       silent: true,
     });
 

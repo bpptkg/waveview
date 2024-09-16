@@ -460,6 +460,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   private addChannelInternal(channel: Channel): Channel {
     const track = new TrackView(this, {
       label: channel.label ?? channel.id,
+      markerColor: channel.color,
       style: "bracket",
     });
     const theme = this.getThemeStyle();

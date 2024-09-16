@@ -2,6 +2,11 @@ import { Channel } from '../../../types/channel';
 import { StationWithChannel } from '../../../types/station';
 import { ComponentType } from '../types';
 
+export interface ChannelConfig {
+  channel: Channel;
+  color?: string;
+}
+
 export interface SeismogramSlice {
   /**
    * The last extent of the selected time range in the seismogram chart.
@@ -42,5 +47,5 @@ export interface SeismogramSlice {
   getChannelByStreamId: (streamId: string) => Channel | undefined;
   getChannelById: (id: string) => Channel | undefined;
   getSelectedStations: () => StationWithChannel[];
-  getChannels: () => Channel[];
+  getChannelsConfig: () => ChannelConfig[];
 }

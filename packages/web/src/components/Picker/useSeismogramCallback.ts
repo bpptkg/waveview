@@ -22,7 +22,7 @@ export const useSeismogramCallback = () => {
     clearPick,
     setEditedEvent,
     setLastSeismogramExtent,
-    getChannels,
+    getChannelsConfig,
     resetEditing,
   } = usePickerStore();
 
@@ -71,13 +71,14 @@ export const useSeismogramCallback = () => {
     (component: string) => {
       setComponent(component as ComponentType);
       seisChartRef.current?.setChannels(
-        getChannels().map((channel) => ({
-          id: channel.id,
-          label: channel.network_station_code,
+        getChannelsConfig().map((item) => ({
+          id: item.channel.id,
+          label: item.channel.network_station_code,
+          color: item.color,
         }))
       );
     },
-    [seisChartRef, setComponent, getChannels]
+    [seisChartRef, setComponent, getChannelsConfig]
   );
 
   const handleSeismogramShowEvent = useCallback(
@@ -152,12 +153,12 @@ export const useSeismogramCallback = () => {
 
   const handleSeismogramMoveChannelDown = useCallback(
     (index: number) => {
-      if (index < getChannels().length - 1) {
+      if (index < getChannelsConfig().length - 1) {
         moveChannel(index, index + 1);
         seisChartRef.current?.moveChannelDown(index);
       }
     },
-    [seisChartRef, moveChannel, getChannels]
+    [seisChartRef, moveChannel, getChannelsConfig]
   );
 
   const handleSeismogramFocus = useCallback(() => {
@@ -234,9 +235,10 @@ export const useSeismogramCallback = () => {
     const [startTime, endTime] = determinteInitialExtent();
 
     const initOptions = {
-      channels: getChannels().map((channel) => ({
-        id: channel.id,
-        label: channel.network_station_code,
+      channels: getChannelsConfig().map((item) => ({
+        id: item.channel.id,
+        label: item.channel.network_station_code,
+        color: item.color,
       })),
       grid: {
         top: 30,
@@ -251,7 +253,7 @@ export const useSeismogramCallback = () => {
       endTime,
     };
     return initOptions;
-  }, [darkMode, useUTC, event, lastSeismogramExtent, getChannels]);
+  }, [darkMode, useUTC, event, lastSeismogramExtent, getChannelsConfig]);
 
   return {
     handleSeismogramChannelAdd,
