@@ -8,7 +8,7 @@ import { SeismogramChart, SeismogramChartRef } from './SeismogramChart';
 import SeismogramContextMenu, { ContextMenuRef } from './SeismogramContextMenu';
 import Sidebar from './Sidebar/Sidebar';
 import SidebarTabList from './Sidebar/SidebarTabList';
-import { useSeismogramKeyboardShortcuts } from './useKeyboardShortcuts';
+import { useHelicorderKeyboardShortcuts, useSeismogramKeyboardShortcuts } from './useKeyboardShortcuts';
 import { usePickerCallback } from './usePickerCallback';
 import { useThemeEffect } from './useThemeEffect';
 import { useTimeZoneEffect } from './useTimeZoneEffect';
@@ -68,6 +68,7 @@ const PickerPanel = () => {
   useThemeEffect(heliChartRef, seisChartRef);
   useTimeZoneEffect(heliChartRef, seisChartRef);
   useSeismogramKeyboardShortcuts(seisChartRef);
+  useHelicorderKeyboardShortcuts(heliChartRef);
 
   const sidebarRef = useRef<ImperativePanelHandle | null>(null);
   const isResizing = useRef(false);

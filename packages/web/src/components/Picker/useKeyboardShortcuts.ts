@@ -1,40 +1,35 @@
 import React, { useCallback, useEffect } from 'react';
 import { SeismogramChartRef } from './SeismogramChart';
+import { HelicorderChartRef } from './HelicorderChart';
 
-export function useSeismogramKeyboardShortcuts(seisChartRef: React.MutableRefObject<SeismogramChartRef | null>) {
+export function useSeismogramKeyboardShortcuts(chartRef: React.MutableRefObject<SeismogramChartRef | null>) {
   const onArrowLeft = useCallback(() => {
-    seisChartRef.current?.scrollLeft(0.1);
-    seisChartRef.current?.render();
-  }, [seisChartRef]);
+    chartRef.current?.scrollLeft(0.1);
+  }, [chartRef]);
 
   const onArrowRight = useCallback(() => {
-    seisChartRef.current?.scrollRight(0.1);
-    seisChartRef.current?.render();
-  }, [seisChartRef]);
+    chartRef.current?.scrollRight(0.1);
+  }, [chartRef]);
 
   const onArrowUp = useCallback(() => {
-    seisChartRef.current?.increaseAmplitude(0.1);
-    seisChartRef.current?.render();
-  }, [seisChartRef]);
+    chartRef.current?.increaseAmplitude(0.1);
+  }, [chartRef]);
 
   const onArrowDown = useCallback(() => {
-    seisChartRef.current?.decreaseAmplitude(0.1);
-    seisChartRef.current?.render();
-  }, [seisChartRef]);
+    chartRef.current?.decreaseAmplitude(0.1);
+  }, [chartRef]);
 
   const onArrowUpShift = useCallback(() => {
-    seisChartRef.current?.zoomIn(0.1);
-    seisChartRef.current?.render();
-  }, [seisChartRef]);
+    chartRef.current?.zoomIn(0.1);
+  }, [chartRef]);
 
   const onArrowDownShift = useCallback(() => {
-    seisChartRef.current?.zoomOut(0.1);
-    seisChartRef.current?.render();
-  }, [seisChartRef]);
+    chartRef.current?.zoomOut(0.1);
+  }, [chartRef]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (!seisChartRef.current || !seisChartRef.current.isFocused()) {
+      if (!chartRef.current || !chartRef.current.isFocused()) {
         return;
       }
 
@@ -70,5 +65,57 @@ export function useSeismogramKeyboardShortcuts(seisChartRef: React.MutableRefObj
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [seisChartRef, onArrowLeft, onArrowRight, onArrowUp, onArrowDown, onArrowUpShift, onArrowDownShift]);
+  }, [chartRef, onArrowLeft, onArrowRight, onArrowUp, onArrowDown, onArrowUpShift, onArrowDownShift]);
+}
+
+export function useHelicorderKeyboardShortcuts(chartRef: React.MutableRefObject<HelicorderChartRef | null>) {
+  const onArrowUp = useCallback(() => {
+    chartRef.current?.shiftViewUp();
+  }, [chartRef]);
+
+  const onArrowDown = useCallback(() => {
+    chartRef.current?.shiftViewDown();
+  }, [chartRef]);
+
+  const onArrowUpShift = useCallback(() => {
+    chartRef.current?.increaseAmplitude(0.1);
+  }, [chartRef]);
+
+  const onArrowDownShift = useCallback(() => {
+    chartRef.current?.decreaseAmplitude(0.1);
+  }, [chartRef]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!chartRef.current || !chartRef.current.isFocused()) {
+        return;
+      }
+
+      switch (event.key) {
+        case 'ArrowUp': {
+          if (event.shiftKey) {
+            onArrowUpShift();
+          } else {
+            onArrowUp();
+          }
+          break;
+        }
+        case 'ArrowDown': {
+          if (event.shiftKey) {
+            onArrowDownShift();
+          } else {
+            onArrowDown();
+          }
+          break;
+        }
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [chartRef, onArrowUp, onArrowDown, onArrowUpShift, onArrowDownShift]);
 }

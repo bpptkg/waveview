@@ -1,4 +1,7 @@
 import { Button, Menu, MenuItem, MenuList, MenuPopover, MenuTrigger, makeStyles } from '@fluentui/react-components';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import KeyboardShortcutsDialog from './Help/KeyboardShortcutsDialog';
 
 const useStyles = makeStyles({
   btn: {
@@ -8,21 +11,32 @@ const useStyles = makeStyles({
 
 const HelpMenu = () => {
   const styles = useStyles();
-  return (
-    <Menu>
-      <MenuTrigger>
-        <Button appearance="transparent" size="small" className={styles.btn}>
-          Help
-        </Button>
-      </MenuTrigger>
+  const [keyboardShortcutsDialogOpen, setKeyboardShortcutsDialogOpen] = useState(false);
+  const handleKeyboardShortcutsDialogChange = (open: boolean) => setKeyboardShortcutsDialogOpen(open);
 
-      <MenuPopover>
-        <MenuList>
-          <MenuItem>Keyboard Shortcuts</MenuItem>
-          <MenuItem>About Picker</MenuItem>
-        </MenuList>
-      </MenuPopover>
-    </Menu>
+  const handleKeyboardShortcuts = () => setKeyboardShortcutsDialogOpen(true);
+  const navigate = useNavigate();
+  const handleAbout = () => {
+    navigate('/about');
+  };
+
+  return (
+    <div>
+      <Menu>
+        <MenuTrigger>
+          <Button appearance="transparent" size="small" className={styles.btn}>
+            Help
+          </Button>
+        </MenuTrigger>
+        <MenuPopover>
+          <MenuList>
+            <MenuItem onClick={handleKeyboardShortcuts}>Keyboard Shortcuts</MenuItem>
+            <MenuItem onClick={handleAbout}>About VEPS</MenuItem>
+          </MenuList>
+        </MenuPopover>
+      </Menu>
+      <KeyboardShortcutsDialog open={keyboardShortcutsDialogOpen} onOpenChange={handleKeyboardShortcutsDialogChange} />
+    </div>
   );
 };
 
