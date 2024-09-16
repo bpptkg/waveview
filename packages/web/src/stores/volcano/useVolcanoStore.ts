@@ -13,25 +13,24 @@ const volcanoStore = create<VolcanoStore>((set) => ({
 
   setCurrentVolcano: (volcano) => set({ currentVolcano: volcano }),
 
-  fetchAllVolcanoes: async () => {
+  fetchAllVolcanoes: async (slug) => {
     const currentOrganization = useOrganizationStore.getState().currentOrganization;
     if (!currentOrganization) {
-      return;
+      throw new CustomError('Organization is not set');
     }
     const response = await api(apiVersion.listVolcano.v1(currentOrganization.id));
     if (!response.ok) {
       throw CustomError.fromErrorData(await response.json());
     }
 
-    const data: Volcano[] = await response.json();
-    set({ allVolcanoes: data });
-
-    const defaultVolcano = data.find((v) => v.is_default);
-    const volcano = defaultVolcano || data[0];
-    if (volcano) {
-      set({ currentVolcano: defaultVolcano });
+    const allVolcanoes: Volcano[] = await response.json();
+    set({ allVolcanoes });
+    if (allVolcanoes.length) {
+      const currentVolcano = allVolcanoes.find((v) => v.slug === slug) || allVolcanoes[0];
+      set({ currentVolcano });
+      return currentVolcano;
     } else {
-      throw new CustomError('No default volcano found.');
+      throw new CustomError('No volcanoes found.');
     }
   },
 }));

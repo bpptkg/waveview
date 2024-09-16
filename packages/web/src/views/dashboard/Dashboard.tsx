@@ -1,10 +1,11 @@
 import { Button, Spinner } from '@fluentui/react-components';
 import { ArrowClockwise20Regular, ChatHelp24Regular, CursorHover24Regular, Folder24Regular } from '@fluentui/react-icons';
-import { useEffect, useState } from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useMemo, useState } from 'react';
+import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { AppBar, AppBarTab } from '../../components/AppBar';
 import Header from '../../components/Header/Header';
 import WebSocketProvider from '../../components/WebSocket/WebSocketProvider';
+import { useMount } from '../../hooks/useMount';
 import { useCatalogStore } from '../../stores/catalog';
 import { useEventTypeStore } from '../../stores/eventType';
 import { useInventoryStore } from '../../stores/inventory';
@@ -20,6 +21,7 @@ const CatalogIcon = Folder24Regular;
 const HelpIcon = ChatHelp24Regular;
 
 const Dashboard = () => {
+  const { org, volcano } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -35,19 +37,19 @@ const Dashboard = () => {
   const { currentCatalog, fetchAllCatalogs } = useCatalogStore();
   const { allFallDirections, fetchAllFallDirections } = useFallDirectionStore();
 
-  useEffect(() => {
+  useMount(() => {
     const initializeApp = async () => {
-      if (!user) {
-        await fetchUser();
-      }
       if (!currentOrganization) {
-        await fetchAllOrganizations();
+        await fetchAllOrganizations(org);
+      }
+      if (!currentVolcano) {
+        await fetchAllVolcanoes(volcano);
       }
       if (!inventory) {
         await fetchInventory();
       }
-      if (!currentVolcano) {
-        await fetchAllVolcanoes();
+      if (!user) {
+        await fetchUser();
       }
       if (!currentCatalog) {
         await fetchAllCatalogs();
@@ -68,9 +70,19 @@ const Dashboard = () => {
     initializeApp().catch((error: CustomError) => {
       setError(`Failed to initialize app: ${error.message}`);
     });
+  });
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const pickerUrl = useMemo(() => {
+    return `/${currentOrganization?.slug}/${currentVolcano?.slug}/picker`;
+  }, [currentOrganization, currentVolcano]);
+
+  const catalogUrl = useMemo(() => {
+    return `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog`;
+  }, [currentOrganization, currentVolcano]);
+
+  const helpUrl = useMemo(() => {
+    return `/${currentOrganization?.slug}/help`;
+  }, [currentOrganization]);
 
   if (error) {
     return (
@@ -107,18 +119,18 @@ const Dashboard = () => {
           <div className="flex flex-grow">
             <AppBar selectedValue={location.pathname}>
               <AppBarTab
-                value="/picker"
+                value={pickerUrl}
                 icon={PickerIcon}
                 onClick={() => {
-                  navigate('/picker');
+                  navigate(pickerUrl);
                 }}
               >
                 Picker
               </AppBarTab>
-              <AppBarTab value="/catalog" icon={CatalogIcon} onClick={() => navigate('/catalog')}>
+              <AppBarTab value={catalogUrl} icon={CatalogIcon} onClick={() => navigate(catalogUrl)}>
                 Catalog
               </AppBarTab>
-              <AppBarTab value="/help" icon={HelpIcon} onClick={() => navigate('/help')}>
+              <AppBarTab value={helpUrl} icon={HelpIcon} onClick={() => navigate(helpUrl)}>
                 Help
               </AppBarTab>
             </AppBar>

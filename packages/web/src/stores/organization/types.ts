@@ -13,5 +13,5 @@ export interface OrganizationStore {
   /**
    * Fetches all organizations the user is a member of.
    */
-  fetchAllOrganizations: () => Promise<void>;
+  fetchAllOrganizations: (slug?: string) => Promise<Organization>;
 }

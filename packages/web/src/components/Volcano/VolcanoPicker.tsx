@@ -1,6 +1,7 @@
 import { Button, makeStyles, MenuButton, MenuItem, MenuList, Popover, PopoverProps, PopoverSurface, PopoverTrigger } from '@fluentui/react-components';
-import { Checkmark20Regular, Dismiss16Regular } from '@fluentui/react-icons';
-import { useState } from 'react';
+import { CheckmarkRegular, Dismiss16Regular } from '@fluentui/react-icons';
+import { useCallback, useState } from 'react';
+import { useOrganizationStore } from '../../stores/organization';
 import { useVolcanoStore } from '../../stores/volcano/useVolcanoStore';
 
 const useVolcanoPickerStyles = makeStyles({
@@ -10,10 +11,23 @@ const useVolcanoPickerStyles = makeStyles({
 });
 
 const VolcanoPicker = () => {
-  const { currentVolcano, allVolcanoes, setCurrentVolcano } = useVolcanoStore();
+  const { currentVolcano, allVolcanoes } = useVolcanoStore();
   const styles = useVolcanoPickerStyles();
   const [open, setOpen] = useState(false);
   const handleOpenChange: PopoverProps['onOpenChange'] = (_, data) => setOpen(data.open || false);
+
+  const { currentOrganization } = useOrganizationStore();
+  const handleVolcanoChange = useCallback(
+    (slug: string) => {
+      const volcano = allVolcanoes.find((v) => v.slug === slug);
+      if (volcano && volcano.slug !== currentVolcano?.slug) {
+        const url = `/${currentOrganization?.slug}/${volcano.slug}`;
+        window.location.href = url;
+      }
+      setOpen(false);
+    },
+    [currentOrganization, currentVolcano, allVolcanoes]
+  );
 
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
@@ -29,15 +43,12 @@ const VolcanoPicker = () => {
             <span className="text-xs font-semibold">Switch volcano context</span>
             <Button appearance="transparent" icon={<Dismiss16Regular />} onClick={() => setOpen(false)} />
           </div>
-          <MenuList>
+          <MenuList hasIcons>
             {allVolcanoes.map((volcano) => (
               <MenuItem
                 key={volcano.id}
-                onClick={() => {
-                  setCurrentVolcano(volcano);
-                  setOpen(false);
-                }}
-                icon={volcano.id === currentVolcano?.id ? <Checkmark20Regular /> : undefined}
+                onClick={() => handleVolcanoChange(volcano.slug)}
+                icon={volcano.id === currentVolcano?.id ? <CheckmarkRegular /> : <CheckmarkRegular color="transparent" />}
               >
                 <span className="font-normal">{volcano.name}</span>
               </MenuItem>

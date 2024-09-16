@@ -2,6 +2,7 @@ import OrganizationPicker from '../Organization/OrganizationPicker';
 import VolcanoPicker from '../Volcano/VolcanoPicker';
 import Account from './Account';
 import ArrowNavigation from './ArrowNavigation';
+import LogoImage from './LogoImage';
 import NotificationPanel from './NotificationPanel';
 import OfflineIndicator from './OfflineIndicator';
 import SearchBox from './SearchBox';
@@ -10,6 +11,9 @@ const Header = () => {
   return (
     <div className="flex h-[48px] items-center justify-between z-50">
       <div className="flex items-center">
+        <div className="flex items-center justify-center w-[68px]">
+          <LogoImage />
+        </div>
         <OrganizationPicker />
         <VolcanoPicker />
       </div>

@@ -1,9 +1,7 @@
 import { Button, Image, makeStyles, MenuButton, MenuItem, MenuList, Popover, PopoverProps, PopoverSurface, PopoverTrigger } from '@fluentui/react-components';
-import { Checkmark20Regular, Dismiss16Regular } from '@fluentui/react-icons';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { CheckmarkRegular, Dismiss16Regular } from '@fluentui/react-icons';
+import { useCallback, useState } from 'react';
 import { useOrganizationStore } from '../../stores/organization';
-import LogoImage from '../Header/LogoImage';
 
 const useOrganizationPickerStyles = makeStyles({
   popoverSurface: {
@@ -12,27 +10,25 @@ const useOrganizationPickerStyles = makeStyles({
 });
 
 const OrganizationPicker = () => {
-  const { currentOrganization, allOrganizations, setCurrentOrganization } = useOrganizationStore();
-  const navigate = useNavigate();
+  const { currentOrganization, allOrganizations } = useOrganizationStore();
   const styles = useOrganizationPickerStyles();
   const [open, setOpen] = useState(false);
   const handleOpenChange: PopoverProps['onOpenChange'] = (_, data) => setOpen(data.open || false);
 
+  const handleOrganizationChange = useCallback(
+    (slug: string) => {
+      const organization = allOrganizations.find((o) => o.slug === slug);
+      if (organization && organization.slug !== currentOrganization?.slug) {
+        const url = `/${organization.slug}`;
+        window.location.href = url;
+      }
+      setOpen(false);
+    },
+    [currentOrganization, allOrganizations]
+  );
+
   return (
     <div className="flex items-center">
-      <div className="flex items-center justify-center w-[68px]">
-        <a
-          className="flex items-center cursor-pointer"
-          onClick={() => {
-            if (location.pathname !== '/' && location.pathname !== '/picker') {
-              navigate('/');
-            }
-          }}
-        >
-          <LogoImage />
-        </a>
-      </div>
-
       <Popover open={open} onOpenChange={handleOpenChange}>
         <PopoverTrigger disableButtonEnhancement>
           <MenuButton size="medium" appearance="transparent">
@@ -50,11 +46,8 @@ const OrganizationPicker = () => {
               {allOrganizations.map((org) => (
                 <MenuItem
                   key={org.id}
-                  onClick={() => {
-                    setCurrentOrganization(org);
-                    setOpen(false);
-                  }}
-                  icon={org.id === currentOrganization?.id ? <Checkmark20Regular /> : undefined}
+                  onClick={() => handleOrganizationChange(org.slug)}
+                  icon={org.id === currentOrganization?.id ? <CheckmarkRegular /> : <CheckmarkRegular color="transparent" />}
                 >
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">

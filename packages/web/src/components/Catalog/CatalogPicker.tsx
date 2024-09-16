@@ -1,5 +1,5 @@
 import { Button, makeStyles, MenuItem, MenuList, Popover, PopoverProps, PopoverSurface, PopoverTrigger } from '@fluentui/react-components';
-import { Checkmark20Regular, ChevronDownRegular, Dismiss16Regular, Folder20Regular } from '@fluentui/react-icons';
+import { CheckmarkRegular, ChevronDownRegular, Dismiss16Regular, Folder20Regular } from '@fluentui/react-icons';
 import { useState } from 'react';
 import { useCatalogStore } from '../../stores/catalog';
 
@@ -38,7 +38,7 @@ const CatalogPicker = () => {
                   setCurrentCatalog(catalog);
                   setOpen(false);
                 }}
-                icon={catalog.id === currentCatalog?.id ? <Checkmark20Regular /> : undefined}
+                icon={catalog.id === currentCatalog?.id ? <CheckmarkRegular /> : <CheckmarkRegular color="transparent" />}
               >
                 <div className="flex items-center gap-1">
                   <span className="font-normal">{catalog.name}</span>

@@ -14,14 +14,15 @@ const organizationStore = create<OrganizationStore>((set) => {
 
     setCurrentOrganization: (organization) => set({ currentOrganization: organization }),
 
-    fetchAllOrganizations: async () => {
+    fetchAllOrganizations: async (slug) => {
       const url = apiVersion.listOrganization.v1;
       const response = await api(url);
-      const data: Organization[] = await response.json();
-      set({ allOrganizations: data });
-      if (data.length) {
-        const org = data[0];
+      const allOrganizations: Organization[] = await response.json();
+      set({ allOrganizations });
+      if (allOrganizations.length) {
+        const org = allOrganizations.find((o) => o.slug === slug) || allOrganizations[0];
         set({ currentOrganization: org });
+        return org;
       } else {
         throw new CustomError('You are not a member of any organization.');
       }

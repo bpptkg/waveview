@@ -14,5 +14,5 @@ export interface VolcanoStore {
    * Fetches all volcanoes from the organization where the user is a member of
    * and sets the default volcano.
    */
-  fetchAllVolcanoes: () => Promise<void>;
+  fetchAllVolcanoes: (slug?: string) => Promise<Volcano>;
 }

@@ -1,6 +1,7 @@
 export interface Volcano {
   id: string;
   organization_id: string;
+  slug: string;
   name: string;
   description: string;
   elevation: number;

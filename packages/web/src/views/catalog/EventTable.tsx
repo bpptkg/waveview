@@ -41,6 +41,8 @@ import { SeismicEvent } from '../../types/event';
 import { CustomError } from '../../types/response';
 import EventDetail from './EventDetail';
 import EventDetailDrawer from './EventDetailDrawer';
+import { useOrganizationStore } from '../../stores/organization';
+import { useVolcanoStore } from '../../stores/volcano/useVolcanoStore';
 
 const useEventTableStyles = makeStyles({
   table: {
@@ -81,6 +83,8 @@ const EventTable = () => {
   const { clearCache } = useEventDetailStore();
   const { eventTypes } = useEventTypeStore();
   const { hasPermission } = useUserStore();
+  const { currentOrganization } = useOrganizationStore();
+  const { currentVolcano } = useVolcanoStore();
 
   const toasterId = useId('event-table');
   const { dispatchToast } = useToastController(toasterId);
@@ -182,7 +186,7 @@ const EventTable = () => {
         ...row,
         onClick: (e: React.MouseEvent) => {
           toggleRow(e, row.rowId);
-          navigate(`/catalog/events/${row.item.id}/summary`);
+          navigate(`/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/events/${row.item.id}/summary`);
         },
         onKeyDown: (e: React.KeyboardEvent) => {
           if (e.key === ' ') {

@@ -29,6 +29,7 @@ import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../../stores/app';
 import { useAuthStore } from '../../stores/auth';
+import { useOrganizationStore } from '../../stores/organization';
 import { useUserStore } from '../../stores/user';
 import LanguageSelector from './LanguageSelector';
 import ThemeSelector from './ThemeSelector';
@@ -48,6 +49,7 @@ const Account = () => {
   const navigate = useNavigate();
   const { user } = useUserStore();
   const { currentLanguage, theme, timeZone, useUTC } = useAppStore();
+  const { currentOrganization } = useOrganizationStore();
   const styles = useAccountStyles();
   const [open, setOpen] = useState(false);
   const handleOpenChange: PopoverProps['onOpenChange'] = (_, data) => {
@@ -122,7 +124,7 @@ const Account = () => {
             <MenuItem
               icon={<QuestionCircle20Regular />}
               onClick={() => {
-                navigate('/help');
+                navigate(`/${currentOrganization?.slug}/help`);
                 setOpen(false);
               }}
             >

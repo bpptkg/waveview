@@ -38,80 +38,98 @@ const router = createBrowserRouter([
         ),
         children: [
           {
-            path: '/picker',
-            element: <Picker />,
+            path: '',
+            element: <Navigate to=":org" replace />,
           },
           {
-            path: '/catalog',
-            element: <Catalog />,
+            path: ':org',
             children: [
               {
-                path: 'events',
-                element: <EventTable />,
+                path: '',
+                element: <Navigate to=":volcano" replace />,
+              },
+              {
+                path: ':volcano',
                 children: [
                   {
-                    path: ':eventId/summary',
-                    element: <EventDetailSummary />,
+                    path: '',
+                    element: <Navigate to="picker" replace />,
                   },
                   {
-                    path: ':eventId/amplitude',
-                    element: <EventDetailAmplitude />,
+                    path: 'picker',
+                    element: <Picker />,
                   },
                   {
-                    path: ':eventId/magnitude',
-                    element: <EventDetailMagnitude />,
-                  },
-                  {
-                    path: ':eventId/location',
-                    element: <EventDetailLocation />,
-                  },
-                  {
-                    path: ':eventId/waveform',
-                    element: <EventDetailWaveform />,
-                  },
-                  {
-                    path: ':eventId/attachments',
-                    element: <EventDetailAttachments />,
-                  },
-                  {
-                    path: ':eventId/visual',
-                    element: <EventDetailVisual />,
-                  },
-                  {
-                    path: ':eventId',
-                    element: <Navigate to="summary" replace />,
+                    path: 'catalog',
+                    element: <Catalog />,
+                    children: [
+                      {
+                        path: 'events',
+                        element: <EventTable />,
+                        children: [
+                          {
+                            path: ':eventId/summary',
+                            element: <EventDetailSummary />,
+                          },
+                          {
+                            path: ':eventId/amplitude',
+                            element: <EventDetailAmplitude />,
+                          },
+                          {
+                            path: ':eventId/magnitude',
+                            element: <EventDetailMagnitude />,
+                          },
+                          {
+                            path: ':eventId/location',
+                            element: <EventDetailLocation />,
+                          },
+                          {
+                            path: ':eventId/waveform',
+                            element: <EventDetailWaveform />,
+                          },
+                          {
+                            path: ':eventId/attachments',
+                            element: <EventDetailAttachments />,
+                          },
+                          {
+                            path: ':eventId/visual',
+                            element: <EventDetailVisual />,
+                          },
+                          {
+                            path: ':eventId',
+                            element: <Navigate to="summary" replace />,
+                          },
+                        ],
+                      },
+                      {
+                        path: 'seismicity',
+                        element: <Seismicity />,
+                      },
+                      {
+                        path: 'hypocenter',
+                        element: <Hypocenter />,
+                      },
+                      {
+                        index: true,
+                        element: <Navigate to="events" replace />,
+                      },
+                    ],
                   },
                 ],
               },
               {
-                path: 'seismicity',
-                element: <Seismicity />,
+                path: 'admin',
+                element: <Admin />,
               },
               {
-                path: 'hypocenter',
-                element: <Hypocenter />,
-              },
-              {
-                index: true,
-                element: <Navigate to="events" replace />,
+                path: 'help',
+                element: <Help />,
               },
             ],
           },
           {
-            path: '/admin',
-            element: <Admin />,
-          },
-          {
-            path: '/help',
-            element: <Help />,
-          },
-          {
-            path: '/profile',
+            path: 'profile',
             element: <Profile />,
-          },
-          {
-            index: true,
-            element: <Navigate to="/picker" replace />,
           },
         ],
       },

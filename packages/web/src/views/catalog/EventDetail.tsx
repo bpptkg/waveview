@@ -34,6 +34,8 @@ import React, { useCallback, useState } from 'react';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import { useCatalogStore } from '../../stores/catalog';
 import { useEventDetailStore } from '../../stores/eventDetail';
+import { useOrganizationStore } from '../../stores/organization';
+import { useVolcanoStore } from '../../stores/volcano/useVolcanoStore';
 import { SeismicEventDetail } from '../../types/event';
 import { CustomError } from '../../types/response';
 import EventDetailEditor from './EventDetailEditor';
@@ -97,14 +99,17 @@ export const EventDetailTabs: React.FC<EventDetailTabsProps> = ({ eventId }) => 
     navigate(data.value as string);
   };
 
+  const { currentOrganization } = useOrganizationStore();
+  const { currentVolcano } = useVolcanoStore();
+
   const tabs = [
-    { value: `/catalog/events/${eventId}/summary`, label: 'Summary' },
-    { value: `/catalog/events/${eventId}/amplitude`, label: 'Amplitude' },
-    { value: `/catalog/events/${eventId}/magnitude`, label: 'Magnitude' },
-    { value: `/catalog/events/${eventId}/location`, label: 'Location' },
-    { value: `/catalog/events/${eventId}/waveform`, label: 'Waveform' },
-    { value: `/catalog/events/${eventId}/attachments`, label: 'Attachments' },
-    { value: `/catalog/events/${eventId}/visual`, label: 'Visual' },
+    { value: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/events/${eventId}/summary`, label: 'Summary' },
+    { value: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/events/${eventId}/amplitude`, label: 'Amplitude' },
+    { value: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/events/${eventId}/magnitude`, label: 'Magnitude' },
+    { value: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/events/${eventId}/location`, label: 'Location' },
+    { value: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/events/${eventId}/waveform`, label: 'Waveform' },
+    { value: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/events/${eventId}/attachments`, label: 'Attachments' },
+    { value: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/events/${eventId}/visual`, label: 'Visual' },
   ];
 
   if (!eventId) {
@@ -132,9 +137,12 @@ const EventDetail: React.FC<EventDetailProps> = () => {
   const navigate = useNavigate();
   const styles = useEventDetailStyles();
 
-  const handleClose = () => {
-    navigate('/catalog/events');
-  };
+  const { currentOrganization } = useOrganizationStore();
+  const { currentVolcano } = useVolcanoStore();
+
+  const handleClose = useCallback(() => {
+    navigate(`/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/events`);
+  }, [currentOrganization, currentVolcano, navigate]);
 
   const toasterId = useId('event-detail');
   const { dispatchToast } = useToastController(toasterId);
@@ -166,7 +174,7 @@ const EventDetail: React.FC<EventDetailProps> = () => {
     deleteEvent()
       .then(() => {
         removeEvent(eventId!);
-        navigate('/catalog/events');
+        handleClose();
       })
       .catch((error: CustomError) => {
         showErrorToast(error);
@@ -174,7 +182,7 @@ const EventDetail: React.FC<EventDetailProps> = () => {
       .finally(() => {
         setDeleteDialogOpen(false);
       });
-  }, [deleteEvent, navigate, showErrorToast, removeEvent, eventId]);
+  }, [eventId, deleteEvent, showErrorToast, removeEvent, handleClose]);
 
   const handleRefresh = useCallback(() => {
     if (!eventId) {
