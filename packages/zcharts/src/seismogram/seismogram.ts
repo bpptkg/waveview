@@ -226,7 +226,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   }
 
   refreshChannelData(): void {
-    let normFactor = Infinity;
+    let normFactor = -Infinity;
     for (const channel of this.trackManager.channels()) {
       const series = this.channelDataStore.get(channel.id);
       if (!series || series.isEmpty()) {
@@ -234,7 +234,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
       }
 
       const factor = series.max() - series.min();
-      normFactor = Math.min(normFactor, factor);
+      normFactor = Math.max(normFactor, factor);
     }
 
     for (const [channel, track] of this.trackManager.items()) {
