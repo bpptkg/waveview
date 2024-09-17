@@ -176,6 +176,9 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
         return '';
       }
     },
+    fetchAllData: () => {
+      webWorkerRef.current?.fetchAllTracksData();
+    },
   }));
 
   const handleSelectionChange = useCallback(

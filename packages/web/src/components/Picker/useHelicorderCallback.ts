@@ -94,6 +94,10 @@ export function useHelicorderCallback() {
     [seisChartRef, setSelectionWindow, setAppliedFilter, setLastSeismogramExtent]
   );
 
+  const handleHelicorderRefreshData = useCallback(() => {
+    heliChartRef.current?.fetchAllData();
+  }, [heliChartRef]);
+
   const { currentOrganization } = useOrganizationStore();
   const { currentCatalog } = useCatalogStore();
   const { currentVolcano } = useVolcanoStore();
@@ -191,5 +195,6 @@ export function useHelicorderCallback() {
     handleHelicorderOnReady,
     handleUpdateEventMarkers,
     getHelicorderInitOptions,
+    handleHelicorderRefreshData,
   };
 }

@@ -175,7 +175,7 @@ export class TrackManager {
 
   isTrackEmpty(segment: Segment): boolean {
     const heliData = this.dataStore.get(segment);
-    return !heliData;
+    return !heliData || heliData.length === 0;
   }
 
   sliceData(segment: Segment, start: number, end: number): Series {

@@ -32,6 +32,7 @@ const PickerToolbar = () => {
     handleHelicorderChangeInterval,
     handleHelicorderChangeDuration,
     handleHelicorderSelectOffsetDate,
+    handleHelicorderRefreshData,
     handleSeismogramChannelAdd,
     handleSeismogramZoomIn,
     handleSeismogramZoomOut,
@@ -71,6 +72,7 @@ const PickerToolbar = () => {
           onDurationChange={handleHelicorderChangeDuration}
           onOffsetDateChange={handleHelicorderSelectOffsetDate}
           onShowEventChange={handleSeismogramShowEvent}
+          onRefreshData={handleHelicorderRefreshData}
         />
       )}
 

@@ -43,9 +43,15 @@ export class HelicorderWebWorker {
 
   private fetchAllTracksDataLazy(): void {
     const trackManager = this.chart.getTrackManager();
+    const now = Date.now();
     for (const segment of trackManager.segments()) {
       if (this.chart.isTrackDataEmpty(segment)) {
         this.postRequestMessage(segment);
+      } else {
+        const [, end] = segment;
+        if (end > now) {
+          this.postRequestMessage(segment);
+        }
       }
     }
   }

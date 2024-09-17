@@ -54,4 +54,5 @@ export interface HelicorderChartRef {
   dispose: () => void;
   render(): void;
   toDataURL: (type?: string, quality?: number) => string;
+  fetchAllData: () => void;
 }

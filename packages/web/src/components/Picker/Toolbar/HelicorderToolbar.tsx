@@ -21,6 +21,7 @@ import {
   tokens,
 } from '@fluentui/react-components';
 import {
+  ArrowCounterclockwiseRegular,
   AutoFitHeight20Regular,
   Calendar20Regular,
   ChevronDoubleDown20Regular,
@@ -53,6 +54,7 @@ export interface HelicorderToolbarProps {
   onDecreaseAmplitude?: () => void;
   onResetAmplitude?: () => void;
   onShowEventChange?: (showEvent: boolean) => void;
+  onRefreshData?: () => void;
 }
 
 const durationOptions = [
@@ -82,8 +84,8 @@ const useStyles = makeStyles({
     maxHeight: '500px',
     overflowY: 'auto',
   },
-  offsetDate: {
-    marginLeft: '5px',
+  toolbar: {
+    gap: '3px',
   },
 });
 
@@ -106,6 +108,7 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
     onResetAmplitude,
     onShowEventChange,
     onOffsetDateChange,
+    onRefreshData,
   } = props;
 
   const styles = useStyles();
@@ -178,7 +181,7 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
 
   return (
     <div className="bg-white dark:bg-black mx-2 mt-1 border dark:border-transparent rounded flex justify-between items-center">
-      <Toolbar aria-label="Helicorder Toolbar">
+      <Toolbar aria-label="Helicorder Toolbar" className={styles.toolbar}>
         <Popover trapFocus open={open} onOpenChange={() => setOpen(!open)}>
           <PopoverTrigger disableButtonEnhancement>
             <ToolbarButton appearance="primary" aria-label="Select Channel ID" icon={<Search20Regular />} className={styles.btn}>
@@ -210,13 +213,17 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
         <Popover trapFocus open={offsetDatePickerOpen} onOpenChange={() => setOffsetDatePickerOpen(!offsetDatePickerOpen)}>
           <PopoverTrigger disableButtonEnhancement>
             <Tooltip content="Change Offset Date" relationship="label" showDelay={1500}>
-              <ToolbarButton className={styles.offsetDate} aria-label="Change Offset Date" icon={<Calendar20Regular />} />
+              <ToolbarButton aria-label="Change Offset Date" icon={<Calendar20Regular />} />
             </Tooltip>
           </PopoverTrigger>
           <PopoverSurface>
             <Calendar value={offsetDate} onSelectDate={handleSelectDate} />
           </PopoverSurface>
         </Popover>
+
+        <Tooltip content="Refresh Data" relationship="label" showDelay={1500}>
+          <ToolbarButton aria-label="Refresh Data" icon={<ArrowCounterclockwiseRegular />} onClick={onRefreshData} />
+        </Tooltip>
 
         <Menu>
           <MenuTrigger>
