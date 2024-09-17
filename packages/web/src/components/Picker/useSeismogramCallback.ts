@@ -126,6 +126,17 @@ export const useSeismogramCallback = () => {
     [seisChartRef]
   );
 
+  const handleSeismogramSignalChange = useCallback(
+    (active: boolean) => {
+      if (active) {
+        seisChartRef.current?.showSignal();
+      } else {
+        seisChartRef.current?.hideSignal();
+      }
+    },
+    [seisChartRef]
+  );
+
   const handleSeismogramCheckValueChange = useCallback(
     (name: string, values: string[]) => {
       seismogramToolbarSetCheckedValues(name, values);
@@ -281,5 +292,6 @@ export const useSeismogramCallback = () => {
     handleSetupEventEditing,
     getSeismogramInitOptions,
     handleSeismogramSpectrogramChange,
+    handleSeismogramSignalChange,
   };
 };

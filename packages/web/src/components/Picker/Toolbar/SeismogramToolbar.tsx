@@ -31,6 +31,7 @@ import {
   ChevronLeft20Regular,
   ChevronRight20Regular,
   ChevronUpDown20Regular,
+  PulseRegular,
   ZoomIn20Regular,
   ZoomOut20Regular,
 } from '@fluentui/react-icons';
@@ -57,6 +58,7 @@ export interface SeismogramToolbarProps {
   onComponentChange?: (component: string) => void;
   onShowEventChange?: (showEvent: boolean) => void;
   onCheckedValueChange?: (name: string, values: string[]) => void;
+  onSignalChange?: (active: boolean) => void;
   onSpectrogramChange?: (active: boolean) => void;
 }
 
@@ -76,7 +78,7 @@ const useStyles = makeStyles({
       color: tokens.colorNeutralForeground2BrandHover,
     },
   },
-  iconPick: {
+  icon: {
     fill: tokens.colorNeutralForeground1,
     '&:hover': {
       fill: tokens.colorNeutralForeground2BrandHover,
@@ -94,8 +96,8 @@ const useStyles = makeStyles({
     maxHeight: '500px',
     overflowY: 'auto',
   },
-  zoomInButton: {
-    marginLeft: '5px',
+  toolbar: {
+    gap: '3px',
   },
 });
 
@@ -118,6 +120,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
     onComponentChange,
     onShowEventChange,
     onCheckedValueChange,
+    onSignalChange,
     onSpectrogramChange,
   } = props;
 
@@ -147,11 +150,17 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
         } else {
           onSpectrogramChange?.(false);
         }
+
+        if (checkedItems.includes('signal')) {
+          onSignalChange?.(true);
+        } else {
+          onSignalChange?.(false);
+        }
       }
 
       onCheckedValueChange?.(name, checkedItems);
     },
-    [onCheckedValueChange, onSpectrogramChange]
+    [onCheckedValueChange, onSpectrogramChange, onSignalChange]
   );
 
   const handleChannelAdd = useCallback(
@@ -195,7 +204,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
 
   return (
     <div className="bg-white dark:bg-black mx-2 mt-1 border dark:border-transparent rounded flex justify-between items-center">
-      <Toolbar aria-label="Seismogram Toolbar" checkedValues={checkedValues} onCheckedValueChange={handleToolbarCheckedValueChange}>
+      <Toolbar aria-label="Seismogram Toolbar" checkedValues={checkedValues} onCheckedValueChange={handleToolbarCheckedValueChange} className={styles.toolbar}>
         <Popover trapFocus open={open} onOpenChange={() => setOpen(!open)}>
           <PopoverTrigger disableButtonEnhancement>
             <ToolbarButton appearance="primary" aria-label="Add station" icon={<Add20Regular />} disabled={!!isExpandMode}>
@@ -223,7 +232,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
         </Popover>
 
         <Tooltip content="Zoom In" relationship="label" showDelay={1500}>
-          <ToolbarButton className={styles.zoomInButton} aria-label="Zoom In" icon={<ZoomIn20Regular />} onClick={onZoomIn} />
+          <ToolbarButton aria-label="Zoom In" icon={<ZoomIn20Regular />} onClick={onZoomIn} />
         </Tooltip>
         <Tooltip content="Zoom Out" relationship="label" showDelay={1500}>
           <ToolbarButton aria-label="Zoom Out" icon={<ZoomOut20Regular />} onClick={onZoomOut} />
@@ -270,10 +279,13 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
           </MenuPopover>
         </Menu>
 
+        <Tooltip content="Toggle Signal" relationship="label" showDelay={1500}>
+          <ToolbarToggleButton aria-label="Toggle Signal" icon={<PulseRegular className={styles.icon} />} name="options" value="signal" appearance="subtle" />
+        </Tooltip>
         <Tooltip content="Toggle Spectrogram" relationship="label" showDelay={1500}>
           <ToolbarToggleButton
             aria-label="Toggle Spectrogram"
-            icon={<BezierCurveSquareRegular className={styles.iconPick} />}
+            icon={<BezierCurveSquareRegular className={styles.icon} />}
             name="options"
             value="spectrogram"
             appearance="subtle"

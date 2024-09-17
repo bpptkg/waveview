@@ -44,6 +44,7 @@ const PickerToolbar = () => {
     handleSeismogramShowEvent,
     handleSeismogramCheckValueChange,
     handleSeismogramSpectrogramChange,
+    handleSeismogramSignalChange,
   } = usePickerCallback();
 
   const { props } = usePickerContext();
@@ -93,6 +94,7 @@ const PickerToolbar = () => {
           onCheckedValueChange={handleSeismogramCheckValueChange}
           onComponentChange={handleSeismogramComponentChange}
           onSpectrogramChange={handleSeismogramSpectrogramChange}
+          onSignalChange={handleSeismogramSignalChange}
         />
       )}
     </>

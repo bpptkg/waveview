@@ -12,7 +12,7 @@ export const createSeismogramSlice: StateCreator<PickerStore, [], [], Seismogram
   return {
     lastSeismogramExtent: [start, end],
     seismogramToolbarCheckedValues: {
-      options: [],
+      options: ['signal'],
     },
     isExpandMode: false,
     expandedChannelIndex: -1,
