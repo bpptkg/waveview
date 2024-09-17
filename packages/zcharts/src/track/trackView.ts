@@ -47,7 +47,7 @@ export class TrackView extends View<TrackModel> {
         fontSize: 9,
       },
     });
-    this.rightYAxis.setExtent([0, 50]);
+    this.rightYAxis.setExtent([0, 50]); // default frequency range (0-50 Hz)
     this.spectrogram = new SpectrogramView(
       chart.getXAxis(),
       this.rightYAxis,

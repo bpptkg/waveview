@@ -63,18 +63,9 @@ export class SpectrogramView extends View<SpectrogramModel> {
     this.group.removeAll();
   }
 
-  override show(): void {
-    this.model.mergeOptions({ show: true });
-  }
-
-  override hide(): void {
-    this.model.mergeOptions({ show: false });
-  }
-
   render() {
     this.clear();
-    const { show } = this.model.getOptions();
-    if (!show) {
+    if (!this.visible) {
       return;
     }
 

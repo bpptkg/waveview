@@ -64,6 +64,9 @@ export class LineSeriesView extends View<LineSeriesModel> {
 
   render() {
     this.clear();
+    if (!this.visible || this.model.isEmpty()) {
+      return;
+    }
 
     const points: [number, number][] = [];
     const data = this.model.getData();
