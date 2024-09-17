@@ -90,18 +90,6 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     for (const channel of opts.channels) {
       this.addChannelInternal(channel);
     }
-
-    this.zr.on("click", (event) => {
-      this.emit("click", event);
-    });
-    this.zr.on(
-      "contextmenu",
-      (event) => {
-        event.event.preventDefault();
-        this.emit("contextmenu", event);
-      },
-      this
-    );
   }
 
   setChannels(channels: Channel[]): void {

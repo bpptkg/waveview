@@ -66,10 +66,6 @@ export class Helicorder extends ChartView<HelicorderOptions> {
     } else {
       this.setTheme("light");
     }
-
-    this.zr.on("click", (event) => {
-      this.emit("click", event);
-    });
   }
 
   setChannel(channel: Channel): void {

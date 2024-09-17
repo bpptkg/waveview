@@ -10,7 +10,7 @@ import useSeismogramChartApi from './useSeismogramChartApi';
 export type SeismogramChartType = React.ForwardRefExoticComponent<SeismogramChartProps & React.RefAttributes<SeismogramChartRef>>;
 
 export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref) => {
-  const { initOptions, className, onFocus, onBlur, onExtentChange, onTrackDoubleClick, onContextMenuRequested, onPick, onReady } = props;
+  const { initOptions, className, onFocus, onBlur, onExtentChange, onTrackDoubleClick, onContextMenuRequested, onMouseWheel, onPick, onReady } = props;
 
   const parentRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<Seismogram | null>(null);
@@ -49,9 +49,17 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
 
   const handleContextMenuRequested = useCallback(
     (e: ElementEvent) => {
+      e.event.preventDefault();
       onContextMenuRequested?.(e);
     },
     [onContextMenuRequested]
+  );
+
+  const handleMouseWheel = useCallback(
+    (e: ElementEvent) => {
+      onMouseWheel?.(e);
+    },
+    [onMouseWheel]
   );
 
   const handlePickRangeChange = useCallback(
@@ -74,12 +82,13 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
       webWorkerRef.current = new SeismogramWebWorker(chartRef.current, workerRef.current, {
         window: chartRef.current.getChartExtent(),
       });
-      chartRef.current.on('click', handleFocus);
       chartRef.current.on('blur', handleBlur);
       chartRef.current.on('extentChanged', handleExtentChange);
       chartRef.current.on('trackDoubleClicked', handleTrackDoubleClick);
-      chartRef.current.on('contextmenu', handleContextMenuRequested);
       chartRef.current.on('pickChanged', handlePickRangeChange);
+      chartRef.current.zr.on('click', handleFocus);
+      chartRef.current.zr.on('contextmenu', handleContextMenuRequested);
+      chartRef.current.zr.on('mousewheel', handleMouseWheel);
       chartRef.current.render();
     }
 

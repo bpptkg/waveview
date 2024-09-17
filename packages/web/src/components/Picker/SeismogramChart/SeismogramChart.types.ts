@@ -43,6 +43,10 @@ export interface SeismogramChartProps {
    */
   onContextMenuRequested?: (event: ElementEvent) => void;
   /**
+   * Callback fired when the user scrolls the mouse wheel.
+   */
+  onMouseWheel?: (event: ElementEvent) => void;
+  /**
    * Callback fired when the user picks a range.
    */
   onPick?: (range: [number, number]) => void;

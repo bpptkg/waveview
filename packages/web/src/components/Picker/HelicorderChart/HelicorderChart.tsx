@@ -206,8 +206,8 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
       workerRef.current = new Worker(new URL('../../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
       workerRef.current.postMessage({ type: 'setup', payload: { token } });
       webWorkerRef.current = new HelicorderWebWorker(chartRef.current, workerRef.current);
-      chartRef.current.on('click', handleFocus);
       chartRef.current.on('selectionChanged', handleSelectionChange);
+      chartRef.current.zr.on('click', handleFocus);
       chartRef.current.render();
     }
 

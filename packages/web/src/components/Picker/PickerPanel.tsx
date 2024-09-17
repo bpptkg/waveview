@@ -27,6 +27,7 @@ const PickerPanel = () => {
     handleSeismogramExtentChange,
     handleContextMenuRequested,
     handleSeismogramPickChange,
+    handleSeismogramMouseWheel,
     getSeismogramInitOptions,
     getHelicorderInitOptions,
     handleSeismogramOnReady,
@@ -131,6 +132,7 @@ const PickerPanel = () => {
             onFocus={handleSeismogramFocus}
             onExtentChange={handleSeismogramExtentChange}
             onContextMenuRequested={handleContextMenuRequested}
+            onMouseWheel={handleSeismogramMouseWheel}
             onPick={handleSeismogramPickChange}
             onReady={handleSeismogramOnReady}
           />

@@ -198,6 +198,43 @@ export const useSeismogramCallback = () => {
     [contextMenuRef]
   );
 
+  const handleSeismogramMouseWheel = useCallback(
+    (e: ElementEvent) => {
+      const x = e.offsetX;
+      const y = e.offsetY;
+      const wheelDelta = e.wheelDelta;
+      const chart = seisChartRef.current?.getInstance();
+      if (!chart || !chart.isFocused() || !chart.getGrid().getRect().contain(x, y)) {
+        return;
+      }
+
+      const event = e.event as unknown as WheelEvent;
+      const { altKey, shiftKey } = event;
+      if (shiftKey) {
+        const center = chart.getXAxis().getValueForPixel(x);
+        if (wheelDelta > 0) {
+          chart.zoomOut(center, 0.1);
+        } else {
+          chart.zoomIn(center, 0.1);
+        }
+      } else if (altKey) {
+        if (wheelDelta > 0) {
+          chart.decreaseAmplitude(0.1);
+        } else {
+          chart.increaseAmplitude(0.1);
+        }
+      } else {
+        if (wheelDelta > 0) {
+          chart.scrollRight(0.1);
+        } else {
+          chart.scrollLeft(0.1);
+        }
+      }
+      chart.render();
+    },
+    [seisChartRef]
+  );
+
   const handleSetupEventEditing = useCallback(
     (event: SeismicEventDetail) => {
       if (event) {
@@ -293,5 +330,6 @@ export const useSeismogramCallback = () => {
     getSeismogramInitOptions,
     handleSeismogramSpectrogramChange,
     handleSeismogramSignalChange,
+    handleSeismogramMouseWheel,
   };
 };
