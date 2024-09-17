@@ -88,7 +88,7 @@ export class SeismogramWebWorker {
   postRequestMessage(channelId: string): void {
     const [start, end] = this.selectionWindow;
     const requestId = uuid4();
-    const width = this.chart.getWidth();
+    const forceCenter = true;
     const msg: WorkerRequestData<StreamRequestData> = {
       type: 'stream.fetch',
       payload: {
@@ -96,8 +96,7 @@ export class SeismogramWebWorker {
         channelId,
         start,
         end,
-        width,
-        forceCenter: true,
+        forceCenter,
       },
     };
 

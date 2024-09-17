@@ -37,7 +37,7 @@ export class HelicorderWebWorker {
   private fetchAllTracksDataForce(): void {
     const trackManager = this.chart.getTrackManager();
     for (const segment of trackManager.segments()) {
-      this.postMessage(segment);
+      this.postRequestMessage(segment);
     }
   }
 
@@ -45,7 +45,7 @@ export class HelicorderWebWorker {
     const trackManager = this.chart.getTrackManager();
     for (const segment of trackManager.segments()) {
       if (this.chart.isTrackDataEmpty(segment)) {
-        this.postMessage(segment);
+        this.postRequestMessage(segment);
       }
     }
   }
@@ -58,18 +58,18 @@ export class HelicorderWebWorker {
       if (series) {
         this.chart.setTrackData(segment, series);
       } else {
-        this.postMessage(segment);
+        this.postRequestMessage(segment);
       }
     }
     this.chart.refreshData();
     this.chart.render();
   }
 
-  postMessage(extent: [number, number]): void {
+  postRequestMessage(extent: [number, number]): void {
     const requestId = uuid4();
     const [start, end] = extent;
-    const width = this.chart.getWidth();
     const channel = this.chart.getChannel();
+    const forceCenter = true;
     const msg: WorkerRequestData<StreamRequestData> = {
       type: 'stream.fetch',
       payload: {
@@ -77,8 +77,7 @@ export class HelicorderWebWorker {
         channelId: channel.id,
         start,
         end,
-        width,
-        mode: 'match_width',
+        forceCenter,
       },
     };
 
