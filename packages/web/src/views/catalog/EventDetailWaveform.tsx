@@ -44,9 +44,9 @@ const EventDetailWaveform = () => {
     const endTime = end + MARGIN;
 
     return {
-      channels: selectedChannels.map((channel) => ({
-        id: channel.id,
-        label: channel.network_station_code,
+      channels: selectedChannels.map((item) => ({
+        id: item.channel.id,
+        label: item.channel.network_station_code,
       })),
       grid: {
         top: 30,
