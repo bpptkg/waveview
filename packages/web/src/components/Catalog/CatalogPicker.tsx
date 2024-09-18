@@ -18,7 +18,7 @@ const CatalogPicker = () => {
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger disableButtonEnhancement>
-        <Button size="small" appearance="transparent" icon={<Folder20Regular />}>
+        <Button size="small" appearance="secondary" icon={<Folder20Regular />}>
           <span className="font-normal text-nowrap text-black dark:text-white">{currentCatalog?.name}</span>{' '}
           <ChevronDownRegular fontSize={12} className="ml-1" />
         </Button>

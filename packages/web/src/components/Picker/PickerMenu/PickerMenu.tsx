@@ -17,7 +17,9 @@ const PickerMenu = () => {
         <NavigationMenu />
         <HelpMenu />
       </div>
-      <CatalogPicker />
+      <div className="mr-1">
+        <CatalogPicker />
+      </div>
     </div>
   );
 };

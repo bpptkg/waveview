@@ -31,7 +31,7 @@ const Catalog = () => {
             <Tab value={`/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/hypocenter`}>Hypocenter</Tab>
           </div>
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center mr-1">
           <CatalogPicker />
         </div>
       </TabList>
