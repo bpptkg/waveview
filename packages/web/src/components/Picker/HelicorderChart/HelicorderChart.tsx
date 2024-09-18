@@ -179,6 +179,13 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
     fetchAllData: () => {
       webWorkerRef.current?.fetchAllTracksData();
     },
+    setWindowSize: (size: number) => {
+      if (chartRef.current) {
+        const selectionWindow = chartRef.current.getSelectionWindow();
+        selectionWindow.getModel().setSize(size);
+        chartRef.current.render();
+      }
+    },
   }));
 
   const handleSelectionChange = useCallback(

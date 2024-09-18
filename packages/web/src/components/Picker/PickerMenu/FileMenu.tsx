@@ -12,8 +12,9 @@ const useStyles = makeStyles({
 const FileMenu = () => {
   const styles = useStyles();
 
-  const { selectedChart } = usePickerStore();
+  const { selectedChart, setPickerSettingsOpen } = usePickerStore();
   const { seisChartRef, heliChartRef } = usePickerContext();
+
   const handleExportToImage = useCallback(() => {
     let image: string | undefined = '';
     let downloadName = '';
@@ -35,6 +36,10 @@ const FileMenu = () => {
     link.remove();
   }, [seisChartRef, heliChartRef, selectedChart]);
 
+  const handleSettings = useCallback(() => {
+    setPickerSettingsOpen(true);
+  }, [setPickerSettingsOpen]);
+
   return (
     <Menu>
       <MenuTrigger>
@@ -45,6 +50,7 @@ const FileMenu = () => {
       <MenuPopover>
         <MenuList>
           <MenuItem onClick={handleExportToImage}>Export to Image</MenuItem>
+          <MenuItem onClick={handleSettings}>Settings...</MenuItem>
         </MenuList>
       </MenuPopover>
     </Menu>

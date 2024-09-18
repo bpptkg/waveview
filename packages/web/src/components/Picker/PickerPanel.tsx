@@ -12,6 +12,7 @@ import { useHelicorderKeyboardShortcuts, useSeismogramKeyboardShortcuts } from '
 import { usePickerCallback } from './usePickerCallback';
 import { useThemeEffect } from './useThemeEffect';
 import { useTimeZoneEffect } from './useTimeZoneEffect';
+import PickerSettings from './PickerSettings/PickerSettings';
 
 const PickerPanel = () => {
   const heliChartRef = useRef<HelicorderChartRef | null>(null);
@@ -144,6 +145,7 @@ const PickerPanel = () => {
         </Panel>
       </PanelGroup>
       <SidebarTabList />
+      <PickerSettings />
     </div>
   );
 };

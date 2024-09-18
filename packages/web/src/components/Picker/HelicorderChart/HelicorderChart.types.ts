@@ -55,4 +55,5 @@ export interface HelicorderChartRef {
   render(): void;
   toDataURL: (type?: string, quality?: number) => string;
   fetchAllData: () => void;
+  setWindowSize: (size: number) => void;
 }

@@ -13,7 +13,7 @@ import {
   webDarkTheme,
   webLightTheme,
 } from '@fluentui/react-components';
-import { ArrowDownRegular, ArrowMaximizeRegular, ArrowMinimizeRegular, ArrowUpRegular, DeleteRegular, EditRegular } from '@fluentui/react-icons';
+import { ArrowMaximizeRegular, ArrowMinimizeRegular, EditRegular } from '@fluentui/react-icons';
 import { ElementEvent, Seismogram } from '@waveview/zcharts';
 import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -190,31 +190,7 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<React.RefAttributes
     };
   }, [handleClose, menuRef]);
 
-  const { handleSeismogramRemoveChannel, handleSeismogramMoveChannelUp, handleSeismogramMoveChannelDown } = usePickerCallback();
-
-  const handleRemoveChannel = useCallback(() => {
-    if (channelIndex !== null) {
-      handleSeismogramRemoveChannel(channelIndex);
-    }
-    handleClose();
-  }, [channelIndex, handleClose, handleSeismogramRemoveChannel]);
-
-  const handleMoveChannelUp = useCallback(() => {
-    if (channelIndex !== null) {
-      handleSeismogramMoveChannelUp(channelIndex);
-    }
-    handleClose();
-  }, [channelIndex, handleClose, handleSeismogramMoveChannelUp]);
-
-  const handleMoveChannelDown = useCallback(() => {
-    if (channelIndex !== null) {
-      handleSeismogramMoveChannelDown(channelIndex);
-    }
-    handleClose();
-  }, [channelIndex, handleClose, handleSeismogramMoveChannelDown]);
-
-  const { selectedChannels, isExpandMode, fetchEditedEvent, setExpandMode } = usePickerStore();
-  const channel = useMemo(() => selectedChannels[channelIndex ?? 0], [selectedChannels, channelIndex]);
+  const { isExpandMode, fetchEditedEvent, setExpandMode } = usePickerStore();
   const { handleSetupEventEditing } = usePickerCallback();
   const sidebar = useSidebarStore();
 
@@ -250,6 +226,16 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<React.RefAttributes
     handleClose();
   }, [seisChartRef, setExpandMode, handleClose]);
 
+  const channel = useMemo(() => {
+    if (channelIndex === null) {
+      return null;
+    }
+
+    const chart = seisChartRef.current?.getInstance() as Seismogram;
+    const trackManager = chart.getTrackManager();
+    return trackManager.getChannelByIndex(channelIndex);
+  }, [channelIndex, seisChartRef]);
+
   return createPortal(
     <FluentProvider theme={darkMode ? webDarkTheme : webLightTheme}>
       <div
@@ -274,22 +260,9 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<React.RefAttributes
               Restore View
             </MenuItem>
           ) : (
-            <>
-              <MenuItem onClick={handleMoveChannelUp} icon={<ArrowUpRegular />} aria-label="Move Channel Up">
-                Move {channel?.network_station_code} Up
-              </MenuItem>
-              <MenuItem onClick={handleMoveChannelDown} icon={<ArrowDownRegular />} aria-label="Move Channel Down">
-                Move {channel?.network_station_code} Down
-              </MenuItem>
-              <MenuDivider />
-              <MenuItem onClick={handleRemoveChannel} icon={<DeleteRegular />} aria-label="Remove Selected Channel">
-                Remove {channel?.network_station_code}
-              </MenuItem>
-              <MenuDivider />
-              <MenuItem onClick={handleExpandView} icon={<ArrowMaximizeRegular />} aria-label="Expand View">
-                Expand View
-              </MenuItem>
-            </>
+            <MenuItem onClick={handleExpandView} icon={<ArrowMaximizeRegular />} aria-label="Expand View">
+              Expand {channel?.label}
+            </MenuItem>
           )}
         </MenuList>
         <Toaster toasterId={toasterId} />

@@ -1,5 +1,5 @@
 import { SeismicEvent } from '../../../types/event';
-import { PickerConfig } from '../../../types/picker';
+import { PickerConfig, PickerConfigPayload } from '../../../types/picker';
 import { PickerChart } from '../types';
 
 export interface CommonSlice {
@@ -21,6 +21,22 @@ export interface CommonSlice {
    */
   eventMarkers: SeismicEvent[];
   /**
+   * Force center signal in the chart.
+   */
+  forceCenter: boolean;
+  /**
+   * True to open picker settings dialog.
+   */
+  pickerSettingsOpen: boolean;
+  /**
+   * Set picker settings dialog.
+   */
+  setPickerSettingsOpen: (open: boolean) => void;
+  /**
+   * Set force center signal.
+   */
+  setForceCenter: (forceCenter: boolean) => void;
+  /**
    * Sets the selected chart in the helicorder workspace.
    */
   setShowEvent: (showEvent: boolean) => void;
@@ -33,6 +49,10 @@ export interface CommonSlice {
    * channels to display in the picker.
    */
   fetchPickerConfig: () => Promise<void>;
+  /**
+   * Saves the picker configuration.
+   */
+  savePickerConfig: (payload: PickerConfigPayload) => Promise<void>;
   /**
    * Fetches the event markers within the given time range.
    */

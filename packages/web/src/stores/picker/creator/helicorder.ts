@@ -10,6 +10,8 @@ export const createHelicorderSlice: StateCreator<PickerStore, [], [], Helicorder
     offsetDate: Date.now(),
     selectionWindow: undefined,
     lastSelection: 0,
+    windowSize: 5,
+    setWindowSize: (windowSize) => set({ windowSize }),
     setHelicorderChannelId: (channelId) => set({ channelId }),
     setHelicorderDuration: (helicorderDuration) => set({ helicorderDuration }),
     setHelicorderInterval: (helicorderInterval) => set({ helicorderInterval }),

@@ -1,6 +1,5 @@
 import { Channel } from '../../../types/channel';
 import { StationWithChannel } from '../../../types/station';
-import { ComponentType } from '../types';
 
 export interface ChannelConfig {
   channel: Channel;
@@ -25,26 +24,15 @@ export interface SeismogramSlice {
    */
   expandedChannelIndex: number | null;
   /**
-   * The component type of the seismogram chart.
-   */
-  component: ComponentType;
-  /**
    * List of default channels configured.
    */
-  selectedChannels: Channel[];
-  setSelectedChannels: (channels: Channel[]) => void;
+  selectedChannels: ChannelConfig[];
+  setSelectedChannels: (channels: ChannelConfig[]) => void;
   setLastSeismogramExtent: (extent: [number, number]) => void;
   seismogramToolbarSetCheckedValues: (name: string, checkedValues: string[]) => void;
   seismogramToolbarAddCheckedValue: (name: string, item: string) => void;
   seismogramToolbarRemoveCheckedValue: (name: string, item: string) => void;
-  addSeismogramChannel: (channel: Channel) => void;
-  removeSeismogramChannel: (index: number) => void;
-  moveChannel: (fromIndex: number, toIndex: number) => void;
   setExpandMode: (isExpandMode: boolean) => void;
-  setComponent: (component: ComponentType) => void;
-  getChannelsByStationIndex: (index: number) => Channel[];
-  setExpandedChannelIndex: (index: number) => void;
-  getChannelByStreamId: (streamId: string) => Channel | undefined;
   getChannelById: (id: string) => Channel | undefined;
   getSelectedStations: () => StationWithChannel[];
   getChannelsConfig: () => ChannelConfig[];

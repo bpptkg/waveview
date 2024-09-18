@@ -35,6 +35,10 @@ export class TrackManager {
     this.store = [];
   }
 
+  getChannelByIndex(index: number): Channel {
+    return this.store[index][0];
+  }
+
   getTrackByIndex(index: number): TrackView {
     return this.store[index][1];
   }
@@ -44,11 +48,14 @@ export class TrackManager {
     return item ? item[1] : undefined;
   }
 
-  getTrackIndexByY(y: number): number {
-    const trackCount = this.count();
-    const trackHeight = this.chart.getRect().height / trackCount;
-    const index = Math.floor(y / trackHeight);
-    return Math.min(index, trackCount - 1);
+  getTrackIndexByY(value: number): number {
+    const count = this.count();
+    const { y, height } = this.chart.getGrid().getRect();
+    const gap = 10;
+    const spacing = gap * (count + 1);
+    const trackHeight = (height - spacing) / count;
+    const index = Math.floor((value - (y + gap)) / (trackHeight + gap));
+    return Math.min(index, count - 1);
   }
 
   *items(): Generator<[Channel, TrackView]> {

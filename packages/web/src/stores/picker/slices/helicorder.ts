@@ -24,6 +24,11 @@ export interface HelicorderSlice {
    * helicorder chart.
    */
   lastSelection: number;
+  /**
+   * The time window value of the helicorder chart in minutes.
+   */
+  windowSize: number;
+  setWindowSize: (size: number) => void;
   setHelicorderChannelId: (channelId: string) => void;
   setHelicorderDuration: (duration: number) => void;
   setHelicorderInterval: (interval: number) => void;

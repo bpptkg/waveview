@@ -50,6 +50,10 @@ export class SelectionWindowModel extends Model<SelectionWindowOptions> {
     return this.options.size;
   }
 
+  setSize(size: number): void {
+    this.options.size = size;
+  }
+
   getStartTime(): number {
     return this.options.startTime;
   }

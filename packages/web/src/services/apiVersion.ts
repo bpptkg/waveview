@@ -74,6 +74,9 @@ export default {
   getPickerConfig: {
     v1: (organizationId: string, volcanoId: string) => `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/picker-config/`,
   },
+  updatePickerConfig: {
+    v1: (organizationId: string, volcanoId: string) => `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/picker-config/`,
+  },
   listCatalog: {
     v1: (organizationId: string, volcanoId: string) => `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/`,
   },

@@ -1,23 +1,18 @@
-import { Channel, ElementEvent } from '@waveview/zcharts';
+import { ElementEvent } from '@waveview/zcharts';
 import { useCallback } from 'react';
 import { getPickExtent, ONE_SECOND } from '../../shared/time';
 import { useAppStore } from '../../stores/app';
-import { ComponentType, usePickerStore } from '../../stores/picker';
+import { usePickerStore } from '../../stores/picker';
 import { SeismicEventDetail } from '../../types/event';
 import { usePickerContext } from './PickerContext';
 
 export const useSeismogramCallback = () => {
   const {
     lastSeismogramExtent,
-    addSeismogramChannel,
     setShowEvent,
     setSelectedChart,
     seismogramToolbarSetCheckedValues,
-    removeSeismogramChannel,
-    moveChannel,
-    setComponent,
     setPickRange,
-    getChannelById,
     setPickMode,
     clearPick,
     setEditedEvent,
@@ -27,17 +22,6 @@ export const useSeismogramCallback = () => {
   } = usePickerStore();
 
   const { heliChartRef, seisChartRef, contextMenuRef, props, setSeisChartReady } = usePickerContext();
-
-  const handleSeismogramChannelAdd = useCallback(
-    (channel: Channel) => {
-      const chan = getChannelById(channel.id);
-      if (chan) {
-        addSeismogramChannel(chan);
-        seisChartRef.current?.addChannel({ id: chan.id, label: chan.network_station_code });
-      }
-    },
-    [seisChartRef, addSeismogramChannel, getChannelById]
-  );
 
   const handleSeismogramZoomIn = useCallback(() => {
     seisChartRef.current?.zoomIn(0.1);
@@ -66,20 +50,6 @@ export const useSeismogramCallback = () => {
   const handleSeismogramResetAmplitude = useCallback(() => {
     seisChartRef.current?.resetAmplitude();
   }, [seisChartRef]);
-
-  const handleSeismogramComponentChange = useCallback(
-    (component: string) => {
-      setComponent(component as ComponentType);
-      seisChartRef.current?.setChannels(
-        getChannelsConfig().map((item) => ({
-          id: item.channel.id,
-          label: item.channel.network_station_code,
-          color: item.color,
-        }))
-      );
-    },
-    [seisChartRef, setComponent, getChannelsConfig]
-  );
 
   const handleSeismogramShowEvent = useCallback(
     (showEvent: boolean) => {
@@ -142,34 +112,6 @@ export const useSeismogramCallback = () => {
       seismogramToolbarSetCheckedValues(name, values);
     },
     [seismogramToolbarSetCheckedValues]
-  );
-
-  const handleSeismogramRemoveChannel = useCallback(
-    (index: number) => {
-      removeSeismogramChannel(index);
-      seisChartRef.current?.removeChannel(index);
-    },
-    [seisChartRef, removeSeismogramChannel]
-  );
-
-  const handleSeismogramMoveChannelUp = useCallback(
-    (index: number) => {
-      if (index > 0) {
-        moveChannel(index, index - 1);
-        seisChartRef.current?.moveChannelUp(index);
-      }
-    },
-    [seisChartRef, moveChannel]
-  );
-
-  const handleSeismogramMoveChannelDown = useCallback(
-    (index: number) => {
-      if (index < getChannelsConfig().length - 1) {
-        moveChannel(index, index + 1);
-        seisChartRef.current?.moveChannelDown(index);
-      }
-    },
-    [seisChartRef, moveChannel, getChannelsConfig]
   );
 
   const handleSeismogramFocus = useCallback(() => {
@@ -304,7 +246,6 @@ export const useSeismogramCallback = () => {
   }, [darkMode, useUTC, event, lastSeismogramExtent, getChannelsConfig]);
 
   return {
-    handleSeismogramChannelAdd,
     handleSeismogramZoomIn,
     handleSeismogramZoomOut,
     handleSeismogramScrollLeft,
@@ -312,13 +253,9 @@ export const useSeismogramCallback = () => {
     handleSeismogramIncreaseAmplitude,
     handleSeismogramDecreaseAmplitude,
     handleSeismogramResetAmplitude,
-    handleSeismogramComponentChange,
     handleSeismogramShowEvent,
     handleSeismogramPickModeChange,
     handleSeismogramCheckValueChange,
-    handleSeismogramRemoveChannel,
-    handleSeismogramMoveChannelUp,
-    handleSeismogramMoveChannelDown,
     handleSeismogramFocus,
     handleSeismogramExtentChange,
     handleSeismogramPickChange,

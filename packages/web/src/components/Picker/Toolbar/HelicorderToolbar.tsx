@@ -182,7 +182,7 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
   return (
     <div className="bg-white dark:bg-black mx-2 mt-1 border dark:border-transparent rounded flex justify-between items-center">
       <Toolbar aria-label="Helicorder Toolbar" className={styles.toolbar}>
-        <Popover trapFocus open={open} onOpenChange={() => setOpen(!open)}>
+        <Popover trapFocus open={open} onOpenChange={() => setOpen(!open)} positioning="below">
           <PopoverTrigger disableButtonEnhancement>
             <ToolbarButton appearance="primary" aria-label="Select Channel ID" icon={<Search20Regular />} className={styles.btn}>
               <span className="font-normal">{availableChannels.find((channel) => channel.id === channelId)?.stream_id}</span>

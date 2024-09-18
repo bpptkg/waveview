@@ -1,14 +1,13 @@
 import { StateCreator } from 'zustand';
 import { api } from '../../../services/api';
 import apiVersion from '../../../services/apiVersion';
-import { Channel } from '../../../types/channel';
 import { PickerConfig } from '../../../types/picker';
-import { CustomError } from '../../../types/response';
+import { CustomError, ErrorData } from '../../../types/response';
 import { useCatalogStore } from '../../catalog';
 import { useInventoryStore } from '../../inventory';
 import { useOrganizationStore } from '../../organization';
 import { useVolcanoStore } from '../../volcano/useVolcanoStore';
-import { CommonSlice, PickerStore } from '../slices';
+import { ChannelConfig, CommonSlice, PickerStore } from '../slices';
 
 export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> = (set) => {
   return {
@@ -16,6 +15,12 @@ export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> =
     showEvent: true,
     pickerConfig: null,
     eventMarkers: [],
+    pickerSettingsOpen: false,
+    forceCenter: true,
+
+    setForceCenter: (forceCenter) => set({ forceCenter }),
+
+    setPickerSettingsOpen: (pickerSettingsOpen) => set({ pickerSettingsOpen }),
 
     setSelectedChart: (selectedChart) => set({ selectedChart }),
 
@@ -31,30 +36,61 @@ export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> =
         throw new CustomError('Volcano is not set');
       }
       const response = await api(apiVersion.getPickerConfig.v1(currentOrganization.id, currentVolcano.id));
+      if (!response.ok) {
+        const err: ErrorData = await response.json();
+        throw CustomError.fromErrorData(err);
+      }
       const pickerConfig: PickerConfig = await response.json();
-      if (!pickerConfig) {
-        return;
-      }
+      const { helicorder_channel, seismogram_channels, force_center, window_size } = pickerConfig.data;
 
-      const helicorderConfig = pickerConfig.helicorder_config;
-      if (!helicorderConfig) {
-        return;
-      }
-      const helicorderChannelId = pickerConfig.helicorder_config.channel.id;
-      const seismogramConfig = pickerConfig.seismogram_config;
-      if (!seismogramConfig) {
-        return;
-      }
-      const component = seismogramConfig.component;
       const availableChannels = useInventoryStore.getState().channels();
-      const selectedChannels: Channel[] = [];
-      seismogramConfig.station_configs.forEach((stationConfig) => {
-        const channel = availableChannels.find((channel) => channel.station_id === stationConfig.station.id && channel.code.includes(component));
-        if (channel) {
-          selectedChannels.push(channel);
+      const selectedChannels: ChannelConfig[] = [];
+      seismogram_channels.forEach((channel) => {
+        const item = availableChannels.find((c) => c.id === channel.channel_id);
+        if (item) {
+          selectedChannels.push({
+            channel: item,
+            color: channel.color,
+          });
         }
       });
-      set({ pickerConfig, channelId: helicorderChannelId, selectedChannels });
+      const forceCenter = force_center || true;
+      const windowSize = window_size || 5; // 5 minutes
+      set({ pickerConfig, channelId: helicorder_channel.channel_id, selectedChannels, forceCenter, windowSize });
+    },
+
+    savePickerConfig: async (payload) => {
+      const { currentOrganization } = useOrganizationStore.getState();
+      if (!currentOrganization) {
+        throw new CustomError('Organization is not set');
+      }
+      const { currentVolcano } = useVolcanoStore.getState();
+      if (!currentVolcano) {
+        throw new CustomError('Volcano is not set');
+      }
+      const response = await api(apiVersion.updatePickerConfig.v1(currentOrganization.id, currentVolcano.id), {
+        method: 'PUT',
+        body: payload,
+      });
+      if (!response.ok) {
+        const err: ErrorData = await response.json();
+        throw CustomError.fromErrorData(err);
+      }
+      const pickerConfig: PickerConfig = await response.json();
+      const { helicorder_channel, seismogram_channels, force_center, window_size } = pickerConfig.data;
+
+      const availableChannels = useInventoryStore.getState().channels();
+      const selectedChannels: ChannelConfig[] = [];
+      seismogram_channels.forEach((channel) => {
+        const item = availableChannels.find((c) => c.id === channel.channel_id);
+        if (item) {
+          selectedChannels.push({
+            channel: item,
+            color: channel.color,
+          });
+        }
+      });
+      set({ pickerConfig, channelId: helicorder_channel.channel_id, selectedChannels, forceCenter: force_center, windowSize: window_size });
     },
 
     fetchEventMarkers: async (start, end) => {

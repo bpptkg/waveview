@@ -6,19 +6,7 @@ import SeismogramToolbar from './Toolbar/SeismogramToolbar';
 import { usePickerCallback } from './usePickerCallback';
 
 const PickerToolbar = () => {
-  const {
-    channelId,
-    component,
-    helicorderDuration,
-    helicorderInterval,
-    isExpandMode,
-    offsetDate,
-    seismogramToolbarCheckedValues,
-    selectedChart,
-    showEvent,
-    selectedChannels,
-  } = usePickerStore();
-
+  const { channelId, helicorderDuration, helicorderInterval, offsetDate, seismogramToolbarCheckedValues, selectedChart, showEvent } = usePickerStore();
   const { channels } = useInventoryStore();
 
   const {
@@ -33,7 +21,6 @@ const PickerToolbar = () => {
     handleHelicorderChangeDuration,
     handleHelicorderSelectOffsetDate,
     handleHelicorderRefreshData,
-    handleSeismogramChannelAdd,
     handleSeismogramZoomIn,
     handleSeismogramZoomOut,
     handleSeismogramScrollLeft,
@@ -41,7 +28,6 @@ const PickerToolbar = () => {
     handleSeismogramIncreaseAmplitude,
     handleSeismogramDecreaseAmplitude,
     handleSeismogramResetAmplitude,
-    handleSeismogramComponentChange,
     handleSeismogramShowEvent,
     handleSeismogramCheckValueChange,
     handleSeismogramSpectrogramChange,
@@ -80,11 +66,6 @@ const PickerToolbar = () => {
         <SeismogramToolbar
           showEvent={showEvent}
           checkedValues={seismogramToolbarCheckedValues}
-          isExpandMode={isExpandMode}
-          availableChannels={channels()}
-          selectedChannels={selectedChannels}
-          component={component}
-          onChannelAdd={handleSeismogramChannelAdd}
           onZoomIn={handleSeismogramZoomIn}
           onZoomOut={handleSeismogramZoomOut}
           onScrollLeft={handleSeismogramScrollLeft}
@@ -94,7 +75,6 @@ const PickerToolbar = () => {
           onResetAmplitude={handleSeismogramResetAmplitude}
           onShowEventChange={handleSeismogramShowEvent}
           onCheckedValueChange={handleSeismogramCheckValueChange}
-          onComponentChange={handleSeismogramComponentChange}
           onSpectrogramChange={handleSeismogramSpectrogramChange}
           onSignalChange={handleSeismogramSignalChange}
         />

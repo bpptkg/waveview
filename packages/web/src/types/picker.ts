@@ -1,32 +1,26 @@
-import { Channel } from './channel';
-import { Station } from './station';
-
-export interface HelicorderConfig {
-  channel: Channel;
-  color: string;
-  color_light: string;
-  color_dark: string;
+export interface ChannelConfig {
+  channel_id: string;
+  color?: string;
 }
 
-export interface SeismogramStationConfig {
-  station: Station;
-  color: string;
-  color_light: string;
-  color_dark: string;
-}
-
-export interface SeismogramConfig {
-  component: string;
-  station_configs: SeismogramStationConfig[];
+export interface PickerConfigData {
+  helicorder_channel: ChannelConfig;
+  seismogram_channels: ChannelConfig[];
+  window_size: number;
+  force_center: boolean;
 }
 
 export interface PickerConfig {
   id: string;
-  organization_id: string;
-  name: string;
+  user_id: string;
   created_at: string;
   updated_at: string;
-  author_id: string;
-  helicorder_config: HelicorderConfig;
-  seismogram_config: SeismogramConfig;
+  data: PickerConfigData;
+}
+
+export interface PickerConfigPayload {
+  helicorder_channel: ChannelConfig;
+  seismogram_channels: ChannelConfig[];
+  force_center: boolean;
+  window_size: number;
 }

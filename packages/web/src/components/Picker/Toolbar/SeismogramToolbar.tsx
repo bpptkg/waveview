@@ -1,32 +1,7 @@
+import { Switch, Toolbar, ToolbarButton, ToolbarDivider, ToolbarProps, ToolbarToggleButton, Tooltip, makeStyles, tokens } from '@fluentui/react-components';
 import {
-  Field,
-  InputOnChangeData,
-  Menu,
-  MenuItem,
-  MenuList,
-  MenuPopover,
-  MenuTrigger,
-  Popover,
-  PopoverSurface,
-  PopoverTrigger,
-  SearchBox,
-  SearchBoxChangeEvent,
-  Switch,
-  Toolbar,
-  ToolbarButton,
-  ToolbarDivider,
-  ToolbarProps,
-  ToolbarToggleButton,
-  Tooltip,
-  makeStyles,
-  tokens,
-} from '@fluentui/react-components';
-import {
-  Add20Regular,
   AutoFitHeight20Regular,
   BezierCurveSquareRegular,
-  Checkmark20Regular,
-  ChevronDown12Regular,
   ChevronDownUp20Regular,
   ChevronLeft20Regular,
   ChevronRight20Regular,
@@ -35,18 +10,11 @@ import {
   ZoomIn20Regular,
   ZoomOut20Regular,
 } from '@fluentui/react-icons';
-import Fuse from 'fuse.js';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Channel } from '../../../types/channel';
+import React, { useCallback } from 'react';
 
 export interface SeismogramToolbarProps {
   showEvent?: boolean;
   checkedValues?: Record<string, string[]>;
-  isExpandMode?: boolean;
-  component?: string;
-  availableChannels?: Channel[];
-  selectedChannels?: Channel[];
-  onChannelAdd?: (trace: Channel) => void;
   onZoomIn?: () => void;
   onZoomOut?: () => void;
   onScrollLeft?: () => void;
@@ -55,18 +23,11 @@ export interface SeismogramToolbarProps {
   onIncreaseAmplitude?: () => void;
   onDecreaseAmplitude?: () => void;
   onResetAmplitude?: () => void;
-  onComponentChange?: (component: string) => void;
   onShowEventChange?: (showEvent: boolean) => void;
   onCheckedValueChange?: (name: string, values: string[]) => void;
   onSignalChange?: (active: boolean) => void;
   onSpectrogramChange?: (active: boolean) => void;
 }
-
-const componentOptions = [
-  { value: 'E', label: 'E' },
-  { value: 'N', label: 'N' },
-  { value: 'Z', label: 'Z' },
-];
 
 const useStyles = makeStyles({
   btn: {
@@ -105,11 +66,6 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
   const {
     showEvent = true,
     checkedValues = {},
-    isExpandMode,
-    component = 'Z',
-    availableChannels = [],
-    selectedChannels = [],
-    onChannelAdd,
     onZoomIn,
     onZoomOut,
     onScrollLeft,
@@ -117,7 +73,6 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
     onIncreaseAmplitude,
     onDecreaseAmplitude,
     onResetAmplitude,
-    onComponentChange,
     onShowEventChange,
     onCheckedValueChange,
     onSignalChange,
@@ -131,15 +86,6 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
       onShowEventChange?.(event.currentTarget.checked);
     },
     [onShowEventChange]
-  );
-
-  const handleComponentChange = useCallback(
-    (value: string) => {
-      if (value !== component) {
-        onComponentChange?.(value);
-      }
-    },
-    [component, onComponentChange]
   );
 
   const handleToolbarCheckedValueChange = useCallback<NonNullable<ToolbarProps['onCheckedValueChange']>>(
@@ -163,74 +109,9 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
     [onCheckedValueChange, onSpectrogramChange, onSignalChange]
   );
 
-  const handleChannelAdd = useCallback(
-    (channel: Channel) => {
-      onChannelAdd?.(channel);
-    },
-    [onChannelAdd]
-  );
-
-  const [open, setOpen] = useState<boolean>(false);
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const fuseRef = useRef<Fuse<Channel> | null>(null);
-
-  const candidateChannels = useMemo(
-    () => availableChannels.filter((channel) => !selectedChannels.map((c) => c.id).includes(channel.id) && channel.code.includes(component)),
-    [availableChannels, selectedChannels, component]
-  );
-
-  const filterableChannels = useMemo(() => {
-    if (!searchQuery || !fuseRef.current) {
-      return candidateChannels;
-    }
-
-    return searchQuery ? fuseRef.current.search(searchQuery).map((item) => item.item) : candidateChannels;
-  }, [searchQuery, candidateChannels]);
-
-  useEffect(() => {
-    fuseRef.current = new Fuse(candidateChannels, {
-      keys: ['network_station_code'],
-      threshold: 0.3,
-    });
-
-    return () => {
-      fuseRef.current = null;
-    };
-  }, [candidateChannels]);
-
-  const handleSearchChange = useCallback((_: SearchBoxChangeEvent, data: InputOnChangeData) => {
-    setSearchQuery(data.value);
-  }, []);
-
   return (
     <div className="bg-white dark:bg-black mx-2 mt-1 border dark:border-transparent rounded flex justify-between items-center">
       <Toolbar aria-label="Seismogram Toolbar" checkedValues={checkedValues} onCheckedValueChange={handleToolbarCheckedValueChange} className={styles.toolbar}>
-        <Popover trapFocus open={open} onOpenChange={() => setOpen(!open)}>
-          <PopoverTrigger disableButtonEnhancement>
-            <ToolbarButton appearance="primary" aria-label="Add station" icon={<Add20Regular />} disabled={!!isExpandMode}>
-              <span className="font-normal">Add station</span>
-            </ToolbarButton>
-          </PopoverTrigger>
-          <PopoverSurface className={styles.popoverSurface}>
-            <Field className={styles.searchBoxWrapper}>
-              <SearchBox placeholder="Search station" size="medium" className={styles.searchBox} value={searchQuery} onChange={handleSearchChange} />
-            </Field>
-            <MenuList>
-              {filterableChannels.map((channel, index) => (
-                <MenuItem
-                  key={index}
-                  onClick={() => {
-                    handleChannelAdd(channel);
-                    setOpen(false);
-                  }}
-                >
-                  {channel.network_station_code}
-                </MenuItem>
-              ))}
-            </MenuList>
-          </PopoverSurface>
-        </Popover>
-
         <Tooltip content="Zoom In" relationship="label" showDelay={1500}>
           <ToolbarButton aria-label="Zoom In" icon={<ZoomIn20Regular />} onClick={onZoomIn} />
         </Tooltip>
@@ -254,30 +135,6 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
           <ToolbarButton aria-label="Reset Amplitude" icon={<AutoFitHeight20Regular />} onClick={onResetAmplitude} />
         </Tooltip>
         <ToolbarDivider />
-
-        <Menu hasIcons>
-          <MenuTrigger>
-            <Tooltip content="Select Component" relationship="label" showDelay={1500}>
-              <ToolbarButton aria-label="Select Component" className={styles.btn} disabled={!!isExpandMode}>
-                <span className="font-normal">{componentOptions.find((option) => option.value === component)?.label}</span> <ChevronDown12Regular />
-              </ToolbarButton>
-            </Tooltip>
-          </MenuTrigger>
-
-          <MenuPopover>
-            <MenuList>
-              {componentOptions.map((option) => (
-                <MenuItem
-                  key={option.value}
-                  onClick={() => handleComponentChange(option.value)}
-                  icon={option.value === component ? <Checkmark20Regular /> : undefined}
-                >
-                  {option.label}
-                </MenuItem>
-              ))}
-            </MenuList>
-          </MenuPopover>
-        </Menu>
 
         <Tooltip content="Toggle Signal" relationship="label" showDelay={1500}>
           <ToolbarToggleButton aria-label="Toggle Signal" icon={<PulseRegular className={styles.icon} />} name="options" value="signal" appearance="subtle" />
