@@ -221,7 +221,10 @@ export class Seismogram extends ChartView<SeismogramOptions> {
         continue;
       }
 
-      const factor = series.max() - series.min();
+      const factor = Math.abs(series.max() - series.min());
+      if (factor === 0) {
+        continue;
+      }
       normFactor = Math.max(normFactor, factor);
     }
 
