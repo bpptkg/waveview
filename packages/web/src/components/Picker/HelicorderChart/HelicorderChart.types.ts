@@ -37,6 +37,7 @@ export interface HelicorderChartRef {
   decreaseAmplitude: (by: number) => void;
   resetAmplitude: () => void;
   setChannel: (channel: Channel) => void;
+  getChannel: () => Channel;
   setUseUTC: (useUTC: boolean) => void;
   setOffsetDate: (date: number) => void;
   setInterval: (interval: number) => void;

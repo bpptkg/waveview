@@ -69,6 +69,13 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
         fetchData();
       }
     },
+    getChannel: () => {
+      if (chartRef.current) {
+        return chartRef.current?.getChannel();
+      } else {
+        return { id: '', label: '' };
+      }
+    },
     setOffsetDate: (date: number) => {
       if (chartRef.current) {
         chartRef.current.setOffsetDate(date);

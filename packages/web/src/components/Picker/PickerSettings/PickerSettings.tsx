@@ -133,7 +133,10 @@ const PickerSettings: React.FC = () => {
     seisChartRef.current?.setChannels(channels);
     const item = getChannelsConfig().find((item) => item.channel.id === channelId)!;
     heliChartRef.current?.setWindowSize(selectionWindow);
-    heliChartRef.current?.setChannel({ id: item.channel.id, label: item.channel.stream_id });
+    const currentChannel = heliChartRef.current?.getChannel();
+    if (currentChannel?.id !== item.channel.id) {
+      heliChartRef.current?.setChannel({ id: item.channel.id, label: item.channel.stream_id });
+    }
     heliChartRef.current?.setForceCenter(detrend);
     seisChartRef.current?.setForceCenter(detrend);
   }, [channelId, selectionWindow, detrend, heliChartRef, seisChartRef, getChannelsConfig]);
