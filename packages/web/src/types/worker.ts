@@ -20,6 +20,8 @@ export interface StreamRequestData {
   start: number;
   end: number;
   forceCenter: boolean;
+  resample: boolean;
+  sampleRate: number;
 }
 
 export interface StreamResponseData {

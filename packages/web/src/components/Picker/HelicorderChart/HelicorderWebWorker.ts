@@ -124,6 +124,8 @@ export class HelicorderWebWorker {
         start,
         end,
         forceCenter,
+        resample: true,
+        sampleRate: 10,
       },
     };
 

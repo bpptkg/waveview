@@ -97,6 +97,8 @@ export class SeismogramWebWorker {
         start,
         end,
         forceCenter,
+        resample: true,
+        sampleRate: 20,
       },
     };
 
