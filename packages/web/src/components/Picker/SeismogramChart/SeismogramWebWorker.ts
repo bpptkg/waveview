@@ -1,6 +1,5 @@
 import { Series } from '@waveview/ndarray';
 import { Seismogram, SpectrogramData } from '@waveview/zcharts';
-import { debounce } from '../../../shared/debounce';
 import { uuid4 } from '../../../shared/uuid';
 import { FilterOperationOptions } from '../../../types/filter';
 import {
@@ -46,34 +45,29 @@ export class DataStore<T> {
 }
 
 export interface SeismogramWebWorkerOptions {
-  window?: [number, number];
+  forceCenter: boolean;
 }
 
 export class SeismogramWebWorker {
   private worker: Worker;
   private chart: Seismogram;
-  private onExtentChangeDebounced: () => void;
-  private selectionWindow: [number, number] = [0, 0];
+  private options: SeismogramWebWorkerOptions;
 
-  constructor(chart: Seismogram, worker: Worker, options: SeismogramWebWorkerOptions = {}) {
+  static readonly defaultOptions: SeismogramWebWorkerOptions = {
+    forceCenter: true,
+  };
+
+  constructor(chart: Seismogram, worker: Worker, options?: Partial<SeismogramWebWorkerOptions>) {
     this.worker = worker;
     this.chart = chart;
     this.worker.addEventListener('message', this.onMessage.bind(this));
 
-    this.onExtentChangeDebounced = debounce(this.onExtentChange.bind(this), 300);
-    this.chart.on('extentChanged', this.onExtentChangeDebounced);
-
-    const { window } = options;
-    if (window) {
-      this.setSelectionWindow(window);
-    }
+    this.options = { ...SeismogramWebWorker.defaultOptions, ...options };
   }
 
-  setSelectionWindow(window: [number, number]): void {
-    this.selectionWindow = window;
+  mergeOptions(options: Partial<SeismogramWebWorkerOptions>): void {
+    this.options = { ...this.options, ...options };
   }
-
-  private onExtentChange(): void {}
 
   fetchAllChannelsData(): void {
     for (const channel of this.chart.getChannels()) {
@@ -86,9 +80,9 @@ export class SeismogramWebWorker {
   }
 
   postRequestMessage(channelId: string): void {
-    const [start, end] = this.selectionWindow;
+    const [start, end] = this.chart.getChartExtent();
     const requestId = uuid4();
-    const forceCenter = true;
+    const { forceCenter } = this.options;
     const msg: WorkerRequestData<StreamRequestData> = {
       type: 'stream.fetch',
       payload: {
@@ -112,7 +106,7 @@ export class SeismogramWebWorker {
   }
 
   fetchSpecrogramData(channelId: string): void {
-    const [start, end] = this.selectionWindow;
+    const [start, end] = this.chart.getChartExtent();
     const trackManager = this.chart.getTrackManager();
     const track = trackManager.getTrackByChannelId(channelId);
     if (!track) {
@@ -120,7 +114,6 @@ export class SeismogramWebWorker {
     }
     const { width, height } = track.getRect();
     const requestId = uuid4();
-    const { darkMode } = this.chart.getModel().getOptions();
     const msg: WorkerRequestData<SpectrogramRequestData> = {
       type: 'stream.spectrogram',
       payload: {
@@ -130,7 +123,6 @@ export class SeismogramWebWorker {
         end,
         width,
         height,
-        darkMode,
       },
     };
 
@@ -149,7 +141,7 @@ export class SeismogramWebWorker {
       return;
     }
 
-    const [start, end] = this.selectionWindow;
+    const [start, end] = this.chart.getChartExtent();
     const msg: WorkerRequestData<FilterRequestData> = {
       type: 'stream.filter',
       payload: {

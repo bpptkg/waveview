@@ -104,7 +104,6 @@ export default function useSeismogramChartApi(options: SeismogramChartInitOption
           chartRef.current.clearSpectrogramData();
           chartRef.current.getXAxis().setExtent(extent);
 
-          webWorkerRef.current?.setSelectionWindow(extent);
           webWorkerRef.current?.fetchAllChannelsData();
           if (chartRef.current.isSpectrogramShown()) {
             webWorkerRef.current?.fetchAllSpectrogramData();
@@ -275,6 +274,11 @@ export default function useSeismogramChartApi(options: SeismogramChartInitOption
         if (chartRef.current) {
           chartRef.current.restoreView();
           chartRef.current.render();
+        }
+      },
+      setForceCenter: (forceCenter: boolean) => {
+        if (webWorkerRef.current) {
+          webWorkerRef.current.mergeOptions({ forceCenter });
         }
       },
     };

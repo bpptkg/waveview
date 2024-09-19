@@ -108,4 +108,5 @@ export interface SeismogramChartRef {
   toDataURL: (type?: string, quality?: number) => string;
   expandView: (index: number) => void;
   restoreView: () => void;
+  setForceCenter: (forceCenter: boolean) => void;
 }
