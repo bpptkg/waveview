@@ -16,6 +16,11 @@ export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
 };
 
+export interface Point {
+  x: number;
+  y: number;
+}
+
 export type TimeUnit =
   | "millisecond"
   | "second"
