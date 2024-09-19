@@ -18,7 +18,7 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
   const webWorkerRef = useRef<HelicorderWebWorker | null>(null);
 
   const fetchData = useCallback(() => {
-    webWorkerRef.current?.fetchAllTracksData();
+    webWorkerRef.current?.fetchAllTracksDataDebounced();
   }, []);
 
   useImperativeHandle(ref, () => ({

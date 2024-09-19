@@ -1,5 +1,6 @@
 import { Series } from '@waveview/ndarray';
 import { Helicorder } from '@waveview/zcharts';
+import { debounce } from '../../../shared/debounce';
 import { uuid4 } from '../../../shared/uuid';
 import { StreamRequestData, StreamResponseData, WorkerRequestData, WorkerResponseData } from '../../../types/worker';
 
@@ -26,6 +27,7 @@ export class HelicorderWebWorker {
   private options: HelicorderWebWorkerOptions;
   private interval?: number;
   private requests: Map<string, number> = new Map();
+  fetchAllTracksDataDebounced: (options?: RefreshOptions) => void;
 
   static readonly defaultOptions: HelicorderWebWorkerOptions = {
     refreshInterval: 30,
@@ -38,6 +40,7 @@ export class HelicorderWebWorker {
     this.options = { ...HelicorderWebWorker.defaultOptions, ...options };
     this.interval = undefined;
     this.worker.addEventListener('message', this.onMessage.bind(this));
+    this.fetchAllTracksDataDebounced = debounce(this.fetchAllTracksData, 300);
   }
 
   refreshRealtimeFeed(): void {
@@ -57,6 +60,7 @@ export class HelicorderWebWorker {
   }
 
   fetchAllTracksData(options?: RefreshOptions): void {
+    console.log('fetchAllTracksData');
     const { mode } = options || { mode: 'lazy' };
     switch (mode) {
       case 'lazy':
