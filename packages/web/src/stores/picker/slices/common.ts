@@ -62,6 +62,10 @@ export interface CommonSlice {
    */
   addEventMarker: (event: SeismicEvent) => void;
   /**
+   * Removes an event marker from the helicorder or seismogram chart.
+   */
+  removeEventMarker: (eventId: string) => void;
+  /**
    * Removes all event markers from the helicorder or seismogram chart.
    */
   clearEventMarkers: () => void;

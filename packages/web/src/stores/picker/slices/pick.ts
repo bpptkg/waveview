@@ -26,4 +26,5 @@ export interface PickSlice {
   setPickRange: (range: [number, number]) => void;
   savePickedEvent: () => Promise<SeismicEventDetail>;
   fetchEditedEvent: (eventId: string) => Promise<SeismicEventDetail>;
+  deleteEvent: (eventId: string) => Promise<void>;
 }

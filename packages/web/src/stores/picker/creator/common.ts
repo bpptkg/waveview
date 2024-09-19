@@ -133,6 +133,15 @@ export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> =
       });
     },
 
+    removeEventMarker: (eventId) => {
+      set((state) => {
+        const newEventMarkers = state.eventMarkers.filter((e) => e.id !== eventId);
+        return {
+          eventMarkers: newEventMarkers,
+        };
+      });
+    },
+
     clearEventMarkers: () => {
       set({ eventMarkers: [] });
     },

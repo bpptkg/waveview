@@ -241,5 +241,26 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
       }
       return await response.json();
     },
+    deleteEvent: async (eventId) => {
+      const { currentOrganization } = useOrganizationStore.getState();
+      if (!currentOrganization) {
+        throw new CustomError('Organization is not set');
+      }
+      const { currentVolcano } = useVolcanoStore.getState();
+      if (!currentVolcano) {
+        throw new CustomError('Volcano is not set');
+      }
+      const { currentCatalog } = useCatalogStore.getState();
+      if (!currentCatalog) {
+        throw new CustomError('Catalog is not set');
+      }
+
+      const url = apiVersion.deleteEvent.v1(currentOrganization.id, currentVolcano.id, currentCatalog.id, eventId);
+      const response = await api(url, { method: 'DELETE' });
+      if (!response.ok) {
+        const err: ErrorData = await response.json();
+        throw CustomError.fromErrorData(err);
+      }
+    },
   };
 };
