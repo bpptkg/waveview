@@ -6,6 +6,7 @@ export interface EventMarkerOptions {
   color: string;
   show?: boolean;
   opacity?: number;
+  data?: any;
 }
 
 export class EventMarkerModel extends Model<EventMarkerOptions> {
