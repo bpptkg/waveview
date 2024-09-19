@@ -9,14 +9,51 @@ export interface RefreshOptions {
   mode: 'lazy' | 'force' | 'cache';
 }
 
+export interface HelicorderWebWorkerOptions {
+  /**
+   * Enable realtime feed for helicorder chart.
+   */
+  enableRealtimeFeed: boolean;
+  /**
+   * Refresh interval for realtime feed in seconds.
+   */
+  refreshInterval: number;
+}
+
 export class HelicorderWebWorker {
   private worker: Worker;
   private chart: Helicorder;
+  private options: HelicorderWebWorkerOptions;
+  private interval?: number;
+  private requests: Map<string, number> = new Map();
 
-  constructor(chart: Helicorder, worker: Worker) {
+  static readonly defaultOptions: HelicorderWebWorkerOptions = {
+    refreshInterval: 30,
+    enableRealtimeFeed: true,
+  };
+
+  constructor(chart: Helicorder, worker: Worker, options?: Partial<HelicorderWebWorkerOptions>) {
     this.chart = chart;
     this.worker = worker;
+    this.options = { ...HelicorderWebWorker.defaultOptions, ...options };
+    this.interval = undefined;
     this.worker.addEventListener('message', this.onMessage.bind(this));
+  }
+
+  refreshRealtimeFeed(): void {
+    const { enableRealtimeFeed, refreshInterval } = this.options;
+    if (enableRealtimeFeed) {
+      const now = Date.now();
+      const [start, end] = this.chart.getChartExtent();
+      if (this.interval) {
+        clearInterval(this.interval);
+      }
+      if (now >= start && now <= end) {
+        this.interval = setInterval(() => {
+          this.fetchAllTracksData({ mode: 'lazy' });
+        }, refreshInterval * 1000);
+      }
+    }
   }
 
   fetchAllTracksData(options?: RefreshOptions): void {
@@ -88,6 +125,7 @@ export class HelicorderWebWorker {
     };
 
     this.worker.postMessage(msg);
+    this.requests.set(requestId, Date.now());
   }
 
   private onMessage(event: MessageEvent<WorkerResponseData<unknown>>): void {
@@ -103,7 +141,7 @@ export class HelicorderWebWorker {
   }
 
   private onStreamFetchMessage(payload: StreamResponseData): void {
-    const { data, index, start, end, channelId } = payload;
+    const { requestId, data, index, start, end, channelId } = payload;
     const series = new Series(data, {
       index: index,
       name: channelId,
@@ -114,5 +152,10 @@ export class HelicorderWebWorker {
     this.chart.setTrackData(segment, series);
     this.chart.refreshData();
     this.chart.render();
+
+    this.requests.delete(requestId);
+    if (this.requests.size === 0) {
+      this.refreshRealtimeFeed();
+    }
   }
 }
