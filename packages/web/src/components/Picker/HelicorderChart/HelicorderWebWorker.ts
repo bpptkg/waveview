@@ -60,7 +60,6 @@ export class HelicorderWebWorker {
   }
 
   fetchAllTracksData(options?: RefreshOptions): void {
-    console.log('fetchAllTracksData');
     const { mode } = options || { mode: 'lazy' };
     switch (mode) {
       case 'lazy':
