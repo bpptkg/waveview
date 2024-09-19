@@ -42,7 +42,6 @@ export interface SpectrogramRequestData {
   end: number;
   width: number;
   height: number;
-  darkMode: boolean;
 }
 
 export interface SpectrogramResponseData {
