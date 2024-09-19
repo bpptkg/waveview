@@ -108,7 +108,7 @@ const PickEdit = () => {
     setTab(tab);
   }, []);
 
-  const [cancelDialogOptn, setCancelDialogOpen] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const handleCancel = useCallback(() => {
     setCancelDialogOpen(true);
   }, []);
@@ -192,7 +192,7 @@ const PickEdit = () => {
 
       <Toaster toasterId={toasterId} />
 
-      <Dialog open={cancelDialogOptn} onOpenChange={(_, data) => setCancelDialogOpen(data.open)}>
+      <Dialog open={cancelDialogOpen} onOpenChange={(_, data) => setCancelDialogOpen(data.open)}>
         <DialogSurface>
           <DialogBody>
             <DialogTitle>Cancel Pick</DialogTitle>
