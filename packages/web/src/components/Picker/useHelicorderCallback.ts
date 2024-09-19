@@ -113,6 +113,7 @@ export function useHelicorderCallback() {
         start,
         end,
         color: getEventTypeColor(event.type, darkMode),
+        data: event,
       };
     });
     seisChartRef.current?.addEventMarkers(markers);
