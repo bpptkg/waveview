@@ -149,9 +149,10 @@ export function useHelicorderCallback() {
     (date: Date) => {
       const offsetDate = date.getTime();
       heliChartRef.current?.setOffsetDate(offsetDate);
+      setHelicorderOffsetDate(offsetDate);
       handleFetchEvents();
     },
-    [heliChartRef, handleFetchEvents]
+    [heliChartRef, setHelicorderOffsetDate, handleFetchEvents]
   );
 
   const handleHelicorderRefreshData = useCallback(() => {
