@@ -19,6 +19,10 @@ export interface HelicorderWebWorkerOptions {
    * Refresh interval for realtime feed in seconds.
    */
   refreshInterval: number;
+  /**
+   * Force center signal in the track when fetching data.
+   */
+  forceCenter: boolean;
 }
 
 export class HelicorderWebWorker {
@@ -32,6 +36,7 @@ export class HelicorderWebWorker {
   static readonly defaultOptions: HelicorderWebWorkerOptions = {
     refreshInterval: 30,
     enableRealtimeFeed: true,
+    forceCenter: true,
   };
 
   constructor(chart: Helicorder, worker: Worker, options?: Partial<HelicorderWebWorkerOptions>) {
@@ -41,6 +46,10 @@ export class HelicorderWebWorker {
     this.interval = undefined;
     this.worker.addEventListener('message', this.onMessage.bind(this));
     this.fetchAllTracksDataDebounced = debounce(this.fetchAllTracksData, 300);
+  }
+
+  mergeOptions(options: Partial<HelicorderWebWorkerOptions>): void {
+    this.options = { ...this.options, ...options };
   }
 
   refreshRealtimeFeed(): void {
@@ -120,7 +129,7 @@ export class HelicorderWebWorker {
     const requestId = uuid4();
     const [start, end] = extent;
     const channel = this.chart.getChannel();
-    const forceCenter = true;
+    const { forceCenter } = this.options;
     const msg: WorkerRequestData<StreamRequestData> = {
       type: 'stream.fetch',
       payload: {

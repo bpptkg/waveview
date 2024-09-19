@@ -186,6 +186,11 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
         chartRef.current.render();
       }
     },
+    setForceCenter: (forceCenter: boolean) => {
+      if (chartRef.current) {
+        webWorkerRef.current?.mergeOptions({ forceCenter });
+      }
+    },
   }));
 
   const handleSelectionChange = useCallback(

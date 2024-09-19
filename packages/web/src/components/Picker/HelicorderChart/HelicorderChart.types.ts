@@ -42,6 +42,7 @@ export interface HelicorderChartRef {
   setInterval: (interval: number) => void;
   setDuration: (duration: number) => void;
   setTheme: (theme: 'light' | 'dark') => void;
+  setForceCenter: (forceCenter: boolean) => void;
   getChartExtent: () => [number, number];
   focus: () => void;
   blur: () => void;
