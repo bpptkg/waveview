@@ -54,6 +54,10 @@ export interface SeismogramChartProps {
    * Callback fired when the chart is ready.
    */
   onReady?: (chart: Seismogram) => void;
+  /**
+   * Callback fired when the user clicks on an event marker.
+   */
+  onEventMarkerContextMenu?: (event: ElementEvent, marker: SeismogramEventMarkerOptions) => void;
 }
 
 export interface SeismogramChartRef {

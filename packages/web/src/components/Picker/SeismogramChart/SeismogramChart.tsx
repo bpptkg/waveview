@@ -1,4 +1,4 @@
-import { ElementEvent, Seismogram } from '@waveview/zcharts';
+import { ElementEvent, Seismogram, SeismogramEventMarkerOptions } from '@waveview/zcharts';
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useImperativeHandle, useRef } from 'react';
 import { debounce } from '../../../shared/debounce';
@@ -10,7 +10,19 @@ import useSeismogramChartApi from './useSeismogramChartApi';
 export type SeismogramChartType = React.ForwardRefExoticComponent<SeismogramChartProps & React.RefAttributes<SeismogramChartRef>>;
 
 export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref) => {
-  const { initOptions, className, onFocus, onBlur, onExtentChange, onTrackDoubleClick, onContextMenuRequested, onMouseWheel, onPick, onReady } = props;
+  const {
+    initOptions,
+    className,
+    onFocus,
+    onBlur,
+    onExtentChange,
+    onTrackDoubleClick,
+    onContextMenuRequested,
+    onMouseWheel,
+    onPick,
+    onReady,
+    onEventMarkerContextMenu,
+  } = props;
 
   const parentRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<Seismogram | null>(null);
@@ -55,6 +67,13 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
     [onContextMenuRequested]
   );
 
+  const handleEventMarkerContextMenu = useCallback(
+    (e: ElementEvent, marker: SeismogramEventMarkerOptions) => {
+      onEventMarkerContextMenu?.(e, marker);
+    },
+    [onEventMarkerContextMenu]
+  );
+
   const handleMouseWheel = useCallback(
     (e: ElementEvent) => {
       onMouseWheel?.(e);
@@ -86,6 +105,7 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
       chartRef.current.on('extentChanged', handleExtentChange);
       chartRef.current.on('trackDoubleClicked', handleTrackDoubleClick);
       chartRef.current.on('pickChanged', handlePickRangeChange);
+      chartRef.current.on('eventMarkerContextMenu', handleEventMarkerContextMenu);
       chartRef.current.zr.on('click', handleFocus);
       chartRef.current.zr.on('contextmenu', handleContextMenuRequested);
       chartRef.current.zr.on('mousewheel', handleMouseWheel);
