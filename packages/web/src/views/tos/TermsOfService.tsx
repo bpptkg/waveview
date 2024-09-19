@@ -19,6 +19,8 @@ const TermsOfService = () => {
               <li>Do not attempt to hack or disrupt the service.</li>
               <li>Do not share your account with others.</li>
               <li>Do not attempt to reverse-engineer the service.</li>
+              <li>Do not use the service to distribute spam or malware.</li>
+              <li>Do not share organization data without proper permissions.</li>
             </ul>
 
             <h2 className="font-bold">3. Copyright and Intellectual Property</h2>
@@ -30,8 +32,8 @@ const TermsOfService = () => {
               service.
             </p>
 
-            <h2 className="font-bold">5. User Content</h2>
-            <p>Users are responsible for the content they upload or share on the service and must have the necessary rights to such content.</p>
+            <h2 className="font-bold">5. Organization Data</h2>
+            <p>Organization data is protected and should not be distributed without explicit permission from the organization.</p>
 
             <h2 className="font-bold">6. Termination</h2>
             <p>The service provider reserves the right to terminate your access to the service at any time without notice for any reason whatsoever.</p>
