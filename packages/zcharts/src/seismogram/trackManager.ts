@@ -58,6 +58,10 @@ export class TrackManager {
     return Math.min(index, count - 1);
   }
 
+  indexOfTrack(track: TrackView): number {
+    return this.store.findIndex(([, t]) => t === track);
+  }
+
   *items(): Generator<[Channel, TrackView]> {
     for (const item of this.store) {
       yield item;

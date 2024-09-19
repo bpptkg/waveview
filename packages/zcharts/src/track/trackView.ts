@@ -1,10 +1,12 @@
 import * as zrender from "zrender";
 import { AxisView } from "../axis/axisView";
 import { ChartView } from "../core/chartView";
+import { EventEmitter } from "../core/eventEmitter";
 import { View } from "../core/view";
 import { LineSeriesView } from "../series/LineSeriesView";
 import { SpectrogramView } from "../spectrogram/spectrogramView";
 import { LayoutRect, ThemeStyle } from "../util/types";
+import { TrackEventMap } from "./trackEventMap";
 import { TrackModel, TrackOptions } from "./trackModel";
 
 export class TrackView extends View<TrackModel> {
@@ -14,12 +16,32 @@ export class TrackView extends View<TrackModel> {
   private leftYAxis: AxisView;
   private rightYAxis: AxisView;
   readonly chart: ChartView;
+  interactive: boolean = false;
+  private label: zrender.Text;
+  private eventEmitter = new EventEmitter<TrackEventMap>();
 
   constructor(chart: ChartView, options?: Partial<TrackOptions>) {
     const model = new TrackModel(options);
     super(model);
     this.rect = new zrender.BoundingRect(0, 0, 0, 0);
     this.chart = chart;
+
+    this.label = new zrender.Text();
+    this.label.on(
+      "contextmenu",
+      (e) => {
+        e.event.preventDefault();
+        this.emit("contextmenu", e, this);
+      },
+      this
+    );
+    this.label.on(
+      "dblclick",
+      (e) => {
+        this.emit("doubleClick", e, this);
+      },
+      this
+    );
 
     this.leftYAxis = new AxisView(this, { position: "left" });
     this.leftYAxis.setExtent(chart.getYExtent());
@@ -161,7 +183,7 @@ export class TrackView extends View<TrackModel> {
       fillColor = "white";
     }
 
-    const text = new zrender.Text({
+    this.label.attr({
       style: {
         text: label,
         fill: fillColor,
@@ -174,9 +196,9 @@ export class TrackView extends View<TrackModel> {
       },
       x: x - margin,
       y: y + height / 2,
+      silent: !this.interactive,
     });
-    text.silent = true;
-    this.group.add(text);
+    this.group.add(this.label);
   }
 
   private renderStyle(): void {
@@ -232,5 +254,26 @@ export class TrackView extends View<TrackModel> {
     this.group.add(leftBorder);
     this.group.add(topTick);
     this.group.add(bottomTick);
+  }
+
+  on<K extends keyof TrackEventMap>(
+    event: K,
+    listener: TrackEventMap[K]
+  ): void {
+    this.eventEmitter.on(event, listener);
+  }
+
+  off<K extends keyof TrackEventMap>(
+    event: K,
+    listener: TrackEventMap[K]
+  ): void {
+    this.eventEmitter.off(event, listener);
+  }
+
+  emit<K extends keyof TrackEventMap>(
+    event: K,
+    ...args: Parameters<TrackEventMap[K]>
+  ): void {
+    this.eventEmitter.emit(event, ...args);
   }
 }

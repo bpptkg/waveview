@@ -454,6 +454,15 @@ export class Seismogram extends ChartView<SeismogramOptions> {
       markerColor: channel.color,
       style: "bracket",
     });
+    track.interactive = true;
+    track.on("contextmenu", (e, instance) => {
+      const index = this.trackManager.indexOfTrack(instance);
+      this.eventEmitter.emit("trackContextMenu", e, index);
+    });
+    track.on("doubleClick", (_, instance) => {
+      const index = this.trackManager.indexOfTrack(instance);
+      this.eventEmitter.emit("trackDoubleClicked", index);
+    });
     const theme = this.getThemeStyle();
     track.applyThemeStyle(theme);
     this.trackManager.add(channel, track);
