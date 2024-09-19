@@ -9,6 +9,7 @@ import { usePickerContext } from './PickerContext';
 export const useSeismogramCallback = () => {
   const {
     lastSeismogramExtent,
+    isExpandMode,
     setShowEvent,
     setSelectedChart,
     seismogramToolbarSetCheckedValues,
@@ -19,6 +20,7 @@ export const useSeismogramCallback = () => {
     setLastSeismogramExtent,
     getChannelsConfig,
     resetEditing,
+    setExpandMode,
   } = usePickerStore();
 
   const { heliChartRef, seisChartRef, contextMenuRef, props, setSeisChartReady } = usePickerContext();
@@ -139,6 +141,21 @@ export const useSeismogramCallback = () => {
     },
     [contextMenuRef]
   );
+
+  const handleSeismogramTrackDoubleClick = useCallback(
+    (index: number) => {
+      if (!isExpandMode) {
+        seisChartRef.current?.expandView(index);
+        setExpandMode(true);
+      }
+    },
+    [seisChartRef, isExpandMode, setExpandMode]
+  );
+
+  const handleSeismogramRestoreView = useCallback(() => {
+    seisChartRef.current?.restoreView();
+    setExpandMode(false);
+  }, [seisChartRef, setExpandMode]);
 
   const handleSeismogramMouseWheel = useCallback(
     (e: ElementEvent) => {
@@ -268,5 +285,7 @@ export const useSeismogramCallback = () => {
     handleSeismogramSpectrogramChange,
     handleSeismogramSignalChange,
     handleSeismogramMouseWheel,
+    handleSeismogramTrackDoubleClick,
+    handleSeismogramRestoreView,
   };
 };

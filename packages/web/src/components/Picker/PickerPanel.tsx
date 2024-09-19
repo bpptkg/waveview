@@ -1,23 +1,27 @@
+import { ElementEvent, SeismogramEventMarkerOptions } from '@waveview/zcharts';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { ImperativePanelHandle, Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { usePickerStore } from '../../stores/picker';
 import { useSidebarStore } from '../../stores/sidebar';
+import EventMarkerContextMenu, { EventMarkerContextMenuRef } from './ContextMenu/EventMarkerContextMenu';
+import TrackContextMenu, { TrackContextMenuRef } from './ContextMenu/TrackContextMenu';
 import { HelicorderChart, HelicorderChartRef } from './HelicorderChart';
 import { usePickerContext } from './PickerContext';
+import PickerSettings from './PickerSettings/PickerSettings';
+import RestoreViewButton from './RestoreViewButton';
 import { SeismogramChart, SeismogramChartRef } from './SeismogramChart';
-import SeismogramContextMenu, { ContextMenuRef } from './SeismogramContextMenu';
 import Sidebar from './Sidebar/Sidebar';
 import SidebarTabList from './Sidebar/SidebarTabList';
 import { useHelicorderKeyboardShortcuts, useSeismogramKeyboardShortcuts } from './useKeyboardShortcuts';
 import { usePickerCallback } from './usePickerCallback';
 import { useThemeEffect } from './useThemeEffect';
 import { useTimeZoneEffect } from './useTimeZoneEffect';
-import PickerSettings from './PickerSettings/PickerSettings';
 
 const PickerPanel = () => {
   const heliChartRef = useRef<HelicorderChartRef | null>(null);
   const seisChartRef = useRef<SeismogramChartRef | null>(null);
-  const contextMenuRef = useRef<ContextMenuRef | null>(null);
+  const eventMarkerContextMenuRef = useRef<EventMarkerContextMenuRef | null>(null);
+  const trackContextMenuRef = useRef<TrackContextMenuRef | null>(null);
 
   const { props, setSeisChartRef, setHeliChartRef, setContextMenuRef } = usePickerContext();
   const {
@@ -26,12 +30,12 @@ const PickerPanel = () => {
     handleHelicorderOnReady,
     handleSeismogramFocus,
     handleSeismogramExtentChange,
-    handleContextMenuRequested,
     handleSeismogramPickChange,
     handleSeismogramMouseWheel,
     getSeismogramInitOptions,
     getHelicorderInitOptions,
     handleSeismogramOnReady,
+    handleSeismogramTrackDoubleClick,
   } = usePickerCallback();
 
   const { showHelicorder } = props;
@@ -55,7 +59,6 @@ const PickerPanel = () => {
   useEffect(() => {
     setSeisChartRef(seisChartRef.current);
     setHeliChartRef(heliChartRef.current);
-    setContextMenuRef(contextMenuRef.current);
 
     return () => {
       setSeisChartRef(null);
@@ -107,6 +110,14 @@ const PickerPanel = () => {
     handleSidebarVisibleChange(visible);
   }, [visible, handleSidebarVisibleChange]);
 
+  const handleEventMarkerContextMenu = useCallback((e: ElementEvent, marker: SeismogramEventMarkerOptions) => {
+    eventMarkerContextMenuRef.current?.open(e, marker);
+  }, []);
+
+  const handleTrackContextMenu = useCallback((e: ElementEvent, index: number) => {
+    trackContextMenuRef.current?.open(e, index);
+  }, []);
+
   return (
     <div className="flex-grow relative flex mt-1 border-t dark:border-transparent">
       <PanelGroup direction="horizontal" className="relative">
@@ -132,12 +143,16 @@ const PickerPanel = () => {
             initOptions={getSeismogramInitOptions()}
             onFocus={handleSeismogramFocus}
             onExtentChange={handleSeismogramExtentChange}
-            onContextMenuRequested={handleContextMenuRequested}
             onMouseWheel={handleSeismogramMouseWheel}
             onPick={handleSeismogramPickChange}
             onReady={handleSeismogramOnReady}
+            onEventMarkerContextMenu={handleEventMarkerContextMenu}
+            onTrackContextMenu={handleTrackContextMenu}
+            onTrackDoubleClick={handleSeismogramTrackDoubleClick}
           />
-          <SeismogramContextMenu ref={contextMenuRef} />
+          <RestoreViewButton />
+          <EventMarkerContextMenu ref={eventMarkerContextMenuRef} />
+          <TrackContextMenu ref={trackContextMenuRef} />
         </Panel>
         <PanelResizeHandle onDragging={handleResizeHandleDragging} />
         <Panel ref={sidebarRef} order={3} defaultSize={0} onResize={handleSidebarResize}>
