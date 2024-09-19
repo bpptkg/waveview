@@ -11,6 +11,8 @@ export const createHelicorderSlice: StateCreator<PickerStore, [], [], Helicorder
     selectionWindow: undefined,
     lastSelection: 0,
     windowSize: 5,
+    autoUpdate: true,
+    autoUpdateInterval: 30,
     setWindowSize: (windowSize) => set({ windowSize }),
     setHelicorderChannelId: (channelId) => set({ channelId }),
     setHelicorderDuration: (helicorderDuration) => set({ helicorderDuration }),
@@ -22,5 +24,7 @@ export const createHelicorderSlice: StateCreator<PickerStore, [], [], Helicorder
       const start = offsetDate - helicorderDuration * ONE_HOUR;
       return [startOf(start, helicorderInterval), endOf(offsetDate, helicorderInterval)];
     },
+    setAutoUpdate: (autoUpdate) => set({ autoUpdate }),
+    setAutoUpdateInterval: (autoUpdateInterval) => set({ autoUpdateInterval }),
   };
 };

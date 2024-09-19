@@ -28,6 +28,14 @@ export interface HelicorderSlice {
    * The time window value of the helicorder chart in minutes.
    */
   windowSize: number;
+  /**
+   * Set auto update for the helicorder chart.
+   */
+  autoUpdate: boolean;
+  /**
+   * The auto update interval in seconds.
+   */
+  autoUpdateInterval: number;
   setWindowSize: (size: number) => void;
   setHelicorderChannelId: (channelId: string) => void;
   setHelicorderDuration: (duration: number) => void;
@@ -35,4 +43,6 @@ export interface HelicorderSlice {
   setHelicorderOffsetDate: (offsetDate: number) => void;
   getHelicorderExtent: () => [number, number];
   setSelectionWindow: (extent: [number, number]) => void;
+  setAutoUpdate: (autoUpdate: boolean) => void;
+  setAutoUpdateInterval: (interval: number) => void;
 }
