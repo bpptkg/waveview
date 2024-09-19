@@ -29,6 +29,7 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
     stationOfFirstArrivalId: '',
     note: '',
     attachments: [],
+    editedEvent: null,
     setTime: (time) => {
       const pickStart = time;
       const pickEnd = pickStart + get().duration * ONE_SECOND;
@@ -72,6 +73,7 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
         note: '',
         attachments: [],
         pickRange: [0, 0],
+        editedEvent: null,
       });
     },
     setEditedEvent: (editedEvent) => {
@@ -85,7 +87,7 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
       const attachments = editedEvent.attachments;
       const eventId = editedEvent.id;
 
-      set({ pickRange, eventId, time, duration, eventTypeId, stationOfFirstArrivalId, note, attachments });
+      set({ pickRange, eventId, time, duration, eventTypeId, stationOfFirstArrivalId, note, attachments, editedEvent });
 
       const { observation } = editedEvent;
       if (observation) {

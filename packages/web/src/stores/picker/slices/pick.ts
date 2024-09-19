@@ -10,6 +10,7 @@ export interface PickSlice {
   stationOfFirstArrivalId: string;
   note: string;
   attachments: Attachment[];
+  editedEvent: SeismicEventDetail | null;
   setTime: (time: number) => void;
   setDuration: (duration: number) => void;
   setEventTypeId: (eventTypeId: string) => void;
