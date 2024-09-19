@@ -243,7 +243,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     if (!track) {
       return;
     }
-    track.getRightYAxis().setExtent([data.freqMin, data.freqMax]);
+    track.getRightYAxis().setExtent([0, data.freqMax]);
     track.getSpectrogram().setData(data);
     this.spectrogramDataStore.set(channelId, data);
   }

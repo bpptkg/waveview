@@ -69,16 +69,18 @@ export class SpectrogramView extends View<SpectrogramModel> {
       return;
     }
 
-    const { y, height } = this.track.getRect();
     const data = this.model.getData();
     const x1 = this.xAxis.getPixelForValue(data.timeMin);
     const x2 = this.xAxis.getPixelForValue(data.timeMax);
+    const y1 = this.yAxis.getPixelForValue(data.freqMin);
+    const y2 = this.yAxis.getPixelForValue(data.freqMax);
+
     const image = new zrender.Image({
       style: {
         x: x1,
-        y,
+        y: y1,
         width: x2 - x1,
-        height,
+        height: y2 - y1,
         image: data.getImageURL(),
       },
       z: -1,
