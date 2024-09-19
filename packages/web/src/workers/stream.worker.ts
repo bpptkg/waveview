@@ -11,8 +11,12 @@ import {
   WorkerResponseData,
 } from '../types/worker';
 
-import { wsUrl } from '../services/api';
+import { baseUrl, wsUrl } from '../services/api';
+import apiVersion from '../services/apiVersion';
+import { debounce } from '../shared/debounce';
 import { readSpectrogram, readStream } from '../shared/stream';
+import { SeismicEvent } from '../types/event';
+import { EventRequestData, EventResponseData } from '../types/fetcher';
 
 let socket: ReconnectingWebSocket;
 
@@ -112,6 +116,8 @@ self.addEventListener('message', (event: MessageEvent<WorkerRequestData<unknown>
     onPing();
   } else if (type === 'setup') {
     onSetup(payload as WebSocketSetupData);
+  } else if (type == 'events') {
+    onEvents(payload as EventRequestData);
   }
 });
 
@@ -145,4 +151,35 @@ function onPing(): void {
     data: 'ping',
   };
   socket.send(JSON.stringify(msg));
+}
+
+async function fetchEvents(payload: EventRequestData) {
+  const { organizationId, volcanoId, catalogId, start, end } = payload;
+  const url = `${baseUrl}${apiVersion.listEvent.v1(organizationId, volcanoId, catalogId)}?start=${start}&end=${end}`;
+  const response = await fetch(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${payload.accessToken}`,
+    },
+  });
+  if (!response.ok) {
+    return;
+  }
+  const data: SeismicEvent[] = await response.json();
+  const msg: WorkerResponseData<EventResponseData> = {
+    type: 'events',
+    payload: {
+      requestId: payload.requestId,
+      events: data,
+    },
+  };
+  self.postMessage(msg);
+}
+
+const fetchDebounced = debounce((payload: EventRequestData) => {
+  fetchEvents(payload);
+}, 1000);
+
+function onEvents(data: EventRequestData): void {
+  fetchDebounced(data);
 }
