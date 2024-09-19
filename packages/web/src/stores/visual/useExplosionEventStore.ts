@@ -48,7 +48,14 @@ export const explosionEventStore = create<ExplosionEventStore>((set, get) => ({
   },
   fromEvent: (event: ExplosionEvent) => {
     const { observation_form, column_height, color, intensity, vei, note } = event;
-    set({ observationForm: observation_form, columnHeight: column_height, color, intensity, vei, note });
+    set({
+      observationForm: observation_form || 'not_observed',
+      columnHeight: column_height || 0,
+      color: color || 'white',
+      intensity: intensity || 0,
+      vei: vei || 0,
+      note: note || '',
+    });
   },
 }));
 

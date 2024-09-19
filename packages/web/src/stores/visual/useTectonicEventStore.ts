@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { MMIScale, TectonicEvent, TectonicEventPayload } from '../../types/observation';
 import { createSelectors } from '../../shared/createSelectors';
+import { MMIScale, TectonicEvent, TectonicEventPayload } from '../../types/observation';
 
 export interface TectonicEventStore {
   mmiScale: MMIScale;
@@ -38,7 +38,7 @@ export const tectonicEventStore = create<TectonicEventStore>((set, get) => ({
   },
   fromEvent: (event: TectonicEvent) => {
     const { mmi_scale, magnitude, depth, note } = event;
-    set({ mmiScale: mmi_scale, magnitude, depth, note });
+    set({ mmiScale: mmi_scale || 'I', magnitude: magnitude || 0, depth: depth || 0, note: note || '' });
   },
 }));
 

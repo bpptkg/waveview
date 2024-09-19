@@ -43,7 +43,7 @@ const volcanicEmissionEventStore = create<VolcanicEmissionEventStore>((set, get)
   },
   fromEvent: (event: VolcanicEmissionEvent) => {
     const { observation_form, height, color, intensity, note } = event;
-    set({ observationForm: observation_form, height, color, intensity, note });
+    set({ observationForm: observation_form || 'not_observed', height: height || 0, color: color || 'white', intensity: intensity || 0, note: note || '' });
   },
 }));
 

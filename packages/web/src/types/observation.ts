@@ -83,7 +83,7 @@ export const VEIScaleOptions: VEIScaleOption[] = [
 export interface ExplosionEvent {
   id: string;
   event_id: string;
-  observation_form: ObservationForm;
+  observation_form: ObservationForm | null;
   column_height: number;
   color: EmissionColor | '';
   intensity: number;
@@ -94,7 +94,7 @@ export interface ExplosionEvent {
 }
 
 export interface ExplosionEventPayload {
-  observation_form: ObservationForm;
+  observation_form: ObservationForm | null;
   column_height: number;
   color: EmissionColor | '';
   intensity: number;
@@ -112,7 +112,7 @@ export interface PyroclasticFlowEvent {
   id: string;
   event_id: string;
   is_lava_flow: boolean;
-  observation_form: ObservationForm;
+  observation_form: ObservationForm | null;
   event_size: EventSize;
   runout_distance: number;
   fall_direction: FallDirection | null;
@@ -125,8 +125,8 @@ export interface PyroclasticFlowEvent {
 
 export interface PyroclasticFlowEventPayload {
   is_lava_flow: boolean;
-  observation_form: ObservationForm;
-  event_size: EventSize;
+  observation_form: ObservationForm | null;
+  event_size: EventSize | null;
   runout_distance: number;
   fall_direction_id: string | null;
   amplitude: number;
@@ -138,7 +138,7 @@ export interface RockfallEvent {
   id: string;
   event_id: string;
   is_lava_flow: boolean;
-  observation_form: ObservationForm;
+  observation_form: ObservationForm | null;
   event_size: EventSize;
   runout_distance: number;
   fall_direction: FallDirection | null;
@@ -151,8 +151,8 @@ export interface RockfallEvent {
 
 export interface RockfallEventPayload {
   is_lava_flow: boolean;
-  observation_form: ObservationForm;
-  event_size: EventSize;
+  observation_form: ObservationForm | null;
+  event_size: EventSize | null;
   runout_distance: number;
   fall_direction_id: string | null;
   amplitude: number;
@@ -181,7 +181,7 @@ export interface TectonicEventPayload {
 export interface VolcanicEmissionEvent {
   id: string;
   event_id: string;
-  observation_form: ObservationForm;
+  observation_form: ObservationForm | null;
   height: number;
   color: EmissionColor | '';
   intensity: number;
@@ -191,7 +191,7 @@ export interface VolcanicEmissionEvent {
 }
 
 export interface VolcanicEmissionEventPayload {
-  observation_form: ObservationForm;
+  observation_form: ObservationForm | null;
   height: number;
   color: EmissionColor | '';
   intensity: number;

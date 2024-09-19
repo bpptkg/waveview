@@ -68,14 +68,14 @@ export const rockfallEventStore = create<RofckfallEventStore>((set, get) => ({
   fromEvent: (event: RockfallEvent) => {
     const { is_lava_flow, observation_form, event_size, runout_distance, fall_direction, amplitude, duration, note } = event;
     set({
-      isLavaFlow: is_lava_flow,
-      observationForm: observation_form,
-      eventSize: event_size,
-      runoutDistance: runout_distance,
+      isLavaFlow: is_lava_flow || false,
+      observationForm: observation_form || 'not_observed',
+      eventSize: event_size || 'not_observed',
+      runoutDistance: runout_distance || 0,
       fallDirection: fall_direction?.id,
-      amplitude,
-      duration,
-      note,
+      amplitude: amplitude || 0,
+      duration: duration || 0,
+      note: note || '',
     });
   },
 }));
