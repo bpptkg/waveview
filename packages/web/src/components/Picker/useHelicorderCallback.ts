@@ -94,10 +94,6 @@ export function useHelicorderCallback() {
     [seisChartRef, setSelectionWindow, setAppliedFilter, setLastSeismogramExtent]
   );
 
-  const handleHelicorderRefreshData = useCallback(() => {
-    heliChartRef.current?.fetchAllData({ mode: 'force' });
-  }, [heliChartRef]);
-
   const { currentOrganization } = useOrganizationStore();
   const { currentCatalog } = useCatalogStore();
   const { currentVolcano } = useVolcanoStore();
@@ -151,6 +147,11 @@ export function useHelicorderCallback() {
     },
     [heliChartRef, handleFetchEvents]
   );
+
+  const handleHelicorderRefreshData = useCallback(() => {
+    heliChartRef.current?.fetchAllData({ mode: 'force' });
+    handleFetchEvents();
+  }, [heliChartRef, handleFetchEvents]);
 
   const calcHelicorderOffsetDate = (event: SeismicEventDetail) => {
     const [start, end] = getPickExtent(event);
