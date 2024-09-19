@@ -77,7 +77,6 @@ const PickerPanel = () => {
     const interval = setInterval(() => {
       if (autoUpdate && showHelicorder) {
         handleHelicorderAutoUpdate();
-        console.log('fetching helicorder data');
       }
     }, autoUpdateInterval * 1000);
 
