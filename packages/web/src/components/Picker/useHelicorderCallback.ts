@@ -1,4 +1,4 @@
-import { Helicorder } from '@waveview/zcharts';
+import { Helicorder, HelicorderEventMarkerOptions, SeismogramEventMarkerOptions } from '@waveview/zcharts';
 import { useCallback } from 'react';
 import { getEventTypeColor } from '../../shared/theme';
 import { getPickExtent } from '../../shared/time';
@@ -100,25 +100,30 @@ export function useHelicorderCallback() {
   const { token } = useAuthStore();
   const { darkMode, useUTC } = useAppStore();
   const { event } = props;
-  const { helicorderDuration, helicorderInterval, channelId, offsetDate, eventMarkers } = usePickerStore();
+  const { eventId, helicorderDuration, helicorderInterval, channelId, offsetDate, eventMarkers } = usePickerStore();
   const { setHeliChartReady } = usePickerContext();
 
   const handleUpdateEventMarkers = useCallback(async () => {
     seisChartRef.current?.clearEventMarkers();
     heliChartRef.current?.clearEventMarkers();
 
-    const markers = eventMarkers.map((event) => {
+    const markers: HelicorderEventMarkerOptions[] | SeismogramEventMarkerOptions[] = [];
+    eventMarkers.forEach((event) => {
       const [start, end] = getPickExtent(event);
-      return {
+      if (event.id === eventId) {
+        return;
+      }
+
+      markers.push({
         start,
         end,
         color: getEventTypeColor(event.type, darkMode),
         data: event,
-      };
+      });
     });
-    seisChartRef.current?.addEventMarkers(markers);
     heliChartRef.current?.addEventMarkers(markers);
-  }, [seisChartRef, heliChartRef, eventMarkers, darkMode]);
+    seisChartRef.current?.addEventMarkers(markers);
+  }, [seisChartRef, heliChartRef, eventMarkers, darkMode, eventId]);
 
   const handleFetchEvents = useCallback(() => {
     const helicorderExtent = heliChartRef.current?.getChartExtent();
@@ -151,6 +156,11 @@ export function useHelicorderCallback() {
 
   const handleHelicorderRefreshData = useCallback(() => {
     heliChartRef.current?.fetchAllData({ mode: 'force' });
+    handleFetchEvents();
+  }, [heliChartRef, handleFetchEvents]);
+
+  const handleHelicorderAutoUpdate = useCallback(() => {
+    heliChartRef.current?.fetchAllData({ mode: 'lazy' });
     handleFetchEvents();
   }, [heliChartRef, handleFetchEvents]);
 
@@ -198,5 +208,6 @@ export function useHelicorderCallback() {
     handleUpdateEventMarkers,
     getHelicorderInitOptions,
     handleHelicorderRefreshData,
+    handleHelicorderAutoUpdate,
   };
 }

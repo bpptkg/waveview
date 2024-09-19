@@ -36,10 +36,11 @@ const PickerPanel = () => {
     getHelicorderInitOptions,
     handleSeismogramOnReady,
     handleSeismogramTrackDoubleClick,
+    handleHelicorderAutoUpdate,
   } = usePickerCallback();
 
   const { showHelicorder } = props;
-  const { selectedChart, eventId } = usePickerStore();
+  const { selectedChart, eventId, autoUpdate, autoUpdateInterval } = usePickerStore();
 
   const helicorderClassName = useMemo(() => {
     if (eventId) {
@@ -71,6 +72,19 @@ const PickerPanel = () => {
   useTimeZoneEffect(heliChartRef, seisChartRef);
   useSeismogramKeyboardShortcuts(seisChartRef);
   useHelicorderKeyboardShortcuts(heliChartRef);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (autoUpdate && showHelicorder) {
+        handleHelicorderAutoUpdate();
+        console.log('fetching helicorder data');
+      }
+    }, autoUpdateInterval * 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [showHelicorder, autoUpdate, autoUpdateInterval, handleHelicorderAutoUpdate]);
 
   const sidebarRef = useRef<ImperativePanelHandle | null>(null);
   const isResizing = useRef(false);
