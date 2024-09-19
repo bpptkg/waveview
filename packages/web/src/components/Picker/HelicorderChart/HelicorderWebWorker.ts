@@ -171,8 +171,5 @@ export class HelicorderWebWorker {
     this.chart.render();
 
     this.requests.delete(requestId);
-    if (this.requests.size === 0) {
-      this.refreshRealtimeFeed();
-    }
   }
 }
