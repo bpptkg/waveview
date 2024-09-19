@@ -32,7 +32,7 @@ function onSetup(data: WebSocketSetupData): void {
   const { token } = data;
 
   const url = `${wsUrl}/ws/stream/?token=${token.access}`;
-  socket = new ReconnectingWebSocket(url);
+  socket = new ReconnectingWebSocket(url, [], { connectionTimeout: 5000 });
 
   socket.addEventListener('open', () => {
     const msg: WorkerResponseData<ConnectionStatus> = {
