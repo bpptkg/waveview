@@ -241,6 +241,7 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
     return () => {
       chartRef.current?.dispose();
       workerRef.current?.terminate();
+      webWorkerRef.current?.dispose();
       resizeObserverRef.current?.disconnect();
     };
 

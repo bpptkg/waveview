@@ -98,11 +98,16 @@ export class HelicorderWebWorker {
 
   private fetchAllTracksDataCache(): void {
     const trackManager = this.chart.getTrackManager();
+    const now = Date.now();
     for (const segment of trackManager.segments()) {
       const key = JSON.stringify(segment);
       const series = cache.get(key);
       if (series) {
         this.chart.setTrackData(segment, series);
+        const [, end] = segment;
+        if (end > now) {
+          this.postRequestMessage(segment);
+        }
       } else {
         this.postRequestMessage(segment);
       }
@@ -131,6 +136,13 @@ export class HelicorderWebWorker {
 
     this.worker.postMessage(msg);
     this.requests.set(requestId, Date.now());
+  }
+
+  dispose(): void {
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
+    this.worker.removeEventListener('message', this.onMessage);
   }
 
   private onMessage(event: MessageEvent<WorkerResponseData<unknown>>): void {
