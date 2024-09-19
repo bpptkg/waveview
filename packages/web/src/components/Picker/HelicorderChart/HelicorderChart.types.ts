@@ -1,4 +1,5 @@
 import { Channel, Helicorder, HelicorderEventMarkerOptions, HelicorderOptions } from '@waveview/zcharts';
+import { RefreshOptions } from './HelicorderWebWorker';
 
 export interface HelicorderChartProps {
   /**
@@ -54,6 +55,6 @@ export interface HelicorderChartRef {
   dispose: () => void;
   render(): void;
   toDataURL: (type?: string, quality?: number) => string;
-  fetchAllData: () => void;
+  fetchAllData: (options?: RefreshOptions) => void;
   setWindowSize: (size: number) => void;
 }

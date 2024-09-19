@@ -95,7 +95,7 @@ export function useHelicorderCallback() {
   );
 
   const handleHelicorderRefreshData = useCallback(() => {
-    heliChartRef.current?.fetchAllData();
+    heliChartRef.current?.fetchAllData({ mode: 'force' });
   }, [heliChartRef]);
 
   const { currentOrganization } = useOrganizationStore();
