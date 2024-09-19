@@ -201,7 +201,6 @@ export class Helicorder extends ChartView<HelicorderOptions> {
       view.resize();
     }
     this.trackManager.resizeTracks();
-    this.render();
   }
 
   focus(): void {
