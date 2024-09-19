@@ -22,6 +22,7 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
     onPick,
     onReady,
     onEventMarkerContextMenu,
+    onTrackContextMenu,
   } = props;
 
   const parentRef = useRef<HTMLDivElement>(null);
@@ -74,6 +75,13 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
     [onEventMarkerContextMenu]
   );
 
+  const handleTrackContextMenu = useCallback(
+    (e: ElementEvent, index: number) => {
+      onTrackContextMenu?.(e, index);
+    },
+    [onTrackContextMenu]
+  );
+
   const handleMouseWheel = useCallback(
     (e: ElementEvent) => {
       onMouseWheel?.(e);
@@ -106,6 +114,7 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
       chartRef.current.on('trackDoubleClicked', handleTrackDoubleClick);
       chartRef.current.on('pickChanged', handlePickRangeChange);
       chartRef.current.on('eventMarkerContextMenu', handleEventMarkerContextMenu);
+      chartRef.current.on('trackContextMenu', handleTrackContextMenu);
       chartRef.current.zr.on('click', handleFocus);
       chartRef.current.zr.on('contextmenu', handleContextMenuRequested);
       chartRef.current.zr.on('mousewheel', handleMouseWheel);
