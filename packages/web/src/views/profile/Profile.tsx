@@ -114,6 +114,9 @@ const Profile = () => {
   };
 
   const handlePhoneNumberChange = (value: string) => {
+    if (!value) {
+      return;
+    }
     setPhoneNumber(value);
     validatePhoneNumber(value);
   };
@@ -135,8 +138,8 @@ const Profile = () => {
   };
 
   const areFieldsValid = useMemo(() => {
-    return validatePhoneNumber(phoneNumber) && validateEmail(email);
-  }, [phoneNumber, email]);
+    return validateEmail(email);
+  }, [email]);
 
   const handleAvatarChange = () => {
     inputRef.current?.value && (inputRef.current.value = '');
