@@ -1,6 +1,6 @@
 import { ElementEvent, Seismogram, SeismogramEventMarkerOptions } from '@waveview/zcharts';
 import classNames from 'classnames';
-import React, { useCallback, useEffect, useImperativeHandle, useRef } from 'react';
+import React, { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { debounce } from '../../../shared/debounce';
 import { getJwtToken } from '../../../stores/auth/utils';
 import { SeismogramChartProps, SeismogramChartRef } from './SeismogramChart.types';
@@ -30,6 +30,7 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const workerRef = useRef<Worker | null>(null);
   const webWorkerRef = useRef<SeismogramWebWorker | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   const api = useSeismogramChartApi({
     chartRef,
@@ -133,7 +134,6 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
     }
 
     init();
-    onReady?.(chartRef.current!);
 
     setTimeout(() => {
       webWorkerRef.current?.fetchAllChannelsData();
@@ -147,6 +147,20 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    setIsMounted(true);
+
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isMounted) {
+      onReady?.(chartRef.current!);
+    }
+  }, [isMounted, onReady]);
 
   return <div className={classNames('absolute top-0 right-0 bottom-0 left-0', className)} ref={parentRef}></div>;
 });

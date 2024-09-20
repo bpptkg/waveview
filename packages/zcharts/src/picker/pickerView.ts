@@ -223,9 +223,7 @@ export class PickerView extends View<PickerModel> {
       cursor: "move",
     });
 
-    if (this.operationMode === "move" || this.operationMode === "resize") {
-      this.updateHandles();
-    }
+    this.updateHandles();
   }
 
   private clearGraphics(): void {

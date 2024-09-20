@@ -27,7 +27,6 @@ import { createPortal } from 'react-dom';
 import { getEventTypeColor } from '../../../shared/theme';
 import { useAppStore } from '../../../stores/app';
 import { usePickerStore } from '../../../stores/picker';
-import { useSidebarStore } from '../../../stores/sidebar';
 import { SeismicEvent } from '../../../types/event';
 import { CustomError } from '../../../types/response';
 import { usePickerCallback } from '../usePickerCallback';
@@ -141,7 +140,6 @@ const EventMarkerContextMenu: React.ForwardRefExoticComponent<React.RefAttribute
 
   const { fetchEditedEvent, deleteEvent, removeEventMarker } = usePickerStore();
   const { handleSetupEventEditing, handleUpdateEventMarkers } = usePickerCallback();
-  const sidebar = useSidebarStore();
 
   const handleEditEvent = useCallback(() => {
     if (!selectedEvent) {
@@ -150,8 +148,6 @@ const EventMarkerContextMenu: React.ForwardRefExoticComponent<React.RefAttribute
     fetchEditedEvent(selectedEvent.id)
       .then((event) => {
         handleSetupEventEditing(event);
-        sidebar.setSelectedTab('eventEditor');
-        sidebar.setVisible(true);
       })
       .catch((error) => {
         showErrorToast(error);
@@ -159,7 +155,7 @@ const EventMarkerContextMenu: React.ForwardRefExoticComponent<React.RefAttribute
       .finally(() => {
         handleClose();
       });
-  }, [selectedEvent, sidebar, fetchEditedEvent, showErrorToast, handleSetupEventEditing, handleClose]);
+  }, [selectedEvent, fetchEditedEvent, showErrorToast, handleSetupEventEditing, handleClose]);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const handleDeleteEvent = useCallback(async () => {
