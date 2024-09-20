@@ -226,7 +226,8 @@ export const useSeismogramCallback = () => {
   const handleClearEventEditing = useCallback(() => {
     handleSeismogramPickModeChange(false);
     resetEditing();
-  }, [handleSeismogramPickModeChange, resetEditing]);
+    setVisible(false);
+  }, [setVisible, handleSeismogramPickModeChange, resetEditing]);
 
   const handleSeismogramOnDestroy = useCallback(() => {
     handleClearEventEditing();
