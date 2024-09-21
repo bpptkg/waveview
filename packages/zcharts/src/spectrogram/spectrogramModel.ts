@@ -26,6 +26,7 @@ export class SpectrogramData {
   freqLength: number = 0;
   min: number = 0;
   max: number = 0;
+  private _imageURL: string = "";
 
   constructor(data?: SpectrogramDataOptions) {
     if (data) {
@@ -47,6 +48,7 @@ export class SpectrogramData {
     this.freqLength = data.freqLength;
     this.min = data.min;
     this.max = data.max;
+    this.updateImageURL();
   }
 
   isEmpty(): boolean {
@@ -54,12 +56,16 @@ export class SpectrogramData {
   }
 
   getImageURL(): string {
+    return this._imageURL;
+  }
+
+  private updateImageURL(): void {
     let charString = "";
     for (let i = 0; i < this.image.length; i++) {
       charString += String.fromCharCode(this.image[i]);
     }
     const data = `data:image/png;base64,${btoa(charString)}`;
-    return data;
+    this._imageURL = data;
   }
 }
 
