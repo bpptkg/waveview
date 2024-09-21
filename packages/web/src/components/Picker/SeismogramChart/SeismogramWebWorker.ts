@@ -1,5 +1,6 @@
 import { Series } from '@waveview/ndarray';
 import { Seismogram, SpectrogramData } from '@waveview/zcharts';
+import { ONE_MINUTE } from '../../../shared/time';
 import { uuid4 } from '../../../shared/uuid';
 import { FilterOperationOptions } from '../../../types/filter';
 import {
@@ -45,7 +46,15 @@ export class DataStore<T> {
 }
 
 export interface SeismogramWebWorkerOptions {
+  /**
+   * Force center the data.
+   */
   forceCenter: boolean;
+  /**
+   * Initial selection window. Use this for fetching data instead of chart
+   * extent because the chart extent may change when the user zooms in/out.
+   */
+  selectionWindow: [number, number];
 }
 
 export class SeismogramWebWorker {
@@ -55,6 +64,7 @@ export class SeismogramWebWorker {
 
   static readonly defaultOptions: SeismogramWebWorkerOptions = {
     forceCenter: true,
+    selectionWindow: [Date.now() - 5 * ONE_MINUTE, Date.now()],
   };
 
   constructor(chart: Seismogram, worker: Worker, options?: Partial<SeismogramWebWorkerOptions>) {
@@ -80,7 +90,7 @@ export class SeismogramWebWorker {
   }
 
   postRequestMessage(channelId: string): void {
-    const [start, end] = this.chart.getChartExtent();
+    const [start, end] = this.options.selectionWindow;
     const requestId = uuid4();
     const { forceCenter } = this.options;
     const msg: WorkerRequestData<StreamRequestData> = {
@@ -106,7 +116,7 @@ export class SeismogramWebWorker {
   }
 
   fetchSpecrogramData(channelId: string): void {
-    const [start, end] = this.chart.getChartExtent();
+    const [start, end] = this.options.selectionWindow;
     const trackManager = this.chart.getTrackManager();
     const track = trackManager.getTrackByChannelId(channelId);
     if (!track) {
@@ -141,7 +151,7 @@ export class SeismogramWebWorker {
       return;
     }
 
-    const [start, end] = this.chart.getChartExtent();
+    const [start, end] = this.options.selectionWindow;
     const msg: WorkerRequestData<FilterRequestData> = {
       type: 'stream.filter',
       payload: {

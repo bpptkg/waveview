@@ -104,6 +104,7 @@ export default function useSeismogramChartApi(options: SeismogramChartInitOption
           chartRef.current.clearSpectrogramData();
           chartRef.current.getXAxis().setExtent(extent);
 
+          webWorkerRef.current?.mergeOptions({ selectionWindow: extent });
           webWorkerRef.current?.fetchAllChannelsData();
           if (chartRef.current.isSpectrogramShown()) {
             webWorkerRef.current?.fetchAllSpectrogramData();
