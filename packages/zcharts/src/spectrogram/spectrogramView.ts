@@ -16,6 +16,7 @@ export class SpectrogramView extends View<SpectrogramModel> {
   private xAxis: AxisView;
   // @ts-ignore
   private yAxis: AxisView;
+  private image: zrender.Image;
 
   constructor(
     xAxis: AxisView,
@@ -29,10 +30,20 @@ export class SpectrogramView extends View<SpectrogramModel> {
     this.track = track;
     this.xAxis = xAxis;
     this.yAxis = yAxis;
+    this.image = new zrender.Image({
+      z: -1,
+      silent: true,
+    });
+    const clipRect = this.xAxis.getRect();
+    this.image.setClipPath(new zrender.Rect({ shape: clipRect }));
+    this.group.add(this.image);
   }
 
   setData(data: SpectrogramData): void {
     this.model.setData(data);
+    this.image.setStyle({
+      image: data.getImageURL(),
+    });
   }
 
   getData(): SpectrogramData {
@@ -57,15 +68,14 @@ export class SpectrogramView extends View<SpectrogramModel> {
 
   resize(): void {
     this.setRect(this.track.getRect());
+    
   }
 
-  clear(): void {
-    this.group.removeAll();
-  }
+  clear(): void {}
 
   render() {
-    this.clear();
     if (!this.visible) {
+      this.group.hide();
       return;
     }
 
@@ -75,20 +85,17 @@ export class SpectrogramView extends View<SpectrogramModel> {
     const y1 = this.yAxis.getPixelForValue(data.freqMin);
     const y2 = this.yAxis.getPixelForValue(data.freqMax);
 
-    const image = new zrender.Image({
+    this.image.attr({
       style: {
         x: x1,
         y: y1,
         width: x2 - x1,
         height: y2 - y1,
-        image: data.getImageURL(),
       },
-      z: -1,
     });
-    image.silent = true;
+    this.group.show();
     const clipRect = this.xAxis.getRect();
-    image.setClipPath(new zrender.Rect({ shape: clipRect }));
-    this.group.add(image);
+    this.image.setClipPath(new zrender.Rect({ shape: clipRect }));
   }
 
   dispose(): void {}

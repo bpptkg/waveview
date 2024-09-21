@@ -12,6 +12,7 @@ export class LineSeriesView extends View<LineSeriesModel> {
   private rect: LayoutRect;
   readonly xAxis: AxisView;
   readonly yAxis: AxisView;
+  private line: zrender.Polyline;
 
   constructor(
     xAxis: AxisView,
@@ -24,6 +25,19 @@ export class LineSeriesView extends View<LineSeriesModel> {
     this.rect = track.getRect();
     this.xAxis = xAxis;
     this.yAxis = yAxis;
+
+    const { color, width } = this.model.getOptions();
+    this.line = new zrender.Polyline({
+      z: 1,
+      silent: true,
+      style: {
+        stroke: color,
+        lineWidth: width,
+      },
+    });
+    const clipRect = this.xAxis.getRect();
+    this.line.setClipPath(new zrender.Rect({ shape: clipRect }));
+    this.group.add(this.line);
   }
 
   setYExtent(extent: [number, number]): void {
@@ -56,15 +70,15 @@ export class LineSeriesView extends View<LineSeriesModel> {
 
   resize(): void {
     this.setRect(this.rect);
+    const clipRect = this.xAxis.getRect();
+    this.line.setClipPath(new zrender.Rect({ shape: clipRect }));
   }
 
-  clear(): void {
-    this.group.removeAll();
-  }
+  clear(): void {}
 
   render() {
-    this.clear();
     if (!this.visible || this.model.isEmpty()) {
+      this.group.hide();
       return;
     }
 
@@ -79,21 +93,13 @@ export class LineSeriesView extends View<LineSeriesModel> {
       points.push([cx, cy]);
     }
 
-    const { color, width } = this.model.getOptions();
-    const line = new zrender.Polyline({
+    this.line.attr({
       shape: {
         points,
       },
-      style: {
-        stroke: color,
-        lineWidth: width,
-      },
-      z: 1,
     });
-    line.silent = true;
-    const clipRect = this.xAxis.getRect();
-    line.setClipPath(new zrender.Rect({ shape: clipRect }));
-    this.group.add(line);
+
+    this.group.show();
   }
 
   dispose(): void {
@@ -105,6 +111,10 @@ export class LineSeriesView extends View<LineSeriesModel> {
     this.model.mergeOptions({
       color: seriesStyle.lineColor,
       width: seriesStyle.lineWidth,
+    });
+    this.line.setStyle({
+      stroke: seriesStyle.lineColor,
+      lineWidth: seriesStyle.lineWidth,
     });
   }
 }

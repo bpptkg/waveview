@@ -9,6 +9,7 @@ export class GridView extends View<GridModel> {
   override readonly type: string = "grid";
   readonly chart: ChartView;
   private rect: LayoutRect;
+  private grid: zrender.Rect;
 
   constructor(chart: ChartView, options?: Partial<GridOptions>) {
     const model = new GridModel(options);
@@ -16,6 +17,24 @@ export class GridView extends View<GridModel> {
     this.chart = chart;
 
     this.rect = this.chart.getRect();
+
+    const { backgroundColor, borderColor, borderWidth } =
+      this.model.getOptions();
+    this.grid = new zrender.Rect({
+      shape: {
+        x: this.rect.x,
+        y: this.rect.y,
+        width: this.rect.width,
+        height: this.rect.height,
+      },
+      style: {
+        fill: backgroundColor,
+        stroke: borderColor,
+        lineWidth: borderWidth,
+      },
+      silent: true,
+    });
+    this.group.add(this.grid);
   }
 
   override getRect(): LayoutRect {
@@ -37,47 +56,39 @@ export class GridView extends View<GridModel> {
     this.setRect(this.chart.getRect());
   }
 
-  override clear(): void {
-    this.group.removeAll();
-  }
+  override clear(): void {}
 
   override render(): void {
-    this.clear();
     if (!this.visible) {
+      this.group.hide();
       return;
     }
 
-    const { backgroundColor, borderColor, borderWidth } =
-      this.model.getOptions();
-
     const { x, y, width, height } = this.getRect();
-
-    const rect = new zrender.Rect({
+    this.grid.attr({
       shape: {
         x,
         y,
         width,
         height,
       },
-      style: {
-        fill: backgroundColor,
-        stroke: borderColor,
-        lineWidth: borderWidth,
-      },
     });
-    rect.silent = true;
-    this.group.add(rect);
+    this.group.show();
   }
 
-  override dispose(): void {
-    this.clear();
-  }
+  override dispose(): void {}
 
   applyThemeStyle(theme: ThemeStyle): void {
     const { gridStyle } = theme;
     this.model.mergeOptions({
       borderColor: gridStyle.lineColor,
       borderWidth: gridStyle.lineWidth,
+    });
+    this.grid.attr({
+      style: {
+        stroke: gridStyle.lineColor,
+        lineWidth: gridStyle.lineWidth,
+      },
     });
   }
 }

@@ -19,6 +19,11 @@ export class TrackView extends View<TrackModel> {
   interactive: boolean = false;
   private label: zrender.Text;
   private eventEmitter = new EventEmitter<TrackEventMap>();
+  private bracketGroup: zrender.Group;
+
+  private leftBorder: zrender.Line;
+  private topTick: zrender.Line;
+  private bottomTick: zrender.Line;
 
   constructor(chart: ChartView, options?: Partial<TrackOptions>) {
     const model = new TrackModel(options);
@@ -76,6 +81,20 @@ export class TrackView extends View<TrackModel> {
       this
     );
     this.rightYAxis.hide();
+    this.group.add(this.label);
+    this.group.add(this.leftYAxis.group);
+    this.group.add(this.rightYAxis.group);
+    this.group.add(this.signal.group);
+    this.group.add(this.spectrogram.group);
+
+    this.leftBorder = new zrender.Line();
+    this.topTick = new zrender.Line();
+    this.bottomTick = new zrender.Line();
+    this.bracketGroup = new zrender.Group();
+    this.bracketGroup.add(this.leftBorder);
+    this.bracketGroup.add(this.topTick);
+    this.bracketGroup.add(this.bottomTick);
+    this.group.add(this.bracketGroup);
   }
 
   getSignal(): LineSeriesView {
@@ -124,11 +143,13 @@ export class TrackView extends View<TrackModel> {
 
   resize(): void {
     this.setRect(this.rect);
+    this.signal.resize();
+    this.spectrogram.resize();
+    this.leftYAxis.resize();
+    this.rightYAxis.resize();
   }
 
-  clear(): void {
-    this.group.removeAll();
-  }
+  clear(): void {}
 
   dispose(): void {
     this.spectrogram.dispose();
@@ -151,26 +172,24 @@ export class TrackView extends View<TrackModel> {
   }
 
   render(): void {
-    this.clear();
     if (!this.visible) {
+      this.group.hide();
       return;
     }
     this.renderLabels();
     this.renderStyle();
     this.renderSignal();
     this.renderSpectrogram();
+    this.group.show();
   }
 
   private renderSignal(): void {
     this.signal.render();
-    this.group.add(this.signal.group);
   }
 
   private renderSpectrogram(): void {
     this.spectrogram.render();
     this.rightYAxis.render();
-    this.group.add(this.rightYAxis.group);
-    this.group.add(this.spectrogram.group);
   }
 
   private renderLabels(): void {
@@ -198,13 +217,15 @@ export class TrackView extends View<TrackModel> {
       y: y + height / 2,
       silent: !this.interactive,
     });
-    this.group.add(this.label);
   }
 
   private renderStyle(): void {
     const { style } = this.model.getOptions();
     if (style === "bracket") {
       this.renderBracketStyle();
+      this.bracketGroup.show();
+    } else {
+      this.bracketGroup.hide();
     }
   }
 
@@ -212,7 +233,7 @@ export class TrackView extends View<TrackModel> {
     const { borderColor, borderWidth } = this.model.getOptions();
     const { x, y, height } = this.getRect();
     const tickLength = 5;
-    const leftBorder = new zrender.Line({
+    this.leftBorder.attr({
       shape: {
         x1: x,
         y1: y,
@@ -223,8 +244,9 @@ export class TrackView extends View<TrackModel> {
         stroke: borderColor,
         lineWidth: borderWidth,
       },
+      silent: true,
     });
-    const topTick = new zrender.Line({
+    this.topTick.attr({
       shape: {
         x1: x,
         y1: y,
@@ -235,8 +257,9 @@ export class TrackView extends View<TrackModel> {
         stroke: borderColor,
         lineWidth: borderWidth,
       },
+      silent: true,
     });
-    const bottomTick = new zrender.Line({
+    this.bottomTick.attr({
       shape: {
         x1: x,
         y1: y + height,
@@ -247,13 +270,8 @@ export class TrackView extends View<TrackModel> {
         stroke: borderColor,
         lineWidth: borderWidth,
       },
+      silent: true,
     });
-    leftBorder.silent = true;
-    topTick.silent = true;
-    bottomTick.silent = true;
-    this.group.add(leftBorder);
-    this.group.add(topTick);
-    this.group.add(bottomTick);
   }
 
   on<K extends keyof TrackEventMap>(

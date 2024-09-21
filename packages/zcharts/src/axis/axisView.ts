@@ -24,12 +24,30 @@ export class AxisView extends View<AxisModel> {
   readonly parent: View;
   private rect: LayoutRect;
   private eventEmitter = new EventEmitter<AxisEventMap>();
+  private axisLine: zrender.Line;
+  private axisTicks: zrender.Group;
+  private axisMinorTicks: zrender.Group;
+  private axisLabels: zrender.Group;
+  private axisName: zrender.Text;
+  private splitLines: zrender.Group;
 
   constructor(parent: View, options?: DeepPartial<AxisOptions>) {
     const model = new AxisModel(options);
     super(model);
     this.parent = parent;
     this.rect = parent.getRect();
+    this.axisLine = new zrender.Line();
+    this.axisTicks = new zrender.Group();
+    this.axisMinorTicks = new zrender.Group();
+    this.axisLabels = new zrender.Group();
+    this.axisName = new zrender.Text();
+    this.splitLines = new zrender.Group();
+    this.group.add(this.axisLine);
+    this.group.add(this.axisTicks);
+    this.group.add(this.axisMinorTicks);
+    this.group.add(this.axisLabels);
+    this.group.add(this.axisName);
+    this.group.add(this.splitLines);
   }
 
   applyThemeStyle(style: ThemeStyle): void {
@@ -232,9 +250,7 @@ export class AxisView extends View<AxisModel> {
     this.setRect(this.parent.getRect());
   }
 
-  clear(): void {
-    this.group.removeAll();
-  }
+  clear(): void {}
 
   dispose(): void {
     this.group.removeAll();
@@ -256,8 +272,8 @@ export class AxisView extends View<AxisModel> {
   }
 
   render(): void {
-    this.clear();
     if (!this.visible) {
+      this.group.hide();
       return;
     }
     this.renderAxisLine();
@@ -266,11 +282,13 @@ export class AxisView extends View<AxisModel> {
     this.renderAxisLabel();
     this.renderAxisName();
     this.renderSplitLine();
+    this.group.show();
   }
 
   private renderAxisLine(): void {
     const { show, color, width: lineWidth } = this.model.getOptions().axisLine;
     if (!show) {
+      this.axisLine.hide();
       return;
     }
 
@@ -288,12 +306,12 @@ export class AxisView extends View<AxisModel> {
       y2 = y + height;
     }
 
-    const axisLine = new zrender.Line({
+    this.axisLine.attr({
       shape: { x1, y1, x2, y2 },
       style: { stroke: color, lineWidth },
+      silent: true,
     });
-    axisLine.silent = true;
-    this.group.add(axisLine);
+    this.axisLine.show();
   }
 
   private calcAdjustedTickPositions(tick: TickPixel): {
@@ -338,11 +356,12 @@ export class AxisView extends View<AxisModel> {
   private renderAxisMajorTick(): void {
     const { show, color, width } = this.model.getOptions().axisTick;
     if (!show) {
+      this.axisTicks.hide();
       return;
     }
 
     const ticks = this.getTicksPixels();
-    const majorTicks = new zrender.Group();
+    this.axisTicks.removeAll();
 
     for (const tick of ticks) {
       const { x1, y1, x2, y2 } = this.calcAdjustedTickPositions(tick);
@@ -352,16 +371,17 @@ export class AxisView extends View<AxisModel> {
         style: { stroke: color, lineWidth: width },
       });
       majorTick.silent = true;
-      majorTicks.add(majorTick);
+      this.axisTicks.add(majorTick);
     }
 
-    this.group.add(majorTicks);
+    this.axisTicks.show();
   }
 
   private renderAxisMinorTick(): void {
     const { show, length, color, width } = this.model.options.minorTick;
     const { inside } = this.model.options.axisTick;
     if (!show) {
+      this.axisMinorTicks.hide();
       return;
     }
 
@@ -385,7 +405,7 @@ export class AxisView extends View<AxisModel> {
       }
     };
 
-    const minorTicks = new zrender.Group();
+    this.axisMinorTicks.removeAll();
 
     for (const tick of ticks) {
       if (this.isHorizontal()) {
@@ -403,16 +423,17 @@ export class AxisView extends View<AxisModel> {
         style: { stroke: color, lineWidth: width },
       });
       minorTick.silent = true;
-      minorTicks.add(minorTick);
+      this.axisMinorTicks.add(minorTick);
     }
 
-    this.group.add(minorTicks);
+    this.axisMinorTicks.show();
   }
 
   private renderAxisLabel(): void {
     const { show, margin, formatter, color, fontFamily, fontSize, inside } =
       this.model.options.axisLabel;
     if (!show) {
+      this.axisLabels.hide();
       return;
     }
     const { length } = this.model.getOptions().axisTick;
@@ -426,8 +447,9 @@ export class AxisView extends View<AxisModel> {
       return { x: x1, y: y1, text };
     });
 
+    this.axisLabels.removeAll();
+
     const { position } = this.model.options;
-    const labels = new zrender.Group();
     for (const tick of ticks) {
       const { x, y, text } = tick;
       const label = new zrender.Text({
@@ -459,21 +481,22 @@ export class AxisView extends View<AxisModel> {
         });
       }
       label.silent = true;
-      labels.add(label);
+      this.axisLabels.add(label);
     }
 
-    this.group.add(labels);
+    this.axisLabels.show();
   }
 
   private renderSplitLine(): void {
     const { show, color, width: lineWidth } = this.model.options.splitLine;
     if (!show) {
+      this.splitLines.hide();
       return;
     }
 
     const { width, height } = this.getRect();
     const ticks = this.getTicksPixels();
-    const splitLines = new zrender.Group();
+    this.splitLines.removeAll();
 
     for (const [index, tick] of ticks.entries()) {
       if (index === 0 || index === ticks.length - 1) {
@@ -498,10 +521,10 @@ export class AxisView extends View<AxisModel> {
         style: { stroke: color, lineWidth },
       });
       splitLine.silent = true;
-      splitLines.add(splitLine);
+      this.splitLines.add(splitLine);
     }
 
-    this.group.add(splitLines);
+    this.splitLines.show();
   }
 
   private renderAxisName(): void {
@@ -509,6 +532,7 @@ export class AxisView extends View<AxisModel> {
     const { color, fontFamily, fontSize } = this.model.options.nameStyle;
     this.model.options;
     if (!name) {
+      this.axisName.hide();
       return;
     }
 
@@ -521,7 +545,7 @@ export class AxisView extends View<AxisModel> {
       ? Math.PI / 2
       : -Math.PI / 2;
 
-    const nameText = new zrender.Text({
+    this.axisName.attr({
       style: {
         text: name,
         fill: color,
@@ -531,21 +555,21 @@ export class AxisView extends View<AxisModel> {
         verticalAlign: "middle",
       },
       rotation,
+      silent: true,
     });
 
     if (this.isHorizontal()) {
-      nameText.attr({
+      this.axisName.attr({
         x: x + width / 2,
         y: this.isTop() ? y - nameGap : y + height + nameGap,
       });
     } else {
-      nameText.attr({
+      this.axisName.attr({
         x: this.isLeft() ? x - nameGap : x + width + nameGap,
         y: y + height / 2,
       });
     }
 
-    nameText.silent = true;
-    this.group.add(nameText);
+    this.axisName.show();
   }
 }
