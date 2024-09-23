@@ -14,7 +14,7 @@ import {
 } from '../../../types/worker';
 
 export interface RefreshOptions {
-  mode: 'light' | 'full';
+  mode: 'force' | 'cache';
 }
 
 export class DataStore<T> {
@@ -44,6 +44,8 @@ export class DataStore<T> {
     return this.data.size;
   }
 }
+
+const signalCache = new DataStore<Series>();
 
 export interface SeismogramWebWorkerOptions {
   /**
@@ -79,10 +81,39 @@ export class SeismogramWebWorker {
     this.options = { ...this.options, ...options };
   }
 
-  fetchAllChannelsData(): void {
+  fetchAllChannelsData(options?: RefreshOptions): void {
+    const { mode } = options || { mode: 'force' };
+    switch (mode) {
+      case 'force':
+        this.fetchAllChannelsDataForce();
+        break;
+      case 'cache':
+        this.fetchAllChannelsDataCache();
+        break;
+      default:
+        break;
+    }
+  }
+
+  private fetchAllChannelsDataForce(): void {
     for (const channel of this.chart.getChannels()) {
       this.fetchChannelData(channel.id);
     }
+  }
+
+  private fetchAllChannelsDataCache(): void {
+    for (const channel of this.chart.getChannels()) {
+      const [start, end] = this.options.selectionWindow;
+      const key = JSON.stringify([channel.id, start, end]);
+      const series = signalCache.get(key);
+      if (series) {
+        this.chart.setChannelData(channel.id, series);
+      } else {
+        this.fetchChannelData(channel.id);
+      }
+    }
+    this.chart.refreshChannelData();
+    this.chart.render();
   }
 
   fetchChannelData(channelId: string): void {
@@ -193,6 +224,10 @@ export class SeismogramWebWorker {
     this.chart.setChannelData(channelId, series);
     this.chart.refreshChannelData();
     this.chart.render();
+
+    const [start, end] = this.options.selectionWindow;
+    const key = JSON.stringify([channelId, start, end]);
+    signalCache.set(key, series);
   }
 
   private onSpecrogramFetchMessage(payload: SpectrogramResponseData): void {
