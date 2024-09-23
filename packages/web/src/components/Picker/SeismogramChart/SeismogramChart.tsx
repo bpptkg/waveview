@@ -108,6 +108,10 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
       workerRef.current = new Worker(new URL('../../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
       workerRef.current.postMessage({ type: 'setup', payload: { token } });
       webWorkerRef.current = new SeismogramWebWorker(chartRef.current, workerRef.current);
+      const { startTime, endTime } = initOptions || {};
+      if (startTime && endTime) {
+        webWorkerRef.current.mergeOptions({ selectionWindow: [startTime, endTime] });
+      }
       chartRef.current.on('blur', handleBlur);
       chartRef.current.on('extentChanged', handleExtentChange);
       chartRef.current.on('trackDoubleClicked', handleTrackDoubleClick);
