@@ -85,7 +85,7 @@ export function useHelicorderCallback() {
 
   const handleHelicorderSelectionChange = useCallback(
     (range: [number, number]) => {
-      seisChartRef.current?.setExtent(range);
+      seisChartRef.current?.setExtent(range, { autoZoom: true });
       seisChartRef.current?.clearPickRange();
       setSelectionWindow(range);
       setAppliedFilter(null);

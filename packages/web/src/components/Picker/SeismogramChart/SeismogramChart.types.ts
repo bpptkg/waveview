@@ -64,6 +64,14 @@ export interface SeismogramChartProps {
   onTrackContextMenu?: (event: ElementEvent, index: number) => void;
 }
 
+export interface SetExtentOptions {
+  /**
+   * Whether to automatically zoom the chart to the first minute of the
+   * selection window.
+   */
+  autoZoom?: boolean;
+}
+
 export interface SeismogramChartRef {
   getInstance: () => Seismogram;
   setChannels: (channels: Channel[]) => void;
@@ -78,7 +86,7 @@ export interface SeismogramChartRef {
   increaseAmplitude: (by: number) => void;
   decreaseAmplitude: (by: number) => void;
   resetAmplitude: () => void;
-  setExtent: (extent: [number, number]) => void;
+  setExtent: (extent: [number, number], options?: SetExtentOptions) => void;
   setTheme: (theme: 'light' | 'dark') => void;
   focus(): void;
   blur(): void;

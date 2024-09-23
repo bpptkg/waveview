@@ -1,6 +1,7 @@
 import { Channel, Seismogram, SeismogramEventMarkerOptions } from '@waveview/zcharts';
 import { MutableRefObject, useMemo } from 'react';
-import { SeismogramChartRef } from './SeismogramChart.types';
+import { ONE_MINUTE } from '../../../shared/time';
+import { SeismogramChartRef, SetExtentOptions } from './SeismogramChart.types';
 import { SeismogramWebWorker } from './SeismogramWebWorker';
 
 export interface SeismogramChartInitOptions {
@@ -98,11 +99,21 @@ export default function useSeismogramChartApi(options: SeismogramChartInitOption
           chartRef.current.render();
         }
       },
-      setExtent: (extent: [number, number]) => {
+      setExtent: (extent: [number, number], options?: SetExtentOptions) => {
         if (chartRef.current) {
           chartRef.current.clearChannelData();
           chartRef.current.clearSpectrogramData();
-          chartRef.current.getXAxis().setExtent(extent);
+
+          const { autoZoom = false } = options || {};
+          if (autoZoom) {
+            // Set the extent of the chart to the first minute of the selection
+            // window so that the user can see the initial signal.
+            const [start] = extent;
+            const end = start + ONE_MINUTE;
+            chartRef.current.getXAxis().setExtent([start, end]);
+          } else {
+            chartRef.current.getXAxis().setExtent(extent);
+          }
 
           webWorkerRef.current?.mergeOptions({ selectionWindow: extent });
           webWorkerRef.current?.fetchAllChannelsData();
