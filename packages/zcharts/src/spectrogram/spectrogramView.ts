@@ -68,7 +68,6 @@ export class SpectrogramView extends View<SpectrogramModel> {
 
   resize(): void {
     this.setRect(this.track.getRect());
-    
   }
 
   clear(): void {}
