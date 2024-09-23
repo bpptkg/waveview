@@ -45,6 +45,10 @@ export interface CommonSlice {
    */
   setSelectedChart: (chart: PickerChart) => void;
   /**
+   * Sets the picker configuration.
+   */
+  setPickerConfig: (config: PickerConfig) => void;
+  /**
    * Fetches the picker configuration, which includes the list of default
    * channels to display in the picker.
    */
@@ -53,6 +57,10 @@ export interface CommonSlice {
    * Saves the picker configuration.
    */
   savePickerConfig: (payload: PickerConfigPayload) => Promise<void>;
+  /**
+   * Resets the picker configuration to the default state.
+   */
+  resetPickerConfig: () => Promise<void>;
   /**
    * Fetches the event markers within the given time range.
    */

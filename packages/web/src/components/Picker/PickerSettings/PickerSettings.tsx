@@ -69,6 +69,7 @@ const PickerSettings: React.FC = () => {
     getChannelsConfig,
     setPickerSettingsOpen,
     savePickerConfig,
+    resetPickerConfig,
   } = usePickerStore();
   const { channels } = useInventoryStore();
 
@@ -105,7 +106,7 @@ const PickerSettings: React.FC = () => {
     [setPickerSettingsOpen]
   );
 
-  const handleReset = useCallback(() => {
+  const resetState = useCallback(() => {
     setChannelId(defaultChannelId);
     setChannelList(getChannelsConfig());
     setSelectionWindow(windowSize);
@@ -113,16 +114,16 @@ const PickerSettings: React.FC = () => {
   }, [defaultChannelId, windowSize, forceCenter, getChannelsConfig]);
 
   const handleCancel = useCallback(() => {
-    handleReset();
+    resetState();
     setPickerSettingsOpen(false);
-  }, [handleReset, setPickerSettingsOpen]);
+  }, [resetState, setPickerSettingsOpen]);
 
   useEffect(() => {
     if (pickerSettingsOpen) {
-      handleReset();
+      resetState();
       setView('default');
     }
-  }, [pickerSettingsOpen, handleReset]);
+  }, [pickerSettingsOpen, resetState]);
 
   const handleApplySettings = useCallback(() => {
     const channels = getChannelsConfig().map((item) => ({
@@ -141,16 +142,28 @@ const PickerSettings: React.FC = () => {
     seisChartRef.current?.setForceCenter(detrend);
   }, [channelId, selectionWindow, detrend, heliChartRef, seisChartRef, getChannelsConfig]);
 
+  const handleReset = useCallback(async () => {
+    setLoading(true);
+    try {
+      await resetPickerConfig();
+      handleApplySettings();
+      setPickerSettingsOpen(false);
+    } catch (e) {
+      showErrorToast(e as CustomError);
+    } finally {
+      setLoading(false);
+    }
+  }, [resetPickerConfig, showErrorToast, handleApplySettings, setPickerSettingsOpen, setLoading]);
+
   const handleSave = useCallback(async () => {
     setLoading(true);
     const payload: PickerConfigPayload = {
       helicorder_channel: {
         channel_id: channelId,
-        color: '#000000',
       },
       seismogram_channels: channelList.map((channel) => ({
         channel_id: channel.channel.id,
-        color: channel.color,
+        color: channel.color === 'none' ? undefined : channel.color,
       })),
       window_size: selectionWindow,
       force_center: detrend,
@@ -196,7 +209,7 @@ const PickerSettings: React.FC = () => {
   const handleSeismogramChannelAdd = useCallback(
     (channel: Channel) => {
       setChannelList((prev) => {
-        return [...prev, { channel, color: '#000000' }];
+        return [...prev, { channel }];
       });
     },
     [setChannelList]
@@ -212,7 +225,7 @@ const PickerSettings: React.FC = () => {
   );
 
   const handleSeismogramChannelColorChange = useCallback(
-    (index: number, color: string) => {
+    (index: number, color?: string) => {
       const newChannelList = [...channelList];
       newChannelList[index].color = color;
       setChannelList(newChannelList);
@@ -320,13 +333,20 @@ const PickerSettings: React.FC = () => {
         )}
         <div>
           {Component}
-          <div className="flex items-center justify-end gap-1 mt-2">
-            <Button appearance="secondary" onClick={handleCancel}>
-              Cancel
-            </Button>
-            <Button appearance="primary" onClick={handleSave} disabled={loading}>
-              Save
-            </Button>
+          <div className="flex items-center justify-between gap-1 mt-2">
+            <div>
+              <Button appearance="secondary" onClick={handleCancel} className={styles.btn}>
+                Cancel
+              </Button>
+            </div>
+            <div className="flex gap-1">
+              <Button appearance="secondary" onClick={handleReset}>
+                Reset Default
+              </Button>
+              <Button appearance="primary" onClick={handleSave} disabled={loading}>
+                Save
+              </Button>
+            </div>
           </div>
         </div>
         <Toaster toasterId={toasterId} />

@@ -1,6 +1,7 @@
 import {
   Button,
   ColorSwatch,
+  EmptySwatch,
   Field,
   InputOnChangeData,
   Label,
@@ -17,7 +18,7 @@ import {
   tokens,
   Tooltip,
 } from '@fluentui/react-components';
-import { AddRegular, ArrowDownRegular, ArrowUpRegular, DeleteRegular, RectangleLandscapeFilled } from '@fluentui/react-icons';
+import { AddRegular, ArrowDownRegular, ArrowUpRegular, DeleteRegular, DismissRegular } from '@fluentui/react-icons';
 import Fuse from 'fuse.js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useInventoryStore } from '../../../stores/inventory';
@@ -30,21 +31,21 @@ interface ColorPickerProps {
 }
 
 const ColorPicker: React.FC<ColorPickerProps> = ({ color, onChange }) => {
-  const defaultValue = color || '#00B053';
-  const defaultColor = color || '#00B053';
-
-  const [selectedValue, setSelectedValue] = useState(defaultValue);
-  const [selectedColor, setSelectedColor] = useState(defaultColor);
+  const defaultColor = color ?? 'none';
+  const [selectedValue, setSelectedValue] = useState<string>(defaultColor);
+  const [selectedColor, setSelectedColor] = useState<string>(defaultColor);
   const handleSelect: SwatchPickerOnSelectEventHandler = (_, data) => {
-    setSelectedValue(data.selectedValue);
-    setSelectedColor(data.selectedSwatch);
-    onChange?.(data.selectedSwatch);
+    const value = data.selectedValue;
+    const color = value === 'none' ? 'transparent' : value;
+    setSelectedValue(value);
+    setSelectedColor(color);
+    onChange?.(value);
   };
 
   return (
     <Popover>
       <PopoverTrigger disableButtonEnhancement>
-        <RectangleLandscapeFilled color={selectedColor} fontSize={24} />
+        {selectedColor !== 'transparent' ? <ColorSwatch color={selectedColor} value={selectedColor} /> : <EmptySwatch />}
       </PopoverTrigger>
 
       <PopoverSurface tabIndex={-1}>
@@ -60,6 +61,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ color, onChange }) => {
           <ColorSwatch color="#FFD1F9" value="#FFD1F9" aria-label="pink" />
           <ColorSwatch color="#D1D5D8" value="#D1D5D8" aria-label="gray" />
           <ColorSwatch color="#000000" value="#000000" aria-label="black" />
+          <ColorSwatch color="transparent" value="none" aria-label="none" icon={<DismissRegular fontSize={20} />} />
         </SwatchPicker>
       </PopoverSurface>
     </Popover>
@@ -72,7 +74,7 @@ export interface SeismogramChannelListProps {
   onMoveDown?: (index: number) => void;
   onAdd?: (channel: Channel) => void;
   onDelete?: (index: number) => void;
-  onColorChange?: (index: number, color: string) => void;
+  onColorChange?: (index: number, color?: string) => void;
 }
 
 const useStyles = makeStyles({
@@ -128,7 +130,7 @@ const SeismogramChannelList: React.FC<SeismogramChannelListProps> = ({ channelLi
   );
 
   const handleColorChange = useCallback(
-    (index: number, color: string) => {
+    (index: number, color?: string) => {
       onColorChange?.(index, color);
     },
     [onColorChange]

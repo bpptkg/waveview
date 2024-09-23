@@ -9,7 +9,7 @@ import { useOrganizationStore } from '../../organization';
 import { useVolcanoStore } from '../../volcano/useVolcanoStore';
 import { ChannelConfig, CommonSlice, PickerStore } from '../slices';
 
-export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> = (set) => {
+export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> = (set, get) => {
   return {
     selectedChart: 'helicorder',
     showEvent: true,
@@ -26,6 +26,25 @@ export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> =
 
     setShowEvent: (showEvent) => set({ showEvent }),
 
+    setPickerConfig: (pickerConfig) => {
+      const { helicorder_channel, seismogram_channels, force_center, window_size } = pickerConfig.data;
+
+      const availableChannels = useInventoryStore.getState().channels();
+      const selectedChannels: ChannelConfig[] = [];
+      seismogram_channels.forEach((channel) => {
+        const item = availableChannels.find((c) => c.id === channel.channel_id);
+        if (item) {
+          selectedChannels.push({
+            channel: item,
+            color: channel.color ?? undefined,
+          });
+        }
+      });
+      const forceCenter = force_center || true;
+      const windowSize = window_size || 5; // 5 minutes
+      set({ pickerConfig, channelId: helicorder_channel.channel_id, selectedChannels, forceCenter, windowSize });
+    },
+
     fetchPickerConfig: async () => {
       const { currentOrganization } = useOrganizationStore.getState();
       if (!currentOrganization) {
@@ -41,22 +60,7 @@ export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> =
         throw CustomError.fromErrorData(err);
       }
       const pickerConfig: PickerConfig = await response.json();
-      const { helicorder_channel, seismogram_channels, force_center, window_size } = pickerConfig.data;
-
-      const availableChannels = useInventoryStore.getState().channels();
-      const selectedChannels: ChannelConfig[] = [];
-      seismogram_channels.forEach((channel) => {
-        const item = availableChannels.find((c) => c.id === channel.channel_id);
-        if (item) {
-          selectedChannels.push({
-            channel: item,
-            color: channel.color,
-          });
-        }
-      });
-      const forceCenter = force_center || true;
-      const windowSize = window_size || 5; // 5 minutes
-      set({ pickerConfig, channelId: helicorder_channel.channel_id, selectedChannels, forceCenter, windowSize });
+      get().setPickerConfig(pickerConfig);
     },
 
     savePickerConfig: async (payload) => {
@@ -77,20 +81,27 @@ export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> =
         throw CustomError.fromErrorData(err);
       }
       const pickerConfig: PickerConfig = await response.json();
-      const { helicorder_channel, seismogram_channels, force_center, window_size } = pickerConfig.data;
+      get().setPickerConfig(pickerConfig);
+    },
 
-      const availableChannels = useInventoryStore.getState().channels();
-      const selectedChannels: ChannelConfig[] = [];
-      seismogram_channels.forEach((channel) => {
-        const item = availableChannels.find((c) => c.id === channel.channel_id);
-        if (item) {
-          selectedChannels.push({
-            channel: item,
-            color: channel.color,
-          });
-        }
+    resetPickerConfig: async () => {
+      const { currentOrganization } = useOrganizationStore.getState();
+      if (!currentOrganization) {
+        throw new CustomError('Organization is not set');
+      }
+      const { currentVolcano } = useVolcanoStore.getState();
+      if (!currentVolcano) {
+        throw new CustomError('Volcano is not set');
+      }
+      const response = await api(apiVersion.resetPickerConfig.v1(currentOrganization.id, currentVolcano.id), {
+        method: 'POST',
       });
-      set({ pickerConfig, channelId: helicorder_channel.channel_id, selectedChannels, forceCenter: force_center, windowSize: window_size });
+      if (!response.ok) {
+        const err: ErrorData = await response.json();
+        throw CustomError.fromErrorData(err);
+      }
+      const pickerConfig: PickerConfig = await response.json();
+      get().setPickerConfig(pickerConfig);
     },
 
     fetchEventMarkers: async (start, end) => {
