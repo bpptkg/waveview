@@ -122,7 +122,7 @@ const PickerPanel = () => {
       <PanelGroup direction="horizontal" className="relative">
         {showHelicorder && (
           <>
-            <Panel id="panel-helicorder" defaultSize={28} minSize={10} order={1} className="relative">
+            <Panel id="panel-helicorder" defaultSize={25} minSize={10} order={1} className="relative">
               <div className="flex flex-col relative h-full">
                 <HelicorderToolbar
                   offsetDate={new Date(offsetDate)}
@@ -190,7 +190,7 @@ const PickerPanel = () => {
         {showSidebar && (
           <>
             <PanelResizeHandle id="resize-handle-right" />
-            <Panel id="panel-sidebar" defaultSize={22} minSize={10} order={3} className="relative">
+            <Panel id="panel-sidebar" defaultSize={20} minSize={10} order={3} className="relative">
               <Sidebar />
             </Panel>
           </>
