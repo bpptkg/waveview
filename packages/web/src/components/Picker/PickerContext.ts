@@ -1,11 +1,11 @@
 import { createContext, MutableRefObject, useContext } from 'react';
 import { HelicorderChartRef } from './HelicorderChart';
-import { PickerWorkspaceProps } from './PickerWorkspace.types';
+import { PickerProps } from './Picker.types';
 import { SeismogramChartRef } from './SeismogramChart';
 import { ContextMenuRef } from './SeismogramContextMenu';
 
 export interface PickerContextValue {
-  props: PickerWorkspaceProps;
+  props: PickerProps;
   seisChartRef: MutableRefObject<SeismogramChartRef | null>;
   heliChartRef: MutableRefObject<HelicorderChartRef | null>;
   contextMenuRef: MutableRefObject<ContextMenuRef | null>;
@@ -28,10 +28,8 @@ export const usePickerContext = (): PickerContextValue => {
   return value;
 };
 
-export const useDefaultProps = (props: PickerWorkspaceProps): PickerWorkspaceProps => {
+export const useDefaultProps = (props: PickerProps): PickerProps => {
   return {
     ...props,
-    showHelicorder: props.showHelicorder ?? true,
-    showEventMarkers: props.showEventMarkers ?? true,
   };
 };

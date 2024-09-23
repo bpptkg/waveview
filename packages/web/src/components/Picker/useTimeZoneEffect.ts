@@ -1,23 +1,20 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useAppStore } from '../../stores/app';
 import { HelicorderChartRef } from './HelicorderChart';
 import { SeismogramChartRef } from './SeismogramChart';
 
-export function useTimeZoneEffect(
-  heliChartRef: React.MutableRefObject<HelicorderChartRef | null>,
-  seisChartRef: React.MutableRefObject<SeismogramChartRef | null>
-) {
+export function useHelicorderTimeZoneEffect(heliChartRef: React.MutableRefObject<HelicorderChartRef | null>) {
   const { useUTC } = useAppStore();
 
-  const initialRenderCompleteRef = useRef<boolean | null>(null);
+  useEffect(() => {
+    heliChartRef.current?.setUseUTC(useUTC);
+  }, [heliChartRef, useUTC]);
+}
+
+export function useSeismogramTimeZoneEffect(seisChartRef: React.MutableRefObject<SeismogramChartRef | null>) {
+  const { useUTC } = useAppStore();
 
   useEffect(() => {
-    if (!initialRenderCompleteRef.current) {
-      initialRenderCompleteRef.current = true;
-      return;
-    }
-
-    heliChartRef.current?.setUseUTC(useUTC);
     seisChartRef.current?.setUseUTC(useUTC);
-  }, [heliChartRef, seisChartRef, useUTC]);
+  }, [seisChartRef, useUTC]);
 }

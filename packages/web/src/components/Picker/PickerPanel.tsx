@@ -1,6 +1,6 @@
 import { ElementEvent, SeismogramEventMarkerOptions } from '@waveview/zcharts';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { ImperativePanelHandle, Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { usePickerStore } from '../../stores/picker';
 import { useSidebarStore } from '../../stores/sidebar';
 import EventMarkerContextMenu, { EventMarkerContextMenuRef } from './ContextMenu/EventMarkerContextMenu';
@@ -11,11 +11,12 @@ import PickerSettings from './PickerSettings/PickerSettings';
 import RestoreViewButton from './RestoreViewButton';
 import { SeismogramChart, SeismogramChartRef } from './SeismogramChart';
 import Sidebar from './Sidebar/Sidebar';
-import SidebarTabList from './Sidebar/SidebarTabList';
+import HelicorderToolbar from './Toolbar/HelicorderToolbar';
+import SeismogramToolbar from './Toolbar/SeismogramToolbar';
 import { useHelicorderKeyboardShortcuts, useSeismogramKeyboardShortcuts } from './useKeyboardShortcuts';
 import { usePickerCallback } from './usePickerCallback';
-import { useThemeEffect } from './useThemeEffect';
-import { useTimeZoneEffect } from './useTimeZoneEffect';
+import { useHelicorderThemeEffect, useSeismogramThemeEffect } from './useThemeEffect';
+import { useHelicorderTimeZoneEffect, useSeismogramTimeZoneEffect } from './useTimeZoneEffect';
 
 const PickerPanel = () => {
   const heliChartRef = useRef<HelicorderChartRef | null>(null);
@@ -23,7 +24,8 @@ const PickerPanel = () => {
   const eventMarkerContextMenuRef = useRef<EventMarkerContextMenuRef | null>(null);
   const trackContextMenuRef = useRef<TrackContextMenuRef | null>(null);
 
-  const { props, setSeisChartRef, setHeliChartRef, setContextMenuRef } = usePickerContext();
+  const { setSeisChartRef, setHeliChartRef, setContextMenuRef } = usePickerContext();
+  const { offsetDate, showEvent, seismogramToolbarCheckedValues } = usePickerStore();
   const {
     handleHelicorderFocus,
     handleHelicorderSelectionChange,
@@ -37,9 +39,27 @@ const PickerPanel = () => {
     handleSeismogramOnReady,
     handleSeismogramTrackDoubleClick,
     handleHelicorderAutoUpdate,
+    handleHelicorderShiftViewUp,
+    handleHelicorderShiftViewDown,
+    handleHelicorderShiftViewToNow,
+    handleHelicorderIncreaseAmplitude,
+    handleHelicorderDecreaseAmplitude,
+    handleHelicorderResetAmplitude,
+    handleHelicorderSelectOffsetDate,
+    handleHelicorderRefreshData,
+    handleSeismogramZoomIn,
+    handleSeismogramZoomOut,
+    handleSeismogramScrollLeft,
+    handleSeismogramScrollRight,
+    handleSeismogramIncreaseAmplitude,
+    handleSeismogramDecreaseAmplitude,
+    handleSeismogramResetAmplitude,
+    handleSeismogramShowEvent,
+    handleSeismogramCheckValueChange,
+    handleSeismogramSpectrogramChange,
+    handleSeismogramSignalChange,
   } = usePickerCallback();
 
-  const { showHelicorder } = props;
   const { selectedChart, eventId, autoUpdate, autoUpdateInterval } = usePickerStore();
 
   const helicorderClassName = useMemo(() => {
@@ -68,10 +88,14 @@ const PickerPanel = () => {
     };
   }, [setSeisChartRef, setHeliChartRef, setContextMenuRef]);
 
-  useThemeEffect(heliChartRef, seisChartRef);
-  useTimeZoneEffect(heliChartRef, seisChartRef);
+  useHelicorderThemeEffect(heliChartRef);
+  useSeismogramThemeEffect(seisChartRef);
+  useHelicorderTimeZoneEffect(heliChartRef);
+  useSeismogramTimeZoneEffect(seisChartRef);
   useSeismogramKeyboardShortcuts(seisChartRef);
   useHelicorderKeyboardShortcuts(heliChartRef);
+
+  const { showHelicorder, showSidebar } = useSidebarStore();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -84,44 +108,6 @@ const PickerPanel = () => {
       clearInterval(interval);
     };
   }, [showHelicorder, autoUpdate, autoUpdateInterval, handleHelicorderAutoUpdate]);
-
-  const sidebarRef = useRef<ImperativePanelHandle | null>(null);
-  const isResizing = useRef(false);
-  const { visible, size, defaultSize, setSize, setVisible } = useSidebarStore();
-  const handleSidebarVisibleChange = useCallback(
-    (value: boolean) => {
-      if (isResizing.current) {
-        return;
-      }
-      setVisible(value);
-      if (!sidebarRef.current) {
-        return;
-      }
-      if (value) {
-        const newSize = Math.max(size, defaultSize);
-        sidebarRef.current.resize(newSize);
-      } else {
-        sidebarRef.current.resize(0);
-      }
-    },
-    [setVisible, size, defaultSize]
-  );
-  const handleSidebarResize = useCallback(
-    (size: number) => {
-      setVisible(size > 0);
-      if (size > 0) {
-        setSize(size);
-      }
-    },
-    [setVisible, setSize]
-  );
-  const handleResizeHandleDragging = useCallback((isDragging: boolean) => {
-    isResizing.current = isDragging;
-  }, []);
-
-  useEffect(() => {
-    handleSidebarVisibleChange(visible);
-  }, [visible, handleSidebarVisibleChange]);
 
   const handleEventMarkerContextMenu = useCallback((e: ElementEvent, marker: SeismogramEventMarkerOptions) => {
     eventMarkerContextMenuRef.current?.open(e, marker);
@@ -136,43 +122,80 @@ const PickerPanel = () => {
       <PanelGroup direction="horizontal" className="relative">
         {showHelicorder && (
           <>
-            <Panel defaultSize={30} minSize={20} order={1} className="relative">
-              <HelicorderChart
-                ref={heliChartRef}
-                className={helicorderClassName}
-                initOptions={getHelicorderInitOptions()}
-                onFocus={handleHelicorderFocus}
-                onSelectionChange={handleHelicorderSelectionChange}
-                onReady={handleHelicorderOnReady}
-              />
+            <Panel id="panel-helicorder" defaultSize={28} minSize={10} order={1} className="relative">
+              <div className="flex flex-col relative h-full">
+                <HelicorderToolbar
+                  offsetDate={new Date(offsetDate)}
+                  onShiftViewUp={handleHelicorderShiftViewUp}
+                  onShiftViewDown={handleHelicorderShiftViewDown}
+                  onShiftViewToNow={handleHelicorderShiftViewToNow}
+                  onIncreaseAmplitude={handleHelicorderIncreaseAmplitude}
+                  onDecreaseAmplitude={handleHelicorderDecreaseAmplitude}
+                  onResetAmplitude={handleHelicorderResetAmplitude}
+                  onOffsetDateChange={handleHelicorderSelectOffsetDate}
+                  onRefreshData={handleHelicorderRefreshData}
+                />
+                <div className="flex-grow relative">
+                  <HelicorderChart
+                    ref={heliChartRef}
+                    className={helicorderClassName}
+                    initOptions={getHelicorderInitOptions()}
+                    onFocus={handleHelicorderFocus}
+                    onSelectionChange={handleHelicorderSelectionChange}
+                    onReady={handleHelicorderOnReady}
+                  />
+                </div>
+              </div>
             </Panel>
-            <PanelResizeHandle />
+            <PanelResizeHandle id="resize-handle-left" />
           </>
         )}
-        <Panel minSize={20} order={2} className="relative">
-          <SeismogramChart
-            ref={seisChartRef}
-            className={seismogramClassName}
-            initOptions={getSeismogramInitOptions()}
-            onFocus={handleSeismogramFocus}
-            onExtentChange={handleSeismogramExtentChange}
-            onMouseWheel={handleSeismogramMouseWheel}
-            onPick={handleSeismogramPickChange}
-            onReady={handleSeismogramOnReady}
-            onEventMarkerContextMenu={handleEventMarkerContextMenu}
-            onTrackContextMenu={handleTrackContextMenu}
-            onTrackDoubleClick={handleSeismogramTrackDoubleClick}
-          />
-          <RestoreViewButton />
-          <EventMarkerContextMenu ref={eventMarkerContextMenuRef} />
-          <TrackContextMenu ref={trackContextMenuRef} />
+        <Panel id="panel-seismogram" minSize={20} order={2} className="relative">
+          <div className="flex flex-col relative h-full">
+            <SeismogramToolbar
+              showEvent={showEvent}
+              checkedValues={seismogramToolbarCheckedValues}
+              onZoomIn={handleSeismogramZoomIn}
+              onZoomOut={handleSeismogramZoomOut}
+              onScrollLeft={handleSeismogramScrollLeft}
+              onScrollRight={handleSeismogramScrollRight}
+              onIncreaseAmplitude={handleSeismogramIncreaseAmplitude}
+              onDecreaseAmplitude={handleSeismogramDecreaseAmplitude}
+              onResetAmplitude={handleSeismogramResetAmplitude}
+              onShowEventChange={handleSeismogramShowEvent}
+              onCheckedValueChange={handleSeismogramCheckValueChange}
+              onSpectrogramChange={handleSeismogramSpectrogramChange}
+              onSignalChange={handleSeismogramSignalChange}
+            />
+            <div className="flex-grow relative">
+              <SeismogramChart
+                ref={seisChartRef}
+                className={seismogramClassName}
+                initOptions={getSeismogramInitOptions()}
+                onFocus={handleSeismogramFocus}
+                onExtentChange={handleSeismogramExtentChange}
+                onMouseWheel={handleSeismogramMouseWheel}
+                onPick={handleSeismogramPickChange}
+                onReady={handleSeismogramOnReady}
+                onEventMarkerContextMenu={handleEventMarkerContextMenu}
+                onTrackContextMenu={handleTrackContextMenu}
+                onTrackDoubleClick={handleSeismogramTrackDoubleClick}
+              />
+              <RestoreViewButton />
+              <EventMarkerContextMenu ref={eventMarkerContextMenuRef} />
+              <TrackContextMenu ref={trackContextMenuRef} />
+            </div>
+          </div>
         </Panel>
-        <PanelResizeHandle onDragging={handleResizeHandleDragging} />
-        <Panel ref={sidebarRef} order={3} defaultSize={0} onResize={handleSidebarResize}>
-          <Sidebar />
-        </Panel>
+        {showSidebar && (
+          <>
+            <PanelResizeHandle id="resize-handle-right" />
+            <Panel id="panel-sidebar" defaultSize={20} minSize={10} order={3} className="relative">
+              <Sidebar />
+            </Panel>
+          </>
+        )}
       </PanelGroup>
-      <SidebarTabList />
       <PickerSettings />
     </div>
   );

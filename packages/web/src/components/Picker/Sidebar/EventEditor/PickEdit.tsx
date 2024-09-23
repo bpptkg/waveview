@@ -141,7 +141,7 @@ const PickEdit = () => {
   );
 
   const [loading, setLoading] = useState(false);
-  const { time, duration, eventTypeId, stationOfFirstArrivalId, savePickedEvent, addEventMarker } = usePickerStore();
+  const { eventId, time, duration, eventTypeId, stationOfFirstArrivalId, savePickedEvent, addEventMarker } = usePickerStore();
 
   const canSave = useMemo(() => {
     return time !== 0 && duration !== 0 && eventTypeId !== '' && stationOfFirstArrivalId !== '';
@@ -174,7 +174,7 @@ const PickEdit = () => {
     <div>
       {loading && <ProgressBar shape="square" />}
       <div className="flex items-center justify-between px-2 border-b h-[60px]">
-        <h1 className="font-bold">Create</h1>
+        <h1 className="font-bold">{eventId ? 'Edit' : 'Create'}</h1>
         <div className="flex items-center gap-1">
           <Button size="small" appearance="outline" onClick={handleCancel}>
             Cancel

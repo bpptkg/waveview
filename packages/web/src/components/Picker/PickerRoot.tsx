@@ -9,7 +9,7 @@ export interface PickerRootProps {
 
 const PickerRoot: React.FC<PickerRootProps> = ({ children }) => {
   const workspaceRef = useRef<HTMLDivElement | null>(null);
-  const { heliChartRef, seisChartRef, props, seisChartReadyRef, heliChartReadyRef } = usePickerContext();
+  const { heliChartRef, seisChartRef, seisChartReadyRef, heliChartReadyRef } = usePickerContext();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -25,19 +25,14 @@ const PickerRoot: React.FC<PickerRootProps> = ({ children }) => {
     };
   }, [heliChartRef, seisChartRef]);
 
-  const { showEventMarkers } = props;
   const { handleUpdateEventMarkers, handleSeismogramOnDestroy } = usePickerCallback();
 
   // Plot event markers.
   useEffect(() => {
-    if (!showEventMarkers) {
-      return;
-    }
-
     if (heliChartReadyRef.current && seisChartReadyRef.current) {
       handleUpdateEventMarkers();
     }
-  }, [showEventMarkers, heliChartReadyRef, seisChartReadyRef, handleUpdateEventMarkers]);
+  }, [heliChartReadyRef, seisChartReadyRef, handleUpdateEventMarkers]);
 
   const { setAppliedFilter } = useFilterStore();
 

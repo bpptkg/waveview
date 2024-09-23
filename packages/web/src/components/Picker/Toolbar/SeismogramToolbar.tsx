@@ -15,6 +15,7 @@ import React, { useCallback } from 'react';
 export interface SeismogramToolbarProps {
   showEvent?: boolean;
   checkedValues?: Record<string, string[]>;
+  showHideEvent?: boolean;
   onZoomIn?: () => void;
   onZoomOut?: () => void;
   onScrollLeft?: () => void;
@@ -59,6 +60,7 @@ const useStyles = makeStyles({
   },
   toolbar: {
     gap: '3px',
+    height: '40px',
   },
 });
 
@@ -66,6 +68,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
   const {
     showEvent = true,
     checkedValues = {},
+    showHideEvent = true,
     onZoomIn,
     onZoomOut,
     onScrollLeft,
@@ -110,7 +113,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
   );
 
   return (
-    <div className="bg-white dark:bg-black mx-2 mt-1 border dark:border-transparent rounded flex justify-between items-center">
+    <div className="bg-white dark:bg-black border-b dark:border-transparent flex justify-between items-center">
       <Toolbar aria-label="Seismogram Toolbar" checkedValues={checkedValues} onCheckedValueChange={handleToolbarCheckedValueChange} className={styles.toolbar}>
         <Tooltip content="Zoom In" relationship="label" showDelay={1500}>
           <ToolbarButton aria-label="Zoom In" icon={<ZoomIn20Regular />} onClick={onZoomIn} />
@@ -149,9 +152,12 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
           />
         </Tooltip>
 
-        <ToolbarDivider />
-
-        <Switch checked={showEvent} label={showEvent ? 'Hide Event' : 'Show Event'} onChange={handleShowEventChange} />
+        {showHideEvent && (
+          <>
+            <ToolbarDivider />
+            <Switch checked={showEvent} label={showEvent ? 'Hide Event' : 'Show Event'} onChange={handleShowEventChange} />
+          </>
+        )}
       </Toolbar>
     </div>
   );

@@ -1,7 +1,7 @@
 import { Button, FluentProvider, webDarkTheme, webLightTheme } from '@fluentui/react-components';
 import React, { useCallback } from 'react';
 import ReactDOM from 'react-dom';
-import PickerWorkspace from '../../components/Picker/PickerWorkspace';
+import PickerEventEditor from '../../components/Picker/PickerEventEditor';
 import { useAppStore } from '../../stores/app';
 import { SeismicEventDetail } from '../../types/event';
 
@@ -36,7 +36,7 @@ const EventDetailEditor: React.FC<EventDetailEditorProps> = (props) => {
           </Button>
         </div>
         <div className="flex flex-col flex-grow relative border-t dark:border-transparent">
-          <PickerWorkspace event={event} showHelicorder={false} showEventMarkers={false} onSave={handleSave} onCancel={handleClose} />
+          <PickerEventEditor event={event} onSave={handleSave} onCancel={handleClose} />
         </div>
       </div>
     </FluentProvider>,

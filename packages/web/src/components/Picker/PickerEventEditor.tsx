@@ -1,15 +1,13 @@
-import { useRef } from 'react';
+import React, { useRef } from 'react';
 import { HelicorderChartRef } from './HelicorderChart';
 import { PickerProps } from './Picker.types';
 import { PickerContext, PickerContextValue, useDefaultProps } from './PickerContext';
-import PickerMenu from './PickerMenu/PickerMenu';
-import PickerPanel from './PickerPanel';
-import PickerRoot from './PickerRoot';
+import PickerEventEditorPanel from './PickerEventEditorPanel';
 import { SeismogramChartRef } from './SeismogramChart';
 import { ContextMenuRef } from './SeismogramContextMenu';
 import Statusbar from './Statusbar/Statusbar';
 
-const PickerWorkspace: React.FC<PickerProps> = (props) => {
+const PickerEventEditor: React.FC<PickerProps> = (props) => {
   const heliChartRef = useRef<HelicorderChartRef | null>(null);
   const seisChartRef = useRef<SeismogramChartRef | null>(null);
   const contextMenuRef = useRef<ContextMenuRef | null>(null);
@@ -48,13 +46,14 @@ const PickerWorkspace: React.FC<PickerProps> = (props) => {
 
   return (
     <PickerContext.Provider value={context}>
-      <PickerRoot>
-        <PickerMenu />
-        <PickerPanel />
+      <div className="flex flex-col h-full">
+        <div className="flex-grow">
+          <PickerEventEditorPanel />
+        </div>
         <Statusbar />
-      </PickerRoot>
+      </div>
     </PickerContext.Provider>
   );
 };
 
-export default PickerWorkspace;
+export default PickerEventEditor;

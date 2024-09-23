@@ -192,7 +192,7 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<React.RefAttributes
 
   const { isExpandMode, fetchEditedEvent, setExpandMode } = usePickerStore();
   const { handleSetupEventEditing } = usePickerCallback();
-  const sidebar = useSidebarStore();
+  const { setShowSidebar, setSelectedTab } = useSidebarStore();
 
   const handleEditEvent = useCallback(() => {
     if (!selectedEvent) {
@@ -201,8 +201,8 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<React.RefAttributes
     fetchEditedEvent(selectedEvent.id)
       .then((event) => {
         handleSetupEventEditing(event);
-        sidebar.setSelectedTab('eventEditor');
-        sidebar.setVisible(true);
+        setSelectedTab('eventEditor');
+        setShowSidebar(true);
       })
       .catch((error) => {
         showErrorToast(error);
@@ -210,7 +210,7 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<React.RefAttributes
       .finally(() => {
         handleClose();
       });
-  }, [selectedEvent, sidebar, fetchEditedEvent, showErrorToast, handleClose, handleSetupEventEditing]);
+  }, [selectedEvent, setSelectedTab, setShowSidebar, fetchEditedEvent, showErrorToast, handleClose, handleSetupEventEditing]);
 
   const handleExpandView = useCallback(() => {
     if (channelIndex !== null) {

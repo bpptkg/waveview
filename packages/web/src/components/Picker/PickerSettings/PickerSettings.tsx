@@ -335,13 +335,13 @@ const PickerSettings: React.FC = () => {
           {Component}
           <div className="flex items-center justify-between gap-1 mt-2">
             <div>
-              <Button appearance="secondary" onClick={handleCancel} className={styles.btn}>
-                Cancel
+              <Button appearance="secondary" onClick={handleReset}>
+                Reset Default
               </Button>
             </div>
             <div className="flex gap-1">
-              <Button appearance="secondary" onClick={handleReset}>
-                Reset Default
+              <Button appearance="secondary" onClick={handleCancel} className={styles.btn}>
+                Cancel
               </Button>
               <Button appearance="primary" onClick={handleSave} disabled={loading}>
                 Save

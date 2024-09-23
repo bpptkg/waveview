@@ -65,9 +65,8 @@ export const createSeismogramSlice: StateCreator<PickerStore, [], [], Seismogram
     },
 
     getSelectedStations: () => {
-      const selectedStationIds = get().selectedChannels.map((channel) => channel.channel.station_id);
       const stations = useInventoryStore.getState().stations();
-      return stations.filter((station) => selectedStationIds.includes(station.id));
+      return stations;
     },
   };
 };

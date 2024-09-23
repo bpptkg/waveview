@@ -25,7 +25,7 @@ export const useSeismogramCallback = () => {
   } = usePickerStore();
 
   const { heliChartRef, seisChartRef, contextMenuRef, props, setSeisChartReady } = usePickerContext();
-  const { setVisible } = useSidebarStore();
+  const { setShowSidebar } = useSidebarStore();
 
   const handleSeismogramZoomIn = useCallback(() => {
     seisChartRef.current?.zoomIn(0.1);
@@ -198,19 +198,17 @@ export const useSeismogramCallback = () => {
 
   const handleSetupEventEditing = useCallback(
     (event: SeismicEventDetail) => {
-      if (event) {
-        handleSeismogramPickModeChange(true);
-        setSelectedChart('seismogram');
-        handleSeismogramFocus();
+      handleSeismogramPickModeChange(true);
+      setSelectedChart('seismogram');
+      handleSeismogramFocus();
 
-        const [start, end] = getPickExtent(event);
-        setEditedEvent(event);
-        seisChartRef.current?.setPickRange([start, end]);
-        seisChartRef.current?.removeEventMarker(start, end);
-        setVisible(true);
-      }
+      const [start, end] = getPickExtent(event);
+      setEditedEvent(event);
+      seisChartRef.current?.setPickRange([start, end]);
+      seisChartRef.current?.removeEventMarker(start, end);
+      setShowSidebar(true);
     },
-    [seisChartRef, setEditedEvent, setSelectedChart, setVisible, handleSeismogramPickModeChange, handleSeismogramFocus]
+    [seisChartRef, setEditedEvent, setSelectedChart, setShowSidebar, handleSeismogramPickModeChange, handleSeismogramFocus]
   );
 
   const { event } = props;
@@ -220,14 +218,14 @@ export const useSeismogramCallback = () => {
     setSeisChartReady(true);
     if (event) {
       handleSetupEventEditing(event);
+    } else {
+      handleSeismogramPickModeChange(true);
     }
-  }, [event, handleSetupEventEditing, setSeisChartReady]);
+  }, [event, handleSetupEventEditing, setSeisChartReady, handleSeismogramPickModeChange]);
 
   const handleClearEventEditing = useCallback(() => {
-    handleSeismogramPickModeChange(false);
     resetEditing();
-    setVisible(false);
-  }, [setVisible, handleSeismogramPickModeChange, resetEditing]);
+  }, [resetEditing]);
 
   const handleSeismogramOnDestroy = useCallback(() => {
     handleClearEventEditing();
