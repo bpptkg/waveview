@@ -1,4 +1,4 @@
-import { Helicorder, HelicorderEventMarkerOptions, SeismogramEventMarkerOptions } from '@waveview/zcharts';
+import { Helicorder, HelicorderEventMarkerOptions, HelicorderOptions, SeismogramEventMarkerOptions } from '@waveview/zcharts';
 import { useCallback } from 'react';
 import { getEventTypeColor } from '../../shared/theme';
 import { getPickExtent } from '../../shared/time';
@@ -15,6 +15,8 @@ import { usePickerContext } from './PickerContext';
 
 export function useHelicorderCallback() {
   const {
+    windowSize,
+    selectionWindow,
     setHelicorderOffsetDate,
     setHelicorderChannelId,
     setHelicorderInterval,
@@ -172,7 +174,7 @@ export function useHelicorderCallback() {
 
   const getHelicorderInitOptions = useCallback(() => {
     const initialOffsetDate = event ? calcHelicorderOffsetDate(event) : new Date(offsetDate);
-    const initOptions = {
+    const initOptions: Partial<HelicorderOptions> = {
       interval: helicorderInterval,
       duration: helicorderDuration,
       channel: {
@@ -188,9 +190,11 @@ export function useHelicorderCallback() {
       },
       devicePixelRatio: window.devicePixelRatio,
       useUTC,
+      windowSize,
+      selectionWindow,
     };
     return initOptions;
-  }, [helicorderDuration, helicorderInterval, channelId, darkMode, offsetDate, useUTC, event]);
+  }, [helicorderDuration, helicorderInterval, channelId, darkMode, offsetDate, useUTC, event, windowSize, selectionWindow]);
 
   return {
     handleHelicorderShiftViewUp,

@@ -42,6 +42,8 @@ export interface SpectrogramRequestData {
   end: number;
   width: number;
   height: number;
+  resample: boolean;
+  sampleRate: number;
 }
 
 export interface SpectrogramResponseData {

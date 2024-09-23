@@ -1,4 +1,4 @@
-import { ElementEvent } from '@waveview/zcharts';
+import { ElementEvent, SeismogramOptions } from '@waveview/zcharts';
 import { useCallback } from 'react';
 import { getPickExtent, ONE_SECOND } from '../../shared/time';
 import { useAppStore } from '../../stores/app';
@@ -243,7 +243,7 @@ export const useSeismogramCallback = () => {
     };
     const [startTime, endTime] = determinteInitialExtent();
 
-    const initOptions = {
+    const initOptions: Partial<SeismogramOptions> = {
       channels: getChannelsConfig().map((item) => ({
         id: item.channel.id,
         label: item.channel.network_station_code,

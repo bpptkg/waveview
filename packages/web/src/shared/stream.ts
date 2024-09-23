@@ -48,8 +48,8 @@ export async function readSpectrogram(blob: Blob): Promise<SpectrogramResponseDa
   const header = new Float64Array(buffer, 64 * 3, 10);
   const start = Number(header[0]);
   const end = Number(header[1]);
-  const timeMin = Number(header[2]);
-  const timeMax = Number(header[3]);
+  const timeMin = start;
+  const timeMax = end;
   const freqMin = Number(header[4]);
   const freqMax = Number(header[5]);
   const timeLength = Number(header[6]);

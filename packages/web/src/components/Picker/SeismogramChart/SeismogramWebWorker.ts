@@ -133,6 +133,8 @@ export class SeismogramWebWorker {
         end,
         width,
         height,
+        resample: true,
+        sampleRate: 20, // Need to be the same as the sample rate of the seismogram data.
       },
     };
 
