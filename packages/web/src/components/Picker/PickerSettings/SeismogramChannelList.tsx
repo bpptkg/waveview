@@ -31,9 +31,12 @@ interface ColorPickerProps {
 }
 
 const ColorPicker: React.FC<ColorPickerProps> = ({ color, onChange }) => {
-  const defaultColor = color ?? 'none';
-  const [selectedValue, setSelectedValue] = useState<string>(defaultColor);
+  const defaultColor = color ?? 'transparent';
+  const defaultValue = defaultColor === 'transparent' ? 'none' : defaultColor;
+
+  const [selectedValue, setSelectedValue] = useState<string>(defaultValue);
   const [selectedColor, setSelectedColor] = useState<string>(defaultColor);
+
   const handleSelect: SwatchPickerOnSelectEventHandler = (_, data) => {
     const value = data.selectedValue;
     const color = value === 'none' ? 'transparent' : value;
