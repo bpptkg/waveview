@@ -86,10 +86,6 @@ export class SeismogramWebWorker {
   }
 
   fetchChannelData(channelId: string): void {
-    this.postRequestMessage(channelId);
-  }
-
-  postRequestMessage(channelId: string): void {
     const [start, end] = this.options.selectionWindow;
     const requestId = uuid4();
     const { forceCenter } = this.options;
