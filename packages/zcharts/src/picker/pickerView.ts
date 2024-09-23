@@ -57,8 +57,17 @@ export class PickerView extends View<PickerModel> {
     this.applyThemeStyle(this.chart.getThemeStyle());
   }
 
+  private isOutOfBounds(e: zrender.ElementEvent): boolean {
+    const { offsetX, offsetY } = e;
+    const rect = this.chart.getGrid().getRect();
+    return !rect.contain(offsetX, offsetY);
+  }
+
   private onMouseDown(e: zrender.ElementEvent): void {
     if (!this.model.isEnabled()) {
+      return;
+    }
+    if (this.isOutOfBounds(e)) {
       return;
     }
     if (this.model.isEmpty()) {
@@ -200,6 +209,7 @@ export class PickerView extends View<PickerModel> {
 
   render(): void {
     if (!this.visible) {
+      this.group.hide();
       return;
     }
     if (this.model.isEmpty()) {
@@ -224,6 +234,7 @@ export class PickerView extends View<PickerModel> {
     });
 
     this.updateHandles();
+    this.group.show();
   }
 
   private clearGraphics(): void {
