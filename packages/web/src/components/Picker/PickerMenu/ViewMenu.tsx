@@ -1,8 +1,6 @@
 import { Button, Menu, MenuItem, MenuList, MenuPopover, MenuTrigger, makeStyles } from '@fluentui/react-components';
 import { useCallback } from 'react';
-import { usePickerStore } from '../../../stores/picker';
 import { useSidebarStore } from '../../../stores/sidebar';
-import { usePickerContext } from '../PickerContext';
 
 const useStyles = makeStyles({
   btn: {
@@ -12,32 +10,21 @@ const useStyles = makeStyles({
 
 const ViewMenu = () => {
   const styles = useStyles();
-  const { setSelectedChart } = usePickerStore();
-  const { props } = usePickerContext();
-  const { showHelicorder } = props;
 
-  const handleHelicorder = useCallback(() => {
-    setSelectedChart('helicorder');
-  }, [setSelectedChart]);
-
-  const handleSeismogram = useCallback(() => {
-    setSelectedChart('seismogram');
-  }, [setSelectedChart]);
-
-  const { visible, selectedTab, setSelectedTab, setVisible } = useSidebarStore();
+  const { selectedTab, showSidebar, setSelectedTab, setShowSidebar } = useSidebarStore();
   const handleEventEditor = useCallback(() => {
     setSelectedTab('eventEditor');
     if (selectedTab === 'eventEditor') {
-      setVisible(!visible);
+      setShowSidebar(!showSidebar);
     }
-  }, [visible, selectedTab, setSelectedTab, setVisible]);
+  }, [showSidebar, selectedTab, setSelectedTab, setShowSidebar]);
 
   const handleFilterToolbox = useCallback(() => {
     setSelectedTab('filterToolbox');
     if (selectedTab === 'filterToolbox') {
-      setVisible(!visible);
+      setShowSidebar(!showSidebar);
     }
-  }, [visible, selectedTab, setSelectedTab, setVisible]);
+  }, [showSidebar, selectedTab, setSelectedTab, setShowSidebar]);
 
   return (
     <Menu>
@@ -48,12 +35,6 @@ const ViewMenu = () => {
       </MenuTrigger>
       <MenuPopover>
         <MenuList>
-          {showHelicorder && (
-            <>
-              <MenuItem onClick={handleHelicorder}>Helicorder</MenuItem>
-              <MenuItem onClick={handleSeismogram}>Seismogram</MenuItem>
-            </>
-          )}
           <MenuItem onClick={handleEventEditor}>Event Editor</MenuItem>
           <MenuItem onClick={handleFilterToolbox}>Filter Toolbox</MenuItem>
         </MenuList>
