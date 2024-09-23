@@ -43,7 +43,11 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   private expandIndex = -1;
 
   constructor(dom: HTMLElement, options?: Partial<SeismogramOptions>) {
-    const opts = merge(getDefaultOptions(), options, true) as SeismogramOptions;
+    const opts = merge(
+      getDefaultOptions(),
+      options || {},
+      true
+    ) as SeismogramOptions;
     super(dom, opts);
 
     this.eventEmitter = new EventEmitter<SeismogramEventMap>();

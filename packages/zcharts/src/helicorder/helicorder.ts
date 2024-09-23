@@ -40,7 +40,11 @@ export class Helicorder extends ChartView<HelicorderOptions> {
   private focused = false;
 
   constructor(dom: HTMLElement, options?: Partial<HelicorderOptions>) {
-    const opts = merge(options, getDefaultOptions()) as HelicorderOptions;
+    const opts = merge(
+      getDefaultOptions(),
+      options || {},
+      true
+    ) as HelicorderOptions;
     super(dom, opts);
     this.eventEmitter = new EventEmitter<HelicorderEventMap>();
 
