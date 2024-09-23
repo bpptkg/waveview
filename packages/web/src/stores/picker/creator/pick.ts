@@ -21,7 +21,7 @@ import { PickerStore, PickSlice } from '../slices';
 export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (set, get) => {
   return {
     pickRange: [0, 0],
-    pickMode: false,
+    pickMode: true,
     eventId: undefined,
     time: 0,
     duration: 0,

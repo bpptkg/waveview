@@ -1,13 +1,10 @@
 export type SidebarTab = 'eventEditor' | 'filterToolbox';
 
 export interface SidebarStore {
-  visible: boolean;
-  size: number;
-  defaultSize: number;
-  minSize: number;
-  collapseSize: number;
   selectedTab: SidebarTab;
+  showSidebar: boolean;
+  showHelicorder: boolean;
   setSelectedTab: (tab: SidebarTab) => void;
-  setVisible: (visible: boolean) => void;
-  setSize: (size: number) => void;
+  setShowSidebar: (showSidebar: boolean) => void;
+  setShowHelicorder: (showHelicorder: boolean) => void;
 }

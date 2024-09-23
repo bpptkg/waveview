@@ -3,15 +3,12 @@ import { createSelectors } from '../../shared/createSelectors';
 import { SidebarStore } from './types';
 
 const sidebarStore = create<SidebarStore>((set) => ({
-  visible: false,
-  size: 20,
-  defaultSize: 20,
-  minSize: 15,
-  collapseSize: 5,
   selectedTab: 'eventEditor',
+  showSidebar: true,
+  showHelicorder: true,
   setSelectedTab: (selectedTab) => set({ selectedTab }),
-  setVisible: (visible) => set({ visible }),
-  setSize: (size) => set({ size }),
+  setShowSidebar: (showSidebar) => set({ showSidebar }),
+  setShowHelicorder: (showHelicorder) => set({ showHelicorder }),
 }));
 
 export const useSidebarStore = createSelectors(sidebarStore);
