@@ -42,6 +42,14 @@ export interface HelicorderOptions extends ChartOptions {
    * Markers to be displayed in the helicorder chart.
    */
   markers: HelicorderEventMarkerOptions[];
+  /**
+   * Selection window size of the helicorder chart.
+   */
+  windowSize?: number;
+  /**
+   * Selection window of the helicorder chart.
+   */
+  selectionWindow?: [number, number];
 }
 
 export function getDefaultOptions(): HelicorderOptions {
@@ -64,5 +72,7 @@ export function getDefaultOptions(): HelicorderOptions {
     },
     timezone: "UTC",
     markers: [],
+    selectionWindow: undefined,
+    windowSize: undefined,
   };
 }

@@ -63,6 +63,12 @@ export class Helicorder extends ChartView<HelicorderOptions> {
     this.trackManager.updateTracks();
 
     this.selectionWindow = new SelectionWindowView(this);
+    if (opts.windowSize) {
+      this.selectionWindow.getModel().setSize(opts.windowSize);
+    }
+    if (opts.selectionWindow) {
+      this.selectionWindow.getModel().setStartTime(opts.selectionWindow[0]);
+    }
     this.addComponent(this.selectionWindow);
 
     if (opts.darkMode) {
