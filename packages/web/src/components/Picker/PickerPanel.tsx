@@ -190,7 +190,7 @@ const PickerPanel = () => {
         {showSidebar && (
           <>
             <PanelResizeHandle id="resize-handle-right" />
-            <Panel id="panel-sidebar" defaultSize={20} minSize={10} order={3} className="relative">
+            <Panel id="panel-sidebar" defaultSize={22} minSize={10} order={3} className="relative">
               <Sidebar />
             </Panel>
           </>
