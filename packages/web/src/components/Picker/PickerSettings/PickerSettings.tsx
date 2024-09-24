@@ -128,7 +128,7 @@ const PickerSettings: React.FC = () => {
   const handleApplySettings = useCallback(() => {
     const channels = getChannelsConfig().map((item) => ({
       id: item.channel.id,
-      label: item.channel.network_station_code,
+      label: item.channel.net_sta_code,
       color: item.color,
     }));
     seisChartRef.current?.setChannels(channels);

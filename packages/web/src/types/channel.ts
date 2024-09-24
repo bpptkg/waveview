@@ -27,6 +27,6 @@ export interface Channel {
   updated_at: string;
   author_id: string;
   stream_id: string;
-  network_station_code: string;
-  station_channel_code: string;
+  net_sta_code: string;
+  sta_chan_code: string;
 }

@@ -120,7 +120,7 @@ const TrackContextMenu: React.ForwardRefExoticComponent<React.RefAttributes<Trac
       return '';
     }
     const item = getChannelsConfig()[channelIndex];
-    return item.channel.network_station_code;
+    return item.channel.net_sta_code;
   }, [channelIndex, getChannelsConfig]);
 
   return createPortal(

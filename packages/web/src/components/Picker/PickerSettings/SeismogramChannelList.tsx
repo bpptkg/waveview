@@ -155,7 +155,7 @@ const SeismogramChannelList: React.FC<SeismogramChannelListProps> = ({ channelLi
 
   useEffect(() => {
     fuseRef.current = new Fuse(candidateChannels, {
-      keys: ['network_station_code'],
+      keys: ['net_sta_code'],
       threshold: 0.3,
     });
 

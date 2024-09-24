@@ -46,7 +46,7 @@ const EventDetailWaveform = () => {
     return {
       channels: selectedChannels.map((item) => ({
         id: item.channel.id,
-        label: item.channel.network_station_code,
+        label: item.channel.net_sta_code,
       })),
       grid: {
         top: 30,
