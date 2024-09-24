@@ -66,7 +66,7 @@ export const createSeismogramSlice: StateCreator<PickerStore, [], [], Seismogram
 
     getSelectedStations: () => {
       const stations = useInventoryStore.getState().stations();
-      return stations;
+      return stations.sort((a, b) => a.code.localeCompare(b.code));
     },
   };
 };
