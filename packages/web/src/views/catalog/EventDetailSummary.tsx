@@ -77,7 +77,7 @@ const EventDetailSummary = () => {
         {event?.preferred_magnitude ? (
           <div className="flex items-center justify-between">
             <div>{event.preferred_magnitude.type}</div>
-            <div>{event.preferred_magnitude.magnitude}</div>
+            <div>{formatNumber(event.preferred_magnitude.magnitude, { precision: 2 })}</div>
           </div>
         ) : (
           <div>No data</div>
