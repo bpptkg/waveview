@@ -93,14 +93,17 @@ const PickEditEvent: React.FC = () => {
       <Field label="Event type">
         <Dropdown
           className={styles.dropdown}
-          defaultValue={eventTypes.find((event) => event.id === eventTypeId)?.code}
+          value={eventTypes.find((event) => event.id === eventTypeId)?.code}
           onActiveOptionChange={(_, data) => {
             const value = data.nextOption?.value;
-            if (value) {
+            if (value && value !== 'none') {
               handleEventTypeChange(value);
             }
           }}
         >
+          <Option disabled value="none">
+            Select event type
+          </Option>
           {eventTypes.map((event) => (
             <Option key={event.id} value={event.id} text={event.code}>
               <div className="flex items-center gap-1">
@@ -115,14 +118,17 @@ const PickEditEvent: React.FC = () => {
       <Field label="Station of first arrival">
         <Dropdown
           className={styles.dropdown}
-          defaultValue={getSelectedStations().find((station) => station.id === stationOfFirstArrivalId)?.code}
+          value={getSelectedStations().find((station) => station.id === stationOfFirstArrivalId)?.code}
           onActiveOptionChange={(_, data) => {
             const value = data.nextOption?.value;
-            if (value) {
+            if (value && value !== 'none') {
               handleStationChange(value);
             }
           }}
         >
+          <Option disabled value="none">
+            Select station
+          </Option>
           {getSelectedStations().map((station) => (
             <Option key={station.id} value={station.id} text={station.code}>
               {station.code}
