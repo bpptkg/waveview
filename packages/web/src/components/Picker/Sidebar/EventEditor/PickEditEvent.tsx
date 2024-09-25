@@ -90,6 +90,28 @@ const PickEditEvent: React.FC = () => {
         <Input min={0} appearance="outline" value={`${duration}`} type="number" onChange={(_, data) => handleDurationChange(data.value)} />
       </Field>
 
+      <Field label="Station of first arrival">
+        <Dropdown
+          className={styles.dropdown}
+          value={getSelectedStations().find((station) => station.id === stationOfFirstArrivalId)?.code}
+          onActiveOptionChange={(_, data) => {
+            const value = data.nextOption?.value;
+            if (value && value !== 'none') {
+              handleStationChange(value);
+            }
+          }}
+        >
+          <Option disabled value="none">
+            Select station
+          </Option>
+          {getSelectedStations().map((station) => (
+            <Option key={station.id} value={station.id} text={station.code}>
+              {station.code}
+            </Option>
+          ))}
+        </Dropdown>
+      </Field>
+
       <Field label="Event type">
         <Dropdown
           className={styles.dropdown}
@@ -110,28 +132,6 @@ const PickEditEvent: React.FC = () => {
                 <CircleFilled fontSize={20} color={event.color} />
                 <span>{event.code}</span>
               </div>
-            </Option>
-          ))}
-        </Dropdown>
-      </Field>
-
-      <Field label="Station of first arrival">
-        <Dropdown
-          className={styles.dropdown}
-          value={getSelectedStations().find((station) => station.id === stationOfFirstArrivalId)?.code}
-          onActiveOptionChange={(_, data) => {
-            const value = data.nextOption?.value;
-            if (value && value !== 'none') {
-              handleStationChange(value);
-            }
-          }}
-        >
-          <Option disabled value="none">
-            Select station
-          </Option>
-          {getSelectedStations().map((station) => (
-            <Option key={station.id} value={station.id} text={station.code}>
-              {station.code}
             </Option>
           ))}
         </Dropdown>
