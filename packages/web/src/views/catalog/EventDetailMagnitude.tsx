@@ -3,6 +3,7 @@ import { ArrowLeft20Regular, Checkmark16Regular } from '@fluentui/react-icons';
 import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import KeyValuePair from '../../components/Common/KeyValuePair';
 import EventDetailErrorMessage from '../../components/Loading/EventDetailErrorMessage';
 import EventDetailLoadingIndicator from '../../components/Loading/EventDetailLoadingIndicator';
 import { formatNumber } from '../../shared/formatting';
@@ -14,6 +15,34 @@ const useEventDetailMagnitudeStyles = makeStyles({
     tableLayout: 'auto',
   },
 });
+
+const MagnitudeDetail: React.FC<{ currentMagnitude: Magnitude }> = ({ currentMagnitude }) => {
+  const items = [
+    { label: 'ID', value: currentMagnitude.id },
+    { label: 'Type', value: currentMagnitude.type },
+    { label: 'Method', value: currentMagnitude.method },
+    { label: 'Station count', value: currentMagnitude.station_count },
+    { label: 'Azimuthal gap', value: formatNumber(currentMagnitude.azimuthal_gap, { unit: '°', precision: 5 }) },
+    { label: 'Evaluation status', value: currentMagnitude.evaluation_status },
+    { label: 'Is preferred', value: currentMagnitude.is_preferred ? 'yes' : 'no' },
+    {
+      label: 'Last updated',
+      value: (
+        <Tooltip content={currentMagnitude.updated_at} relationship="label">
+          <span>{formatDistanceToNow(new Date(currentMagnitude.updated_at), { addSuffix: true })}</span>
+        </Tooltip>
+      ),
+    },
+  ];
+
+  return (
+    <div>
+      {items.map((item, index) => (
+        <KeyValuePair key={index} label={item.label} value={item.value} />
+      ))}
+    </div>
+  );
+};
 
 const EventDetailMagnitude = () => {
   const { eventId } = useParams();
@@ -53,44 +82,7 @@ const EventDetailMagnitude = () => {
       {currentMagnitude ? (
         <div className="flex flex-col gap-2">
           <div className="font-semibold">Magnitude Detail</div>
-          <div>
-            <div className="flex items-center justify-between">
-              <div>ID</div>
-              <div>{currentMagnitude.id}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Type</div>
-              <div>{currentMagnitude.type}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Method</div>
-              <div>{currentMagnitude.method}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Station count</div>
-              <div>{currentMagnitude.station_count}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Azimuthal gap</div>
-              <div>{formatNumber(currentMagnitude.azimuthal_gap, { unit: '°', precision: 5 })}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Evaluation status</div>
-              <div>{currentMagnitude.evaluation_status}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Is preferred</div>
-              <div>{currentMagnitude.is_preferred ? 'yes' : 'no'}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Last updated</div>
-              <div>
-                <Tooltip content={currentMagnitude.updated_at} relationship="label">
-                  <span>{formatDistanceToNow(new Date(currentMagnitude.updated_at), { addSuffix: true })}</span>
-                </Tooltip>
-              </div>
-            </div>
-          </div>
+          <MagnitudeDetail currentMagnitude={currentMagnitude} />
         </div>
       ) : (
         <Table className={styles.table}>
