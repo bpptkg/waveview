@@ -117,4 +117,5 @@ export interface SeismogramChartRef {
   expandView: (index: number) => void;
   restoreView: () => void;
   setForceCenter: (forceCenter: boolean) => void;
+  getFirstArrialChannelId: () => string | undefined;
 }

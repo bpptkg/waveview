@@ -293,6 +293,17 @@ export default function useSeismogramChartApi(options: SeismogramChartInitOption
           webWorkerRef.current.mergeOptions({ forceCenter });
         }
       },
+      getFirstArrialChannelId: () => {
+        if (chartRef.current) {
+          const picker = chartRef.current.getPicker();
+          const { y } = picker.dragStart;
+          const trackManager = chartRef.current.getTrackManager();
+          const index = trackManager.getTrackIndexByY(y);
+          return trackManager.getChannelByIndex(index)?.id;
+        } else {
+          return undefined;
+        }
+      },
     };
   }, [chartRef, webWorkerRef]);
 }
