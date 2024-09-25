@@ -22,6 +22,9 @@ export const useSeismogramCallback = () => {
     getChannelsConfig,
     resetEditing,
     setExpandMode,
+    isPickEmpty,
+    setStationOfFirstArrivalId,
+    getSelectedStations,
   } = usePickerStore();
 
   const { heliChartRef, seisChartRef, contextMenuRef, props, setSeisChartReady } = usePickerContext();
@@ -132,9 +135,22 @@ export const useSeismogramCallback = () => {
 
   const handleSeismogramPickChange = useCallback(
     (pick: [number, number]) => {
+      if (isPickEmpty()) {
+        // Try to automatically select the station of the first arrival.
+        const channelId = seisChartRef.current?.getFirstArrialChannelId();
+        const stationId = channelId
+          ? getSelectedStations().find((station) => {
+              const ids = station.channels.map((channel) => channel.id);
+              return ids.includes(channelId);
+            })?.id
+          : undefined;
+        if (stationId) {
+          setStationOfFirstArrivalId(stationId);
+        }
+      }
       setPickRange(pick);
     },
-    [setPickRange]
+    [seisChartRef, isPickEmpty, setPickRange, setStationOfFirstArrivalId, getSelectedStations]
   );
 
   const handleContextMenuRequested = useCallback(
