@@ -18,6 +18,11 @@ export class PickerView extends View<PickerModel> {
   private pos: zrender.Point = new zrender.Point();
   private eventEmitter = new EventEmitter<PickerEventMap>();
 
+  // Drag start and end positions. Used to calculate the delta for moving the
+  // picker, tracking the mouse position, or determine the track index.
+  dragStart: zrender.Point = new zrender.Point();
+  dragEnd: zrender.Point = new zrender.Point();
+
   constructor(chart: Seismogram, options?: Partial<PickerOptions>) {
     const model = new PickerModel(options);
     super(model);
@@ -72,6 +77,7 @@ export class PickerView extends View<PickerModel> {
     }
     if (this.model.isEmpty()) {
       this.operationMode = "select";
+      this.dragStart.set(e.offsetX, e.offsetY);
       const xAxis = this.chart.getXAxis();
 
       this.isDragging = true;
@@ -115,10 +121,11 @@ export class PickerView extends View<PickerModel> {
     }
   }
 
-  private onMouseUp(_: zrender.ElementEvent): void {
+  private onMouseUp(e: zrender.ElementEvent): void {
     if (!this.isDragging) {
       return;
     }
+    this.dragEnd.set(e.offsetX, e.offsetY);
     this.isDragging = false;
     this.render();
     this.updateHandles();
