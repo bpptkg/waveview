@@ -3,6 +3,7 @@ import { ArrowLeft20Regular } from '@fluentui/react-icons';
 import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import KeyValuePair from '../../components/Common/KeyValuePair';
 import EventDetailErrorMessage from '../../components/Loading/EventDetailErrorMessage';
 import EventDetailLoadingIndicator from '../../components/Loading/EventDetailLoadingIndicator';
 import { formatNumber, formatTime } from '../../shared/formatting';
@@ -16,6 +17,41 @@ const useEventDetailAmplitudeStyles = makeStyles({
     tableLayout: 'auto',
   },
 });
+
+const AmplitudeDetail: React.FC<{ currentAmplitude: Amplitude; useUTC: boolean }> = ({ currentAmplitude, useUTC }) => {
+  const { getChannelById } = useInventoryStore();
+
+  const keyValuePairs = [
+    { label: 'ID', value: currentAmplitude.id },
+    { label: 'Category', value: currentAmplitude.category },
+    { label: 'Time', value: formatTime(currentAmplitude.time, { useUTC }) },
+    { label: 'Begin', value: formatNumber(currentAmplitude.begin, { unit: ' sec', precision: 2 }) },
+    { label: 'End', value: formatNumber(currentAmplitude.end, { unit: ' sec', precision: 2 }) },
+    { label: 'Duration', value: formatNumber(currentAmplitude.duration, { unit: ' sec', precision: 2 }) },
+    { label: 'SNR', value: currentAmplitude.snr },
+    { label: 'Unit', value: currentAmplitude.unit },
+    { label: 'Stream ID', value: getChannelById(currentAmplitude.waveform_id)?.stream_id },
+    { label: 'Method', value: currentAmplitude.method },
+    { label: 'Evaluation Mode', value: currentAmplitude.evaluation_mode },
+    { label: 'Is Preferred', value: currentAmplitude.is_preferred ? 'yes' : 'no' },
+    {
+      label: 'Last updated',
+      value: (
+        <Tooltip content={currentAmplitude.updated_at} relationship="label">
+          <span>{formatDistanceToNow(new Date(currentAmplitude.updated_at), { addSuffix: true })}</span>
+        </Tooltip>
+      ),
+    },
+  ];
+
+  return (
+    <div>
+      {keyValuePairs.map((pair, index) => (
+        <KeyValuePair key={index} label={pair.label} value={pair.value} />
+      ))}
+    </div>
+  );
+};
 
 const EventDetailAmplitude = () => {
   const { eventId } = useParams();
@@ -57,72 +93,7 @@ const EventDetailAmplitude = () => {
       {currentAmplitude ? (
         <div className="flex flex-col gap-2">
           <div className="font-semibold">Amplitude Detail</div>
-          <div>
-            <div className="flex items-center justify-between">
-              <div>ID</div>
-              <div>{currentAmplitude.id}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Amplitude</div>
-              <div>{formatNumber(currentAmplitude.amplitude, { precision: 2 })}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Type</div>
-              <div>{currentAmplitude.type}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Category</div>
-              <div>{currentAmplitude.category}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Time</div>
-              <div>{formatTime(currentAmplitude.time, { useUTC })}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Begin</div>
-              <div>{formatNumber(currentAmplitude.begin, { unit: ' sec', precision: 2 })}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>End</div>
-              <div>{formatNumber(currentAmplitude.end, { unit: ' sec', precision: 2 })}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Duration</div>
-              <div>{formatNumber(currentAmplitude.duration, { unit: ' sec', precision: 2 })}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>SNR</div>
-              <div>{currentAmplitude.snr}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Unit</div>
-              <div>{currentAmplitude.unit}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Stream ID</div>
-              <div>{getChannelById(currentAmplitude.waveform_id)?.stream_id}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Method</div>
-              <div>{currentAmplitude.method}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Evaluation Mode</div>
-              <div>{currentAmplitude.evaluation_mode}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Is Preferred</div>
-              <div>{currentAmplitude.is_preferred ? 'yes' : 'no'}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Last updated</div>
-              <div>
-                <Tooltip content={currentAmplitude.updated_at} relationship="label">
-                  <span>{formatDistanceToNow(new Date(currentAmplitude.updated_at), { addSuffix: true })}</span>
-                </Tooltip>
-              </div>
-            </div>
-          </div>
+          <AmplitudeDetail currentAmplitude={currentAmplitude} useUTC={useUTC} />
         </div>
       ) : (
         <Table className={styles.table}>
