@@ -1,5 +1,6 @@
 import * as zrender from "zrender";
 import { View } from "../../core/view";
+import { ONE_SECOND } from "../../util/time";
 import { LayoutRect, ThemeStyle } from "../../util/types";
 import { Helicorder } from "../helicorder";
 import {
@@ -26,9 +27,11 @@ export class SelectionWindowView extends View<SelectionWindowModel> {
     if (!gridRect.contain(pointX, pointY)) {
       return;
     }
+    const { offset } = this.model.options;
     const trackManager = this.chart.getTrackManager();
     const time = trackManager.getTimeAtPoint(pointX, pointY);
-    this.model.setCenterTime(time);
+    const start = time - offset * ONE_SECOND;
+    this.model.setStartTime(start);
     this.chart.emit("selectionChanged", this.model.getWindow());
     this.render();
   }

@@ -26,6 +26,10 @@ export interface SelectionWindowOptions {
    * Window enable flag.
    */
   enabled: boolean;
+  /**
+   * Start time offset in seconds.
+   */
+  offset: number;
 }
 
 export class SelectionWindowModel extends Model<SelectionWindowOptions> {
@@ -36,6 +40,7 @@ export class SelectionWindowModel extends Model<SelectionWindowOptions> {
     opacity: 0.75,
     borderWidth: 1,
     enabled: true,
+    offset: 10,
   };
 
   constructor(options?: Partial<SelectionWindowOptions>) {
