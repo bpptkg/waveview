@@ -21,7 +21,7 @@ const useEventDetailAmplitudeStyles = makeStyles({
 const AmplitudeDetail: React.FC<{ currentAmplitude: Amplitude; useUTC: boolean }> = ({ currentAmplitude, useUTC }) => {
   const { getChannelById } = useInventoryStore();
 
-  const keyValuePairs = [
+  const items = [
     { label: 'ID', value: currentAmplitude.id },
     { label: 'Category', value: currentAmplitude.category },
     { label: 'Time', value: formatTime(currentAmplitude.time, { useUTC }) },
@@ -46,8 +46,8 @@ const AmplitudeDetail: React.FC<{ currentAmplitude: Amplitude; useUTC: boolean }
 
   return (
     <div>
-      {keyValuePairs.map((pair, index) => (
-        <KeyValuePair key={index} label={pair.label} value={pair.value} />
+      {items.map((item, index) => (
+        <KeyValuePair key={index} label={item.label} value={item.value} />
       ))}
     </div>
   );
