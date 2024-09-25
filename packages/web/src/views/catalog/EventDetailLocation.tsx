@@ -3,6 +3,7 @@ import { ArrowLeft20Regular, Checkmark16Regular } from '@fluentui/react-icons';
 import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import KeyValuePair from '../../components/Common/KeyValuePair';
 import EventDetailErrorMessage from '../../components/Loading/EventDetailErrorMessage';
 import EventDetailLoadingIndicator from '../../components/Loading/EventDetailLoadingIndicator';
 import { formatNumber, formatTime } from '../../shared/formatting';
@@ -15,6 +16,36 @@ const useEventDetailLocationStyles = makeStyles({
     tableLayout: 'auto',
   },
 });
+
+const LocationDetail: React.FC<{ currentOrigin: Origin; useUTC: boolean }> = ({ currentOrigin, useUTC }) => {
+  const items = [
+    { label: 'ID', value: currentOrigin.id },
+    { label: 'Time', value: formatTime(currentOrigin.time, { useUTC }) },
+    { label: 'Latitude', value: formatNumber(currentOrigin.latitude, { unit: '°', precision: 5 }) },
+    { label: 'Longitude', value: formatNumber(currentOrigin.longitude, { unit: '°', precision: 5 }) },
+    { label: 'Depth', value: formatNumber(currentOrigin.depth, { unit: ' km', precision: 2 }) },
+    { label: 'Earth model', value: currentOrigin.earth_model },
+    { label: 'Evaluation mode', value: currentOrigin.evaluation_mode },
+    { label: 'Evaluation status', value: currentOrigin.evaluation_status },
+    { label: 'Is preferred', value: currentOrigin.is_preferred ? 'yes' : 'no' },
+    {
+      label: 'Last updated',
+      value: (
+        <Tooltip content={currentOrigin.updated_at} relationship="label">
+          <span>{formatDistanceToNow(new Date(currentOrigin.updated_at), { addSuffix: true })}</span>
+        </Tooltip>
+      ),
+    },
+  ];
+
+  return (
+    <div>
+      {items.map((item, index) => (
+        <KeyValuePair key={index} label={item.label} value={item.value} />
+      ))}
+    </div>
+  );
+};
 
 const EventDetailLocation = () => {
   const { eventId } = useParams();
@@ -54,53 +85,8 @@ const EventDetailLocation = () => {
       )}
       {currentOrigin ? (
         <div className="flex flex-col gap-2">
-          <div className="font-semibold">Origin Detail</div>
-          <div>
-            <div className="flex items-center justify-between">
-              <div>ID</div>
-              <div>{currentOrigin.id}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Time</div>
-              <div>{formatTime(currentOrigin.time, { useUTC })}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Latitude</div>
-              <div>{formatNumber(currentOrigin.latitude, { unit: '°', precision: 5 })}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Longitude</div>
-              <div>{formatNumber(currentOrigin.longitude, { unit: '°', precision: 5 })}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Depth</div>
-              <div>{formatNumber(currentOrigin.depth, { unit: 'km', precision: 2 })}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Earth model</div>
-              <div>{currentOrigin.earth_model}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Evaluation mode</div>
-              <div>{currentOrigin.evaluation_mode}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Evaluation status</div>
-              <div>{currentOrigin.evaluation_status}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Is preferred</div>
-              <div>{currentOrigin.is_preferred ? 'yes' : 'no'}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Last updated</div>
-              <div>
-                <Tooltip content={currentOrigin.updated_at} relationship="label">
-                  <span>{formatDistanceToNow(new Date(currentOrigin.updated_at), { addSuffix: true })}</span>
-                </Tooltip>
-              </div>
-            </div>
-          </div>
+          <div className="font-semibold">Location Detail</div>
+          <LocationDetail currentOrigin={currentOrigin} useUTC={useUTC} />
         </div>
       ) : (
         <Table className={styles.table}>
