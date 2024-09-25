@@ -36,13 +36,13 @@ import { useAppStore } from '../../stores/app';
 import { FilterData, useCatalogStore } from '../../stores/catalog';
 import { useEventDetailStore } from '../../stores/eventDetail';
 import { useEventTypeStore } from '../../stores/eventType';
+import { useOrganizationStore } from '../../stores/organization';
 import { useUserStore } from '../../stores/user';
+import { useVolcanoStore } from '../../stores/volcano/useVolcanoStore';
 import { SeismicEvent } from '../../types/event';
 import { CustomError } from '../../types/response';
 import EventDetail from './EventDetail';
 import EventDetailDrawer from './EventDetailDrawer';
-import { useOrganizationStore } from '../../stores/organization';
-import { useVolcanoStore } from '../../stores/volcano/useVolcanoStore';
 
 const useEventTableStyles = makeStyles({
   table: {
@@ -219,9 +219,19 @@ const EventTable = () => {
     }
 
     const header =
-      ['Time (UTC)', 'Duration (s)', 'Type', 'Magnitude', 'Latitude (°)', 'Longitude (°)', 'Depth (km)', 'Evaluation Mode', 'Evaluation Status', 'Author'].join(
-        ','
-      ) + '\n';
+      [
+        'Time (UTC)',
+        'Duration (s)',
+        'Type',
+        'Amplitude (mm)',
+        'Magnitude',
+        'Latitude (°)',
+        'Longitude (°)',
+        'Depth (km)',
+        'Evaluation Mode',
+        'Evaluation Status',
+        'Author',
+      ].join(',') + '\n';
 
     const content =
       'data:text/csv;charset=utf-8,' +
@@ -232,6 +242,7 @@ const EventTable = () => {
             row.item.time,
             row.item.duration,
             row.item.type.code,
+            row.item.preferred_amplitude?.amplitude,
             row.item.preferred_magnitude?.magnitude,
             row.item.preferred_origin?.latitude,
             row.item.preferred_origin?.longitude,
@@ -288,6 +299,7 @@ const EventTable = () => {
               <TableHeaderCell {...headerSortProps('time')}>Time</TableHeaderCell>
               <TableHeaderCell>Duration</TableHeaderCell>
               <TableHeaderCell>Type</TableHeaderCell>
+              <TableHeaderCell>Amplitude</TableHeaderCell>
               <TableHeaderCell>Magnitude</TableHeaderCell>
               <TableHeaderCell>Latitude</TableHeaderCell>
               <TableHeaderCell>Longitude</TableHeaderCell>
@@ -306,6 +318,7 @@ const EventTable = () => {
                   <TableCell>
                     <EventTypeLabel eventType={item.type} />
                   </TableCell>
+                  <TableCell>{formatNumber(item.preferred_amplitude?.amplitude, { unit: ` ${item.preferred_amplitude?.unit}`, precision: 2 })}</TableCell>
                   <TableCell>{formatNumber(item.preferred_magnitude?.magnitude, { precision: 2 })}</TableCell>
                   <TableCell>{formatNumber(item.preferred_origin?.latitude, { unit: '°', precision: 5 })}</TableCell>
                   <TableCell>{formatNumber(item.preferred_origin?.longitude, { unit: '°', precision: 5 })}</TableCell>
