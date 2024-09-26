@@ -12,15 +12,15 @@ import { CustomError } from '../../types/response';
 import { SeismicityData } from '../../types/seismicity';
 import { useCatalogStore } from '../catalog';
 import { useOrganizationStore } from '../organization';
-import { SeismicityStore } from './types';
 import { useVolcanoStore } from '../volcano/useVolcanoStore';
+import { SeismicityStore } from './types';
 
 const seismicityStore = create<SeismicityStore>((set, get) => {
   const endDate = Date.now();
   const startDate = subDays(endDate, 7).getTime();
 
   return {
-    seismicity: [],
+    seismicity: null,
     loading: false,
     error: '',
     startDate,
@@ -120,8 +120,9 @@ const seismicityStore = create<SeismicityStore>((set, get) => {
       const { seismicity, startDate, endDate, sampling } = get();
 
       const margin = sampling === 'day' ? ONE_DAY : ONE_HOUR;
+      const data = seismicity || [];
 
-      const xAxis = seismicity.map((_, index) => {
+      const xAxis = data.map((_, index) => {
         const option: XAXisOption = {
           type: 'time',
           gridIndex: index,
@@ -130,10 +131,10 @@ const seismicityStore = create<SeismicityStore>((set, get) => {
             show: false,
           },
           axisLabel: {
-            show: index === seismicity.length - 1 ? true : false,
+            show: index === data.length - 1 ? true : false,
           },
           axisTick: {
-            show: index === seismicity.length - 1 ? true : false,
+            show: index === data.length - 1 ? true : false,
           },
           min: startDate - margin,
           max: endDate + margin,
@@ -141,7 +142,7 @@ const seismicityStore = create<SeismicityStore>((set, get) => {
         return option;
       });
 
-      const yAxis = seismicity.map((item, index) => {
+      const yAxis = data.map((item, index) => {
         const option: YAXisOption = {
           type: 'value',
           axisLine: { show: true },
@@ -155,9 +156,9 @@ const seismicityStore = create<SeismicityStore>((set, get) => {
         return option;
       });
 
-      const grid: GridOption[] = createGrid(seismicity.length, { top: 10, bottom: 10 });
+      const grid: GridOption[] = createGrid(data.length, { top: 10, bottom: 10 });
 
-      const series = seismicity.map((item, index) => {
+      const series = data.map((item, index) => {
         const option: SeriesOption = {
           data: item.data.map((data) => [data.timestamp, data.count]),
           name: item.event_type.code,

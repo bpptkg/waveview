@@ -1,9 +1,9 @@
+import { EChartsOption } from 'echarts';
 import { PeriodItem } from '../../types/period';
 import { Sampling, SeismicityData } from '../../types/seismicity';
-import { EChartsOption } from 'echarts';
 
 export interface SeismicityStore {
-  seismicity: SeismicityData[];
+  seismicity: SeismicityData[] | null;
   loading: boolean;
   error: string;
   startDate: number;
