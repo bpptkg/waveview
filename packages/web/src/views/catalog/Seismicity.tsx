@@ -19,7 +19,7 @@ import {
   useToastController,
 } from '@fluentui/react-components';
 import { MoreHorizontalRegular } from '@fluentui/react-icons';
-import { ReactECharts } from '@waveview/react-echarts';
+import { ReactECharts, ReactEChartsType } from '@waveview/react-echarts';
 import { sub } from 'date-fns';
 import { BarChart } from 'echarts/charts';
 import { GridComponent, TitleComponent, TooltipComponent } from 'echarts/components';
@@ -39,7 +39,7 @@ import { Sampling } from '../../types/seismicity';
 echarts.use([BarChart, GridComponent, CanvasRenderer, TitleComponent, TooltipComponent]);
 
 const Seismicity = () => {
-  const chartRef = useRef<ReactECharts>(null);
+  const chartRef = useRef<ReactEChartsType>(null);
 
   const {
     seismicity,
@@ -99,12 +99,18 @@ const Seismicity = () => {
   }, [endDate, sampling, useUTC]);
 
   useEffect(() => {
-    updatePlot();
-  }, [updatePlot]);
+    if (!seismicity) {
+      updatePlot();
+    } else {
+      const option = getEChartsOption();
+      chartRef.current?.setOption(option, true, true);
+    }
+  }, [seismicity, chartRef, getEChartsOption, updatePlot]);
 
   const chartStyle = useMemo(() => {
+    const length = seismicity?.length || 0;
     return {
-      height: 100 * seismicity.length,
+      height: 100 * length,
     };
   }, [seismicity]);
 
@@ -206,7 +212,7 @@ const Seismicity = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {seismicity.length ? (
+              {seismicity ? (
                 seismicity.map((item) => (
                   <TableRow key={item.event_type.id}>
                     <TableCell>
