@@ -89,12 +89,12 @@ const Seismicity = () => {
   }, [fetchSeismicity, getEChartsOption, showErrorToast]);
 
   const startDateFormatted = useMemo(() => {
-    const template = sampling === 'day' ? 'MMMM dd, yyyy' : 'MMMM dd, yyyy HH:mm';
+    const template = sampling === 'day' ? 'MMM dd, yyyy' : 'MMM dd, yyyy HH:mm';
     return formatTimezonedDate(startDate, template, useUTC);
   }, [startDate, sampling, useUTC]);
 
   const endDateFormatted = useMemo(() => {
-    const template = sampling === 'day' ? 'MMMM dd, yyyy' : 'MMMM dd, yyyy HH:mm';
+    const template = sampling === 'day' ? 'MMM dd, yyyy' : 'MMM dd, yyyy HH:mm';
     return formatTimezonedDate(endDate, template, useUTC);
   }, [endDate, sampling, useUTC]);
 
