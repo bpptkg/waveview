@@ -15,9 +15,9 @@ import {
   useId,
   useToastController,
 } from '@fluentui/react-components';
-import { ReactECharts } from '@waveview/react-echarts';
+import { ReactECharts, ReactEChartsType } from '@waveview/react-echarts';
 import * as echarts from 'echarts/core';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useHypocenterStore } from '../../stores/hypocenter';
 import { CustomError } from '../../types/response';
 
@@ -31,7 +31,6 @@ import DateRangePicker from '../../components/DatePicker/DateRangePicker';
 import EventTypeFilter from '../../components/Hypocenter/EventTypeFilter';
 import HypocenterWorkspaceSwitcher from '../../components/Hypocenter/HypocenterWorkspaceSwitcher';
 import MethodFilter from '../../components/Hypocenter/MethodFilter';
-import { useMount } from '../../hooks/useMount';
 import { formatNumber, formatTime, shortUUID } from '../../shared/formatting';
 import { useAppStore } from '../../stores/app';
 import { useDemXyzStore } from '../../stores/demxyz';
@@ -61,8 +60,7 @@ const useHypocenterStyles = makeStyles({
 });
 
 const Hypocenter = () => {
-  const chartRef = useRef<ReactECharts | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
+  const chartRef = useRef<ReactEChartsType | null>(null);
   const styles = useHypocenterStyles();
 
   const {
@@ -131,15 +129,17 @@ const Hypocenter = () => {
   );
 
   useEffect(() => {
-    if (!isMounted) return;
     updatePlot({ refreshHypo: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [useUTC, darkMode]);
 
-  useMount(() => {
-    updatePlot({ refreshHypo: true, refreshDem: 'auto' });
-    setIsMounted(true);
-  });
+  useEffect(() => {
+    if (!hypocenter) {
+      updatePlot();
+    } else {
+      updatePlot({ refreshHypo: false });
+    }
+  }, [hypocenter, updatePlot, getEChartsOption]);
 
   const handleDateRangeChange = useCallback(
     (index: number, start: number, end: number) => {
@@ -219,12 +219,11 @@ const Hypocenter = () => {
         <div className="flex-grow mt-2">
           <ReactECharts
             ref={chartRef}
-            echarts={echarts}
             style={{
               width: '100%',
               height: '100%',
             }}
-            option={getEChartsOption()}
+            option={{}}
             notMerge={true}
           />
         </div>
