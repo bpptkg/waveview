@@ -23,6 +23,8 @@ const catalogStore = create<CatalogStore>((set, get) => {
       endDate: undefined,
       isBookmarked: undefined,
     },
+    initialFetch: false,
+    setInitialFetch: (initialFetch) => set({ initialFetch }),
 
     setCurrentCatalog: (catalog) => set({ currentCatalog: catalog }),
 

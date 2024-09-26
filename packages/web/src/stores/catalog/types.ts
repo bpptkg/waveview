@@ -15,6 +15,7 @@ export interface CatalogStore {
   nextEventsUrl: string | null;
   loading: boolean;
   filterData: FilterData;
+  initialFetch: boolean;
   /**
    * Sets the current catalog.
    */
@@ -23,6 +24,10 @@ export interface CatalogStore {
    * Sets the loading state.
    */
   setLoading: (loading: boolean) => void;
+  /**
+   * Sets the initial fetch state.
+   */
+  setInitialFetch: (initialFetch: boolean) => void;
   /**
    * Fetches all catalogs from the organization where the user is a member of
    * and sets the default catalog.
