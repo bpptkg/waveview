@@ -1,3 +1,4 @@
+import { EChartsOption } from 'echarts';
 import { Hypocenter, HypocenterWorkspace } from '../../types/hypocenter';
 import { PeriodItem } from '../../types/period';
 
@@ -14,7 +15,7 @@ export interface HypocenterStore {
   error: string;
   pitch: number;
   yaw: number;
-  eventTypesFilter: string[],
+  eventTypesFilter: string[];
   setWorkspace: (workspace: HypocenterWorkspace) => void;
   setPeriodIndex: (index: number) => void;
   setTimeRange: (startDate: number, endDate: number) => void;
@@ -23,5 +24,5 @@ export interface HypocenterStore {
   setYaw: (yaw: number) => void;
   setEventTypesFilter: (types: string[]) => void;
   fetchHypocenter: () => Promise<void>;
-  getEChartsOption: () => any;
+  getEChartsOption: () => EChartsOption;
 }
