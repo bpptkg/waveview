@@ -13,6 +13,7 @@ import EventDetailVisual from '../views/catalog/EventDetailVisual';
 import EventDetailWaveform from '../views/catalog/EventDetailWaveform';
 import EventTable from '../views/catalog/EventTable';
 import Hypocenter from '../views/catalog/Hypocenter';
+import RfApDirection from '../views/catalog/RfApDirection';
 import Seismicity from '../views/catalog/Seismicity';
 import Dashboard from '../views/dashboard/Dashboard';
 import OrganizationRedirect from '../views/dashboard/OrganizationRedirect';
@@ -111,6 +112,10 @@ const router = createBrowserRouter([
                       {
                         path: 'hypocenter',
                         element: <Hypocenter />,
+                      },
+                      {
+                        path: 'rfap-direction',
+                        element: <RfApDirection />,
                       },
                       {
                         index: true,

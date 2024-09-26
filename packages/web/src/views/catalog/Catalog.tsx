@@ -29,6 +29,7 @@ const Catalog = () => {
             <Tab value={`/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/events`}>Events</Tab>
             <Tab value={`/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/seismicity`}>Seismicity</Tab>
             <Tab value={`/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/hypocenter`}>Hypocenter</Tab>
+            <Tab value={`/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/rfap-direction`}>RF & AP</Tab>
           </div>
         </div>
         <div className="flex items-center mr-1">
