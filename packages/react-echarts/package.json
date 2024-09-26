@@ -2,7 +2,7 @@
   "name": "@waveview/react-echarts",
   "private": true,
   "version": "0.1.0",
-  "description": "Common utilities library for WaveView",
+  "description": "React wrapper library for ECharts",
   "type": "module",
   "main": "./src/index.ts",
   "module": "./src/index.ts",
