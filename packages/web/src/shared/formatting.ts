@@ -47,3 +47,7 @@ export function shortUUID(uuid: string | null | undefined): string {
   }
   return uuid.slice(0, 8);
 }
+
+export function numberFormatterFactory(digits = 0) {
+  return (v: number) => (isFinite(v) ? v.toFixed(digits) : '-');
+}
