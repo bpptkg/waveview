@@ -294,7 +294,6 @@ const rfapDirectionStore = create<RfApDirectionStore>((set, get) => ({
           },
           data: angleAxisData.map((item) => item.direction),
         },
-        backgroundColor: '#fff',
         legend: {
           type: 'plain',
           bottom: 0,
