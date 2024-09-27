@@ -7,7 +7,7 @@ import { ChannelInfo, SeismicNetworkStatus } from '../../types/networkStatus';
 
 const NetworkState: React.FC<{ status: SeismicNetworkStatus }> = ({ status }) => {
   const tooltipContent = useCallback((channel: ChannelInfo) => {
-    const lastReceivedPacket = channel.last_received_packet;
+    const lastReceivedPacket = channel.last_packet;
     const formattedTime = lastReceivedPacket ? formatDistanceToNow(new Date(lastReceivedPacket), { addSuffix: true }) : 'unknown';
     return <span>Last received data: {formattedTime}</span>;
   }, []);

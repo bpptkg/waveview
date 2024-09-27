@@ -1,6 +1,6 @@
 export interface ChannelInfo {
   stream_id: string;
-  last_received_packet: string | null;
+  last_packet: string | null;
 }
 
 export interface SeismicNetworkStatus {
