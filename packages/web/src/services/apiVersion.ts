@@ -59,6 +59,9 @@ export default {
   createEventType: {
     v1: (organizationId: string) => `/api/v1/organizations/${organizationId}/event-types/`,
   },
+  getSeismicNetworkStatus: {
+    v1: (organizationId: string) => `/api/v1/organizations/${organizationId}/seismic-network-status/`,
+  },
   getEventType: {
     v1: (organizationId: string, id: string) => `/api/v1/organizations/${organizationId}/event-types/${id}/`,
   },

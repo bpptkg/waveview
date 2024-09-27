@@ -1,5 +1,5 @@
 import { Button, Spinner } from '@fluentui/react-components';
-import { ArrowClockwise20Regular, ChatHelp24Regular, CursorHover24Regular, Folder24Regular } from '@fluentui/react-icons';
+import { ArrowClockwise20Regular, ChatHelp24Regular, CursorHover24Regular, Folder24Regular, Molecule24Regular } from '@fluentui/react-icons';
 import { useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { AppBar, AppBarTab } from '../../components/AppBar';
@@ -19,6 +19,7 @@ import { CustomError } from '../../types/response';
 const PickerIcon = CursorHover24Regular;
 const CatalogIcon = Folder24Regular;
 const HelpIcon = ChatHelp24Regular;
+const StatusIcon = Molecule24Regular;
 
 const Dashboard = () => {
   const { org, volcano } = useParams();
@@ -80,6 +81,10 @@ const Dashboard = () => {
     return `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog`;
   }, [currentOrganization, currentVolcano]);
 
+  const statusUrl = useMemo(() => {
+    return `/${currentOrganization?.slug}/status`;
+  }, [currentOrganization]);
+
   const helpUrl = useMemo(() => {
     return `/${currentOrganization?.slug}/help`;
   }, [currentOrganization]);
@@ -122,6 +127,9 @@ const Dashboard = () => {
               </AppBarTab>
               <AppBarTab value={catalogUrl} icon={CatalogIcon} onClick={() => navigate(catalogUrl)}>
                 Catalog
+              </AppBarTab>
+              <AppBarTab value={statusUrl} icon={StatusIcon} onClick={() => navigate(statusUrl)}>
+                Status
               </AppBarTab>
               <AppBarTab value={helpUrl} icon={HelpIcon} onClick={() => navigate(helpUrl)}>
                 Help

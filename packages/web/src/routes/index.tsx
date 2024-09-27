@@ -24,6 +24,7 @@ import Error500 from '../views/error/Error500';
 import ForgotYourPassword from '../views/help/ForgotYourPassword';
 import Help from '../views/help/Help';
 import Login from '../views/login/Login';
+import NetworkStatus from '../views/monitor/NetworkStatus';
 import Picker from '../views/picker/Picker';
 import Profile from '../views/profile/Profile';
 import TermsOfService from '../views/tos/TermsOfService';
@@ -128,6 +129,10 @@ const router = createBrowserRouter([
               {
                 path: 'admin',
                 element: <Admin />,
+              },
+              {
+                path: 'status',
+                element: <NetworkStatus />,
               },
               {
                 path: 'help',
