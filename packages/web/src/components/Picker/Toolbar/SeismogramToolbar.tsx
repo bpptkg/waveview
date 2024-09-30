@@ -113,7 +113,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
   );
 
   return (
-    <div className="bg-white dark:bg-black border-b dark:border-transparent flex justify-between items-center">
+    <div className="bg-white dark:bg-black border-b dark:border-b-gray-800 flex justify-between items-center">
       <Toolbar aria-label="Seismogram Toolbar" checkedValues={checkedValues} onCheckedValueChange={handleToolbarCheckedValueChange} className={styles.toolbar}>
         <Tooltip content="Zoom In" relationship="label" showDelay={1500}>
           <ToolbarButton aria-label="Zoom In" icon={<ZoomIn20Regular />} onClick={onZoomIn} />

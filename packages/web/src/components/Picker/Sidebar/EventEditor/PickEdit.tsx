@@ -175,7 +175,7 @@ const PickEdit = () => {
   return (
     <div>
       {loading && <ProgressBar shape="square" />}
-      <div className="flex items-center justify-between px-2 border-b h-[50px]">
+      <div className="flex items-center justify-between px-2 py-2 border-b dark:border-b-gray-800">
         <h1 className="font-bold">{eventId ? 'Edit' : 'Create'}</h1>
         <div className="flex items-center gap-1">
           <Button size="small" appearance="outline" onClick={handleCancel}>

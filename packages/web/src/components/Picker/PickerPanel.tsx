@@ -119,7 +119,7 @@ const PickerPanel = () => {
   }, []);
 
   return (
-    <div className="flex-grow relative flex mt-1 border-t dark:border-transparent">
+    <div className="flex-grow relative flex mt-1 border-t dark:border-t-gray-800 dark:border-transparent">
       <PanelGroup direction="horizontal" className="relative">
         {showHelicorder && (
           <>

@@ -16,13 +16,13 @@ const Sidebar: React.FC = () => {
 
   return (
     <div className={'flex h-full bg-white dark:bg-neutral-grey-4'}>
-      <div className="relative w-full border-l border-r dark:border-transparent">
+      <div className="relative w-full border-l border-r dark:border-l-gray-800 dark:border-r-gray-800">
         <div className="absolute top-0 right-0 bottom-0 left-0 overflow-auto">
           {selectedTab === 'eventEditor' && <EventEditor />}
           {selectedTab === 'filterToolbox' && <FilterToolbox />}
         </div>
       </div>
-      <div className="relative bg-white dark:bg-neutral-grey-4">
+      <div className="relative bg-white dark:bg-neutral-grey-4 border-l dark:border-l-gray-800">
         <TabList vertical size="medium" onTabSelect={handleTabSelect} selectedValue={selectedTab} className="absolute right-0 top-0 bottom-0">
           <Tooltip content="Event Editor" relationship="label" showDelay={1500}>
             <Tab value={'eventEditor'} icon={<CopySelectRegular />}></Tab>
