@@ -1,3 +1,4 @@
+import { SeismogramOptions } from '@waveview/zcharts';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import EventDetailErrorMessage from '../../components/Loading/EventDetailErrorMessage';
@@ -38,7 +39,7 @@ const EventDetailWaveform = () => {
     }
   }, [darkMode, ready]);
 
-  const initOptions = useMemo(() => {
+  const initOptions: Partial<SeismogramOptions> = useMemo(() => {
     const [start, end] = event ? getPickExtent(event) : [0, 0];
     const startTime = start - MARGIN;
     const endTime = end + MARGIN;
@@ -59,6 +60,7 @@ const EventDetailWaveform = () => {
       startTime,
       endTime,
       useUTC: true,
+      enableTooltip: false,
     };
   }, [event, selectedChannels, darkMode]);
 
@@ -71,6 +73,7 @@ const EventDetailWaveform = () => {
         start,
         end,
         color: getEventTypeColor(event.type, darkMode),
+        eventType: event.type.code,
       });
     }
   };

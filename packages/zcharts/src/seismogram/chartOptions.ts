@@ -43,6 +43,10 @@ export interface SeismogramOptions extends ChartOptions {
    * Markers to be displayed in the seismogram chart.
    */
   markers: SeismogramEventMarkerOptions[];
+  /**
+   * Whether to enable tooltip.
+   */
+  enableTooltip?: boolean;
 }
 
 export function getDefaultOptions(): SeismogramOptions {
@@ -65,5 +69,6 @@ export function getDefaultOptions(): SeismogramOptions {
     timezone: "UTC",
     channels: [],
     markers: [],
+    enableTooltip: true,
   };
 }

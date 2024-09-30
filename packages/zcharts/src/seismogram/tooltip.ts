@@ -41,11 +41,15 @@ export class EventTooltip {
   }
 
   show(x: number, y: number, marker: EventMarkerOptions): void {
+    const { enableTooltip } = this.chart.getModel().getOptions();
+    if (!enableTooltip) {
+      return;
+    }
     const duration = (marker.end - marker.start) / ONE_SECOND;
     const eventType = marker.eventType;
     const time = formatDate(
       marker.start,
-      "{yyyy}-{MM}-{dd} {HH}:{mm}:{ss}",
+      "{yyyy}-{MM}-{dd} {HH}:{mm}:{ss}.{SSS}",
       this.chart.getModel().getOptions().useUTC
     );
     const color = marker.color;
