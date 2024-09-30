@@ -2,11 +2,13 @@ import { StateCreator } from 'zustand';
 import { api } from '../../../services/api';
 import apiVersion from '../../../services/apiVersion';
 import { getPickExtent, ONE_SECOND } from '../../../shared/time';
+import { SignalAmplitude, SignalAmplitudePayload } from '../../../types/amplitude';
 import { EventPayload, SeismicEventDetail } from '../../../types/event';
 import { ExplosionEvent, ObservationPayload, PyroclasticFlowEvent, RockfallEvent, TectonicEvent, VolcanicEmissionEvent } from '../../../types/observation';
 import { CustomError, ErrorData } from '../../../types/response';
 import { useCatalogStore } from '../../catalog';
 import { useEventTypeStore } from '../../eventType';
+import { useInventoryStore } from '../../inventory';
 import { useOrganizationStore } from '../../organization';
 import {
   useExplosionEventStore,
@@ -29,6 +31,7 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
     stationOfFirstArrivalId: '',
     note: '',
     attachments: [],
+    amplitudes: [],
     editedEvent: null,
     setTime: (time) => {
       const pickStart = time;
@@ -72,11 +75,13 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
         stationOfFirstArrivalId: '',
         note: '',
         attachments: [],
+        amplitudes: [],
         pickRange: [0, 0],
         editedEvent: null,
       });
     },
     setEditedEvent: (editedEvent) => {
+      const { getChannelById } = useInventoryStore.getState();
       const [pickStart, pickEnd] = getPickExtent(editedEvent);
       const pickRange: [number, number] = [pickStart, pickEnd];
       const time = pickStart;
@@ -86,8 +91,20 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
       const note = editedEvent.note;
       const attachments = editedEvent.attachments;
       const eventId = editedEvent.id;
+      const amplitudes = editedEvent.amplitudes.map(
+        (amplitude) =>
+          ({
+            amplitude: amplitude.amplitude,
+            unit: amplitude.unit,
+            stream_id: getChannelById(amplitude.waveform_id)?.stream_id || '',
+            type: amplitude.type,
+            category: amplitude.category,
+            time: amplitude.time,
+            duration: amplitude.duration,
+          } as SignalAmplitude)
+      );
 
-      set({ pickRange, eventId, time, duration, eventTypeId, stationOfFirstArrivalId, note, attachments, editedEvent });
+      set({ pickRange, eventId, time, duration, eventTypeId, stationOfFirstArrivalId, note, attachments, amplitudes, editedEvent });
 
       const { observation } = editedEvent;
       if (observation) {
@@ -261,6 +278,31 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
         const err: ErrorData = await response.json();
         throw CustomError.fromErrorData(err);
       }
+    },
+    calcSignalAmplitudes: async () => {
+      const { currentOrganization } = useOrganizationStore.getState();
+      if (!currentOrganization) {
+        throw new CustomError('Organization is not set');
+      }
+      const { currentVolcano } = useVolcanoStore.getState();
+      if (!currentVolcano) {
+        throw new CustomError('Volcano is not set');
+      }
+      const { time, duration } = get();
+      const payload: SignalAmplitudePayload = {
+        time: new Date(time).toISOString(),
+        duration: duration,
+      };
+      const response = await api(apiVersion.calcSignalAmplitude.v1(currentOrganization.id, currentVolcano.id), {
+        method: 'POST',
+        body: payload,
+      });
+      if (!response.ok) {
+        const err: ErrorData = await response.json();
+        throw CustomError.fromErrorData(err);
+      }
+      const amplitudes: SignalAmplitude[] = await response.json();
+      set({ amplitudes });
     },
   };
 };

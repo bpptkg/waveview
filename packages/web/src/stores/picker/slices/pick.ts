@@ -1,3 +1,4 @@
+import { SignalAmplitude } from '../../../types/amplitude';
 import { Attachment, SeismicEventDetail } from '../../../types/event';
 
 export interface PickSlice {
@@ -10,6 +11,7 @@ export interface PickSlice {
   stationOfFirstArrivalId: string;
   note: string;
   attachments: Attachment[];
+  amplitudes: SignalAmplitude[];
   editedEvent: SeismicEventDetail | null;
   setTime: (time: number) => void;
   setDuration: (duration: number) => void;
@@ -27,4 +29,5 @@ export interface PickSlice {
   savePickedEvent: () => Promise<SeismicEventDetail>;
   fetchEditedEvent: (eventId: string) => Promise<SeismicEventDetail>;
   deleteEvent: (eventId: string) => Promise<void>;
+  calcSignalAmplitudes(): Promise<void>;
 }

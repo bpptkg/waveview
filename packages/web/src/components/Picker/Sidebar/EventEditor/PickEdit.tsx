@@ -33,6 +33,7 @@ import { SeismicEventDetail } from '../../../../types/event';
 import { CustomError } from '../../../../types/response';
 import { usePickerContext } from '../../PickerContext';
 import { usePickerCallback } from '../../usePickerCallback';
+import PickEditAmplitude from './PickEditAmplitude';
 import PickEditAttachments from './PickEditAttachments';
 import PickEditEvent from './PickEditEvent';
 import PickEditVisual from './PickEditVisual';
@@ -82,6 +83,7 @@ const EditItemTabList: React.FC<{ selectedValue?: string; onTabSelect?: (tab: st
     { value: 'event', label: 'Event' },
     { value: 'attachment', label: 'Attachments' },
     { value: 'visual', label: 'Visual' },
+    { value: 'amplitude', label: 'Amplitude' },
   ];
 
   return (
@@ -189,6 +191,7 @@ const PickEdit = () => {
       {tab === 'event' && <PickEditEvent />}
       {tab === 'attachment' && <PickEditAttachments />}
       {tab === 'visual' && <PickEditVisual />}
+      {tab === 'amplitude' && <PickEditAmplitude />}
 
       <Toaster toasterId={toasterId} />
 

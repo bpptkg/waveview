@@ -25,6 +25,7 @@ export const useSeismogramCallback = () => {
     isPickEmpty,
     setStationOfFirstArrivalId,
     getSelectedStations,
+    calcSignalAmplitudes,
   } = usePickerStore();
 
   const { heliChartRef, seisChartRef, contextMenuRef, props, setSeisChartReady } = usePickerContext();
@@ -149,8 +150,9 @@ export const useSeismogramCallback = () => {
         }
       }
       setPickRange(pick);
+      calcSignalAmplitudes();
     },
-    [seisChartRef, isPickEmpty, setPickRange, setStationOfFirstArrivalId, getSelectedStations]
+    [seisChartRef, isPickEmpty, setPickRange, setStationOfFirstArrivalId, getSelectedStations, calcSignalAmplitudes]
   );
 
   const handleContextMenuRequested = useCallback(

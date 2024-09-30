@@ -81,7 +81,7 @@ const PickEditEvent: React.FC = () => {
   );
 
   return (
-    <div className="px-2">
+    <div className="p-2">
       <Field label="Time">
         <Input appearance="outline" value={formatTime(time, { useUTC })} onChange={(_, data) => handleTimeChange(data.value)} />
       </Field>

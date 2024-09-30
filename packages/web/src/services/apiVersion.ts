@@ -143,4 +143,7 @@ export default {
   listFallDirection: {
     v1: (organizationId: string, volcanoId: string) => `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/fall-directions/`,
   },
+  calcSignalAmplitude: {
+    v1: (organizationId: string, volcanoId: string) => `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/signal-amplitude/`,
+  },
 };
