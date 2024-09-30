@@ -9,7 +9,8 @@ export interface GridOptions {
 /**
  * Create an array of indices from 0 to n - 1.
  */
-export const makeIndex = (n: number) => Array.from({ length: n }, (_, i) => i);
+export const createIndex = (n: number) =>
+  Array.from({ length: n }, (_, i) => i);
 
 /**
  * Create a grid layout for n rows.
@@ -21,7 +22,7 @@ export const createGrid = (nrows: number, options: GridOptions = {}) => {
   const { margin = 2, top = 5, right = 10, bottom = 5, left = 10 } = options;
   const availableSpace = 100 - (top + bottom);
   const containerSize = (availableSpace - (nrows - 1) * margin) / nrows;
-  const indices = makeIndex(nrows);
+  const indices = createIndex(nrows);
 
   return indices.map((index) => {
     const topOffset = index * (containerSize + margin) + top;
