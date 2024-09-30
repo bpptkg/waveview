@@ -33,6 +33,7 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
     attachments: [],
     amplitudes: [],
     editedEvent: null,
+    isCalculatingAmplitudes: false,
     setTime: (time) => {
       const pickStart = time;
       const pickEnd = pickStart + get().duration * ONE_SECOND;
@@ -288,21 +289,29 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
       if (!currentVolcano) {
         throw new CustomError('Volcano is not set');
       }
-      const { time, duration } = get();
+      const { time, duration, isCalculatingAmplitudes } = get();
       const payload: SignalAmplitudePayload = {
         time: new Date(time).toISOString(),
         duration: duration,
       };
-      const response = await api(apiVersion.calcSignalAmplitude.v1(currentOrganization.id, currentVolcano.id), {
-        method: 'POST',
-        body: payload,
-      });
-      if (!response.ok) {
-        const err: ErrorData = await response.json();
-        throw CustomError.fromErrorData(err);
+      if (isCalculatingAmplitudes) {
+        return;
       }
-      const amplitudes: SignalAmplitude[] = await response.json();
-      set({ amplitudes });
+      set({ isCalculatingAmplitudes: true });
+      try {
+        const response = await api(apiVersion.calcSignalAmplitude.v1(currentOrganization.id, currentVolcano.id), {
+          method: 'POST',
+          body: payload,
+        });
+        if (!response.ok) {
+          const err: ErrorData = await response.json();
+          throw CustomError.fromErrorData(err);
+        }
+        const amplitudes: SignalAmplitude[] = await response.json();
+        set({ amplitudes });
+      } finally {
+        set({ isCalculatingAmplitudes: false });
+      }
     },
   };
 };

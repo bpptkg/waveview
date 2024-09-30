@@ -13,6 +13,7 @@ export interface PickSlice {
   attachments: Attachment[];
   amplitudes: SignalAmplitude[];
   editedEvent: SeismicEventDetail | null;
+  isCalculatingAmplitudes: boolean;
   setTime: (time: number) => void;
   setDuration: (duration: number) => void;
   setEventTypeId: (eventTypeId: string) => void;
