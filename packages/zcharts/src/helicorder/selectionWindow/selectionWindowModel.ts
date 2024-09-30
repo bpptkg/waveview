@@ -107,4 +107,14 @@ export class SelectionWindowModel extends Model<SelectionWindowOptions> {
     -size * ONE_MINUTE;
     this.setStartTime(startTime);
   }
+
+  nextWindow(): void {
+    const { size } = this.options;
+    this.add(size);
+  }
+
+  previousWindow(): void {
+    const { size } = this.options;
+    this.subtract(size);
+  }
 }
