@@ -34,7 +34,7 @@ export interface FormatTimeOptions {
 }
 
 export function formatTime(time: string | number | Date | undefined, options: FormatTimeOptions = {}): string {
-  const { useUTC = false, template = 'yyyy-MM-dd HH:mm:ss' } = options;
+  const { useUTC = false, template = 'yyyy-MM-dd HH:mm:ss.SSS' } = options;
   if (typeof time === 'undefined' || time === null) {
     return '';
   }
