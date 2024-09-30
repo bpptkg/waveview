@@ -1,4 +1,4 @@
-import { Dropdown, Field, Input, makeStyles, Option, Textarea } from '@fluentui/react-components';
+import { Avatar, Dropdown, Field, Input, makeStyles, Option, Textarea } from '@fluentui/react-components';
 import { CircleFilled } from '@fluentui/react-icons';
 import React, { useCallback, useEffect } from 'react';
 import { formatTime } from '../../../../shared/formatting';
@@ -21,6 +21,7 @@ const PickEditEvent: React.FC = () => {
     eventTypeId,
     note,
     pickRange,
+    editedEvent,
     getSelectedStations,
     setTime,
     setDuration,
@@ -140,6 +141,15 @@ const PickEditEvent: React.FC = () => {
       <Field label="Note">
         <Textarea value={note} resize="vertical" size="large" onChange={(_, data) => handleNoteChange(data.value)} />
       </Field>
+
+      {editedEvent && (
+        <Field label="Author">
+          <div className="inline-flex items-center gap-1">
+            <Avatar aria-label={editedEvent.author.name} name={editedEvent.author.name} color="colorful" image={{ src: editedEvent.author.avatar }} />{' '}
+            <span>{editedEvent.author.name}</span>
+          </div>
+        </Field>
+      )}
     </div>
   );
 };
