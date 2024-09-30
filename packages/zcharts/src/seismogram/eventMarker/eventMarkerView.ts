@@ -26,6 +26,13 @@ export class EventMarkerView extends View<EventMarkerModel> {
     this.markerRect.on("click", () => {
       this.chart.emit("eventMarkerClicked", this.model.getOptions());
     });
+    this.markerRect.on("mouseover", (e) => {
+      const event = e.event as MouseEvent;
+      this.chart.eventTooltip.show(event.clientX, event.clientY, this.model.getOptions());
+    }, this);
+    this.markerRect.on("mouseout", () => {
+      this.chart.eventTooltip.hide();
+    }, this);
   }
 
   getRect(): LayoutRect {

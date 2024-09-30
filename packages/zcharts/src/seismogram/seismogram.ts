@@ -18,6 +18,7 @@ import { DataStore } from "./dataStore";
 import { SeismogramEventMap } from "./eventMap";
 import { EventMarkerOptions } from "./eventMarker/eventMarkerModel";
 import { EventMarkerView } from "./eventMarker/eventMarkerView";
+import { EventTooltip } from "./tooltip";
 import { TrackManager } from "./trackManager";
 
 /**
@@ -41,6 +42,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   private spectrogramShown = false;
   private inExpandMode = false;
   private expandIndex = -1;
+  readonly eventTooltip: EventTooltip;
 
   constructor(dom: HTMLElement, options?: Partial<SeismogramOptions>) {
     const opts = merge(
@@ -52,6 +54,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
 
     this.eventEmitter = new EventEmitter<SeismogramEventMap>();
     this.trackManager = new TrackManager(this);
+    this.eventTooltip = new EventTooltip(this);
 
     this.grid = new GridView(this, opts.grid);
     this.grid.hide();
