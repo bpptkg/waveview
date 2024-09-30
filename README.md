@@ -1,8 +1,9 @@
 # WaveView
 
-WaveView is a web app that provide realtime seismic waveform visualization,
-picking tools, event management, and various signal analysis particularly for
-Volcano monitoring.
+WaveView is a web application designed for real-time visualization of seismic
+waveforms. It offers advanced tools for waveform picking, event management, and
+comprehensive signal analysis, making it an essential tool for volcano
+monitoring and seismic research.
 
 ## Copyright
 
