@@ -120,6 +120,7 @@ export function useHelicorderCallback() {
         start,
         end,
         color: getEventTypeColor(event.type, darkMode),
+        eventType: event.type.code,
         data: event,
       });
     });
