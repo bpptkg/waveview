@@ -158,7 +158,7 @@ const RfApDirection: React.FC = () => {
   return (
     <div className="relative h-full w-full">
       <div className="absolute top-0 right-0 bottom-0 left-0 overflow-auto">
-        <div className="p-3 bg-white dark:bg-black">
+        <div className="p-3">
           <div>
             <div>
               <div className="flex items-center justify-between">
