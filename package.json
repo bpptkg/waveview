@@ -1,14 +1,12 @@
 {
   "name": "waveview",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "WaveView is a web-based seismic signal analysis platform.",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "pnpm run test --recursive"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "WaveView Developers",
+  "license": "MIT",
   "devDependencies": {
     "typescript": "^5.4.5",
     "typescript-node": "^0.1.3"
