@@ -4,6 +4,7 @@ export interface EventMarkerOptions {
   start: number;
   end: number;
   color: string;
+  eventType: string;
   show?: boolean;
   opacity?: number;
   pill?: boolean;
@@ -18,6 +19,7 @@ export class EventMarkerModel extends Model<EventMarkerOptions> {
     color: "red",
     opacity: 0.5,
     pill: true,
+    eventType: "",
     data: undefined,
   };
   constructor(options: EventMarkerOptions) {
