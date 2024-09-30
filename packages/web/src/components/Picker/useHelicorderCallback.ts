@@ -135,6 +135,10 @@ export function useHelicorderCallback() {
     }
   }, [heliChartRef, currentOrganization, currentVolcano, currentCatalog, token, fetchEventMarkers]);
 
+  const handleHelicorderEventMarkerClick = useCallback(() => {
+    // Currently not used.
+  }, []);
+
   const handleHelicorderOnReady = useCallback(
     (chart: Helicorder) => {
       setHeliChartReady(true);
@@ -197,22 +201,23 @@ export function useHelicorderCallback() {
   }, [helicorderDuration, helicorderInterval, channelId, darkMode, offsetDate, useUTC, event, windowSize, selectionWindow]);
 
   return {
-    handleHelicorderShiftViewUp,
+    getHelicorderInitOptions,
+    handleHelicorderAutoUpdate,
+    handleHelicorderChangeDuration,
+    handleHelicorderChangeInterval,
+    handleHelicorderChannelChange,
+    handleHelicorderDecreaseAmplitude,
+    handleHelicorderEventMarkerClick,
+    handleHelicorderFocus,
+    handleHelicorderIncreaseAmplitude,
+    handleHelicorderOnReady,
+    handleHelicorderRefreshData,
+    handleHelicorderResetAmplitude,
+    handleHelicorderSelectionChange,
+    handleHelicorderSelectOffsetDate,
     handleHelicorderShiftViewDown,
     handleHelicorderShiftViewToNow,
-    handleHelicorderIncreaseAmplitude,
-    handleHelicorderDecreaseAmplitude,
-    handleHelicorderResetAmplitude,
-    handleHelicorderChannelChange,
-    handleHelicorderChangeInterval,
-    handleHelicorderChangeDuration,
-    handleHelicorderSelectOffsetDate,
-    handleHelicorderFocus,
-    handleHelicorderSelectionChange,
-    handleHelicorderOnReady,
+    handleHelicorderShiftViewUp,
     handleUpdateEventMarkers,
-    getHelicorderInitOptions,
-    handleHelicorderRefreshData,
-    handleHelicorderAutoUpdate,
   };
 }

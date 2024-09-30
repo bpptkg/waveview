@@ -1,4 +1,4 @@
-import { Channel, Helicorder } from '@waveview/zcharts';
+import { Channel, Helicorder, HelicorderEventMarkerOptions } from '@waveview/zcharts';
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { debounce } from '../../../shared/debounce';
@@ -9,7 +9,7 @@ import { HelicorderWebWorker } from './HelicorderWebWorker';
 export type HelicorderChartType = React.ForwardRefExoticComponent<HelicorderChartProps & React.RefAttributes<HelicorderChartRef>>;
 
 export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref) => {
-  const { initOptions, className, onFocus, onSelectionChange, onReady } = props;
+  const { initOptions, className, onFocus, onSelectionChange, onReady, onEventMarkerClick } = props;
 
   const parentRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<Helicorder | null>(null);
@@ -215,6 +215,13 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
     onFocus?.();
   }, [onFocus]);
 
+  const handleEventMarkerClick = useCallback(
+    (marker: HelicorderEventMarkerOptions) => {
+      onEventMarkerClick?.(marker);
+    },
+    [onEventMarkerClick]
+  );
+
   useEffect(() => {
     function init() {
       if (!parentRef.current) {
@@ -227,6 +234,7 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
       workerRef.current.postMessage({ type: 'setup', payload: { token } });
       webWorkerRef.current = new HelicorderWebWorker(chartRef.current, workerRef.current);
       chartRef.current.on('selectionChanged', handleSelectionChange);
+      chartRef.current.on('eventMarkerClicked', handleEventMarkerClick);
       chartRef.current.zr.on('click', handleFocus);
       chartRef.current.render();
     }

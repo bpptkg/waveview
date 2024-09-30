@@ -26,6 +26,10 @@ export interface HelicorderChartProps {
    * Callback fired when the chart is ready.
    */
   onReady?: (chart: Helicorder) => void;
+  /**
+   * Callback fired when the user click on an event marker.
+   */
+  onEventMarkerClick?: (marker: HelicorderEventMarkerOptions) => void;
 }
 
 export interface HelicorderChartRef {

@@ -1,5 +1,6 @@
 import * as zrender from "zrender";
 import { View } from "../../core/view";
+import { ONE_SECOND } from "../../util/time";
 import { LayoutRect, ThemeStyle } from "../../util/types";
 import { Helicorder } from "../helicorder";
 import { EventMarkerModel, EventMarkerOptions } from "./eventMarkerModel";
@@ -126,7 +127,17 @@ export class EventMarkerView extends View<EventMarkerModel> {
         },
         z: 5,
       });
-      rect.silent = true;
+      rect.on("click", () => {
+        const [start] = this.model.getWindow();
+        const selectionWindow = this.chart.getSelectionWindow();
+        selectionWindow.getModel().setStartTime(start - 10 * ONE_SECOND);
+        this.chart.emit("eventMarkerClickd", this.model.getOptions());
+        this.chart.emit(
+          "selectionChanged",
+          selectionWindow.getModel().getWindow()
+        );
+        this.chart.render();
+      });
       this.group.add(rect);
     }
   }

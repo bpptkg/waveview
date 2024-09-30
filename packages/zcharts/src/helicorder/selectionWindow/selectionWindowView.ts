@@ -2,6 +2,7 @@ import * as zrender from "zrender";
 import { View } from "../../core/view";
 import { ONE_SECOND } from "../../util/time";
 import { LayoutRect, ThemeStyle } from "../../util/types";
+import { EventMarkerView } from "../eventMarker/eventMarkerView";
 import { Helicorder } from "../helicorder";
 import {
   SelectionWindowModel,
@@ -31,6 +32,15 @@ export class SelectionWindowView extends View<SelectionWindowModel> {
     const trackManager = this.chart.getTrackManager();
     const time = trackManager.getTimeAtPoint(pointX, pointY);
     const start = time - offset * ONE_SECOND;
+    const markers = this.chart.filterComponents(
+      (component) => component.type === "eventMarker"
+    ) as EventMarkerView[];
+    const containsMarker = markers.some((marker) =>
+      marker.getModel().contains(time)
+    );
+    if (containsMarker) {
+      return;
+    }
     this.model.setStartTime(start);
     this.chart.emit("selectionChanged", this.model.getWindow());
     this.render();

@@ -27,37 +27,38 @@ const PickerPanel = () => {
   const { setSeisChartRef, setHeliChartRef, setContextMenuRef } = usePickerContext();
   const { offsetDate, showEvent, seismogramToolbarCheckedValues } = usePickerStore();
   const {
-    handleHelicorderFocus,
-    handleHelicorderSelectionChange,
-    handleHelicorderOnReady,
-    handleSeismogramFocus,
-    handleSeismogramExtentChange,
-    handleSeismogramPickChange,
-    handleSeismogramMouseWheel,
-    getSeismogramInitOptions,
     getHelicorderInitOptions,
-    handleSeismogramOnReady,
-    handleSeismogramTrackDoubleClick,
+    getSeismogramInitOptions,
     handleHelicorderAutoUpdate,
-    handleHelicorderShiftViewUp,
+    handleHelicorderDecreaseAmplitude,
+    handleHelicorderEventMarkerClick,
+    handleHelicorderFocus,
+    handleHelicorderIncreaseAmplitude,
+    handleHelicorderOnReady,
+    handleHelicorderRefreshData,
+    handleHelicorderResetAmplitude,
+    handleHelicorderSelectionChange,
+    handleHelicorderSelectOffsetDate,
     handleHelicorderShiftViewDown,
     handleHelicorderShiftViewToNow,
-    handleHelicorderIncreaseAmplitude,
-    handleHelicorderDecreaseAmplitude,
-    handleHelicorderResetAmplitude,
-    handleHelicorderSelectOffsetDate,
-    handleHelicorderRefreshData,
-    handleSeismogramZoomIn,
-    handleSeismogramZoomOut,
+    handleHelicorderShiftViewUp,
+    handleSeismogramCheckValueChange,
+    handleSeismogramDecreaseAmplitude,
+    handleSeismogramExtentChange,
+    handleSeismogramFocus,
+    handleSeismogramIncreaseAmplitude,
+    handleSeismogramMouseWheel,
+    handleSeismogramOnReady,
+    handleSeismogramPickChange,
+    handleSeismogramResetAmplitude,
     handleSeismogramScrollLeft,
     handleSeismogramScrollRight,
-    handleSeismogramIncreaseAmplitude,
-    handleSeismogramDecreaseAmplitude,
-    handleSeismogramResetAmplitude,
     handleSeismogramShowEvent,
-    handleSeismogramCheckValueChange,
-    handleSeismogramSpectrogramChange,
     handleSeismogramSignalChange,
+    handleSeismogramSpectrogramChange,
+    handleSeismogramTrackDoubleClick,
+    handleSeismogramZoomIn,
+    handleSeismogramZoomOut,
   } = usePickerCallback();
 
   const { selectedChart, eventId, autoUpdate, autoUpdateInterval } = usePickerStore();
@@ -142,6 +143,7 @@ const PickerPanel = () => {
                     initOptions={getHelicorderInitOptions()}
                     onFocus={handleHelicorderFocus}
                     onSelectionChange={handleHelicorderSelectionChange}
+                    onEventMarkerClick={handleHelicorderEventMarkerClick}
                     onReady={handleHelicorderOnReady}
                   />
                 </div>
