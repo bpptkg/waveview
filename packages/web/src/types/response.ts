@@ -10,12 +10,17 @@ export interface ErrorData {
 }
 
 export class CustomError extends Error {
-  constructor(message: string, public code: string = 'error') {
+  constructor(message: string, public code: string = 'error', public description?: string) {
     super(message);
     this.name = 'CustomError';
   }
 
   static fromErrorData(response: ErrorData): CustomError {
-    return new CustomError(response.errors[0].detail, response.errors[0].code);
+    const errors = response.errors;
+    if (errors.length === 0) {
+      return new CustomError(`Unknown error. Please report this issue to the developers.`);
+    }
+    const error = errors[0];
+    return new CustomError(`${error.detail} (${error.attr})`, error.code);
   }
 }
