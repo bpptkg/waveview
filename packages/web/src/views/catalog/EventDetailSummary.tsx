@@ -73,6 +73,18 @@ const EventDetailSummary = () => {
       </div>
       <Divider />
       <div className="flex flex-col gap-2">
+        <div className="font-semibold">Amplitude</div>
+        {event?.preferred_amplitude ? (
+          <div className="flex items-center justify-between">
+            <div>{event.preferred_amplitude.type}</div>
+            <div>{formatNumber(event.preferred_amplitude.amplitude, { precision: 2, unit: ` ${event.preferred_amplitude.unit}` })}</div>
+          </div>
+        ) : (
+          <div>No data</div>
+        )}
+      </div>
+      <Divider />
+      <div className="flex flex-col gap-2">
         <div className="font-semibold">Magnitude</div>
         {event?.preferred_magnitude ? (
           <div className="flex items-center justify-between">
