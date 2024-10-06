@@ -1,5 +1,5 @@
 import { Button, makeStyles, Table, TableBody, TableHeader, TableHeaderCell, TableRow, Tooltip } from '@fluentui/react-components';
-import { ArrowLeft20Regular } from '@fluentui/react-icons';
+import { ArrowLeft20Regular, Checkmark16Regular } from '@fluentui/react-icons';
 import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -99,6 +99,7 @@ const EventDetailAmplitude = () => {
         <Table className={styles.table}>
           <TableHeader>
             <TableRow>
+              <TableHeaderCell></TableHeaderCell>
               <TableHeaderCell>Type</TableHeaderCell>
               <TableHeaderCell>Amplitude</TableHeaderCell>
               <TableHeaderCell>Unit</TableHeaderCell>
@@ -115,6 +116,7 @@ const EventDetailAmplitude = () => {
                     setCurrentAmplitude(amplitude);
                   }}
                 >
+                  <TableHeaderCell>{amplitude.is_preferred ? <Checkmark16Regular /> : null}</TableHeaderCell>
                   <TableHeaderCell>{amplitude.type}</TableHeaderCell>
                   <TableHeaderCell>{formatNumber(amplitude.amplitude, { precision: 2 })}</TableHeaderCell>
                   <TableHeaderCell>{amplitude.unit}</TableHeaderCell>
