@@ -102,7 +102,7 @@ const seismicityStore = create<SeismicityStore>((set, get) => {
 
       // Add one more day to the end date to include the last day.
       const start = startDate;
-      const end = endDate + periodIndex !== -1 ? (sampling === 'day' ? ONE_DAY : ONE_HOUR) : 0;
+      const end = endDate + (periodIndex !== -1 ? (sampling === 'day' ? ONE_DAY : ONE_HOUR) : 0);
 
       const url = apiVersion.getSeismicity.v1(currentOrganization.id, currentVolcano.id, currentCatalog.id);
       const response = await api(url, {
