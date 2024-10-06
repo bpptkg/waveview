@@ -36,6 +36,8 @@ export class PickerView extends View<PickerModel> {
       this.activeHandle = null;
       this.pos.set(e.offsetX, e.offsetY);
     });
+    const clipRect = this.chart.getXAxis().getRect();
+    this.graphics.setClipPath(new zrender.Rect({ shape: clipRect }));
 
     this.leftHandle = new zrender.Rect();
     this.leftHandle.cursor = "ew-resize";
@@ -166,6 +168,8 @@ export class PickerView extends View<PickerModel> {
 
   resize(): void {
     this.setRect(this.chart.getXAxis().getRect());
+    const clipRect = this.chart.getXAxis().getRect();
+    this.graphics.setClipPath(new zrender.Rect({ shape: clipRect }));
   }
 
   applyThemeStyle(theme: ThemeStyle): void {
