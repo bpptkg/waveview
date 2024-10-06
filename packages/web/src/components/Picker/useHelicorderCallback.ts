@@ -8,15 +8,18 @@ import { useCatalogStore } from '../../stores/catalog';
 import { useFilterStore } from '../../stores/filter';
 import { useOrganizationStore } from '../../stores/organization';
 import { usePickerStore } from '../../stores/picker';
+import { useSidebarStore } from '../../stores/sidebar';
 import { useVolcanoStore } from '../../stores/volcano/useVolcanoStore';
 import { Channel } from '../../types/channel';
-import { SeismicEventDetail } from '../../types/event';
+import { SeismicEvent, SeismicEventDetail } from '../../types/event';
 import { usePickerContext } from './PickerContext';
+import { useSeismogramCallback } from './useSeismogramCallback';
 
 export function useHelicorderCallback() {
   const {
     windowSize,
     selectionWindow,
+    fetchEditedEvent,
     setHelicorderOffsetDate,
     setHelicorderChannelId,
     setHelicorderInterval,
@@ -104,12 +107,13 @@ export function useHelicorderCallback() {
   const { event } = props;
   const { eventId, helicorderDuration, helicorderInterval, channelId, offsetDate, eventMarkers } = usePickerStore();
   const { setHeliChartReady } = usePickerContext();
+  const { handleSetupEventEditing } = useSeismogramCallback();
+  const { setShowSidebar, setSelectedTab } = useSidebarStore();
 
-  const handleUpdateEventMarkers = useCallback(async () => {
+  const handleSeismogramUpdateEventMarkers = useCallback(() => {
     seisChartRef.current?.clearEventMarkers();
-    heliChartRef.current?.clearEventMarkers();
 
-    const markers: HelicorderEventMarkerOptions[] | SeismogramEventMarkerOptions[] = [];
+    const markers: SeismogramEventMarkerOptions[] = [];
     eventMarkers.forEach((event) => {
       const [start, end] = getPickExtent(event);
       if (event.id === eventId) {
@@ -124,9 +128,31 @@ export function useHelicorderCallback() {
         data: event,
       });
     });
-    heliChartRef.current?.addEventMarkers(markers);
     seisChartRef.current?.addEventMarkers(markers);
-  }, [seisChartRef, heliChartRef, eventMarkers, darkMode, eventId]);
+  }, [seisChartRef, eventMarkers, darkMode, eventId]);
+
+  const handleHelicorderUpdateEventMarkers = useCallback(async () => {
+    heliChartRef.current?.clearEventMarkers();
+
+    const markers: HelicorderEventMarkerOptions[] = [];
+    eventMarkers.forEach((event) => {
+      const [start, end] = getPickExtent(event);
+
+      markers.push({
+        start,
+        end,
+        color: getEventTypeColor(event.type, darkMode),
+        eventType: event.type.code,
+        data: event,
+      });
+    });
+    heliChartRef.current?.addEventMarkers(markers);
+  }, [heliChartRef, eventMarkers, darkMode]);
+
+  const handleUpdateEventMarkers = useCallback(() => {
+    handleSeismogramUpdateEventMarkers();
+    handleHelicorderUpdateEventMarkers();
+  }, [handleSeismogramUpdateEventMarkers, handleHelicorderUpdateEventMarkers]);
 
   const handleFetchEvents = useCallback(() => {
     const helicorderExtent = heliChartRef.current?.getChartExtent();
@@ -136,9 +162,21 @@ export function useHelicorderCallback() {
     }
   }, [heliChartRef, currentOrganization, currentVolcano, currentCatalog, token, fetchEventMarkers]);
 
-  const handleHelicorderEventMarkerClick = useCallback(() => {
-    // Currently not used.
-  }, []);
+  const handleHelicorderEventMarkerClick = useCallback(
+    (marker: HelicorderEventMarkerOptions) => {
+      const event = marker.data as SeismicEvent;
+      const { start, end } = marker;
+      seisChartRef.current?.removeEventMarker(start, end);
+      if (event) {
+        fetchEditedEvent(event.id).then((event) => {
+          handleSetupEventEditing(event);
+          setSelectedTab('eventEditor');
+          setShowSidebar(true);
+        });
+      }
+    },
+    [seisChartRef, fetchEditedEvent, handleSetupEventEditing, setSelectedTab, setShowSidebar]
+  );
 
   const handleHelicorderOnReady = useCallback(
     (chart: Helicorder) => {

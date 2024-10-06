@@ -221,9 +221,9 @@ export const useSeismogramCallback = () => {
       handleSeismogramFocus();
 
       const [start, end] = getPickExtent(event);
-      setEditedEvent(event);
-      seisChartRef.current?.setPickRange([start, end]);
       seisChartRef.current?.removeEventMarker(start, end);
+      seisChartRef.current?.setPickRange([start, end]);
+      setEditedEvent(event);
       setShowSidebar(true);
     },
     [seisChartRef, setEditedEvent, setSelectedChart, setShowSidebar, handleSeismogramPickModeChange, handleSeismogramFocus]
