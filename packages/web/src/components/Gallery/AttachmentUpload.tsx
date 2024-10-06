@@ -28,6 +28,7 @@ import AttachmentPicker from './AttachmentPicker';
 
 export interface AttachmentUploadProps {
   initialAttachments?: Attachment[];
+  label?: string;
   onAdd?: (attachment: Attachment) => void;
   onRemove?: (attachment: Attachment) => void;
 }
@@ -107,7 +108,7 @@ const truncateFileName = (fileName: string, length: number = 15) => {
   return `${fileName.slice(0, length)}...`;
 };
 
-const AttachmentUpload: React.FC<AttachmentUploadProps> = ({ initialAttachments = [], onAdd, onRemove }) => {
+const AttachmentUpload: React.FC<AttachmentUploadProps> = ({ initialAttachments = [], label, onAdd, onRemove }) => {
   const [attachments, setAttachments] = useState<Attachment[]>(initialAttachments);
   const [uploadingFiles, setUploadingFiles] = useState<UploadFileQueue[]>([]);
   const { token } = useAuthStore();
@@ -233,7 +234,8 @@ const AttachmentUpload: React.FC<AttachmentUploadProps> = ({ initialAttachments 
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center justify-end">
+      <div className="flex items-center justify-between">
+        <div className="font-semibold">{label}</div>
         <AttachmentPicker onFilesSelected={handleFilesUpload} />
       </div>
 
