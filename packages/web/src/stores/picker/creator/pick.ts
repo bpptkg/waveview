@@ -83,6 +83,7 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
     },
     setEditedEvent: (editedEvent) => {
       const { getChannelById } = useInventoryStore.getState();
+      const { pickerConfig } = get();
       const [pickStart, pickEnd] = getPickExtent(editedEvent);
       const pickRange: [number, number] = [pickStart, pickEnd];
       const time = pickStart;
@@ -92,18 +93,22 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
       const note = editedEvent.note;
       const attachments = editedEvent.attachments;
       const eventId = editedEvent.id;
-      const amplitudes = editedEvent.amplitudes.map(
-        (amplitude) =>
-          ({
-            amplitude: amplitude.amplitude,
-            unit: amplitude.unit,
-            stream_id: getChannelById(amplitude.waveform_id)?.stream_id || '',
-            type: amplitude.type,
-            category: amplitude.category,
-            time: amplitude.time,
-            duration: amplitude.duration,
-          } as SignalAmplitude)
-      );
+      const amplitudes = editedEvent.amplitudes
+        .filter((amplitude) => {
+          return pickerConfig?.data.amplitude_config.channels.map((channel) => channel.channel_id).includes(amplitude.waveform_id);
+        })
+        .map(
+          (amplitude) =>
+            ({
+              amplitude: amplitude.amplitude,
+              unit: amplitude.unit,
+              stream_id: getChannelById(amplitude.waveform_id)?.stream_id || '',
+              type: amplitude.type,
+              category: amplitude.category,
+              time: amplitude.time,
+              duration: amplitude.duration,
+            } as SignalAmplitude)
+        );
 
       set({ pickRange, eventId, time, duration, eventTypeId, stationOfFirstArrivalId, note, attachments, amplitudes, editedEvent });
 

@@ -3,11 +3,17 @@ export interface ChannelConfig {
   color?: string;
 }
 
+export interface AmplitudeConfig {
+  amplitude_calculator: string;
+  channels: ChannelConfig[];
+}
+
 export interface PickerConfigData {
   helicorder_channel: ChannelConfig;
   seismogram_channels: ChannelConfig[];
   window_size: number;
   force_center: boolean;
+  amplitude_config: AmplitudeConfig;
 }
 
 export interface PickerConfig {
