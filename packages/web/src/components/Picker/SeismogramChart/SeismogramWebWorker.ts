@@ -133,7 +133,7 @@ export class SeismogramWebWorker {
         end,
         forceCenter,
         resample: true,
-        sampleRate: 20,
+        sampleRate: 50,
       },
     };
 
@@ -165,7 +165,7 @@ export class SeismogramWebWorker {
         width,
         height,
         resample: true,
-        sampleRate: 20, // Need to be the same as the sample rate of the seismogram data.
+        sampleRate: 50, // Need to be the same as the sample rate of the seismogram data.
       },
     };
 
