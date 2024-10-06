@@ -98,11 +98,11 @@ const seismicityStore = create<SeismicityStore>((set, get) => {
         throw new CustomError('Catalog is not set');
       }
 
-      const { startDate, endDate, sampling } = get();
+      const { startDate, endDate, sampling, periodIndex } = get();
 
       // Add one more day to the end date to include the last day.
       const start = startDate;
-      const end = endDate + (sampling === 'day' ? ONE_DAY : ONE_HOUR);
+      const end = endDate + periodIndex !== -1 ? (sampling === 'day' ? ONE_DAY : ONE_HOUR) : 0;
 
       const url = apiVersion.getSeismicity.v1(currentOrganization.id, currentVolcano.id, currentCatalog.id);
       const response = await api(url, {
