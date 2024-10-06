@@ -39,6 +39,14 @@ export const useSeismogramCallback = () => {
     seisChartRef.current?.zoomOut(0.1);
   }, [seisChartRef]);
 
+  const handleSeismogramZoomFirstMinute = useCallback(() => {
+    seisChartRef.current?.zoomFirstMinute();
+  }, [seisChartRef]);
+
+  const handleSeismogramFitToWindow = useCallback(() => {
+    seisChartRef.current?.fitToWindow();
+  }, [seisChartRef]);
+
   const handleSeismogramScrollLeft = useCallback(() => {
     seisChartRef.current?.scrollLeft(0.1);
   }, [seisChartRef]);
@@ -289,6 +297,7 @@ export const useSeismogramCallback = () => {
     handleSeismogramCheckValueChange,
     handleSeismogramDecreaseAmplitude,
     handleSeismogramExtentChange,
+    handleSeismogramFitToWindow,
     handleSeismogramFocus,
     handleSeismogramIncreaseAmplitude,
     handleSeismogramMouseWheel,
@@ -304,6 +313,7 @@ export const useSeismogramCallback = () => {
     handleSeismogramSignalChange,
     handleSeismogramSpectrogramChange,
     handleSeismogramTrackDoubleClick,
+    handleSeismogramZoomFirstMinute,
     handleSeismogramZoomIn,
     handleSeismogramZoomOut,
     handleSetupEventEditing,

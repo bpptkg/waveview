@@ -123,6 +123,25 @@ export default function useSeismogramChartApi(options: SeismogramChartInitOption
           chartRef.current.render();
         }
       },
+      zoomFirstMinute: () => {
+        if (!chartRef.current || !webWorkerRef.current) {
+          return;
+        }
+        const { selectionWindow } = webWorkerRef.current.getOptions();
+        const [start] = selectionWindow;
+        const firstMinute = start + ONE_MINUTE;
+        chartRef.current.getXAxis().setExtent([start, firstMinute]);
+        chartRef.current.render();
+      },
+      fitToWindow: () => {
+        if (!chartRef.current || !webWorkerRef.current) {
+          return;
+        }
+        const { selectionWindow } = webWorkerRef.current.getOptions();
+        const [start, end] = selectionWindow;
+        chartRef.current.getXAxis().setExtent([start, end]);
+        chartRef.current.render();
+      },
       setTheme: (theme: 'light' | 'dark') => {
         if (chartRef.current) {
           chartRef.current.setTheme(theme);

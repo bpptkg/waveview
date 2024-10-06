@@ -1,5 +1,6 @@
 import { Switch, Toolbar, ToolbarButton, ToolbarDivider, ToolbarProps, ToolbarToggleButton, Tooltip, makeStyles, tokens } from '@fluentui/react-components';
 import {
+  ArrowAutofitWidthDotted20Regular,
   AutoFitHeight20Regular,
   BezierCurveSquareRegular,
   ChevronDownUp20Regular,
@@ -7,6 +8,7 @@ import {
   ChevronRight20Regular,
   ChevronUpDown20Regular,
   PulseRegular,
+  ZoomFit20Regular,
   ZoomIn20Regular,
   ZoomOut20Regular,
 } from '@fluentui/react-icons';
@@ -18,6 +20,8 @@ export interface SeismogramToolbarProps {
   showHideEvent?: boolean;
   onZoomIn?: () => void;
   onZoomOut?: () => void;
+  onZoomFirstMinute?: () => void;
+  onZoomFit?: () => void;
   onScrollLeft?: () => void;
   onScrollRight?: () => void;
   onScrollToDate?: (date: number) => void;
@@ -71,6 +75,8 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
     showHideEvent = true,
     onZoomIn,
     onZoomOut,
+    onZoomFirstMinute,
+    onZoomFit,
     onScrollLeft,
     onScrollRight,
     onIncreaseAmplitude,
@@ -120,6 +126,12 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
         </Tooltip>
         <Tooltip content="Zoom Out" relationship="label" showDelay={1500}>
           <ToolbarButton aria-label="Zoom Out" icon={<ZoomOut20Regular />} onClick={onZoomOut} />
+        </Tooltip>
+        <Tooltip content="Zoom First Minute" relationship="label" showDelay={1500}>
+          <ToolbarButton aria-label="Zoom First Minute" icon={<ArrowAutofitWidthDotted20Regular />} onClick={onZoomFirstMinute} />
+        </Tooltip>
+        <Tooltip content="Fit to Window" relationship="label" showDelay={1500}>
+          <ToolbarButton aria-label="Fit to Window" icon={<ZoomFit20Regular />} onClick={onZoomFit} />
         </Tooltip>
 
         <Tooltip content="Scroll Left" relationship="label" showDelay={1500}>

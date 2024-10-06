@@ -81,6 +81,10 @@ export class SeismogramWebWorker {
     this.options = { ...this.options, ...options };
   }
 
+  getOptions(): SeismogramWebWorkerOptions {
+    return this.options;
+  }
+
   fetchAllChannelsData(options?: RefreshOptions): void {
     const { mode } = options || { mode: 'force' };
     switch (mode) {

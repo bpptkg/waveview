@@ -87,6 +87,8 @@ export interface SeismogramChartRef {
   decreaseAmplitude: (by: number) => void;
   resetAmplitude: () => void;
   setExtent: (extent: [number, number], options?: SetExtentOptions) => void;
+  zoomFirstMinute: () => void;
+  fitToWindow: () => void;
   setTheme: (theme: 'light' | 'dark') => void;
   focus(): void;
   blur(): void;

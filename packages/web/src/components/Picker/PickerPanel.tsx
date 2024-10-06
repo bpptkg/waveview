@@ -45,6 +45,7 @@ const PickerPanel = () => {
     handleSeismogramCheckValueChange,
     handleSeismogramDecreaseAmplitude,
     handleSeismogramExtentChange,
+    handleSeismogramFitToWindow,
     handleSeismogramFocus,
     handleSeismogramIncreaseAmplitude,
     handleSeismogramMouseWheel,
@@ -57,6 +58,7 @@ const PickerPanel = () => {
     handleSeismogramSignalChange,
     handleSeismogramSpectrogramChange,
     handleSeismogramTrackDoubleClick,
+    handleSeismogramZoomFirstMinute,
     handleSeismogramZoomIn,
     handleSeismogramZoomOut,
   } = usePickerCallback();
@@ -159,6 +161,8 @@ const PickerPanel = () => {
               checkedValues={seismogramToolbarCheckedValues}
               onZoomIn={handleSeismogramZoomIn}
               onZoomOut={handleSeismogramZoomOut}
+              onZoomFirstMinute={handleSeismogramZoomFirstMinute}
+              onZoomFit={handleSeismogramFitToWindow}
               onScrollLeft={handleSeismogramScrollLeft}
               onScrollRight={handleSeismogramScrollRight}
               onIncreaseAmplitude={handleSeismogramIncreaseAmplitude}
