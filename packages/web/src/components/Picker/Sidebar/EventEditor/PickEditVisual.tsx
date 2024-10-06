@@ -15,20 +15,28 @@ const PickEditVisual = () => {
     return eventTypes.find((et) => et.id === eventTypeId)?.observation_type;
   }, [eventTypeId, eventTypes]);
 
-  switch (observationType) {
-    case 'explosion':
+  const component = useMemo(() => {
+    if (observationType === 'explosion') {
       return <VisualExplosionEvent />;
-    case 'pyroclastic_flow':
+    } else if (observationType === 'pyroclastic_flow') {
       return <VisualPyroclasticFlowEvent />;
-    case 'rockfall':
+    } else if (observationType === 'rockfall') {
       return <VisualRockfallEvent />;
-    case 'tectonic':
+    } else if (observationType === 'tectonic') {
       return <VisualTectonicEvent />;
-    case 'volcanic_emission':
+    } else if (observationType === 'volcanic_emission') {
       return <VisualVolcanicEmissionEvent />;
-    default:
-      return <div className="p-2">Not available</div>;
-  }
+    } else {
+      return <div>Visual not available</div>;
+    }
+  }, [observationType]);
+
+  return (
+    <div className="p-2">
+      <div className="h-[32px] font-semibold">Visual</div>
+      {component}
+    </div>
+  );
 };
 
 export default PickEditVisual;

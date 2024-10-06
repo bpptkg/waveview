@@ -21,12 +21,13 @@ import {
   Toast,
   Toaster,
   ToastTitle,
+  Tooltip,
   useId,
   useIsOverflowItemVisible,
   useOverflowMenu,
   useToastController,
 } from '@fluentui/react-components';
-import { MoreHorizontalRegular } from '@fluentui/react-icons';
+import { AttachRegular, CalendarAgendaRegular, MoreHorizontalRegular, SearchVisualRegular } from '@fluentui/react-icons';
 import React, { useCallback, useMemo, useState } from 'react';
 import { usePickerStore } from '../../../../stores/picker';
 import { SeismicEventDetail } from '../../../../types/event';
@@ -41,6 +42,7 @@ import PickEditVisual from './PickEditVisual';
 interface EditTabItem {
   value: string;
   label: string;
+  icon: JSX.Element;
 }
 
 const OverflowMenuItem: React.FC<{ tab: EditTabItem; onTabSelect?: (tab: string) => void }> = (props) => {
@@ -80,10 +82,9 @@ const OverflowMenu: React.FC<{ tabs: EditTabItem[]; onTabSelect?: (tab: string) 
 
 const EditItemTabList: React.FC<{ selectedValue?: string; onTabSelect?: (tab: string) => void }> = ({ selectedValue, onTabSelect }) => {
   const tabs: EditTabItem[] = [
-    { value: 'event', label: 'Event' },
-    { value: 'attachment', label: 'Attachments' },
-    { value: 'visual', label: 'Visual' },
-    { value: 'amplitude', label: 'Amplitude' },
+    { value: 'event', label: 'Event', icon: <CalendarAgendaRegular /> },
+    { value: 'attachment', label: 'Attachments', icon: <AttachRegular /> },
+    { value: 'visual', label: 'Visual', icon: <SearchVisualRegular /> },
   ];
 
   return (
@@ -92,9 +93,9 @@ const EditItemTabList: React.FC<{ selectedValue?: string; onTabSelect?: (tab: st
         <TabList selectedValue={selectedValue} onTabSelect={(_, data) => onTabSelect?.(data.value as string)}>
           {tabs.map((tab) => (
             <OverflowItem key={tab.value} id={tab.value}>
-              <Tab key={tab.value} value={tab.value}>
-                {tab.label}
-              </Tab>
+              <Tooltip content={tab.label} relationship="label" showDelay={1500}>
+                <Tab key={tab.value} value={tab.value} icon={tab.icon}></Tab>
+              </Tooltip>
             </OverflowItem>
           ))}
         </TabList>

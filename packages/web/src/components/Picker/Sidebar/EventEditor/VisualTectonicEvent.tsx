@@ -41,7 +41,7 @@ const VisualTectonicEvent = () => {
   );
 
   return (
-    <div className="p-2">
+    <div>
       <Field label={'MMI Scale'}>
         <Select defaultValue={mmiScale} onChange={(_, data) => handleMMIScaleChange(data.value)}>
           {MMIScaleOptions.map((option) => (

@@ -1,7 +1,7 @@
-import { Avatar, Dropdown, Field, Input, makeStyles, Option, Textarea } from '@fluentui/react-components';
+import { Avatar, Dropdown, Field, Input, makeStyles, Option, Spinner, Textarea } from '@fluentui/react-components';
 import { CircleFilled } from '@fluentui/react-icons';
 import React, { useCallback, useEffect } from 'react';
-import { formatTime } from '../../../../shared/formatting';
+import { formatNumber, formatTime } from '../../../../shared/formatting';
 import { useAppStore } from '../../../../stores/app';
 import { useEventTypeStore } from '../../../../stores/eventType';
 import { usePickerStore } from '../../../../stores/picker';
@@ -22,6 +22,8 @@ const PickEditEvent: React.FC = () => {
     note,
     pickRange,
     editedEvent,
+    amplitudes,
+    isCalculatingAmplitudes,
     getSelectedStations,
     setTime,
     setDuration,
@@ -83,12 +85,31 @@ const PickEditEvent: React.FC = () => {
 
   return (
     <div className="p-2">
+      <div className="h-[32px] font-semibold">Event</div>
+
       <Field label="Time">
         <Input appearance="outline" value={formatTime(time, { useUTC })} onChange={(_, data) => handleTimeChange(data.value)} />
       </Field>
 
       <Field label="Duration (s)">
         <Input min={0} appearance="outline" value={`${duration}`} type="number" onChange={(_, data) => handleDurationChange(data.value)} />
+      </Field>
+
+      <Field label="Amplitudes">
+        {isCalculatingAmplitudes ? (
+          <div className="p-2">
+            <Spinner label="Calculating amplitudes..." size="tiny" />
+          </div>
+        ) : amplitudes.length ? (
+          amplitudes.map((amplitude, index) => (
+            <div key={index} className="flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-800">
+              <div className="text-sm">{amplitude.stream_id}</div>
+              <div className="text-sm">{formatNumber(amplitude.amplitude, { precision: 2, unit: ` ${amplitude.unit}` })}</div>
+            </div>
+          ))
+        ) : (
+          <div>No amplitude data</div>
+        )}
       </Field>
 
       <Field label="Station of first arrival">

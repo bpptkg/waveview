@@ -83,7 +83,7 @@ const VisualRockfallEvent = () => {
   );
 
   return (
-    <div className="p-2">
+    <div>
       <Field label={'Observation Form'}>
         <Select defaultValue={observationForm} onChange={(_, data) => handleObservationFormChange(data.value)}>
           {ObservationFormOptions.map((option) => {
