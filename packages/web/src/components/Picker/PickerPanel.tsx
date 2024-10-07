@@ -102,7 +102,7 @@ const PickerPanel = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (autoUpdate && showHelicorder) {
+      if (autoUpdate && showHelicorder && showEvent) {
         handleHelicorderAutoUpdate();
       }
     }, autoUpdateInterval * 1000);
@@ -110,7 +110,7 @@ const PickerPanel = () => {
     return () => {
       clearInterval(interval);
     };
-  }, [showHelicorder, autoUpdate, autoUpdateInterval, handleHelicorderAutoUpdate]);
+  }, [showHelicorder, autoUpdate, autoUpdateInterval, showEvent, handleHelicorderAutoUpdate]);
 
   const handleEventMarkerContextMenu = useCallback((e: ElementEvent, marker: SeismogramEventMarkerOptions) => {
     eventMarkerContextMenuRef.current?.open(e, marker);
