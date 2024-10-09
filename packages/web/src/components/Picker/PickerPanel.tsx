@@ -52,6 +52,7 @@ const PickerPanel = () => {
     handleSeismogramOnReady,
     handleSeismogramPickChange,
     handleSeismogramResetAmplitude,
+    handleSeismogramScalingChange,
     handleSeismogramScrollLeft,
     handleSeismogramScrollRight,
     handleSeismogramShowEvent,
@@ -172,6 +173,7 @@ const PickerPanel = () => {
               onCheckedValueChange={handleSeismogramCheckValueChange}
               onSpectrogramChange={handleSeismogramSpectrogramChange}
               onSignalChange={handleSeismogramSignalChange}
+              onScalingChange={handleSeismogramScalingChange}
             />
             <div className="flex-grow relative">
               <SeismogramChart

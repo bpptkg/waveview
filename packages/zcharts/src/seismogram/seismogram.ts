@@ -204,6 +204,10 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     this.getXAxis().getModel().setUseUTC(useUTC);
   }
 
+  setScaling(scaling: "global" | "local"): void {
+    this.getModel().mergeOptions({ scaling });
+  }
+
   setChannelData(channelId: string, data: Series): void {
     this.channelDataStore.set(channelId, data);
   }
@@ -221,6 +225,15 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   }
 
   refreshChannelData(): void {
+    const { scaling } = this.getModel().getOptions();
+    if (scaling === "global") {
+      this.refreshGlobalScaling();
+    } else {
+      this.refreshLocalScaling();
+    }
+  }
+
+  private refreshGlobalScaling(): void {
     let normFactor = -Infinity;
     for (const channel of this.trackManager.channels()) {
       const series = this.channelDataStore.get(channel.id);
@@ -240,6 +253,23 @@ export class Seismogram extends ChartView<SeismogramOptions> {
       if (!series || series.isEmpty()) {
         continue;
       }
+      const norm = series.scalarDivide(normFactor);
+      track.getSignal().setData(norm);
+    }
+  }
+
+  private refreshLocalScaling(): void {
+    for (const [channel, track] of this.trackManager.items()) {
+      const series = this.getChannelData(channel.id);
+      if (!series || series.isEmpty()) {
+        continue;
+      }
+      const min = series.min();
+      const max = series.max();
+      if (min === max) {
+        continue; // Avoid division by zero
+      }
+      const normFactor = Math.max(Math.abs(min), Math.abs(max));
       const norm = series.scalarDivide(normFactor);
       track.getSignal().setData(norm);
     }

@@ -323,6 +323,13 @@ export default function useSeismogramChartApi(options: SeismogramChartInitOption
           return undefined;
         }
       },
+      setScaling: (scaling) => {
+        if (chartRef.current) {
+          chartRef.current.setScaling(scaling);
+          chartRef.current.refreshChannelData();
+          chartRef.current.render();
+        }
+      },
     };
   }, [chartRef, webWorkerRef]);
 }

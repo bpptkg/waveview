@@ -5,27 +5,29 @@ import { useAppStore } from '../../stores/app';
 import { usePickerStore } from '../../stores/picker';
 import { useSidebarStore } from '../../stores/sidebar';
 import { SeismicEventDetail } from '../../types/event';
+import { ScalingType } from '../../types/scaling';
 import { usePickerContext } from './PickerContext';
 
 export const useSeismogramCallback = () => {
   const {
     lastSeismogramExtent,
     isExpandMode,
-    setShowEvent,
-    setSelectedChart,
-    seismogramToolbarSetCheckedValues,
-    setPickRange,
-    setPickMode,
-    clearPick,
-    setEditedEvent,
-    setLastSeismogramExtent,
-    getChannelsConfig,
-    resetEditing,
-    setExpandMode,
-    isPickEmpty,
-    setStationOfFirstArrivalId,
-    getSelectedStations,
     calcSignalAmplitudes,
+    clearPick,
+    getChannelsConfig,
+    getScalingType,
+    getSelectedStations,
+    isPickEmpty,
+    resetEditing,
+    seismogramToolbarSetCheckedValues,
+    setEditedEvent,
+    setExpandMode,
+    setLastSeismogramExtent,
+    setPickMode,
+    setPickRange,
+    setSelectedChart,
+    setShowEvent,
+    setStationOfFirstArrivalId,
   } = usePickerStore();
 
   const { heliChartRef, seisChartRef, contextMenuRef, props, setSeisChartReady } = usePickerContext();
@@ -268,6 +270,7 @@ export const useSeismogramCallback = () => {
       return lastSeismogramExtent;
     };
     const [startTime, endTime] = determinteInitialExtent();
+    const scaling = getScalingType();
 
     const initOptions: Partial<SeismogramOptions> = {
       channels: getChannelsConfig().map((item) => ({
@@ -286,9 +289,17 @@ export const useSeismogramCallback = () => {
       useUTC,
       startTime,
       endTime,
+      scaling,
     };
     return initOptions;
-  }, [darkMode, useUTC, event, lastSeismogramExtent, getChannelsConfig]);
+  }, [darkMode, useUTC, event, lastSeismogramExtent, getChannelsConfig, getScalingType]);
+
+  const handleSeismogramScalingChange = useCallback(
+    (scaling: ScalingType) => {
+      seisChartRef.current?.setScaling(scaling);
+    },
+    [seisChartRef]
+  );
 
   return {
     getSeismogramInitOptions,
@@ -307,6 +318,7 @@ export const useSeismogramCallback = () => {
     handleSeismogramPickModeChange,
     handleSeismogramResetAmplitude,
     handleSeismogramRestoreView,
+    handleSeismogramScalingChange,
     handleSeismogramScrollLeft,
     handleSeismogramScrollRight,
     handleSeismogramShowEvent,

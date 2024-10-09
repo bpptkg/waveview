@@ -1,6 +1,7 @@
 import { Switch, Toolbar, ToolbarButton, ToolbarDivider, ToolbarProps, ToolbarToggleButton, Tooltip, makeStyles, tokens } from '@fluentui/react-components';
 import {
   ArrowAutofitWidthDotted20Regular,
+  ArrowMaximizeVerticalRegular,
   AutoFitHeight20Regular,
   BezierCurveSquareRegular,
   ChevronDownUp20Regular,
@@ -13,11 +14,13 @@ import {
   ZoomOut20Regular,
 } from '@fluentui/react-icons';
 import React, { useCallback } from 'react';
+import { ScalingType } from '../../../types/scaling';
 
 export interface SeismogramToolbarProps {
   showEvent?: boolean;
   checkedValues?: Record<string, string[]>;
   showHideEvent?: boolean;
+  scaling?: ScalingType;
   onZoomIn?: () => void;
   onZoomOut?: () => void;
   onZoomFirstMinute?: () => void;
@@ -32,6 +35,7 @@ export interface SeismogramToolbarProps {
   onCheckedValueChange?: (name: string, values: string[]) => void;
   onSignalChange?: (active: boolean) => void;
   onSpectrogramChange?: (active: boolean) => void;
+  onScalingChange?: (scaling: ScalingType) => void;
 }
 
 const useStyles = makeStyles({
@@ -86,6 +90,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
     onCheckedValueChange,
     onSignalChange,
     onSpectrogramChange,
+    onScalingChange,
   } = props;
 
   const styles = useStyles();
@@ -111,11 +116,17 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
         } else {
           onSignalChange?.(false);
         }
+
+        if (checkedItems.includes('scaling')) {
+          onScalingChange?.('local');
+        } else {
+          onScalingChange?.('global');
+        }
       }
 
       onCheckedValueChange?.(name, checkedItems);
     },
-    [onCheckedValueChange, onSpectrogramChange, onSignalChange]
+    [onCheckedValueChange, onSpectrogramChange, onSignalChange, onScalingChange]
   );
 
   return (
@@ -148,6 +159,15 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
         </Tooltip>
         <Tooltip content="Reset Amplitude" relationship="label" showDelay={1500}>
           <ToolbarButton aria-label="Reset Amplitude" icon={<AutoFitHeight20Regular />} onClick={onResetAmplitude} />
+        </Tooltip>
+        <Tooltip content="Toggle Global or Local Scaling" relationship="label" showDelay={1500}>
+          <ToolbarToggleButton
+            aria-label="Toggle Global or Local Scaling"
+            icon={<ArrowMaximizeVerticalRegular className={styles.icon} />}
+            name="options"
+            value="scaling"
+            appearance="subtle"
+          />
         </Tooltip>
         <ToolbarDivider />
 

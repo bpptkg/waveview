@@ -1,4 +1,5 @@
 import { Channel } from '../../../types/channel';
+import { ScalingType } from '../../../types/scaling';
 import { StationWithChannel } from '../../../types/station';
 
 export interface ChannelConfig {
@@ -36,4 +37,9 @@ export interface SeismogramSlice {
   getChannelById: (id: string) => Channel | undefined;
   getSelectedStations: () => StationWithChannel[];
   getChannelsConfig: () => ChannelConfig[];
+  /**
+   * Get the scaling type of the seismogram chart. This is used when the
+   * seismogram is unmounted and remounted.
+   */
+  getScalingType: () => ScalingType;
 }

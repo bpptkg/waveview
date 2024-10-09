@@ -47,6 +47,10 @@ export interface SeismogramOptions extends ChartOptions {
    * Whether to enable tooltip.
    */
   enableTooltip?: boolean;
+  /**
+   * The vertical scaling of the seismogram chart.
+   */
+  scaling: "global" | "local";
 }
 
 export function getDefaultOptions(): SeismogramOptions {
@@ -70,5 +74,6 @@ export function getDefaultOptions(): SeismogramOptions {
     channels: [],
     markers: [],
     enableTooltip: true,
+    scaling: "global",
   };
 }

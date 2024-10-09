@@ -10,7 +10,7 @@ export const createSeismogramSlice: StateCreator<PickerStore, [], [], Seismogram
   return {
     lastSeismogramExtent: [start, end],
     seismogramToolbarCheckedValues: {
-      options: ['signal'],
+      options: ['signal'], // signal, spectrogram, scaling
     },
     isExpandMode: false,
     expandedChannelIndex: -1,
@@ -67,6 +67,11 @@ export const createSeismogramSlice: StateCreator<PickerStore, [], [], Seismogram
     getSelectedStations: () => {
       const stations = useInventoryStore.getState().stations();
       return stations.sort((a, b) => a.code.localeCompare(b.code));
+    },
+
+    getScalingType: () => {
+      const { seismogramToolbarCheckedValues } = get();
+      return seismogramToolbarCheckedValues.options.includes('scaling') ? 'local' : 'global';
     },
   };
 };
