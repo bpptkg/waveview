@@ -42,4 +42,8 @@ export interface SeismogramSlice {
    * seismogram is unmounted and remounted.
    */
   getScalingType: () => ScalingType;
+  /**
+   * True if the spectrogram is shown.
+   */
+  isShowSpecrogram: () => boolean;
 }

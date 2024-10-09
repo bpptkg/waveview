@@ -1,4 +1,15 @@
-import { Switch, Toolbar, ToolbarButton, ToolbarDivider, ToolbarProps, ToolbarToggleButton, Tooltip, makeStyles, tokens } from '@fluentui/react-components';
+import {
+  Select,
+  Switch,
+  Toolbar,
+  ToolbarButton,
+  ToolbarDivider,
+  ToolbarProps,
+  ToolbarToggleButton,
+  Tooltip,
+  makeStyles,
+  tokens,
+} from '@fluentui/react-components';
 import {
   ArrowAutofitWidthDotted20Regular,
   ArrowMaximizeVerticalRegular,
@@ -13,14 +24,17 @@ import {
   ZoomIn20Regular,
   ZoomOut20Regular,
 } from '@fluentui/react-icons';
+import { isEqual } from 'lodash';
 import React, { useCallback } from 'react';
+import { BandpassFilterOptions, FilterOperationOptions, HighpassFilterOptions, LowpassFilterOptions } from '../../../types/filter';
 import { ScalingType } from '../../../types/scaling';
 
 export interface SeismogramToolbarProps {
   showEvent?: boolean;
   checkedValues?: Record<string, string[]>;
   showHideEvent?: boolean;
-  scaling?: ScalingType;
+  appliedFilter?: FilterOperationOptions | null;
+  filterOptions?: FilterOperationOptions[];
   onZoomIn?: () => void;
   onZoomOut?: () => void;
   onZoomFirstMinute?: () => void;
@@ -36,7 +50,24 @@ export interface SeismogramToolbarProps {
   onSignalChange?: (active: boolean) => void;
   onSpectrogramChange?: (active: boolean) => void;
   onScalingChange?: (scaling: ScalingType) => void;
+  onFilterChange?: (filter: FilterOperationOptions | null) => void;
 }
+
+const formatFilterText = (appliedFilter: FilterOperationOptions): string => {
+  let text = '';
+  const { filterType, filterOptions } = appliedFilter;
+  if (filterType === 'bandpass') {
+    const bandpass = filterOptions as BandpassFilterOptions;
+    text = `BP: ${bandpass.freqmin}-${bandpass.freqmax} Hz, order ${bandpass.order}`;
+  } else if (filterType === 'lowpass') {
+    const lowpass = filterOptions as LowpassFilterOptions;
+    text = `LP: ${lowpass.freq} Hz, order ${lowpass.order}`;
+  } else if (filterType === 'highpass') {
+    const highpass = filterOptions as HighpassFilterOptions;
+    text = `HP: ${highpass.freq} Hz, order ${highpass.order}`;
+  }
+  return text;
+};
 
 const useStyles = makeStyles({
   btn: {
@@ -70,6 +101,11 @@ const useStyles = makeStyles({
     gap: '3px',
     height: '40px',
   },
+  switch: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    whiteSpace: 'nowrap',
+  },
 });
 
 const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
@@ -77,6 +113,8 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
     showEvent = true,
     checkedValues = {},
     showHideEvent = true,
+    appliedFilter,
+    filterOptions = [],
     onZoomIn,
     onZoomOut,
     onZoomFirstMinute,
@@ -91,6 +129,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
     onSignalChange,
     onSpectrogramChange,
     onScalingChange,
+    onFilterChange,
   } = props;
 
   const styles = useStyles();
@@ -130,7 +169,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
   );
 
   return (
-    <div className="bg-white dark:bg-black border-b dark:border-b-gray-800 flex justify-between items-center">
+    <div className="bg-white dark:bg-black border-b dark:border-b-gray-800 flex justify-between items-center overflow-x-auto">
       <Toolbar aria-label="Seismogram Toolbar" checkedValues={checkedValues} onCheckedValueChange={handleToolbarCheckedValueChange} className={styles.toolbar}>
         <Tooltip content="Zoom In" relationship="label" showDelay={1500}>
           <ToolbarButton aria-label="Zoom In" icon={<ZoomIn20Regular />} onClick={onZoomIn} />
@@ -184,10 +223,25 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
           />
         </Tooltip>
 
+        <Select
+          defaultValue={filterOptions.findIndex((item) => isEqual(item, appliedFilter))}
+          onChange={(_, data) => {
+            const index = parseInt(data.value as string);
+            onFilterChange?.(index === -1 ? null : filterOptions[index]);
+          }}
+        >
+          <option value={-1}>Select filter</option>
+          {filterOptions.map((option, index) => (
+            <option key={index} value={index}>
+              {formatFilterText(option)}
+            </option>
+          ))}
+        </Select>
+
         {showHideEvent && (
           <>
             <ToolbarDivider />
-            <Switch checked={showEvent} label={showEvent ? 'Hide Event' : 'Show Event'} onChange={handleShowEventChange} />
+            <Switch className={styles.switch} checked={showEvent} label={showEvent ? 'Hide Event' : 'Show Event'} onChange={handleShowEventChange} />
           </>
         )}
       </Toolbar>

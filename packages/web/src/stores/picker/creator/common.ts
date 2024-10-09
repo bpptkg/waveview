@@ -1,6 +1,7 @@
 import { StateCreator } from 'zustand';
 import { api } from '../../../services/api';
 import apiVersion from '../../../services/apiVersion';
+import { BandpassFilterOptions, FilterOperationOptions, HighpassFilterOptions, LowpassFilterOptions } from '../../../types/filter';
 import { PickerConfig } from '../../../types/picker';
 import { CustomError, ErrorData } from '../../../types/response';
 import { useCatalogStore } from '../../catalog';
@@ -159,6 +160,51 @@ export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> =
 
     setEventMarkers: (eventMarkers) => {
       set({ eventMarkers });
+    },
+
+    getFilterOptions: () => {
+      const { pickerConfig } = get();
+      return (
+        pickerConfig?.data?.filters.map((item) => {
+          if (item.type === 'bandpass') {
+            return {
+              filterType: 'bandpass',
+              filterOptions: {
+                freqmin: item.freqmin,
+                freqmax: item.freqmax,
+                order: item.order,
+                zerophase: item.zerophase,
+              } as BandpassFilterOptions,
+              taperType: item.taper,
+              taperWidth: item.taper_width,
+            } as FilterOperationOptions;
+          } else if (item.type === 'lowpass') {
+            return {
+              filterType: 'lowpass',
+              filterOptions: {
+                freq: item.freq,
+                order: item.order,
+                zerophase: item.zerophase,
+              } as LowpassFilterOptions,
+              taperType: item.taper,
+              taperWidth: item.taper_width,
+            } as FilterOperationOptions;
+          } else if (item.type === 'highpass') {
+            return {
+              filterType: 'highpass',
+              filterOptions: {
+                freq: item.freq,
+                order: item.order,
+                zerophase: item.zerophase,
+              } as HighpassFilterOptions,
+              taperType: item.taper,
+              taperWidth: item.taper_width,
+            } as FilterOperationOptions;
+          } else {
+            throw new CustomError('Invalid filter type');
+          }
+        }) ?? []
+      );
     },
   };
 };

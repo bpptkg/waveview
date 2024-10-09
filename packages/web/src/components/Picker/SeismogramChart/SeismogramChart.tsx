@@ -13,6 +13,7 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
   const {
     initOptions,
     className,
+    appliedFilter,
     onFocus,
     onBlur,
     onExtentChange,
@@ -105,6 +106,7 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
 
       chartRef.current = new Seismogram(parentRef.current, initOptions);
       const token = getJwtToken();
+
       workerRef.current = new Worker(new URL('../../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
       workerRef.current.postMessage({ type: 'setup', payload: { token } });
       webWorkerRef.current = new SeismogramWebWorker(chartRef.current, workerRef.current);
@@ -112,6 +114,8 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
       if (startTime && endTime) {
         webWorkerRef.current.mergeOptions({ selectionWindow: [startTime, endTime] });
       }
+      webWorkerRef.current.mergeOptions({ appliedFilter });
+
       chartRef.current.on('blur', handleBlur);
       chartRef.current.on('extentChanged', handleExtentChange);
       chartRef.current.on('trackDoubleClicked', handleTrackDoubleClick);
@@ -140,7 +144,7 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
     init();
 
     setTimeout(() => {
-      webWorkerRef.current?.fetchAllChannelsData({ mode: 'cache' });
+      webWorkerRef.current?.restoreAllChannelsData();
     }, 100);
 
     return () => {

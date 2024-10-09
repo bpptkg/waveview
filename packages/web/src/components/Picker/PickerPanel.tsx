@@ -1,6 +1,7 @@
 import { ElementEvent, SeismogramEventMarkerOptions } from '@waveview/zcharts';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import { useFilterStore } from '../../stores/filter';
 import { usePickerStore } from '../../stores/picker';
 import { useSidebarStore } from '../../stores/sidebar';
 import EventMarkerContextMenu, { EventMarkerContextMenuRef } from './ContextMenu/EventMarkerContextMenu';
@@ -25,7 +26,7 @@ const PickerPanel = () => {
   const trackContextMenuRef = useRef<TrackContextMenuRef | null>(null);
 
   const { setSeisChartRef, setHeliChartRef, setContextMenuRef } = usePickerContext();
-  const { offsetDate, showEvent, seismogramToolbarCheckedValues } = usePickerStore();
+  const { offsetDate, showEvent, seismogramToolbarCheckedValues, getFilterOptions } = usePickerStore();
   const {
     getHelicorderInitOptions,
     getSeismogramInitOptions,
@@ -45,6 +46,7 @@ const PickerPanel = () => {
     handleSeismogramCheckValueChange,
     handleSeismogramDecreaseAmplitude,
     handleSeismogramExtentChange,
+    handleSeismogramFilterChange,
     handleSeismogramFitToWindow,
     handleSeismogramFocus,
     handleSeismogramIncreaseAmplitude,
@@ -121,6 +123,8 @@ const PickerPanel = () => {
     trackContextMenuRef.current?.open(e, index);
   }, []);
 
+  const { appliedFilter } = useFilterStore();
+
   return (
     <div className="flex-grow relative flex mt-1 border-t dark:border-t-gray-800 dark:border-transparent">
       <PanelGroup direction="horizontal" className="relative">
@@ -160,6 +164,8 @@ const PickerPanel = () => {
             <SeismogramToolbar
               showEvent={showEvent}
               checkedValues={seismogramToolbarCheckedValues}
+              appliedFilter={appliedFilter}
+              filterOptions={getFilterOptions()}
               onZoomIn={handleSeismogramZoomIn}
               onZoomOut={handleSeismogramZoomOut}
               onZoomFirstMinute={handleSeismogramZoomFirstMinute}
@@ -174,12 +180,14 @@ const PickerPanel = () => {
               onSpectrogramChange={handleSeismogramSpectrogramChange}
               onSignalChange={handleSeismogramSignalChange}
               onScalingChange={handleSeismogramScalingChange}
+              onFilterChange={handleSeismogramFilterChange}
             />
             <div className="flex-grow relative">
               <SeismogramChart
                 ref={seisChartRef}
                 className={seismogramClassName}
                 initOptions={getSeismogramInitOptions()}
+                appliedFilter={appliedFilter}
                 onFocus={handleSeismogramFocus}
                 onExtentChange={handleSeismogramExtentChange}
                 onMouseWheel={handleSeismogramMouseWheel}

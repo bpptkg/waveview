@@ -70,7 +70,7 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
   const [offsetDatePickerOpen, setOffsetDatePickerOpen] = React.useState<boolean>(false);
 
   return (
-    <div className="bg-white dark:bg-black border-b border-r dark:border-b-gray-800 dark:border-r-gray-800 flex justify-between items-center relative">
+    <div className="bg-white dark:bg-black border-b border-r dark:border-b-gray-800 dark:border-r-gray-800 flex justify-between items-center relative overflow-x-auto">
       <Toolbar aria-label="Helicorder Toolbar" className={styles.toolbar}>
         <Popover trapFocus open={offsetDatePickerOpen} onOpenChange={() => setOffsetDatePickerOpen(!offsetDatePickerOpen)}>
           <PopoverTrigger disableButtonEnhancement>

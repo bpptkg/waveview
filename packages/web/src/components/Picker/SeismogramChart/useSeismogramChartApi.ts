@@ -100,7 +100,7 @@ export default function useSeismogramChartApi(options: SeismogramChartInitOption
         }
       },
       setExtent: (extent: [number, number], options?: SetExtentOptions) => {
-        if (chartRef.current) {
+        if (chartRef.current && webWorkerRef.current) {
           chartRef.current.clearChannelData();
           chartRef.current.clearSpectrogramData();
 
@@ -115,10 +115,17 @@ export default function useSeismogramChartApi(options: SeismogramChartInitOption
             chartRef.current.getXAxis().setExtent(extent);
           }
 
-          webWorkerRef.current?.mergeOptions({ selectionWindow: extent });
-          webWorkerRef.current?.fetchAllChannelsData();
+          webWorkerRef.current.mergeOptions({ selectionWindow: extent });
+
+          if (webWorkerRef.current.hasFilter()) {
+            const { appliedFilter } = webWorkerRef.current.getOptions();
+            webWorkerRef.current.fetchAllFiltersData(appliedFilter!);
+          } else {
+            webWorkerRef.current.fetchAllChannelsData();
+          }
+
           if (chartRef.current.isSpectrogramShown()) {
-            webWorkerRef.current?.fetchAllSpectrogramData();
+            webWorkerRef.current.fetchAllSpectrogramData();
           }
           chartRef.current.render();
         }
@@ -258,10 +265,12 @@ export default function useSeismogramChartApi(options: SeismogramChartInitOption
         webWorkerRef.current?.fetchAllChannelsData();
       },
       applyFilter: (options) => {
+        webWorkerRef.current?.mergeOptions({ appliedFilter: options });
         webWorkerRef.current?.fetchAllFiltersData(options);
       },
       resetFilter: () => {
         webWorkerRef.current?.fetchAllChannelsData();
+        webWorkerRef.current?.mergeOptions({ appliedFilter: null });
       },
       showSpectrogram: () => {
         if (chartRef.current) {

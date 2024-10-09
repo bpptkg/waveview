@@ -46,6 +46,7 @@ export class DataStore<T> {
 }
 
 const signalCache = new DataStore<Series>();
+const spectrogramCache = new DataStore<SpectrogramData>();
 
 export interface SeismogramWebWorkerOptions {
   /**
@@ -57,6 +58,21 @@ export interface SeismogramWebWorkerOptions {
    * extent because the chart extent may change when the user zooms in/out.
    */
   selectionWindow: [number, number];
+  /**
+   * Applied filter options. If null, the worker will fetch the raw data. If not
+   * null, the worker will fetch the filtered data.
+   */
+  appliedFilter: FilterOperationOptions | null;
+  /**
+   * Whether to resample the data in the signal, filtered signal, and
+   * spectrogram. Note that when resampling, spectrogram data will be resampled
+   * to match the width of the seismogram data.
+   */
+  resample: boolean;
+  /**
+   * The sample rate of the data.
+   */
+  sampleRate: number;
 }
 
 export class SeismogramWebWorker {
@@ -67,6 +83,9 @@ export class SeismogramWebWorker {
   static readonly defaultOptions: SeismogramWebWorkerOptions = {
     forceCenter: true,
     selectionWindow: [Date.now() - 5 * ONE_MINUTE, Date.now()],
+    appliedFilter: null,
+    resample: true,
+    sampleRate: 50,
   };
 
   constructor(chart: Seismogram, worker: Worker, options?: Partial<SeismogramWebWorkerOptions>) {
@@ -83,6 +102,26 @@ export class SeismogramWebWorker {
 
   getOptions(): SeismogramWebWorkerOptions {
     return this.options;
+  }
+
+  hasFilter(): boolean {
+    return this.options.appliedFilter !== null && this.options.appliedFilter !== undefined;
+  }
+
+  /**
+   * Convenient method to restore all channels data. Use this when initializing
+   * the chart only.
+   */
+  restoreAllChannelsData(): void {
+    if (this.hasFilter()) {
+      const { appliedFilter } = this.options;
+      this.fetchAllFiltersData(appliedFilter!);
+    } else {
+      this.fetchAllChannelsData({ mode: 'cache' });
+    }
+    if (this.chart.isSpectrogramShown()) {
+      this.fetchAllSpectrogramData({ mode: 'cache' });
+    }
   }
 
   fetchAllChannelsData(options?: RefreshOptions): void {
@@ -123,7 +162,7 @@ export class SeismogramWebWorker {
   fetchChannelData(channelId: string): void {
     const [start, end] = this.options.selectionWindow;
     const requestId = uuid4();
-    const { forceCenter } = this.options;
+    const { forceCenter, resample, sampleRate } = this.options;
     const msg: WorkerRequestData<StreamRequestData> = {
       type: 'stream.fetch',
       payload: {
@@ -132,18 +171,46 @@ export class SeismogramWebWorker {
         start,
         end,
         forceCenter,
-        resample: true,
-        sampleRate: 50,
+        resample,
+        sampleRate,
       },
     };
 
     this.worker.postMessage(msg);
   }
 
-  fetchAllSpectrogramData(): void {
+  fetchAllSpectrogramData(options?: RefreshOptions): void {
+    const { mode } = options || { mode: 'force' };
+    switch (mode) {
+      case 'force':
+        this.fetchAllSpectrogramDataForce();
+        break;
+      case 'cache':
+        this.fetchAllSpectrogramDataCache();
+        break;
+      default:
+        break;
+    }
+  }
+
+  private fetchAllSpectrogramDataForce(): void {
     for (const channel of this.chart.getChannels()) {
       this.fetchSpecrogramData(channel.id);
     }
+  }
+
+  private fetchAllSpectrogramDataCache(): void {
+    for (const channel of this.chart.getChannels()) {
+      const [start, end] = this.options.selectionWindow;
+      const key = JSON.stringify([channel.id, start, end]);
+      const specgram = spectrogramCache.get(key);
+      if (specgram) {
+        this.chart.setSpectrogramData(channel.id, specgram);
+      } else {
+        this.fetchSpecrogramData(channel.id);
+      }
+    }
+    this.chart.render();
   }
 
   fetchSpecrogramData(channelId: string): void {
@@ -155,6 +222,7 @@ export class SeismogramWebWorker {
     }
     const { width, height } = track.getRect();
     const requestId = uuid4();
+    const { resample, sampleRate } = this.options;
     const msg: WorkerRequestData<SpectrogramRequestData> = {
       type: 'stream.spectrogram',
       payload: {
@@ -164,8 +232,8 @@ export class SeismogramWebWorker {
         end,
         width,
         height,
-        resample: true,
-        sampleRate: 50, // Need to be the same as the sample rate of the seismogram data.
+        resample,
+        sampleRate,
       },
     };
 
@@ -185,6 +253,7 @@ export class SeismogramWebWorker {
     }
 
     const [start, end] = this.options.selectionWindow;
+    const { resample, sampleRate } = this.options;
     const msg: WorkerRequestData<FilterRequestData> = {
       type: 'stream.filter',
       payload: {
@@ -196,6 +265,8 @@ export class SeismogramWebWorker {
         filterOptions,
         taperType,
         taperWidth,
+        resample,
+        sampleRate,
       },
     };
     this.worker.postMessage(msg);
@@ -252,6 +323,10 @@ export class SeismogramWebWorker {
     }
     this.chart.setSpectrogramData(channelId, specgram);
     this.chart.render();
+
+    const [start, end] = this.options.selectionWindow;
+    const key = JSON.stringify([channelId, start, end]);
+    spectrogramCache.set(key, specgram);
   }
 
   private onStreamFilterMessage(payload: StreamResponseData): void {

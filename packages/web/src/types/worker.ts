@@ -77,4 +77,6 @@ export interface FilterRequestData {
   filterOptions: FilterOptions;
   taperType: TaperType;
   taperWidth: number;
+  resample: boolean;
+  sampleRate: number;
 }

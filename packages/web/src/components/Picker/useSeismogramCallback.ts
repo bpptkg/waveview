@@ -2,9 +2,11 @@ import { ElementEvent, SeismogramOptions } from '@waveview/zcharts';
 import { useCallback } from 'react';
 import { getPickExtent, ONE_SECOND } from '../../shared/time';
 import { useAppStore } from '../../stores/app';
+import { useFilterStore } from '../../stores/filter';
 import { usePickerStore } from '../../stores/picker';
 import { useSidebarStore } from '../../stores/sidebar';
 import { SeismicEventDetail } from '../../types/event';
+import { FilterOperationOptions } from '../../types/filter';
 import { ScalingType } from '../../types/scaling';
 import { usePickerContext } from './PickerContext';
 
@@ -18,6 +20,7 @@ export const useSeismogramCallback = () => {
     getScalingType,
     getSelectedStations,
     isPickEmpty,
+    isShowSpecrogram,
     resetEditing,
     seismogramToolbarSetCheckedValues,
     setEditedEvent,
@@ -290,15 +293,31 @@ export const useSeismogramCallback = () => {
       startTime,
       endTime,
       scaling,
+      showSpecrogram: isShowSpecrogram(),
     };
     return initOptions;
-  }, [darkMode, useUTC, event, lastSeismogramExtent, getChannelsConfig, getScalingType]);
+  }, [darkMode, useUTC, event, lastSeismogramExtent, getChannelsConfig, getScalingType, isShowSpecrogram]);
 
   const handleSeismogramScalingChange = useCallback(
     (scaling: ScalingType) => {
       seisChartRef.current?.setScaling(scaling);
     },
     [seisChartRef]
+  );
+
+  const { setAppliedFilter } = useFilterStore();
+
+  const handleSeismogramFilterChange = useCallback(
+    (filter: FilterOperationOptions | null) => {
+      if (!filter) {
+        seisChartRef.current?.resetFilter();
+        setAppliedFilter(null);
+      } else {
+        seisChartRef.current?.applyFilter(filter);
+        setAppliedFilter(filter);
+      }
+    },
+    [seisChartRef, setAppliedFilter]
   );
 
   return {
@@ -308,6 +327,7 @@ export const useSeismogramCallback = () => {
     handleSeismogramCheckValueChange,
     handleSeismogramDecreaseAmplitude,
     handleSeismogramExtentChange,
+    handleSeismogramFilterChange,
     handleSeismogramFitToWindow,
     handleSeismogramFocus,
     handleSeismogramIncreaseAmplitude,

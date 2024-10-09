@@ -12,6 +12,10 @@ export interface SeismogramChartProps {
    */
   initOptions?: Partial<SeismogramOptions>;
   /**
+   * If set, show filtered spectrogram signal instead of raw signal.
+   */
+  appliedFilter?: FilterOperationOptions | null;
+  /**
    * Callback fired when the chart is focused.
    */
   onFocus?: () => void;

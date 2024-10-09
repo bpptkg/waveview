@@ -11,7 +11,7 @@ const FilterStatus = () => {
   const { filterType, filterOptions } = appliedFilter;
   if (filterType === 'bandpass') {
     const bandpass = filterOptions as BandpassFilterOptions;
-    text = `BP: ${bandpass.freqmin} - ${bandpass.freqmax} Hz, order ${bandpass.order}`;
+    text = `BP: ${bandpass.freqmin}-${bandpass.freqmax} Hz, order ${bandpass.order}`;
   } else if (filterType === 'lowpass') {
     const lowpass = filterOptions as LowpassFilterOptions;
     text = `LP: ${lowpass.freq} Hz, order ${lowpass.order}`;

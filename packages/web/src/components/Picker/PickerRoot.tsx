@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { useFilterStore } from '../../stores/filter';
 import { usePickerContext } from './PickerContext';
 import { usePickerCallback } from './usePickerCallback';
 
@@ -34,15 +33,12 @@ const PickerRoot: React.FC<PickerRootProps> = ({ children }) => {
     }
   }, [heliChartReadyRef, seisChartReadyRef, handleUpdateEventMarkers]);
 
-  const { setAppliedFilter } = useFilterStore();
-
   // Cleanup when unmount.
   useEffect(() => {
     return () => {
       handleSeismogramOnDestroy();
-      setAppliedFilter(null);
     };
-  }, [handleSeismogramOnDestroy, setAppliedFilter]);
+  }, [handleSeismogramOnDestroy]);
 
   return (
     <div className="flex flex-col flex-grow relative overflow-hidden" ref={workspaceRef}>

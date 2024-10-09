@@ -8,12 +8,38 @@ export interface AmplitudeConfig {
   channels: ChannelConfig[];
 }
 
+export interface BaseFilterOptions {
+  order: number;
+  zerophase: boolean;
+  taper: string;
+  taper_width: number;
+}
+
+export interface BandpassFilterOptions extends BaseFilterOptions {
+  type: 'bandpass';
+  freqmin: number;
+  freqmax: number;
+}
+
+export interface LowpassFilterOptions extends BaseFilterOptions {
+  type: 'lowpass';
+  freq: number;
+}
+
+export interface HighpassFilterOptions extends BaseFilterOptions {
+  type: 'highpass';
+  freq: number;
+}
+
+export type FilterOptions = BandpassFilterOptions | LowpassFilterOptions | HighpassFilterOptions;
+
 export interface PickerConfigData {
   helicorder_channel: ChannelConfig;
   seismogram_channels: ChannelConfig[];
   window_size: number;
   force_center: boolean;
   amplitude_config: AmplitudeConfig;
+  filters: FilterOptions[];
 }
 
 export interface PickerConfig {

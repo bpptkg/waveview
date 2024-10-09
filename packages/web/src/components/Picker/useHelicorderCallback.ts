@@ -5,7 +5,6 @@ import { getPickExtent } from '../../shared/time';
 import { useAppStore } from '../../stores/app';
 import { useAuthStore } from '../../stores/auth';
 import { useCatalogStore } from '../../stores/catalog';
-import { useFilterStore } from '../../stores/filter';
 import { useOrganizationStore } from '../../stores/organization';
 import { usePickerStore } from '../../stores/picker';
 import { useSidebarStore } from '../../stores/sidebar';
@@ -31,7 +30,6 @@ export function useHelicorderCallback() {
   } = usePickerStore();
 
   const { heliChartRef, seisChartRef, props } = usePickerContext();
-  const { setAppliedFilter } = useFilterStore();
 
   const handleHelicorderShiftViewUp = useCallback(() => {
     heliChartRef.current?.shiftViewUp();
@@ -93,10 +91,9 @@ export function useHelicorderCallback() {
       seisChartRef.current?.setExtent(range, { autoZoom: true });
       seisChartRef.current?.clearPickRange();
       setSelectionWindow(range);
-      setAppliedFilter(null);
       setLastSeismogramExtent(range);
     },
-    [seisChartRef, setSelectionWindow, setAppliedFilter, setLastSeismogramExtent]
+    [seisChartRef, setSelectionWindow, setLastSeismogramExtent]
   );
 
   const { currentOrganization } = useOrganizationStore();

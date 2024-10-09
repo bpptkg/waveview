@@ -1,4 +1,5 @@
 import { SeismicEvent } from '../../../types/event';
+import { FilterOperationOptions } from '../../../types/filter';
 import { PickerConfig, PickerConfigPayload } from '../../../types/picker';
 import { PickerChart } from '../types';
 
@@ -82,4 +83,8 @@ export interface CommonSlice {
    * chart.
    */
   setEventMarkers: (eventMarkers: SeismicEvent[]) => void;
+  /**
+   * Get the filter options.
+   */
+  getFilterOptions: () => FilterOperationOptions[];
 }

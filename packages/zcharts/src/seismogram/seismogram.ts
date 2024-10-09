@@ -97,6 +97,11 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     for (const channel of opts.channels) {
       this.addChannelInternal(channel);
     }
+
+    const { showSpecrogram } = opts;
+    if (showSpecrogram) {
+      this.showSpectrograms();
+    }
   }
 
   setChannels(channels: Channel[]): void {

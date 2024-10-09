@@ -51,6 +51,10 @@ export interface SeismogramOptions extends ChartOptions {
    * The vertical scaling of the seismogram chart.
    */
   scaling: "global" | "local";
+  /**
+   * Whether to show the spectrogram.
+   */
+  showSpecrogram?: boolean;
 }
 
 export function getDefaultOptions(): SeismogramOptions {
