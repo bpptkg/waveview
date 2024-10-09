@@ -183,6 +183,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
         <Tooltip content="Fit to Window" relationship="label" showDelay={1500}>
           <ToolbarButton aria-label="Fit to Window" icon={<ZoomFit20Regular />} onClick={onZoomFit} />
         </Tooltip>
+        <ToolbarDivider />
 
         <Tooltip content="Scroll Left" relationship="label" showDelay={1500}>
           <ToolbarButton aria-label="Scroll Left" icon={<ChevronLeft20Regular />} onClick={onScrollLeft} />
@@ -230,7 +231,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
             onFilterChange?.(index === -1 ? null : filterOptions[index]);
           }}
         >
-          <option value={-1}>Select filter</option>
+          <option value={-1}>Filter: none</option>
           {filterOptions.map((option, index) => (
             <option key={index} value={index}>
               {formatFilterText(option)}
