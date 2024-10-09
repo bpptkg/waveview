@@ -16,23 +16,33 @@ export default function useSeismogramChartApi(options: SeismogramChartInitOption
     return {
       getInstance: () => chartRef.current!,
       setChannels: (channels: Channel[]) => {
-        if (chartRef.current) {
+        if (chartRef.current && webWorkerRef.current) {
           chartRef.current.setChannels(channels);
-          chartRef.current.render();
-          webWorkerRef.current?.fetchAllChannelsData();
-          if (chartRef.current.isSpectrogramShown()) {
-            webWorkerRef.current?.fetchAllSpectrogramData();
+          if (webWorkerRef.current.hasFilter()) {
+            const { appliedFilter } = webWorkerRef.current.getOptions();
+            webWorkerRef.current.fetchAllFiltersData(appliedFilter!);
+          } else {
+            webWorkerRef.current.fetchAllChannelsData();
           }
+          if (chartRef.current.isSpectrogramShown()) {
+            webWorkerRef.current.fetchAllSpectrogramData();
+          }
+          chartRef.current.render();
         }
       },
       addChannel: (channel: Channel) => {
-        if (chartRef.current) {
+        if (chartRef.current && webWorkerRef.current) {
           chartRef.current.addChannel(channel);
-          chartRef.current.render();
-          if (chartRef.current.isSpectrogramShown()) {
-            webWorkerRef.current?.fetchSpecrogramData(channel.id);
+          if (webWorkerRef.current.hasFilter()) {
+            const { appliedFilter } = webWorkerRef.current.getOptions();
+            webWorkerRef.current.fetchAllFiltersData(appliedFilter!);
+          } else {
+            webWorkerRef.current.fetchAllChannelsData();
           }
-          webWorkerRef.current?.fetchChannelData(channel.id);
+          if (chartRef.current.isSpectrogramShown()) {
+            webWorkerRef.current.fetchSpecrogramData(channel.id);
+          }
+          chartRef.current.render();
         }
       },
       removeChannel: (index: number) => {
@@ -123,7 +133,6 @@ export default function useSeismogramChartApi(options: SeismogramChartInitOption
           } else {
             webWorkerRef.current.fetchAllChannelsData();
           }
-
           if (chartRef.current.isSpectrogramShown()) {
             webWorkerRef.current.fetchAllSpectrogramData();
           }
