@@ -3,6 +3,8 @@ import { SearchRegular } from '@fluentui/react-icons';
 import Fuse from 'fuse.js';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useOrganizationStore } from '../../stores/organization';
+import { useVolcanoStore } from '../../stores/volcano/useVolcanoStore';
 
 const useStyles = makeStyles({
   searchBox: {
@@ -16,19 +18,6 @@ interface SearchItem {
   title: string;
 }
 
-const searchIndex: SearchItem[] = [
-  { url: '/', title: 'Dashboard' },
-  { url: '/picker', title: 'Picker' },
-  { url: '/catalog', title: 'Catalog' },
-  { url: '/catalog/events', title: 'Events' },
-  { url: '/catalog/seismicity', title: 'Seismicity' },
-  { url: '/catalog/hypocenter', title: 'Hypocenter' },
-  { url: '/help', title: 'Help' },
-  { url: '/about', title: 'About' },
-  { url: '/profile', title: 'Profile' },
-  { url: '/terms-of-service', title: 'Terms of Service' },
-];
-
 const SearchBox = () => {
   const navigate = useNavigate();
   const styles = useStyles();
@@ -36,6 +25,24 @@ const SearchBox = () => {
   const fuseRef = useRef<Fuse<SearchItem> | null>(null);
   const searchBoxRef = useRef<HTMLInputElement | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  const { currentOrganization } = useOrganizationStore();
+  const { currentVolcano } = useVolcanoStore();
+
+  const searchIndex: SearchItem[] = [
+    { url: `/${currentOrganization?.slug}`, title: 'Dashboard' },
+    { url: `/${currentOrganization?.slug}/${currentVolcano?.slug}/picker`, title: 'Picker' },
+    { url: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog`, title: 'Catalog' },
+    { url: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/events`, title: 'Events' },
+    { url: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/seismicity`, title: 'Seismicity' },
+    { url: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/hypocenter`, title: 'Hypocenter' },
+    { url: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/rfap-direction`, title: 'RF & AP' },
+    { url: `/${currentOrganization?.slug}/status`, title: 'Status' },
+    { url: `/${currentOrganization?.slug}/help`, title: 'Help' },
+    { url: '/about', title: 'About' },
+    { url: '/profile', title: 'Profile' },
+    { url: '/terms-of-service', title: 'Terms of Service' },
+  ];
 
   useEffect(() => {
     fuseRef.current = new Fuse(searchIndex, {
@@ -110,7 +117,7 @@ const SearchBox = () => {
         onKeyDown={handleKeyDown}
         onFocus={() => setFocusedIndex(null)}
       />
-      <ul className="z-50 absolute left-0 right-0 bg-white dark:bg-black rounded-b-lg">
+      <ul className="absolute left-0 right-0 bg-white dark:bg-black rounded-b-lg">
         {filteredItems.map((item, index) => (
           <li key={index} role="presentation" tabIndex={0} className={focusedIndex === index ? 'bg-gray-100 dark:bg-gray-800' : ''}>
             <a

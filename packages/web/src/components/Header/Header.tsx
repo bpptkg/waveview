@@ -9,7 +9,7 @@ import SearchBox from './SearchBox';
 
 const Header = () => {
   return (
-    <div className="flex h-[48px] items-center justify-between">
+    <div className="flex h-[48px] items-center justify-between z-50">
       <div className="flex items-center">
         <div className="flex items-center justify-center w-[68px]">
           <LogoImage />
