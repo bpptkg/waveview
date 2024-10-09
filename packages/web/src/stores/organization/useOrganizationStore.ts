@@ -24,7 +24,7 @@ const organizationStore = create<OrganizationStore>((set) => {
         set({ currentOrganization: org });
         return org;
       } else {
-        throw new CustomError('You are not a member of any organization.');
+        throw new CustomError('You are not a member of any organization');
       }
     },
   };

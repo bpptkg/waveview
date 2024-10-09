@@ -49,7 +49,7 @@ const catalogStore = create<CatalogStore>((set, get) => {
       if (defaultCatalog) {
         set({ currentCatalog: defaultCatalog });
       } else {
-        throw new CustomError('No default catalog found');
+        throw new CustomError(`No default catalog found for volcano ${currentVolcano.name}`);
       }
     },
     setNextEventsUrl: (url) => set({ nextEventsUrl: url }),

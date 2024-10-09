@@ -30,7 +30,7 @@ const volcanoStore = create<VolcanoStore>((set) => ({
       set({ currentVolcano });
       return currentVolcano;
     } else {
-      throw new CustomError('No volcanoes found.');
+      throw new CustomError(`No volcanoes found for organization ${currentOrganization.name}`);
     }
   },
 }));
