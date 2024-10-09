@@ -29,20 +29,23 @@ const SearchBox = () => {
   const { currentOrganization } = useOrganizationStore();
   const { currentVolcano } = useVolcanoStore();
 
-  const searchIndex: SearchItem[] = [
-    { url: `/${currentOrganization?.slug}`, title: 'Dashboard' },
-    { url: `/${currentOrganization?.slug}/${currentVolcano?.slug}/picker`, title: 'Picker' },
-    { url: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog`, title: 'Catalog' },
-    { url: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/events`, title: 'Events' },
-    { url: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/seismicity`, title: 'Seismicity' },
-    { url: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/hypocenter`, title: 'Hypocenter' },
-    { url: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/rfap-direction`, title: 'RF & AP' },
-    { url: `/${currentOrganization?.slug}/status`, title: 'Status' },
-    { url: `/${currentOrganization?.slug}/help`, title: 'Help' },
-    { url: '/about', title: 'About' },
-    { url: '/profile', title: 'Profile' },
-    { url: '/terms-of-service', title: 'Terms of Service' },
-  ];
+  const searchIndex: SearchItem[] = useMemo(
+    () => [
+      { url: `/${currentOrganization?.slug}`, title: 'Dashboard' },
+      { url: `/${currentOrganization?.slug}/${currentVolcano?.slug}/picker`, title: 'Picker' },
+      { url: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog`, title: 'Catalog' },
+      { url: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/events`, title: 'Events' },
+      { url: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/seismicity`, title: 'Seismicity' },
+      { url: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/hypocenter`, title: 'Hypocenter' },
+      { url: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/rfap-direction`, title: 'RF & AP' },
+      { url: `/${currentOrganization?.slug}/status`, title: 'Status' },
+      { url: `/${currentOrganization?.slug}/help`, title: 'Help' },
+      { url: '/about', title: 'About' },
+      { url: '/profile', title: 'Profile' },
+      { url: '/terms-of-service', title: 'Terms of Service' },
+    ],
+    [currentOrganization, currentVolcano]
+  );
 
   useEffect(() => {
     fuseRef.current = new Fuse(searchIndex, {
@@ -53,7 +56,7 @@ const SearchBox = () => {
     return () => {
       fuseRef.current = null;
     };
-  }, []);
+  }, [searchIndex]);
 
   const filteredItems = useMemo(() => {
     if (!fuseRef.current) {
