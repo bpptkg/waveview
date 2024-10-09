@@ -29,7 +29,15 @@ import {
   useOverflowMenu,
   useToastController,
 } from '@fluentui/react-components';
-import { Dismiss20Regular, Edit20Regular, MoreHorizontal20Regular, MoreHorizontalRegular, Star20Filled, Star20Regular } from '@fluentui/react-icons';
+import {
+  ArrowCounterclockwiseRegular,
+  Dismiss20Regular,
+  Edit20Regular,
+  MoreHorizontal20Regular,
+  MoreHorizontalRegular,
+  Star20Filled,
+  Star20Regular,
+} from '@fluentui/react-icons';
 import React, { useCallback, useState } from 'react';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import { useCatalogStore } from '../../stores/catalog';
@@ -223,6 +231,9 @@ const EventDetail: React.FC<EventDetailProps> = () => {
           <Tooltip content={'Edit Event'} relationship="label" showDelay={1500}>
             <Button icon={<Edit20Regular />} appearance="transparent" onClick={() => setShowEditor(true)} />
           </Tooltip>
+          <Tooltip content={'Refresh'} relationship="label" showDelay={1500}>
+            <Button icon={<ArrowCounterclockwiseRegular />} appearance="transparent" onClick={handleRefresh} />
+          </Tooltip>
           <Menu>
             <MenuTrigger disableButtonEnhancement>
               <Tooltip content={'More Options'} relationship="label" showDelay={1500}>
@@ -231,7 +242,6 @@ const EventDetail: React.FC<EventDetailProps> = () => {
             </MenuTrigger>
             <MenuPopover>
               <MenuList>
-                <MenuItem onClick={handleRefresh}>Refresh</MenuItem>
                 <MenuItem onClick={handleCopyPermalink}>Copy Permalink</MenuItem>
                 <MenuItem
                   onClick={() => {
