@@ -115,7 +115,8 @@ const PickEditEvent: React.FC = () => {
       <Field label="Station of first arrival">
         <Dropdown
           className={styles.dropdown}
-          value={getSelectedStations().find((station) => station.id === stationOfFirstArrivalId)?.code}
+          defaultValue={'none'}
+          value={getSelectedStations().find((station) => station.id === stationOfFirstArrivalId)?.code || 'none'}
           onActiveOptionChange={(_, data) => {
             const value = data.nextOption?.value;
             if (value && value !== 'none') {
@@ -137,7 +138,8 @@ const PickEditEvent: React.FC = () => {
       <Field label="Event type">
         <Dropdown
           className={styles.dropdown}
-          value={eventTypes.find((event) => event.id === eventTypeId)?.code}
+          defaultValue={'none'}
+          value={eventTypes.find((event) => event.id === eventTypeId)?.code || 'none'}
           onActiveOptionChange={(_, data) => {
             const value = data.nextOption?.value;
             if (value && value !== 'none') {
