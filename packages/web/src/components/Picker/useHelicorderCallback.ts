@@ -1,7 +1,7 @@
 import { Helicorder, HelicorderEventMarkerOptions, HelicorderOptions, SeismogramEventMarkerOptions } from '@waveview/zcharts';
 import { useCallback } from 'react';
 import { getEventTypeColor } from '../../shared/theme';
-import { getPickExtent } from '../../shared/time';
+import { getPickExtent, ONE_SECOND } from '../../shared/time';
 import { useAppStore } from '../../stores/app';
 import { useAuthStore } from '../../stores/auth';
 import { useCatalogStore } from '../../stores/catalog';
@@ -164,6 +164,13 @@ export function useHelicorderCallback() {
       const event = marker.data as SeismicEvent;
       const { start, end } = marker;
       seisChartRef.current?.removeEventMarker(start, end);
+
+      const range: [number, number] = [start - 10 * ONE_SECOND, end + 10 * ONE_SECOND];
+      seisChartRef.current?.setExtent(range, { autoZoom: false });
+      seisChartRef.current?.clearPickRange();
+      setSelectionWindow(range);
+      setLastSeismogramExtent(range);
+
       if (event) {
         fetchEditedEvent(event.id).then((event) => {
           handleSetupEventEditing(event);
@@ -172,7 +179,7 @@ export function useHelicorderCallback() {
         });
       }
     },
-    [seisChartRef, fetchEditedEvent, handleSetupEventEditing, setSelectedTab, setShowSidebar]
+    [seisChartRef, fetchEditedEvent, handleSetupEventEditing, setSelectedTab, setShowSidebar, setLastSeismogramExtent, setSelectionWindow]
   );
 
   const handleHelicorderOnReady = useCallback(

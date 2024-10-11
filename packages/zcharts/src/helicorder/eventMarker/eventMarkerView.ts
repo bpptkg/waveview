@@ -128,15 +128,7 @@ export class EventMarkerView extends View<EventMarkerModel> {
         z: 5,
       });
       rect.on("click", () => {
-        const [start] = this.model.getWindow();
-        const selectionWindow = this.chart.getSelectionWindow();
-        selectionWindow.getModel().setStartTime(start - 10 * ONE_SECOND);
         this.chart.emit("eventMarkerClicked", this.model.getOptions());
-        this.chart.emit(
-          "selectionChanged",
-          selectionWindow.getModel().getWindow()
-        );
-        this.chart.render();
       });
       this.group.add(rect);
     }
