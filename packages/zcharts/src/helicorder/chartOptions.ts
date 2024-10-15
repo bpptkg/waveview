@@ -50,6 +50,12 @@ export interface HelicorderOptions extends ChartOptions {
    * Selection window of the helicorder chart.
    */
   selectionWindow?: [number, number];
+  /**
+   * The vertical scaling of the helicorder chart. ``global`` scales all tracks
+   * relative to global min/max values, while ``local`` scales each track
+   * relative to its own min/max values.
+   */
+  scaling: "global" | "local";
 }
 
 export function getDefaultOptions(): HelicorderOptions {
@@ -74,5 +80,6 @@ export function getDefaultOptions(): HelicorderOptions {
     markers: [],
     selectionWindow: undefined,
     windowSize: undefined,
+    scaling: "global",
   };
 }

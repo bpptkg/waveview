@@ -199,12 +199,40 @@ export class TrackManager {
   }
 
   refreshData(): void {
+    const { scaling } = this.helicorder.getModel().getOptions();
+    if (scaling === "global") {
+      this.refreshGlobalScaling();
+    } else {
+      this.refreshLocalScaling();
+    }
+  }
+
+  refreshGlobalScaling(): void {
     const normFactor = this.getNormFactor();
     for (const segment of this.segments()) {
       const track = this.get(segment);
       if (track) {
         const series = this.dataStore.get(segment);
         if (series) {
+          const norm = series.scalarDivide(normFactor);
+          norm.setIndex(
+            norm.index.map((value: number) => this.timeToOffset(segment, value))
+          );
+          track.getSignal().setData(norm);
+        }
+      }
+    }
+  }
+
+  refreshLocalScaling(): void {
+    for (const segment of this.segments()) {
+      const track = this.get(segment);
+      if (track) {
+        const series = this.dataStore.get(segment);
+        if (series) {
+          const min = series.min();
+          const max = series.max();
+          const normFactor = Math.max(Math.abs(min), Math.abs(max));
           const norm = series.scalarDivide(normFactor);
           norm.setIndex(
             norm.index.map((value: number) => this.timeToOffset(segment, value))
