@@ -39,7 +39,7 @@ export interface PickerConfigData {
   window_size: number;
   force_center: boolean;
   amplitude_config: AmplitudeConfig;
-  filters: FilterOptions[];
+  seismogram_filters: FilterOptions[];
 }
 
 export interface PickerConfig {

@@ -165,7 +165,7 @@ export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> =
     getFilterOptions: () => {
       const { pickerConfig } = get();
       return (
-        pickerConfig?.data?.filters.map((item) => {
+        pickerConfig?.data?.seismogram_filters.map((item) => {
           if (item.type === 'bandpass') {
             return {
               filterType: 'bandpass',
