@@ -66,21 +66,15 @@ const PickerPanel = () => {
     handleSeismogramZoomOut,
   } = usePickerCallback();
 
-  const { selectedChart, eventId, autoUpdate, autoUpdateInterval } = usePickerStore();
+  const { selectedChart, autoUpdate, autoUpdateInterval } = usePickerStore();
 
   const helicorderClassName = useMemo(() => {
-    if (eventId) {
-      return 'border border-transparent';
-    }
     return selectedChart === 'helicorder' ? 'border border-brand-hosts-80' : 'border border-transparent';
-  }, [selectedChart, eventId]);
+  }, [selectedChart]);
 
   const seismogramClassName = useMemo(() => {
-    if (eventId) {
-      return 'border border-transparent';
-    }
     return selectedChart === 'seismogram' ? 'border border-brand-hosts-80' : 'border border-transparent';
-  }, [selectedChart, eventId]);
+  }, [selectedChart]);
 
   // Set refs on mount
   useEffect(() => {
