@@ -31,8 +31,9 @@ import { TrackManager } from "./trackManager";
 export class Helicorder extends ChartView<HelicorderOptions> {
   override readonly type: string = "helicorder";
   private eventEmitter: EventEmitter<HelicorderEventMap>;
-  private readonly xAxis: AxisView;
+  private readonly topXAxis: AxisView;
   private readonly grid: GridView;
+  private readonly bottomXAxis: AxisView;
   private trackManager: TrackManager;
   private selectionWindow: SelectionWindowView;
   private yExtent: [number, number] = [-1, 1];
@@ -51,13 +52,21 @@ export class Helicorder extends ChartView<HelicorderOptions> {
     this.grid = new GridView(this, opts.grid);
     this.addComponent(this.grid);
 
-    this.xAxis = new AxisView(this.grid, {
+    this.topXAxis = new AxisView(this.grid, {
       position: "top",
       type: "linear",
       useUTC: opts.useUTC,
     });
-    this.xAxis.setExtent([0, opts.interval]);
-    this.addComponent(this.xAxis);
+    this.topXAxis.setExtent([0, opts.interval]);
+    this.addComponent(this.topXAxis);
+
+    this.bottomXAxis = new AxisView(this.grid, {
+      position: "bottom",
+      type: "linear",
+      useUTC: opts.useUTC,
+    });
+    this.bottomXAxis.setExtent([0, opts.interval]);
+    this.addComponent(this.bottomXAxis);
 
     this.trackManager = new TrackManager(this);
     this.trackManager.updateTracks();
@@ -96,7 +105,8 @@ export class Helicorder extends ChartView<HelicorderOptions> {
 
   setInterval(interval: number): void {
     this.model.mergeOptions({ interval });
-    this.xAxis.setExtent([0, interval]);
+    this.topXAxis.setExtent([0, interval]);
+    this.bottomXAxis.setExtent([0, interval]);
     this.trackManager.updateTracks();
   }
 
@@ -189,7 +199,7 @@ export class Helicorder extends ChartView<HelicorderOptions> {
   }
 
   getXAxis(): AxisView {
-    return this.xAxis;
+    return this.topXAxis;
   }
 
   getYExtent(): [number, number] {

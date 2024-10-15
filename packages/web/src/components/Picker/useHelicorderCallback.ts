@@ -230,9 +230,9 @@ export function useHelicorderCallback() {
       darkMode,
       offsetDate: initialOffsetDate.getTime(),
       grid: {
-        top: 30,
+        top: 25,
         right: 15,
-        bottom: 5,
+        bottom: 25,
         left: 80,
       },
       devicePixelRatio: window.devicePixelRatio,

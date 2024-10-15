@@ -282,7 +282,7 @@ export const useSeismogramCallback = () => {
         color: item.color,
       })),
       grid: {
-        top: 30,
+        top: 25,
         right: 50,
         bottom: 5,
         left: 80,
