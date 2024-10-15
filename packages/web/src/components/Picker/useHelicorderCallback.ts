@@ -178,8 +178,10 @@ export function useHelicorderCallback() {
           setShowSidebar(true);
         });
       }
+
+      heliChartRef.current?.render();
     },
-    [seisChartRef, fetchEditedEvent, handleSetupEventEditing, setSelectedTab, setShowSidebar, setLastSeismogramExtent, setSelectionWindow]
+    [heliChartRef, seisChartRef, fetchEditedEvent, handleSetupEventEditing, setSelectedTab, setShowSidebar, setLastSeismogramExtent, setSelectionWindow]
   );
 
   const handleHelicorderOnReady = useCallback(
