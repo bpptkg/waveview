@@ -130,7 +130,7 @@ export class SelectionWindowView extends View<SelectionWindowModel> {
   render(): void {
     this.clear();
     const { color, opacity, borderWidth, enabled } = this.model.options;
-    if (!enabled) {
+    if (!enabled || !this.visible) {
       return;
     }
 
