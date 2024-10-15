@@ -1,6 +1,6 @@
 import * as zrender from "zrender";
 import { View } from "../../core/view";
-import { ONE_SECOND } from "../../util/time";
+import { ONE_MINUTE } from "../../util/time";
 import { LayoutRect, ThemeStyle } from "../../util/types";
 import { Helicorder } from "../helicorder";
 import { EventMarkerModel, EventMarkerOptions } from "./eventMarkerModel";
@@ -42,8 +42,18 @@ export class EventMarkerView extends View<EventMarkerModel> {
     this.clear();
   }
 
+  /**
+   * Normalize the window to be exactly one minute long.
+   */
+  private normalizeWindow(window: [number, number]): [number, number] {
+    const [start] = window;
+    return [start, start + ONE_MINUTE];
+  }
+
   private getMarkerWindow(): MarkerWindowInfo[] {
-    const [start, end] = this.model.getWindow();
+    const window = this.model.getWindow();
+    const [start, end] = this.normalizeWindow(window);
+
     const trackManager = this.chart.getTrackManager();
     const windows: MarkerWindowInfo[] = [];
     for (const segment of trackManager.segments()) {
