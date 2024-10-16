@@ -81,5 +81,6 @@ export function getDefaultOptions(): HelicorderOptions {
     selectionWindow: undefined,
     windowSize: undefined,
     scaling: "global",
+    useOffscrrenRendering: false,
   };
 }
