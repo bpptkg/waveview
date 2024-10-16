@@ -11,6 +11,7 @@ import { useSidebarStore } from '../../stores/sidebar';
 import { useVolcanoStore } from '../../stores/volcano/useVolcanoStore';
 import { Channel } from '../../types/channel';
 import { SeismicEvent, SeismicEventDetail } from '../../types/event';
+import { ScalingType } from '../../types/scaling';
 import { usePickerContext } from './PickerContext';
 import { useSeismogramCallback } from './useSeismogramCallback';
 
@@ -19,14 +20,17 @@ export function useHelicorderCallback() {
     windowSize,
     selectionWindow,
     fetchEditedEvent,
-    setHelicorderOffsetDate,
-    setHelicorderChannelId,
-    setHelicorderInterval,
-    setHelicorderDuration,
-    setSelectionWindow,
-    setSelectedChart,
     fetchEventMarkers,
+    getHelicorderScalingType,
+    helicorderToolbarSetCheckedValues,
+    setHelicorderChannelId,
+    setHelicorderDuration,
+    setHelicorderInterval,
+    setHelicorderOffsetDate,
     setLastSeismogramExtent,
+    setLoading,
+    setSelectedChart,
+    setSelectionWindow,
   } = usePickerStore();
 
   const { heliChartRef, seisChartRef, props } = usePickerContext();
@@ -212,9 +216,30 @@ export function useHelicorderCallback() {
   }, [heliChartRef, handleFetchEvents]);
 
   const handleHelicorderAutoUpdate = useCallback(() => {
-    heliChartRef.current?.fetchAllData({ mode: 'lazy' });
+    heliChartRef.current?.fetchAllData({ mode: 'cache' });
     handleFetchEvents();
   }, [heliChartRef, handleFetchEvents]);
+
+  const handleHelicorderOnLoading = useCallback(
+    (loading: boolean) => {
+      setLoading(loading);
+    },
+    [setLoading]
+  );
+
+  const handleHelicorderCheckValueChange = useCallback(
+    (name: string, values: string[]) => {
+      helicorderToolbarSetCheckedValues(name, values);
+    },
+    [helicorderToolbarSetCheckedValues]
+  );
+
+  const handleHelicorderScalingChange = useCallback(
+    (scaling: ScalingType) => {
+      heliChartRef.current?.setScaling(scaling);
+    },
+    [heliChartRef]
+  );
 
   const calcHelicorderOffsetDate = (event: SeismicEventDetail) => {
     const [start, end] = getPickExtent(event);
@@ -223,7 +248,9 @@ export function useHelicorderCallback() {
 
   const getHelicorderInitOptions = useCallback(() => {
     const initialOffsetDate = event ? calcHelicorderOffsetDate(event) : new Date(offsetDate);
+    const scaling = getHelicorderScalingType();
     const initOptions: Partial<HelicorderOptions> = {
+      useOffscrrenRendering: true,
       interval: helicorderInterval,
       duration: helicorderDuration,
       channel: {
@@ -241,9 +268,10 @@ export function useHelicorderCallback() {
       useUTC,
       windowSize,
       selectionWindow,
+      scaling,
     };
     return initOptions;
-  }, [helicorderDuration, helicorderInterval, channelId, darkMode, offsetDate, useUTC, event, windowSize, selectionWindow]);
+  }, [helicorderDuration, helicorderInterval, channelId, darkMode, offsetDate, useUTC, event, windowSize, selectionWindow, getHelicorderScalingType]);
 
   return {
     getHelicorderInitOptions,
@@ -251,13 +279,16 @@ export function useHelicorderCallback() {
     handleHelicorderChangeDuration,
     handleHelicorderChangeInterval,
     handleHelicorderChannelChange,
+    handleHelicorderCheckValueChange,
     handleHelicorderDecreaseAmplitude,
     handleHelicorderEventMarkerClick,
     handleHelicorderFocus,
     handleHelicorderIncreaseAmplitude,
+    handleHelicorderOnLoading,
     handleHelicorderOnReady,
     handleHelicorderRefreshData,
     handleHelicorderResetAmplitude,
+    handleHelicorderScalingChange,
     handleHelicorderSelectionChange,
     handleHelicorderSelectOffsetDate,
     handleHelicorderShiftViewDown,
