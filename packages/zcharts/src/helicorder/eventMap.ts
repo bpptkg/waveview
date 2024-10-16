@@ -11,4 +11,5 @@ export interface HelicorderEventMap extends EventMap {
   trackDeselected: () => void;
   selectionChanged: (range: [number, number]) => void;
   eventMarkerClicked: (marker: EventMarkerOptions) => void;
+  loading: (loading: boolean) => void;
 }
