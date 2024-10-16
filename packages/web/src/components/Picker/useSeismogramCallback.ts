@@ -17,7 +17,7 @@ export const useSeismogramCallback = () => {
     calcSignalAmplitudes,
     clearPick,
     getChannelsConfig,
-    getScalingType,
+    getSeismogramScalingType,
     getSelectedStations,
     isPickEmpty,
     isShowSpecrogram,
@@ -273,7 +273,7 @@ export const useSeismogramCallback = () => {
       return lastSeismogramExtent;
     };
     const [startTime, endTime] = determinteInitialExtent();
-    const scaling = getScalingType();
+    const scaling = getSeismogramScalingType();
 
     const initOptions: Partial<SeismogramOptions> = {
       channels: getChannelsConfig().map((item) => ({
@@ -296,7 +296,7 @@ export const useSeismogramCallback = () => {
       showSpecrogram: isShowSpecrogram(),
     };
     return initOptions;
-  }, [darkMode, useUTC, event, lastSeismogramExtent, getChannelsConfig, getScalingType, isShowSpecrogram]);
+  }, [darkMode, useUTC, event, lastSeismogramExtent, getChannelsConfig, getSeismogramScalingType, isShowSpecrogram]);
 
   const handleSeismogramScalingChange = useCallback(
     (scaling: ScalingType) => {
