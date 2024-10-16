@@ -1,6 +1,7 @@
 import * as zrender from "zrender";
 import { AxisView } from "../axis/axisView";
 import { View } from "../core/view";
+import { TrackView } from "../track/trackView";
 import { LayoutRect, ThemeStyle } from "../util/types";
 import {
   LineSeriesData,
@@ -12,12 +13,13 @@ export class LineSeriesView extends View<LineSeriesModel> {
   private rect: LayoutRect;
   readonly xAxis: AxisView;
   readonly yAxis: AxisView;
+  readonly track: TrackView;
   private line: zrender.Polyline;
 
   constructor(
     xAxis: AxisView,
     yAxis: AxisView,
-    track: View,
+    track: TrackView,
     options?: LineSeriesOptions
   ) {
     const model = new LineSeriesModel(options);
@@ -25,6 +27,7 @@ export class LineSeriesView extends View<LineSeriesModel> {
     this.rect = track.getRect();
     this.xAxis = xAxis;
     this.yAxis = yAxis;
+    this.track = track;
 
     const { color, width } = this.model.getOptions();
     this.line = new zrender.Polyline({
@@ -38,6 +41,14 @@ export class LineSeriesView extends View<LineSeriesModel> {
     const clipRect = this.xAxis.getRect();
     this.line.setClipPath(new zrender.Rect({ shape: clipRect }));
     this.group.add(this.line);
+  }
+
+  getXAxis(): AxisView {
+    return this.xAxis;
+  }
+
+  getYAxis(): AxisView {
+    return this.yAxis;
   }
 
   setYExtent(extent: [number, number]): void {
@@ -77,7 +88,9 @@ export class LineSeriesView extends View<LineSeriesModel> {
   clear(): void {}
 
   render() {
-    if (!this.visible || this.model.isEmpty()) {
+    const chart = this.track.getChart();
+    const { useOffscrrenRendering } = chart.getModel().getOptions();
+    if (!this.visible || this.model.isEmpty() || useOffscrrenRendering) {
       this.group.hide();
       return;
     }
