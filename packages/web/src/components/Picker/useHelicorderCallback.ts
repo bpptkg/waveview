@@ -216,7 +216,7 @@ export function useHelicorderCallback() {
   }, [heliChartRef, handleFetchEvents]);
 
   const handleHelicorderAutoUpdate = useCallback(() => {
-    heliChartRef.current?.fetchAllData({ mode: 'cache' });
+    heliChartRef.current?.fetchAllData({ mode: 'refresh' });
     handleFetchEvents();
   }, [heliChartRef, handleFetchEvents]);
 
