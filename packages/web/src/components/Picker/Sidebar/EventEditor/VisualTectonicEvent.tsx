@@ -1,10 +1,20 @@
-import { Field, Input, Select, Textarea } from '@fluentui/react-components';
+import { Field, Input, makeStyles, Select, Textarea } from '@fluentui/react-components';
 import { useCallback } from 'react';
 import { useTectonicEventStore } from '../../../../stores/visual';
 import { MMIScale, MMIScaleOptions } from '../../../../types/observation';
 
+const useStyles = makeStyles({
+  textArea: {
+    '& textarea': {
+      height: '150px',
+      maxHeight: '250px',
+    },
+  },
+});
+
 const VisualTectonicEvent = () => {
   const { mmiScale, magnitude, depth, note, setMmiScale, setMagnitude, setDepth, setNote } = useTectonicEventStore();
+  const styles = useStyles();
 
   const handleMMIScaleChange = useCallback(
     (value: string) => {
@@ -43,7 +53,7 @@ const VisualTectonicEvent = () => {
   return (
     <div>
       <Field label={'MMI Scale'}>
-        <Select defaultValue={mmiScale} onChange={(_, data) => handleMMIScaleChange(data.value)}>
+        <Select appearance="filled-darker" defaultValue={mmiScale} onChange={(_, data) => handleMMIScaleChange(data.value)}>
           {MMIScaleOptions.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
@@ -52,13 +62,20 @@ const VisualTectonicEvent = () => {
         </Select>
       </Field>
       <Field label={'Magnitude'}>
-        <Input type="number" min={0} value={magnitude.toString()} onChange={(_, data) => handleMagnitudeChange(data.value)} />
+        <Input appearance="filled-darker" type="number" min={0} value={magnitude.toString()} onChange={(_, data) => handleMagnitudeChange(data.value)} />
       </Field>
       <Field label={'Depth (km)'}>
-        <Input type="number" min={0} value={depth.toString()} onChange={(_, data) => handleDepthChange(data.value)} />
+        <Input appearance="filled-darker" type="number" min={0} value={depth.toString()} onChange={(_, data) => handleDepthChange(data.value)} />
       </Field>
       <Field label={'Note'}>
-        <Textarea resize="vertical" size="large" value={note} onChange={(_, data) => handleNoteChange(data.value)} />
+        <Textarea
+          appearance="filled-darker"
+          className={styles.textArea}
+          resize="vertical"
+          size="large"
+          value={note}
+          onChange={(_, data) => handleNoteChange(data.value)}
+        />
       </Field>
     </div>
   );

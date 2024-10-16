@@ -1,7 +1,16 @@
-import { Checkbox, Field, Input, Select, Textarea } from '@fluentui/react-components';
+import { Checkbox, Field, Input, makeStyles, Select, Textarea } from '@fluentui/react-components';
 import { useCallback } from 'react';
 import { useFallDirectionStore, usePyroclasticFlowEventStore } from '../../../../stores/visual';
 import { EventSize, EventSizeOptions, ObservationForm, ObservationFormOptions } from '../../../../types/observation';
+
+const useStyles = makeStyles({
+  textArea: {
+    '& textarea': {
+      height: '150px',
+      maxHeight: '250px',
+    },
+  },
+});
 
 const VisualPyroclasticFlowEvent = () => {
   const {
@@ -23,6 +32,7 @@ const VisualPyroclasticFlowEvent = () => {
     setNote,
   } = usePyroclasticFlowEventStore();
   const { allFallDirections } = useFallDirectionStore();
+  const styles = useStyles();
 
   const handleObservationFormChange = useCallback(
     (value: string) => {
@@ -85,7 +95,7 @@ const VisualPyroclasticFlowEvent = () => {
   return (
     <div>
       <Field label={'Observation Form'}>
-        <Select defaultValue={observationForm} onChange={(_, data) => handleObservationFormChange(data.value)}>
+        <Select appearance="filled-darker" defaultValue={observationForm} onChange={(_, data) => handleObservationFormChange(data.value)}>
           {ObservationFormOptions.map((option) => {
             return (
               <option key={option.value} value={option.value}>
@@ -99,7 +109,7 @@ const VisualPyroclasticFlowEvent = () => {
         <Checkbox label={'Is Lava Flow'} checked={isLavaFlow} onChange={() => setIsLavaFlow(!isLavaFlow)} />
       </Field>
       <Field label={'Event Size'}>
-        <Select defaultValue={eventSize} onChange={(_, data) => handleEventSizeChange(data.value)}>
+        <Select appearance="filled-darker" defaultValue={eventSize} onChange={(_, data) => handleEventSizeChange(data.value)}>
           {EventSizeOptions.map((option) => {
             return (
               <option key={option.value} value={option.value}>
@@ -110,10 +120,16 @@ const VisualPyroclasticFlowEvent = () => {
         </Select>
       </Field>
       <Field label={'Runout Distance (m)'}>
-        <Input min={0} type="number" value={runoutDistance.toString()} onChange={(_, data) => handleRunoutDistanceChange(data.value)} />
+        <Input
+          appearance="filled-darker"
+          min={0}
+          type="number"
+          value={runoutDistance.toString()}
+          onChange={(_, data) => handleRunoutDistanceChange(data.value)}
+        />
       </Field>
       <Field label={'Fall Direction'}>
-        <Select defaultValue={fallDirection} onChange={(_, data) => handleFallDirectionChange(data.value)}>
+        <Select appearance="filled-darker" defaultValue={fallDirection} onChange={(_, data) => handleFallDirectionChange(data.value)}>
           <option value={''}>Select fall direction</option>
           {allFallDirections.map((option) => {
             return (
@@ -125,13 +141,20 @@ const VisualPyroclasticFlowEvent = () => {
         </Select>
       </Field>
       <Field label={'Amplitude (mm)'}>
-        <Input min={0} type="number" value={amplitude.toString()} onChange={(_, data) => handleAmplitudeChange(data.value)} />
+        <Input appearance="filled-darker" min={0} type="number" value={amplitude.toString()} onChange={(_, data) => handleAmplitudeChange(data.value)} />
       </Field>
       <Field label={'Duration (s)'}>
-        <Input min={0} type="number" value={duration.toString()} onChange={(_, data) => handleDurationChange(data.value)} />
+        <Input appearance="filled-darker" min={0} type="number" value={duration.toString()} onChange={(_, data) => handleDurationChange(data.value)} />
       </Field>
       <Field label={'Note'}>
-        <Textarea resize="vertical" size="large" value={note} onChange={(_, data) => handleNoteChange(data.value)} />
+        <Textarea
+          appearance="filled-darker"
+          className={styles.textArea}
+          resize="vertical"
+          size="large"
+          value={note}
+          onChange={(_, data) => handleNoteChange(data.value)}
+        />
       </Field>
     </div>
   );

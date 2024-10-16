@@ -89,7 +89,7 @@ const EditItemTabList: React.FC<{ selectedValue?: string; onTabSelect?: (tab: st
 
   return (
     <Overflow>
-      <div className="flex items-center gap-1">
+      <div className="flex items-center">
         <TabList selectedValue={selectedValue} onTabSelect={(_, data) => onTabSelect?.(data.value as string)}>
           {tabs.map((tab) => (
             <OverflowItem key={tab.value} id={tab.value}>
@@ -144,7 +144,7 @@ const PickEdit = () => {
   );
 
   const [loading, setLoading] = useState(false);
-  const { eventId, time, duration, eventTypeId, stationOfFirstArrivalId, savePickedEvent, addEventMarker } = usePickerStore();
+  const { time, duration, eventTypeId, stationOfFirstArrivalId, savePickedEvent, addEventMarker } = usePickerStore();
 
   const canSave = useMemo(() => {
     return time !== 0 && duration !== 0 && eventTypeId !== '' && stationOfFirstArrivalId !== '';
@@ -176,8 +176,7 @@ const PickEdit = () => {
   return (
     <div>
       {loading && <ProgressBar shape="square" />}
-      <div className="flex items-center justify-between px-2 py-2 border-b dark:border-b-gray-800">
-        <h1 className="font-bold">{eventId ? 'Edit' : 'Create'}</h1>
+      <div className="flex items-center justify-end px-2 py-2 border-b dark:border-b-gray-800">
         <div className="flex items-center gap-1">
           <Button size="small" appearance="outline" onClick={handleCancel}>
             Cancel

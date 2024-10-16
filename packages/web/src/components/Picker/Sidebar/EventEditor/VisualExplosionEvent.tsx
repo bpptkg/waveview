@@ -1,11 +1,21 @@
-import { Field, Input, Select, Textarea } from '@fluentui/react-components';
+import { Field, Input, makeStyles, Select, Textarea } from '@fluentui/react-components';
 import { useCallback } from 'react';
 import { useExplosionEventStore } from '../../../../stores/visual';
 import { EmissionColor, EmissionColorOptions, ObservationForm, ObservationFormOptions, VEIScaleOptions } from '../../../../types/observation';
 
+const useStyles = makeStyles({
+  textArea: {
+    '& textarea': {
+      height: '150px',
+      maxHeight: '250px',
+    },
+  },
+});
+
 const VisualExplosionEvent = () => {
   const { observationForm, columnHeight, color, intensity, vei, note, setObservationForm, setColumnHeight, setIntensity, setColor, setVei, setNote } =
     useExplosionEventStore();
+  const styles = useStyles();
   const handleObservationFormChange = useCallback(
     (value: string) => {
       setObservationForm(value as ObservationForm);
@@ -60,7 +70,7 @@ const VisualExplosionEvent = () => {
   return (
     <div>
       <Field label={'Observation Form'}>
-        <Select defaultValue={observationForm} onChange={(_, data) => handleObservationFormChange(data.value)}>
+        <Select appearance="filled-darker" defaultValue={observationForm} onChange={(_, data) => handleObservationFormChange(data.value)}>
           {ObservationFormOptions.map((option) => {
             return (
               <option key={option.value} value={option.value}>
@@ -71,10 +81,10 @@ const VisualExplosionEvent = () => {
         </Select>
       </Field>
       <Field label={'Column Height (m)'}>
-        <Input type="number" min={0} value={columnHeight.toString()} onChange={(_, data) => handleColumnHeightChange(data.value)} />
+        <Input type="number" appearance="filled-darker" min={0} value={columnHeight.toString()} onChange={(_, data) => handleColumnHeightChange(data.value)} />
       </Field>
       <Field label={'Color'}>
-        <Select defaultValue={color} onChange={(_, data) => handleColorChange(data.value)}>
+        <Select appearance="filled-darker" defaultValue={color} onChange={(_, data) => handleColorChange(data.value)}>
           <option value={''}>Select a color</option>
           {EmissionColorOptions.map((option) => {
             return (
@@ -86,10 +96,10 @@ const VisualExplosionEvent = () => {
         </Select>
       </Field>
       <Field label={'Intensity (kt)'}>
-        <Input type="number" min={0} value={intensity.toString()} onChange={(_, data) => handleIntensityChange(data.value)} />
+        <Input appearance="filled-darker" type="number" min={0} value={intensity.toString()} onChange={(_, data) => handleIntensityChange(data.value)} />
       </Field>
       <Field label={'VEI Scale'}>
-        <Select defaultValue={vei} onChange={(_, data) => handleVeiChange(data.value)}>
+        <Select appearance="filled-darker" defaultValue={vei} onChange={(_, data) => handleVeiChange(data.value)}>
           {VEIScaleOptions.map((option) => {
             return (
               <option key={option.value} value={option.value}>
@@ -100,7 +110,14 @@ const VisualExplosionEvent = () => {
         </Select>
       </Field>
       <Field label={'Note'}>
-        <Textarea resize="vertical" size="large" value={note} onChange={(_, data) => handleNoteChange(data.value)}></Textarea>
+        <Textarea
+          className={styles.textArea}
+          appearance="filled-darker"
+          resize="vertical"
+          size="large"
+          value={note}
+          onChange={(_, data) => handleNoteChange(data.value)}
+        ></Textarea>
       </Field>
     </div>
   );

@@ -21,6 +21,7 @@ const useStyles = makeStyles({
 
 const PickEditEvent: React.FC = () => {
   const {
+    eventId,
     time,
     duration,
     stationOfFirstArrivalId,
@@ -91,14 +92,14 @@ const PickEditEvent: React.FC = () => {
 
   return (
     <div className="p-2">
-      <div className="h-[32px] font-semibold">Event</div>
+      <div className="h-[32px] font-semibold">{eventId ? 'Edit Event' : 'Pick New Event'}</div>
 
       <Field label="Time">
-        <Input appearance="outline" value={formatTime(time, { useUTC })} onChange={(_, data) => handleTimeChange(data.value)} />
+        <Input appearance="filled-darker" value={formatTime(time, { useUTC })} onChange={(_, data) => handleTimeChange(data.value)} />
       </Field>
 
       <Field label="Duration (s)">
-        <Input min={0} appearance="outline" value={`${duration}`} type="number" onChange={(_, data) => handleDurationChange(data.value)} />
+        <Input min={0} appearance="filled-darker" value={`${duration}`} type="number" onChange={(_, data) => handleDurationChange(data.value)} />
       </Field>
 
       <Field label="Amplitudes">
@@ -121,6 +122,7 @@ const PickEditEvent: React.FC = () => {
       <Field label="Station of first arrival">
         <Dropdown
           className={styles.dropdown}
+          appearance="filled-darker"
           defaultValue={''}
           value={getSelectedStations().find((station) => station.id === stationOfFirstArrivalId)?.code || ''}
           onActiveOptionChange={(_, data) => {
@@ -144,6 +146,7 @@ const PickEditEvent: React.FC = () => {
       <Field label="Event type">
         <Dropdown
           className={styles.dropdown}
+          appearance="filled-darker"
           defaultValue={''}
           value={eventTypes.find((event) => event.id === eventTypeId)?.code || ''}
           onActiveOptionChange={(_, data) => {
@@ -168,7 +171,14 @@ const PickEditEvent: React.FC = () => {
       </Field>
 
       <Field label="Note">
-        <Textarea className={styles.textArea} value={note} resize="vertical" size="large" onChange={(_, data) => handleNoteChange(data.value)} />
+        <Textarea
+          className={styles.textArea}
+          value={note}
+          appearance="filled-darker"
+          resize="vertical"
+          size="large"
+          onChange={(_, data) => handleNoteChange(data.value)}
+        />
       </Field>
 
       {editedEvent && (
