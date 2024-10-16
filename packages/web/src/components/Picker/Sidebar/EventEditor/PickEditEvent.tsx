@@ -11,6 +11,12 @@ const useStyles = makeStyles({
   dropdown: {
     minWidth: 'auto',
   },
+  textArea: {
+    '& textarea': {
+      height: '150px',
+      maxHeight: '250px',
+    },
+  },
 });
 
 const PickEditEvent: React.FC = () => {
@@ -162,7 +168,7 @@ const PickEditEvent: React.FC = () => {
       </Field>
 
       <Field label="Note">
-        <Textarea value={note} resize="vertical" size="large" onChange={(_, data) => handleNoteChange(data.value)} />
+        <Textarea className={styles.textArea} value={note} resize="vertical" size="large" onChange={(_, data) => handleNoteChange(data.value)} />
       </Field>
 
       {editedEvent && (
