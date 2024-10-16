@@ -1,4 +1,5 @@
 import FilterStatus from './FilterStatus';
+import LoadingIndicator from './LoadingIndicator';
 import RealtimeClock from './RealtimeClock';
 import TimeRangeLabel from './TimeRangeLabel';
 import TimeZoneSelector from './TimezoneSelector';
@@ -9,6 +10,7 @@ const Statusbar = () => {
       <div className="flex gap-2 items-center">
         <TimeRangeLabel />
         <FilterStatus />
+        <LoadingIndicator />
       </div>
       <div className="flex gap-2 items-center">
         <RealtimeClock />
