@@ -25,7 +25,8 @@ import {
   ZoomOut20Regular,
 } from '@fluentui/react-icons';
 import { isEqual } from 'lodash';
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
+import { useAppStore } from '../../../stores/app';
 import { BandpassFilterOptions, FilterOperationOptions, HighpassFilterOptions, LowpassFilterOptions } from '../../../types/filter';
 import { ScalingType } from '../../../types/scaling';
 
@@ -133,6 +134,10 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
   } = props;
 
   const styles = useStyles();
+  const { darkMode } = useAppStore();
+  const appearance = useMemo(() => {
+    return darkMode ? 'filled-lighter' : 'filled-darker';
+  }, [darkMode]);
 
   const handleShowEventChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -225,6 +230,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
         </Tooltip>
 
         <Select
+          appearance={appearance}
           defaultValue={filterOptions.findIndex((item) => isEqual(item, appliedFilter))}
           onChange={(_, data) => {
             const index = parseInt(data.value as string);
