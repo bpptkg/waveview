@@ -36,6 +36,10 @@ export interface HelicorderSlice {
    * The auto update interval in seconds.
    */
   autoUpdateInterval: number;
+  /**
+   * The checked values of the helicorder toolbar.
+   */
+  helicorderToolbarCheckedValues: Record<string, string[]>;
   setWindowSize: (size: number) => void;
   setHelicorderChannelId: (channelId: string) => void;
   setHelicorderDuration: (duration: number) => void;
@@ -45,4 +49,5 @@ export interface HelicorderSlice {
   setSelectionWindow: (extent: [number, number]) => void;
   setAutoUpdate: (autoUpdate: boolean) => void;
   setAutoUpdateInterval: (interval: number) => void;
+  helicorderToolbarSetCheckedValues: (name: string, checkedValues: string[]) => void;
 }

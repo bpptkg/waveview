@@ -13,6 +13,9 @@ export const createHelicorderSlice: StateCreator<PickerStore, [], [], Helicorder
     windowSize: 5,
     autoUpdate: true,
     autoUpdateInterval: 30,
+    helicorderToolbarCheckedValues: {
+      options: [], // scaling
+    },
     setWindowSize: (windowSize) => set({ windowSize }),
     setHelicorderChannelId: (channelId) => set({ channelId }),
     setHelicorderDuration: (helicorderDuration) => set({ helicorderDuration }),
@@ -26,5 +29,14 @@ export const createHelicorderSlice: StateCreator<PickerStore, [], [], Helicorder
     },
     setAutoUpdate: (autoUpdate) => set({ autoUpdate }),
     setAutoUpdateInterval: (autoUpdateInterval) => set({ autoUpdateInterval }),
+    helicorderToolbarSetCheckedValues: (name, checkedValues) =>
+      set((state) => {
+        return {
+          helicorderToolbarCheckedValues: {
+            ...state.helicorderToolbarCheckedValues,
+            [name]: checkedValues,
+          },
+        };
+      }),
   };
 };

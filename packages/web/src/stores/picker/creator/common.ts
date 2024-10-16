@@ -18,6 +18,9 @@ export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> =
     eventMarkers: [],
     pickerSettingsOpen: false,
     forceCenter: true,
+    loading: false,
+
+    setLoading: (loading) => set({ loading }),
 
     setForceCenter: (forceCenter) => set({ forceCenter }),
 

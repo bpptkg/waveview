@@ -30,6 +30,13 @@ export interface CommonSlice {
    */
   pickerSettingsOpen: boolean;
   /**
+   * True if the picker is loading (fetching picker configuration, event
+   * markers, etc). This is used to show a loading spinner in the picker. This
+   * is not used to indicate the loading state of the helicorder or seismogram
+   * chart.
+   */
+  loading: boolean;
+  /**
    * Set picker settings dialog.
    */
   setPickerSettingsOpen: (open: boolean) => void;
@@ -87,4 +94,8 @@ export interface CommonSlice {
    * Get the filter options.
    */
   getFilterOptions: () => FilterOperationOptions[];
+  /**
+   * Set the loading state of the picker.
+   */
+  setLoading: (loading: boolean) => void;
 }
