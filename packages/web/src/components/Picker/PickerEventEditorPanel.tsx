@@ -24,28 +24,30 @@ const PickerEventEditorPanel = () => {
     };
   }, [setSeisChartRef]);
 
-  const { showEvent, seismogramToolbarCheckedValues } = usePickerStore();
-  const { setAppliedFilter } = useFilterStore();
+  const { showEvent, seismogramToolbarCheckedValues, getFilterOptions } = usePickerStore();
+  const { appliedFilter, setAppliedFilter } = useFilterStore();
   const {
-    handleSeismogramFocus,
-    handleSeismogramExtentChange,
-    handleSeismogramPickChange,
-    handleSeismogramMouseWheel,
     getSeismogramInitOptions,
+    handleSeismogramCheckValueChange,
+    handleSeismogramDecreaseAmplitude,
+    handleSeismogramExtentChange,
+    handleSeismogramFilterChange,
+    handleSeismogramFocus,
+    handleSeismogramIncreaseAmplitude,
+    handleSeismogramMouseWheel,
+    handleSeismogramOnDestroy,
     handleSeismogramOnReady,
+    handleSeismogramPickChange,
+    handleSeismogramResetAmplitude,
+    handleSeismogramScalingChange,
+    handleSeismogramScrollLeft,
+    handleSeismogramScrollRight,
+    handleSeismogramShowEvent,
+    handleSeismogramSignalChange,
+    handleSeismogramSpectrogramChange,
     handleSeismogramTrackDoubleClick,
     handleSeismogramZoomIn,
     handleSeismogramZoomOut,
-    handleSeismogramScrollLeft,
-    handleSeismogramScrollRight,
-    handleSeismogramIncreaseAmplitude,
-    handleSeismogramDecreaseAmplitude,
-    handleSeismogramResetAmplitude,
-    handleSeismogramShowEvent,
-    handleSeismogramCheckValueChange,
-    handleSeismogramSpectrogramChange,
-    handleSeismogramSignalChange,
-    handleSeismogramOnDestroy,
   } = useSeismogramCallback();
 
   useSeismogramThemeEffect(seisChartRef);
@@ -67,7 +69,9 @@ const PickerEventEditorPanel = () => {
           <SeismogramToolbar
             showEvent={showEvent}
             checkedValues={seismogramToolbarCheckedValues}
+            appliedFilter={appliedFilter}
             showHideEvent={false}
+            filterOptions={getFilterOptions()}
             onZoomIn={handleSeismogramZoomIn}
             onZoomOut={handleSeismogramZoomOut}
             onScrollLeft={handleSeismogramScrollLeft}
@@ -79,11 +83,14 @@ const PickerEventEditorPanel = () => {
             onCheckedValueChange={handleSeismogramCheckValueChange}
             onSpectrogramChange={handleSeismogramSpectrogramChange}
             onSignalChange={handleSeismogramSignalChange}
+            onScalingChange={handleSeismogramScalingChange}
+            onFilterChange={handleSeismogramFilterChange}
           />
           <div className="flex-grow relative">
             <SeismogramChart
               ref={seisChartRef}
               initOptions={getSeismogramInitOptions()}
+              appliedFilter={appliedFilter}
               onFocus={handleSeismogramFocus}
               onExtentChange={handleSeismogramExtentChange}
               onMouseWheel={handleSeismogramMouseWheel}
