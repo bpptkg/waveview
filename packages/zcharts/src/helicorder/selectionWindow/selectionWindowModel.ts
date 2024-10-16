@@ -64,7 +64,7 @@ export class SelectionWindowModel extends Model<SelectionWindowOptions> {
   }
 
   setStartTime(startTime: number): void {
-    this.options.startTime = startTime;
+    this.mergeOptions({ startTime });
   }
 
   setCenterTime(centerTime: number): void {
@@ -97,14 +97,12 @@ export class SelectionWindowModel extends Model<SelectionWindowOptions> {
   }
 
   add(size: number): void {
-    const startTime = this.getStartTime();
-    +size * ONE_MINUTE;
+    const startTime = this.getStartTime() + size * ONE_MINUTE;
     this.setStartTime(startTime);
   }
 
   subtract(size: number): void {
-    const startTime = this.getStartTime();
-    -size * ONE_MINUTE;
+    const startTime = this.getStartTime() - size * ONE_MINUTE;
     this.setStartTime(startTime);
   }
 
@@ -120,5 +118,9 @@ export class SelectionWindowModel extends Model<SelectionWindowOptions> {
 
   reset(): void {
     this.setStartTime(0);
+  }
+
+  hasSelection(): boolean {
+    return this.getStartTime() !== 0;
   }
 }

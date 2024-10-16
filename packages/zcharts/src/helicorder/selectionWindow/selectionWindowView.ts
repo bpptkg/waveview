@@ -46,6 +46,22 @@ export class SelectionWindowView extends View<SelectionWindowModel> {
     this.render();
   }
 
+  nextWindow(): void {
+    this.model.nextWindow();
+    this.chart.emit("selectionChanged", this.model.getWindow());
+    this.render();
+  }
+
+  previousWindow(): void {
+    this.model.previousWindow();
+    this.chart.emit("selectionChanged", this.model.getWindow());
+    this.render();
+  }
+
+  hasSelection(): boolean {
+    return this.model.hasSelection();
+  }
+
   enable(): void {
     this.model.mergeOptions({ enabled: true });
   }
