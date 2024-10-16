@@ -26,18 +26,21 @@ const PickerPanel = () => {
   const trackContextMenuRef = useRef<TrackContextMenuRef | null>(null);
 
   const { setSeisChartRef, setHeliChartRef, setContextMenuRef } = usePickerContext();
-  const { offsetDate, showEvent, seismogramToolbarCheckedValues, getFilterOptions } = usePickerStore();
+  const { offsetDate, showEvent, seismogramToolbarCheckedValues, helicorderToolbarCheckedValues, getFilterOptions } = usePickerStore();
   const {
     getHelicorderInitOptions,
     getSeismogramInitOptions,
     handleHelicorderAutoUpdate,
+    handleHelicorderCheckValueChange,
     handleHelicorderDecreaseAmplitude,
     handleHelicorderEventMarkerClick,
     handleHelicorderFocus,
     handleHelicorderIncreaseAmplitude,
+    handleHelicorderOnLoading,
     handleHelicorderOnReady,
     handleHelicorderRefreshData,
     handleHelicorderResetAmplitude,
+    handleHelicorderScalingChange,
     handleHelicorderSelectionChange,
     handleHelicorderSelectOffsetDate,
     handleHelicorderShiftViewDown,
@@ -128,6 +131,7 @@ const PickerPanel = () => {
               <div className="flex flex-col relative h-full">
                 <HelicorderToolbar
                   offsetDate={new Date(offsetDate)}
+                  checkedValues={helicorderToolbarCheckedValues}
                   onShiftViewUp={handleHelicorderShiftViewUp}
                   onShiftViewDown={handleHelicorderShiftViewDown}
                   onShiftViewToNow={handleHelicorderShiftViewToNow}
@@ -136,6 +140,8 @@ const PickerPanel = () => {
                   onResetAmplitude={handleHelicorderResetAmplitude}
                   onOffsetDateChange={handleHelicorderSelectOffsetDate}
                   onRefreshData={handleHelicorderRefreshData}
+                  onCheckedValueChange={handleHelicorderCheckValueChange}
+                  onScalingChange={handleHelicorderScalingChange}
                 />
                 <div className="flex-grow relative">
                   <HelicorderChart
@@ -146,6 +152,7 @@ const PickerPanel = () => {
                     onSelectionChange={handleHelicorderSelectionChange}
                     onEventMarkerClick={handleHelicorderEventMarkerClick}
                     onReady={handleHelicorderOnReady}
+                    onLoading={handleHelicorderOnLoading}
                   />
                 </div>
               </div>
