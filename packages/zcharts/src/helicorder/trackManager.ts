@@ -19,6 +19,10 @@ export class TrackManager {
     this.helicorder = helicorder;
   }
 
+  getDataStore(): DataStore<Series> {
+    return this.dataStore;
+  }
+
   add(segment: Segment, track: TrackView): void {
     const key = JSON.stringify(segment);
     this._tracks.set(key, track);
@@ -152,6 +156,12 @@ export class TrackManager {
     }
   }
 
+  *items(): Generator<[Segment, TrackView]> {
+    for (const [key, track] of this._tracks.entries()) {
+      yield [JSON.parse(key), track];
+    }
+  }
+
   private getNormFactor(): number {
     let normFactor = Infinity;
     for (const segment of this.segments()) {
@@ -169,8 +179,12 @@ export class TrackManager {
     this.dataStore.set(segment, data);
   }
 
-  getTrackData(segment: Segment): Series | undefined {
-    return this.dataStore.get(segment);
+  getTrackData(segment: Segment): Series {
+    const data = this.dataStore.get(segment);
+    if (!data) {
+      return Series.empty();
+    }
+    return data;
   }
 
   isTrackEmpty(segment: Segment): boolean {
@@ -207,7 +221,7 @@ export class TrackManager {
     }
   }
 
-  refreshGlobalScaling(): void {
+  private refreshGlobalScaling(): void {
     const normFactor = this.getNormFactor();
     for (const segment of this.segments()) {
       const track = this.get(segment);
@@ -224,7 +238,7 @@ export class TrackManager {
     }
   }
 
-  refreshLocalScaling(): void {
+  private refreshLocalScaling(): void {
     for (const segment of this.segments()) {
       const track = this.get(segment);
       if (track) {
