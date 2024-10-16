@@ -1,5 +1,6 @@
 import { Channel, Helicorder, HelicorderEventMarkerOptions, HelicorderOptions } from '@waveview/zcharts';
 import { RefreshOptions } from './HelicorderWebWorker';
+import { ScalingType } from '../../../types/scaling';
 
 export interface HelicorderChartProps {
   /**
@@ -30,37 +31,44 @@ export interface HelicorderChartProps {
    * Callback fired when the user click on an event marker.
    */
   onEventMarkerClick?: (marker: HelicorderEventMarkerOptions) => void;
+  /**
+   * Callback fired when the chart is loading data or rendering.
+   */
+  onLoading?: (loading: boolean) => void;
 }
 
 export interface HelicorderChartRef {
-  getInstance: () => Helicorder;
-  shiftViewUp: (by?: number) => void;
-  shiftViewDown: (by?: number) => void;
-  shiftViewToNow: () => void;
-  increaseAmplitude: (by: number) => void;
-  decreaseAmplitude: (by: number) => void;
-  resetAmplitude: () => void;
-  setChannel: (channel: Channel) => void;
-  getChannel: () => Channel;
-  setUseUTC: (useUTC: boolean) => void;
-  setOffsetDate: (date: number) => void;
-  setInterval: (interval: number) => void;
-  setDuration: (duration: number) => void;
-  setTheme: (theme: 'light' | 'dark') => void;
-  setForceCenter: (forceCenter: boolean) => void;
-  getChartExtent: () => [number, number];
-  focus: () => void;
-  blur: () => void;
-  isFocused: () => boolean;
   addEventMarker: (marker: HelicorderEventMarkerOptions) => void;
   addEventMarkers: (markers: HelicorderEventMarkerOptions[]) => void;
-  removeEventMarker: (start: number, end: number) => void;
-  showEventMarkers: () => void;
-  hideEventMarkers: () => void;
+  blur: () => void;
   clearEventMarkers: () => void;
+  decreaseAmplitude: (by: number) => void;
   dispose: () => void;
-  render(): void;
-  toDataURL: (type?: string, quality?: number) => string;
   fetchAllData: (options?: RefreshOptions) => void;
+  focus: () => void;
+  getChannel: () => Channel;
+  getChartExtent: () => [number, number];
+  getInstance: () => Helicorder;
+  hideEventMarkers: () => void;
+  increaseAmplitude: (by: number) => void;
+  isFocused: () => boolean;
+  nextSelection: () => void;
+  previousSelection: () => void;
+  removeEventMarker: (start: number, end: number) => void;
+  render(): void;
+  resetAmplitude: () => void;
+  setChannel: (channel: Channel) => void;
+  setDuration: (duration: number) => void;
+  setForceCenter: (forceCenter: boolean) => void;
+  setInterval: (interval: number) => void;
+  setOffsetDate: (date: number) => void;
+  setScaling: (scaling: ScalingType) => void;
+  setTheme: (theme: 'light' | 'dark') => void;
+  setUseUTC: (useUTC: boolean) => void;
   setWindowSize: (size: number) => void;
+  shiftViewDown: (by?: number) => void;
+  shiftViewToNow: () => void;
+  shiftViewUp: (by?: number) => void;
+  showEventMarkers: () => void;
+  toDataURL: (type?: string, quality?: number) => string;
 }

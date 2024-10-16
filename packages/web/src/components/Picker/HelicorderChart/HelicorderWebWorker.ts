@@ -7,43 +7,49 @@ import { StreamRequestData, StreamResponseData, WorkerRequestData, WorkerRespons
 const cache = new Map<string, Series>();
 
 export interface RefreshOptions {
-  mode: 'lazy' | 'force' | 'cache';
+  /**
+   * The mode to fetch data. If the mode is `force`, the worker will fetch data
+   * for all tracks. If the mode is `cache`, the worker will fetch data for the
+   * tracks that are not in the cache.
+   */
+  mode: 'force' | 'cache';
 }
 
 export interface HelicorderWebWorkerOptions {
   /**
-   * Enable realtime feed for helicorder chart.
-   */
-  enableRealtimeFeed: boolean;
-  /**
-   * Refresh interval for realtime feed in seconds.
-   */
-  refreshInterval: number;
-  /**
    * Force center signal in the track when fetching data.
    */
   forceCenter: boolean;
+  /**
+   * Whether to resample the data in the signal, filtered signal, and
+   * spectrogram. Note that when resampling, spectrogram data will be resampled
+   * to match the width of the seismogram data.
+   */
+  resample: boolean;
+  /**
+   * The sample rate of the data.
+   */
+  sampleRate: number;
 }
 
 export class HelicorderWebWorker {
   private worker: Worker;
   private chart: Helicorder;
   private options: HelicorderWebWorkerOptions;
-  private interval?: number;
   private requests: Map<string, number> = new Map();
   fetchAllTracksDataDebounced: (options?: RefreshOptions) => void;
 
   static readonly defaultOptions: HelicorderWebWorkerOptions = {
-    refreshInterval: 30,
-    enableRealtimeFeed: true,
     forceCenter: true,
+    resample: true,
+    sampleRate: 50,
   };
 
   constructor(chart: Helicorder, worker: Worker, options?: Partial<HelicorderWebWorkerOptions>) {
     this.chart = chart;
     this.worker = worker;
     this.options = { ...HelicorderWebWorker.defaultOptions, ...options };
-    this.interval = undefined;
+
     this.worker.addEventListener('message', this.onMessage.bind(this));
     this.fetchAllTracksDataDebounced = debounce(this.fetchAllTracksData, 300);
   }
@@ -52,28 +58,9 @@ export class HelicorderWebWorker {
     this.options = { ...this.options, ...options };
   }
 
-  refreshRealtimeFeed(): void {
-    const { enableRealtimeFeed, refreshInterval } = this.options;
-    if (enableRealtimeFeed) {
-      const now = Date.now();
-      const [start, end] = this.chart.getChartExtent();
-      if (this.interval) {
-        clearInterval(this.interval);
-      }
-      if (now >= start && now <= end) {
-        this.interval = setInterval(() => {
-          this.fetchAllTracksData({ mode: 'lazy' });
-        }, refreshInterval * 1000);
-      }
-    }
-  }
-
   fetchAllTracksData(options?: RefreshOptions): void {
-    const { mode } = options || { mode: 'lazy' };
+    const { mode } = options || { mode: 'cache' };
     switch (mode) {
-      case 'lazy':
-        this.fetchAllTracksDataLazy();
-        break;
       case 'force':
         this.fetchAllTracksDataForce();
         break;
@@ -83,53 +70,56 @@ export class HelicorderWebWorker {
     }
   }
 
+  hasRequest(): boolean {
+    return this.requests.size > 0;
+  }
+
+  busy(): void {
+    this.chart.emit('loading', true);
+  }
+
+  idle(): void {
+    this.chart.emit('loading', false);
+  }
+
   private fetchAllTracksDataForce(): void {
+    this.busy();
+
     const trackManager = this.chart.getTrackManager();
     for (const segment of trackManager.segments()) {
       this.postRequestMessage(segment);
     }
   }
 
-  private fetchAllTracksDataLazy(): void {
-    const trackManager = this.chart.getTrackManager();
-    const now = Date.now();
-    for (const segment of trackManager.segments()) {
-      if (this.chart.isTrackDataEmpty(segment)) {
-        this.postRequestMessage(segment);
-      } else {
-        const [, end] = segment;
-        if (end > now) {
-          this.postRequestMessage(segment);
-        }
-      }
-    }
-  }
-
   private fetchAllTracksDataCache(): void {
+    this.busy();
+
     const trackManager = this.chart.getTrackManager();
     const now = Date.now();
     for (const segment of trackManager.segments()) {
       const key = JSON.stringify(segment);
       const series = cache.get(key);
       if (series) {
-        this.chart.setTrackData(segment, series);
         const [, end] = segment;
         if (end > now) {
           this.postRequestMessage(segment);
+        } else {
+          this.chart.setTrackData(segment, series);
         }
       } else {
         this.postRequestMessage(segment);
       }
     }
-    this.chart.refreshData();
-    this.chart.render();
+    if (!this.hasRequest()) {
+      this.chart.render();
+    }
   }
 
   postRequestMessage(extent: [number, number]): void {
     const requestId = uuid4();
     const [start, end] = extent;
     const channel = this.chart.getChannel();
-    const { forceCenter } = this.options;
+    const { forceCenter, resample, sampleRate } = this.options;
     const msg: WorkerRequestData<StreamRequestData> = {
       type: 'stream.fetch',
       payload: {
@@ -138,8 +128,8 @@ export class HelicorderWebWorker {
         start,
         end,
         forceCenter,
-        resample: true,
-        sampleRate: 10,
+        resample,
+        sampleRate,
       },
     };
 
@@ -148,9 +138,6 @@ export class HelicorderWebWorker {
   }
 
   dispose(): void {
-    if (this.interval) {
-      clearInterval(this.interval);
-    }
     this.worker.removeEventListener('message', this.onMessage);
   }
 
@@ -176,9 +163,9 @@ export class HelicorderWebWorker {
     const key = JSON.stringify(segment);
     cache.set(key, series);
     this.chart.setTrackData(segment, series);
-    this.chart.refreshData();
-    this.chart.render();
-
     this.requests.delete(requestId);
+    if (this.requests.size === 0) {
+      this.chart.render({ refreshSignal: true });
+    }
   }
 }
