@@ -27,21 +27,21 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
     shiftViewUp: (by: number = 1) => {
       if (chartRef.current) {
         chartRef.current.shiftViewUp(by);
-        chartRef.current.render({ refreshSignal: true });
+        chartRef.current.render();
         fetchData();
       }
     },
     shiftViewDown: (by: number = 1) => {
       if (chartRef.current) {
         chartRef.current.shiftViewDown(by);
-        chartRef.current.render({ refreshSignal: true });
+        chartRef.current.render();
         fetchData();
       }
     },
     shiftViewToNow: () => {
       if (chartRef.current) {
         chartRef.current.shiftViewToNow();
-        chartRef.current.render({ refreshSignal: true });
+        chartRef.current.render();
         fetchData();
       }
     },
