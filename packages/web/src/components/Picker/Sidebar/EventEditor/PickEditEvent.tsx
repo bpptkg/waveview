@@ -107,8 +107,8 @@ const PickEditEvent: React.FC = () => {
 
       <Field label="Amplitudes">
         {isCalculatingAmplitudes ? (
-          <div className="p-2">
-            <Spinner label="Calculating amplitudes..." size="tiny" />
+          <div className="flex justify-start py-2">
+            <Spinner label={<span className="text-md">Calculating amplitudes...</span>} size="extra-tiny" />
           </div>
         ) : amplitudes.length ? (
           amplitudes.map((amplitude, index) => (
