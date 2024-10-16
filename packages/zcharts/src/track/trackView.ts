@@ -97,6 +97,10 @@ export class TrackView extends View<TrackModel> {
     this.group.add(this.bracketGroup);
   }
 
+  getChart(): ChartView {
+    return this.chart;
+  }
+
   getSignal(): LineSeriesView {
     return this.signal;
   }
