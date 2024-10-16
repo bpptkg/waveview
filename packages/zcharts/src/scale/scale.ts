@@ -85,4 +85,6 @@ export abstract class Scale<T extends ScaleOptions = ScaleOptions> {
     splitNumber: number,
     options?: GetTicksOptions
   ): ScaleTick[];
+
+  abstract toJSON(): ScaleOptions;
 }

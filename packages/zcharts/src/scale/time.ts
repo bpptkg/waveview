@@ -91,6 +91,10 @@ export class TimeScale extends Scale<TimeScaleOptions> {
     super(options);
   }
 
+  static fromJSON(options: TimeScaleOptions): TimeScale {
+    return new TimeScale(options);
+  }
+
   override getLabel(tick: TimeScaleTick): string {
     const { useUTC = false, locale } = this.getOptions();
     return this.adapter.format(tick.value, tick.unit, useUTC, locale);
@@ -160,5 +164,9 @@ export class TimeScale extends Scale<TimeScaleOptions> {
     );
 
     return minorTicks;
+  }
+
+  override toJSON(): TimeScaleOptions {
+    return this.getOptions();
   }
 }

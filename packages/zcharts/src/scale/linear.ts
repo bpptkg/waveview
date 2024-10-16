@@ -14,6 +14,10 @@ export class LinearScale extends Scale<LinearScaleOptions> {
     }
   }
 
+  static fromJSON(options: LinearScaleOptions): LinearScale {
+    return new LinearScale(options);
+  }
+
   override getLabel(tick: ScaleTick): string {
     return tick.value.toString();
   }
@@ -62,5 +66,12 @@ export class LinearScale extends Scale<LinearScaleOptions> {
       }
     }
     return minorTicks;
+  }
+
+  toJSON(): LinearScaleOptions {
+    return {
+      min: this._extent[0],
+      max: this._extent[1],
+    };
   }
 }
