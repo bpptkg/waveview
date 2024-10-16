@@ -9,13 +9,27 @@ import { GridView } from "../grid/gridView";
 import { almostEquals } from "../util/math";
 import { ONE_MINUTE, ONE_SECOND } from "../util/time";
 import { Channel } from "../util/types";
+import { AxisPointerView } from "./axisPointer/axisPointerView";
 import { getDefaultOptions, HelicorderOptions } from "./chartOptions";
 import { Segment } from "./dataStore";
 import { HelicorderEventMap } from "./eventMap";
 import { EventMarkerOptions } from "./eventMarker/eventMarkerModel";
 import { EventMarkerView } from "./eventMarker/eventMarkerView";
+import {
+  OffscreenRenderContext,
+  OffscreenRenderTrackContext,
+} from "./offscreen";
+import { OffscreenSignalView } from "./offscreenSignal/offscreenSignalView";
 import { SelectionWindowView } from "./selectionWindow/selectionWindowView";
 import { TrackManager } from "./trackManager";
+
+export interface HelicorderRenderOptions {
+  /**
+   * Refresh the offscreen rendering. Set to `true` to rerender the signal on
+   * the offscreen canvas.
+   */
+  refreshSignal?: boolean;
+}
 
 /**
  * A helicorder is a type of chart used primarily in seismology to display a
@@ -39,6 +53,10 @@ export class Helicorder extends ChartView<HelicorderOptions> {
   private yExtent: [number, number] = [-1, 1];
   private markers: EventMarkerView[] = [];
   private focused = false;
+  private worker: Worker | null = null;
+  private offscreenSignal: OffscreenSignalView;
+  private rendering = false;
+  private axisPointer: AxisPointerView;
 
   constructor(dom: HTMLElement, options?: Partial<HelicorderOptions>) {
     const opts = merge(
@@ -85,6 +103,21 @@ export class Helicorder extends ChartView<HelicorderOptions> {
     } else {
       this.setTheme("light");
     }
+
+    const { useOffscrrenRendering } = opts;
+    if (useOffscrrenRendering && typeof Worker !== "undefined") {
+      this.worker = new Worker(
+        new URL("../workers/helicorder.worker.ts", import.meta.url),
+        { type: "module" }
+      );
+      this.worker.onmessage = this.onWorkerMessage.bind(this);
+    }
+    this.offscreenSignal = new OffscreenSignalView(this);
+    this.addComponent(this.offscreenSignal);
+
+    this.axisPointer = new AxisPointerView(this.topXAxis, this);
+    this.axisPointer.attachEventListeners();
+    this.addComponent(this.axisPointer);
   }
 
   setChannel(channel: Channel): void {
@@ -118,6 +151,10 @@ export class Helicorder extends ChartView<HelicorderOptions> {
   setUseUTC(useUTC: boolean): void {
     this.model.mergeOptions({ useUTC });
     this.trackManager.updateTrackLabels();
+  }
+
+  setScaling(scaling: "global" | "local"): void {
+    this.getModel().mergeOptions({ scaling });
   }
 
   setTrackData(segment: Segment, data: Series): void {
@@ -305,5 +342,75 @@ export class Helicorder extends ChartView<HelicorderOptions> {
     ...args: Parameters<HelicorderEventMap[K]>
   ): void {
     this.eventEmitter.emit(event, ...args);
+  }
+
+  isRendering(): boolean {
+    return this.rendering;
+  }
+
+  override dispose(): void {
+    this.worker?.terminate();
+    this.worker = null;
+    super.dispose();
+  }
+
+  override render(options?: HelicorderRenderOptions): void {
+    const { refreshSignal = false } = options || {};
+    this.rendering = true;
+    this.emit("loading", true);
+
+    const { useOffscrrenRendering } = this.model.getOptions();
+    if (useOffscrrenRendering && refreshSignal) {
+      this.offscreenSignal.clear();
+      this.refreshOffscreen();
+    }
+
+    super.render();
+
+    if (useOffscrrenRendering) {
+      this.rendering = refreshSignal;
+    } else {
+      this.rendering = false;
+    }
+    if (!this.rendering) {
+      this.emit("loading", false);
+    }
+  }
+
+  private refreshOffscreen(): void {
+    const trackManager = this.getTrackManager();
+    const trackRenderContexts: OffscreenRenderTrackContext[] = [];
+    for (const item of trackManager.items()) {
+      const [segment, track] = item;
+      const signal = track.getSignal();
+      const offscreenRendertrack: OffscreenRenderTrackContext = {
+        trackRect: track.getRect(),
+        xScaleOptions: signal.getXAxis().getModel().getScale().toJSON(),
+        yScaleOptions: signal.getYAxis().getModel().getScale().toJSON(),
+        seriesData: trackManager.getTrackData(segment).toJSON(),
+        segment,
+      };
+      trackRenderContexts.push(offscreenRendertrack);
+    }
+
+    const { interval, duration, scaling } = this.getModel().getOptions();
+    const color = this.getThemeStyle().foregroundColor;
+    const offscreenRenderContext: OffscreenRenderContext = {
+      rect: this.getRect(),
+      gridRect: this.getGrid().getRect(),
+      tracks: trackRenderContexts,
+      pixelRatio: window.devicePixelRatio,
+      scaling,
+      color,
+      interval,
+      duration,
+    };
+    this.worker?.postMessage(offscreenRenderContext);
+  }
+
+  private onWorkerMessage(event: MessageEvent): void {
+    const image = event.data as string;
+    this.offscreenSignal.setImage(image);
+    this.render({ refreshSignal: false });
   }
 }
