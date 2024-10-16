@@ -1,5 +1,6 @@
 import { Field, Input, makeStyles, Select, Textarea } from '@fluentui/react-components';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
+import { useAppStore } from '../../../../stores/app';
 import { useVolcanicEmissionEventStore } from '../../../../stores/visual';
 import { EmissionColor, EmissionColorOptions, ObservationForm, ObservationFormOptions } from '../../../../types/observation';
 
@@ -15,6 +16,10 @@ const useStyles = makeStyles({
 const VisualVolcanicEmissionEvent = () => {
   const { observationForm, height, color, intensity, note, setObservationForm, setHeight, setColor, setIntensity, setNote } = useVolcanicEmissionEventStore();
   const styles = useStyles();
+  const { darkMode } = useAppStore();
+  const appearance = useMemo(() => {
+    return darkMode ? 'filled-lighter' : 'filled-darker';
+  }, [darkMode]);
 
   const handleObservationFormChange = useCallback(
     (value: string) => {
@@ -60,7 +65,7 @@ const VisualVolcanicEmissionEvent = () => {
   return (
     <div>
       <Field label={'Observation Form'}>
-        <Select appearance="filled-darker" defaultValue={observationForm} onChange={(_, data) => handleObservationFormChange(data.value)}>
+        <Select appearance={appearance} defaultValue={observationForm} onChange={(_, data) => handleObservationFormChange(data.value)}>
           {ObservationFormOptions.map((option) => {
             return (
               <option key={option.value} value={option.value}>
@@ -71,10 +76,10 @@ const VisualVolcanicEmissionEvent = () => {
         </Select>
       </Field>
       <Field label={'Height (m)'}>
-        <Input appearance="filled-darker" type="number" min={0} value={height.toString()} onChange={(_, data) => handleHeightChange(data.value)} />
+        <Input appearance={appearance} type="number" min={0} value={height.toString()} onChange={(_, data) => handleHeightChange(data.value)} />
       </Field>
       <Field label={'Color'}>
-        <Select appearance="filled-darker" defaultValue={color} onChange={(_, data) => handleColorChange(data.value)}>
+        <Select appearance={appearance} defaultValue={color} onChange={(_, data) => handleColorChange(data.value)}>
           <option value={''}>Select a color</option>
           {EmissionColorOptions.map((option) => {
             return (
@@ -86,11 +91,11 @@ const VisualVolcanicEmissionEvent = () => {
         </Select>
       </Field>
       <Field label={'Intensity (ppm)'}>
-        <Input appearance="filled-darker" type="number" min={0} value={intensity.toString()} onChange={(_, data) => handleIntensityChange(data.value)} />
+        <Input appearance={appearance} type="number" min={0} value={intensity.toString()} onChange={(_, data) => handleIntensityChange(data.value)} />
       </Field>
       <Field label={'Note'}>
         <Textarea
-          appearance="filled-darker"
+          appearance={appearance}
           className={styles.textArea}
           resize="vertical"
           size="large"

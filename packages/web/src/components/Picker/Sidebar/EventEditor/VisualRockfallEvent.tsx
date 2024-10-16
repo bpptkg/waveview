@@ -1,5 +1,6 @@
 import { Checkbox, Field, Input, makeStyles, Select, Textarea } from '@fluentui/react-components';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
+import { useAppStore } from '../../../../stores/app';
 import { useFallDirectionStore, useRockfallEventStore } from '../../../../stores/visual';
 import { EventSize, EventSizeOptions, ObservationForm, ObservationFormOptions } from '../../../../types/observation';
 
@@ -33,6 +34,10 @@ const VisualRockfallEvent = () => {
   } = useRockfallEventStore();
   const { allFallDirections } = useFallDirectionStore();
   const styles = useStyles();
+  const { darkMode } = useAppStore();
+  const appearance = useMemo(() => {
+    return darkMode ? 'filled-lighter' : 'filled-darker';
+  }, [darkMode]);
 
   const handleObservationFormChange = useCallback(
     (value: string) => {
@@ -95,7 +100,7 @@ const VisualRockfallEvent = () => {
   return (
     <div>
       <Field label={'Observation Form'}>
-        <Select appearance="filled-darker" defaultValue={observationForm} onChange={(_, data) => handleObservationFormChange(data.value)}>
+        <Select appearance={appearance} defaultValue={observationForm} onChange={(_, data) => handleObservationFormChange(data.value)}>
           {ObservationFormOptions.map((option) => {
             return (
               <option key={option.value} value={option.value}>
@@ -109,7 +114,7 @@ const VisualRockfallEvent = () => {
         <Checkbox label={'Is Lava Flow'} checked={isLavaFlow} onChange={() => setIsLavaFlow(!isLavaFlow)} />
       </Field>
       <Field label={'Event Size'}>
-        <Select appearance="filled-darker" defaultValue={eventSize} onChange={(_, data) => handleEventSizeChange(data.value)}>
+        <Select appearance={appearance} defaultValue={eventSize} onChange={(_, data) => handleEventSizeChange(data.value)}>
           {EventSizeOptions.map((option) => {
             return (
               <option key={option.value} value={option.value}>
@@ -120,16 +125,10 @@ const VisualRockfallEvent = () => {
         </Select>
       </Field>
       <Field label={'Runout Distance (m)'}>
-        <Input
-          appearance="filled-darker"
-          min={0}
-          type="number"
-          value={runoutDistance.toString()}
-          onChange={(_, data) => handleRunoutDistanceChange(data.value)}
-        />
+        <Input appearance={appearance} min={0} type="number" value={runoutDistance.toString()} onChange={(_, data) => handleRunoutDistanceChange(data.value)} />
       </Field>
       <Field label={'Fall Direction'}>
-        <Select appearance="filled-darker" defaultValue={fallDirection} onChange={(_, data) => handleFallDirectionChange(data.value)}>
+        <Select appearance={appearance} defaultValue={fallDirection} onChange={(_, data) => handleFallDirectionChange(data.value)}>
           <option value={''}>Select fall direction</option>
           {allFallDirections.map((option) => {
             return (
@@ -141,14 +140,14 @@ const VisualRockfallEvent = () => {
         </Select>
       </Field>
       <Field label={'Amplitude (mm)'}>
-        <Input appearance="filled-darker" min={0} type="number" value={amplitude.toString()} onChange={(_, data) => handleAmplitudeChange(data.value)} />
+        <Input appearance={appearance} min={0} type="number" value={amplitude.toString()} onChange={(_, data) => handleAmplitudeChange(data.value)} />
       </Field>
       <Field label={'Duration (s)'}>
-        <Input appearance="filled-darker" min={0} type="number" value={duration.toString()} onChange={(_, data) => handleDurationChange(data.value)} />
+        <Input appearance={appearance} min={0} type="number" value={duration.toString()} onChange={(_, data) => handleDurationChange(data.value)} />
       </Field>
       <Field label={'Note'}>
         <Textarea
-          appearance="filled-darker"
+          appearance={appearance}
           className={styles.textArea}
           resize="vertical"
           size="large"

@@ -1,5 +1,6 @@
 import { Button, Field, Input, Label, Select, Switch } from '@fluentui/react-components';
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useAppStore } from '../../../stores/app';
 import { useFilterStore } from '../../../stores/filter';
 import { FilterType, TaperType } from '../../../types/filter';
 import { usePickerContext } from '../PickerContext';
@@ -27,28 +28,21 @@ const BandpassFilter = () => {
   const handleZeroPhaseChange = (value: boolean) => {
     setBandpass({ ...bandpass, zerophase: value });
   };
+  const { darkMode } = useAppStore();
+  const appearance = useMemo(() => {
+    return darkMode ? 'filled-lighter' : 'filled-darker';
+  }, [darkMode]);
+
   return (
     <div>
       <Field label={'Freq min (Hz)'}>
-        <Input
-          appearance="filled-darker"
-          type="number"
-          min={0.01}
-          value={bandpass.freqmin.toString()}
-          onChange={(_, data) => handleFreqminChange(data.value)}
-        />
+        <Input appearance={appearance} type="number" min={0.01} value={bandpass.freqmin.toString()} onChange={(_, data) => handleFreqminChange(data.value)} />
       </Field>
       <Field label={'Freq max (Hz)'}>
-        <Input
-          appearance="filled-darker"
-          type="number"
-          min={0.01}
-          value={bandpass.freqmax.toString()}
-          onChange={(_, data) => handleFreqmaxChange(data.value)}
-        />
+        <Input appearance={appearance} type="number" min={0.01} value={bandpass.freqmax.toString()} onChange={(_, data) => handleFreqmaxChange(data.value)} />
       </Field>
       <Field label={'Order'}>
-        <Input appearance="filled-darker" type="number" min={0} value={bandpass.order.toString()} onChange={(_, data) => handleOrderChange(data.value)} />
+        <Input appearance={appearance} type="number" min={0} value={bandpass.order.toString()} onChange={(_, data) => handleOrderChange(data.value)} />
       </Field>
       <Switch label={'Zero phase'} checked={bandpass.zerophase} onChange={(e) => handleZeroPhaseChange(e.target.checked)} />
     </div>
@@ -72,13 +66,17 @@ const LowpassFilter = () => {
   const handleZeroPhaseChange = (value: boolean) => {
     setLowpass({ ...lowpass, zerophase: value });
   };
+  const { darkMode } = useAppStore();
+  const appearance = useMemo(() => {
+    return darkMode ? 'filled-lighter' : 'filled-darker';
+  }, [darkMode]);
   return (
     <div>
       <Field label={'Freq (Hz)'}>
-        <Input appearance="filled-darker" type="number" min={0.01} value={lowpass.freq.toString()} onChange={(_, data) => handleFreqChange(data.value)} />
+        <Input appearance={appearance} type="number" min={0.01} value={lowpass.freq.toString()} onChange={(_, data) => handleFreqChange(data.value)} />
       </Field>
       <Field label={'Order'}>
-        <Input appearance="filled-darker" type="number" min={0} value={lowpass.order.toString()} onChange={(_, data) => handleOrderChange(data.value)} />
+        <Input appearance={appearance} type="number" min={0} value={lowpass.order.toString()} onChange={(_, data) => handleOrderChange(data.value)} />
       </Field>
       <Switch label={'Zero phase'} checked={lowpass.zerophase} onChange={(e) => handleZeroPhaseChange(e.target.checked)} />
     </div>
@@ -102,13 +100,17 @@ const HighpassFilter = () => {
   const handleZeroPhaseChange = (value: boolean) => {
     setHighpass({ ...highpass, zerophase: value });
   };
+  const { darkMode } = useAppStore();
+  const appearance = useMemo(() => {
+    return darkMode ? 'filled-lighter' : 'filled-darker';
+  }, [darkMode]);
   return (
     <div>
       <Field label={'Freq (Hz)'}>
-        <Input appearance="filled-darker" type="number" min={0.01} value={highpass.freq.toString()} onChange={(_, data) => handleFreqChange(data.value)} />
+        <Input appearance={appearance} type="number" min={0.01} value={highpass.freq.toString()} onChange={(_, data) => handleFreqChange(data.value)} />
       </Field>
       <Field label={'Order'}>
-        <Input appearance="filled-darker" type="number" min={0} value={highpass.order.toString()} onChange={(_, data) => handleOrderChange(data.value)} />
+        <Input appearance={appearance} type="number" min={0} value={highpass.order.toString()} onChange={(_, data) => handleOrderChange(data.value)} />
       </Field>
       <Switch label={'Zero phase'} checked={highpass.zerophase} onChange={(e) => handleZeroPhaseChange(e.target.checked)} />
     </div>
@@ -126,10 +128,14 @@ const TaperOptions = () => {
     }
     setTaperWidth(parseFloat(value));
   };
+  const { darkMode } = useAppStore();
+  const appearance = useMemo(() => {
+    return darkMode ? 'filled-lighter' : 'filled-darker';
+  }, [darkMode]);
   return (
     <div>
       <Field label={'Taper type'}>
-        <Select appearance="filled-darker" defaultValue={taperType} onChange={(_, data) => handleTaperTypeChange(data.value)}>
+        <Select appearance={appearance} defaultValue={taperType} onChange={(_, data) => handleTaperTypeChange(data.value)}>
           <option value="none">None</option>
           <option value="cosine">Cosine</option>
           <option value="barthann">Barthann</option>
@@ -153,7 +159,7 @@ const TaperOptions = () => {
       </Field>
       <Field label={'Taper width (%)'}>
         <Input
-          appearance="filled-darker"
+          appearance={appearance}
           type="number"
           min={0}
           step={50}
@@ -187,6 +193,11 @@ const FilterToolbox: React.FC = () => {
     setAppliedFilter(options);
   };
 
+  const { darkMode } = useAppStore();
+  const appearance = useMemo(() => {
+    return darkMode ? 'filled-lighter' : 'filled-darker';
+  }, [darkMode]);
+
   return (
     <div>
       <div className="flex items-center justify-start px-2 py-2 border-b dark:border-b-gray-800">
@@ -194,7 +205,7 @@ const FilterToolbox: React.FC = () => {
       </div>
       <div className="p-2 mb-4">
         <Field label="Type">
-          <Select appearance="filled-darker" defaultValue={filterType} onChange={(_, data) => handleFilterTypeChange(data.value)}>
+          <Select appearance={appearance} defaultValue={filterType} onChange={(_, data) => handleFilterTypeChange(data.value)}>
             <option value="bandpass">Bandpass</option>
             <option value="lowpass">Lowpass</option>
             <option value="highpass">Highpass</option>

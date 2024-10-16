@@ -1,6 +1,6 @@
 import { Avatar, Dropdown, Field, Input, makeStyles, Option, Spinner, Textarea } from '@fluentui/react-components';
 import { CircleFilled } from '@fluentui/react-icons';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { formatNumber, formatTime } from '../../../../shared/formatting';
 import { useAppStore } from '../../../../stores/app';
 import { useEventTypeStore } from '../../../../stores/eventType';
@@ -39,9 +39,12 @@ const PickEditEvent: React.FC = () => {
     setNote,
   } = usePickerStore();
   const { eventTypes } = useEventTypeStore();
-  const { useUTC } = useAppStore();
+  const { useUTC, darkMode } = useAppStore();
   const { seisChartRef } = usePickerContext();
   const styles = useStyles();
+  const appearance = useMemo(() => {
+    return darkMode ? 'filled-lighter' : 'filled-darker';
+  }, [darkMode]);
 
   useEffect(() => {
     seisChartRef?.current?.setPickRange(pickRange);
@@ -95,11 +98,11 @@ const PickEditEvent: React.FC = () => {
       <div className="h-[32px] font-semibold">{eventId ? 'Edit Event' : 'Pick New Event'}</div>
 
       <Field label="Time">
-        <Input appearance="filled-darker" value={formatTime(time, { useUTC })} onChange={(_, data) => handleTimeChange(data.value)} />
+        <Input appearance={appearance} value={formatTime(time, { useUTC })} onChange={(_, data) => handleTimeChange(data.value)} />
       </Field>
 
       <Field label="Duration (s)">
-        <Input min={0} appearance="filled-darker" value={`${duration}`} type="number" onChange={(_, data) => handleDurationChange(data.value)} />
+        <Input min={0} appearance={appearance} value={`${duration}`} type="number" onChange={(_, data) => handleDurationChange(data.value)} />
       </Field>
 
       <Field label="Amplitudes">
@@ -119,10 +122,10 @@ const PickEditEvent: React.FC = () => {
         )}
       </Field>
 
-      <Field label="Station of first arrival">
+      <Field label="Station of First Arrival">
         <Dropdown
           className={styles.dropdown}
-          appearance="filled-darker"
+          appearance={appearance}
           defaultValue={''}
           value={getSelectedStations().find((station) => station.id === stationOfFirstArrivalId)?.code || ''}
           onActiveOptionChange={(_, data) => {
@@ -143,10 +146,10 @@ const PickEditEvent: React.FC = () => {
         </Dropdown>
       </Field>
 
-      <Field label="Event type">
+      <Field label="Event Type">
         <Dropdown
           className={styles.dropdown}
-          appearance="filled-darker"
+          appearance={appearance}
           defaultValue={''}
           value={eventTypes.find((event) => event.id === eventTypeId)?.code || ''}
           onActiveOptionChange={(_, data) => {
@@ -174,7 +177,7 @@ const PickEditEvent: React.FC = () => {
         <Textarea
           className={styles.textArea}
           value={note}
-          appearance="filled-darker"
+          appearance={appearance}
           resize="vertical"
           size="large"
           onChange={(_, data) => handleNoteChange(data.value)}

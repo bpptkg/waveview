@@ -1,5 +1,6 @@
 import { Field, Input, makeStyles, Select, Textarea } from '@fluentui/react-components';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
+import { useAppStore } from '../../../../stores/app';
 import { useTectonicEventStore } from '../../../../stores/visual';
 import { MMIScale, MMIScaleOptions } from '../../../../types/observation';
 
@@ -15,6 +16,10 @@ const useStyles = makeStyles({
 const VisualTectonicEvent = () => {
   const { mmiScale, magnitude, depth, note, setMmiScale, setMagnitude, setDepth, setNote } = useTectonicEventStore();
   const styles = useStyles();
+  const { darkMode } = useAppStore();
+  const appearance = useMemo(() => {
+    return darkMode ? 'filled-lighter' : 'filled-darker';
+  }, [darkMode]);
 
   const handleMMIScaleChange = useCallback(
     (value: string) => {
@@ -53,7 +58,7 @@ const VisualTectonicEvent = () => {
   return (
     <div>
       <Field label={'MMI Scale'}>
-        <Select appearance="filled-darker" defaultValue={mmiScale} onChange={(_, data) => handleMMIScaleChange(data.value)}>
+        <Select appearance={appearance} defaultValue={mmiScale} onChange={(_, data) => handleMMIScaleChange(data.value)}>
           {MMIScaleOptions.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
@@ -62,14 +67,14 @@ const VisualTectonicEvent = () => {
         </Select>
       </Field>
       <Field label={'Magnitude'}>
-        <Input appearance="filled-darker" type="number" min={0} value={magnitude.toString()} onChange={(_, data) => handleMagnitudeChange(data.value)} />
+        <Input appearance={appearance} type="number" min={0} value={magnitude.toString()} onChange={(_, data) => handleMagnitudeChange(data.value)} />
       </Field>
       <Field label={'Depth (km)'}>
-        <Input appearance="filled-darker" type="number" min={0} value={depth.toString()} onChange={(_, data) => handleDepthChange(data.value)} />
+        <Input appearance={appearance} type="number" min={0} value={depth.toString()} onChange={(_, data) => handleDepthChange(data.value)} />
       </Field>
       <Field label={'Note'}>
         <Textarea
-          appearance="filled-darker"
+          appearance={appearance}
           className={styles.textArea}
           resize="vertical"
           size="large"
