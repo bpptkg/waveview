@@ -1,7 +1,20 @@
 import { Calendar } from '@fluentui/react-calendar-compat';
-import { Popover, PopoverSurface, PopoverTrigger, Toolbar, ToolbarButton, ToolbarDivider, Tooltip, makeStyles, tokens } from '@fluentui/react-components';
+import {
+  Popover,
+  PopoverSurface,
+  PopoverTrigger,
+  Toolbar,
+  ToolbarButton,
+  ToolbarDivider,
+  ToolbarProps,
+  ToolbarToggleButton,
+  Tooltip,
+  makeStyles,
+  tokens,
+} from '@fluentui/react-components';
 import {
   ArrowCounterclockwiseRegular,
+  ArrowMaximizeVerticalRegular,
   AutoFitHeight20Regular,
   Calendar20Regular,
   ChevronDoubleDown20Regular,
@@ -11,9 +24,11 @@ import {
   ChevronUpDown20Regular,
 } from '@fluentui/react-icons';
 import React, { useCallback } from 'react';
+import { ScalingType } from '../../../types/scaling';
 
 export interface HelicorderToolbarProps {
   offsetDate?: Date;
+  checkedValues?: Record<string, string[]>;
   onShiftViewDown?: () => void;
   onShiftViewUp?: () => void;
   onShiftViewToNow?: () => void;
@@ -22,6 +37,8 @@ export interface HelicorderToolbarProps {
   onDecreaseAmplitude?: () => void;
   onResetAmplitude?: () => void;
   onRefreshData?: () => void;
+  onScalingChange?: (scaling: ScalingType) => void;
+  onCheckedValueChange?: (name: string, values: string[]) => void;
 }
 
 const useStyles = makeStyles({
@@ -42,11 +59,20 @@ const useStyles = makeStyles({
     gap: '3px',
     height: '40px',
   },
+  icon: {
+    fill: tokens.colorNeutralForeground1,
+    '&:hover': {
+      fill: tokens.colorNeutralForeground2BrandHover,
+      color: tokens.colorNeutralForeground2BrandHover,
+    },
+    color: tokens.colorNeutralForeground1,
+  },
 });
 
 const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
   const {
     offsetDate,
+    checkedValues = {},
     onShiftViewDown,
     onShiftViewUp,
     onShiftViewToNow,
@@ -55,6 +81,8 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
     onResetAmplitude,
     onOffsetDateChange,
     onRefreshData,
+    onScalingChange,
+    onCheckedValueChange,
   } = props;
 
   const styles = useStyles();
@@ -69,9 +97,24 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
 
   const [offsetDatePickerOpen, setOffsetDatePickerOpen] = React.useState<boolean>(false);
 
+  const handleToolbarCheckedValueChange = useCallback<NonNullable<ToolbarProps['onCheckedValueChange']>>(
+    (_e, { name, checkedItems }) => {
+      if (name === 'options') {
+        if (checkedItems.includes('scaling')) {
+          onScalingChange?.('local');
+        } else {
+          onScalingChange?.('global');
+        }
+      }
+
+      onCheckedValueChange?.(name, checkedItems);
+    },
+    [onCheckedValueChange, onScalingChange]
+  );
+
   return (
     <div className="bg-white dark:bg-black border-b border-r dark:border-b-gray-800 dark:border-r-gray-800 flex justify-between items-center relative overflow-x-auto">
-      <Toolbar aria-label="Helicorder Toolbar" className={styles.toolbar}>
+      <Toolbar aria-label="Helicorder Toolbar" checkedValues={checkedValues} onCheckedValueChange={handleToolbarCheckedValueChange} className={styles.toolbar}>
         <Popover trapFocus open={offsetDatePickerOpen} onOpenChange={() => setOffsetDatePickerOpen(!offsetDatePickerOpen)}>
           <PopoverTrigger disableButtonEnhancement>
             <Tooltip content="Change Offset Date" relationship="label" showDelay={1500}>
@@ -107,6 +150,15 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
         </Tooltip>
         <Tooltip content="Reset Amplitude" relationship="label" showDelay={1500}>
           <ToolbarButton aria-label="Reset Amplitude" icon={<AutoFitHeight20Regular />} onClick={onResetAmplitude} />
+        </Tooltip>
+        <Tooltip content="Toggle Global or Local Scaling" relationship="label" showDelay={1500}>
+          <ToolbarToggleButton
+            aria-label="Toggle Global or Local Scaling"
+            icon={<ArrowMaximizeVerticalRegular className={styles.icon} />}
+            name="options"
+            value="scaling"
+            appearance="subtle"
+          />
         </Tooltip>
       </Toolbar>
     </div>
