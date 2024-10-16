@@ -1,3 +1,5 @@
+import { ScalingType } from '../../../types/scaling';
+
 export interface HelicorderSlice {
   /**
    * The selected channel of the helicorder chart, e.g. `VG.MELAB.00.HHZ`.
@@ -50,4 +52,5 @@ export interface HelicorderSlice {
   setAutoUpdate: (autoUpdate: boolean) => void;
   setAutoUpdateInterval: (interval: number) => void;
   helicorderToolbarSetCheckedValues: (name: string, checkedValues: string[]) => void;
+  getHelicorderScalingType: () => ScalingType;
 }

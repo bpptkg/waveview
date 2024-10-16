@@ -41,7 +41,7 @@ export interface SeismogramSlice {
    * Get the scaling type of the seismogram chart. This is used when the
    * seismogram is unmounted and remounted.
    */
-  getScalingType: () => ScalingType;
+  getSeismogramScalingType: () => ScalingType;
   /**
    * True if the spectrogram is shown.
    */

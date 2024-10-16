@@ -69,7 +69,7 @@ export const createSeismogramSlice: StateCreator<PickerStore, [], [], Seismogram
       return stations.sort((a, b) => a.code.localeCompare(b.code));
     },
 
-    getScalingType: () => {
+    getSeismogramScalingType: () => {
       const { seismogramToolbarCheckedValues } = get();
       return seismogramToolbarCheckedValues.options.includes('scaling') ? 'local' : 'global';
     },

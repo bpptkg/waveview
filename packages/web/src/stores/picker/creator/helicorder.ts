@@ -38,5 +38,9 @@ export const createHelicorderSlice: StateCreator<PickerStore, [], [], Helicorder
           },
         };
       }),
+    getHelicorderScalingType: () => {
+      const { helicorderToolbarCheckedValues } = get();
+      return helicorderToolbarCheckedValues.options.includes('scaling') ? 'local' : 'global';
+    },
   };
 };
