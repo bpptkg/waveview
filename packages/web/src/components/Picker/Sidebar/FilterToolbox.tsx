@@ -30,13 +30,25 @@ const BandpassFilter = () => {
   return (
     <div>
       <Field label={'Freq min (Hz)'}>
-        <Input type="number" min={0.01} value={bandpass.freqmin.toString()} onChange={(_, data) => handleFreqminChange(data.value)} />
+        <Input
+          appearance="filled-darker"
+          type="number"
+          min={0.01}
+          value={bandpass.freqmin.toString()}
+          onChange={(_, data) => handleFreqminChange(data.value)}
+        />
       </Field>
       <Field label={'Freq max (Hz)'}>
-        <Input type="number" min={0.01} value={bandpass.freqmax.toString()} onChange={(_, data) => handleFreqmaxChange(data.value)} />
+        <Input
+          appearance="filled-darker"
+          type="number"
+          min={0.01}
+          value={bandpass.freqmax.toString()}
+          onChange={(_, data) => handleFreqmaxChange(data.value)}
+        />
       </Field>
       <Field label={'Order'}>
-        <Input type="number" min={0} value={bandpass.order.toString()} onChange={(_, data) => handleOrderChange(data.value)} />
+        <Input appearance="filled-darker" type="number" min={0} value={bandpass.order.toString()} onChange={(_, data) => handleOrderChange(data.value)} />
       </Field>
       <Switch label={'Zero phase'} checked={bandpass.zerophase} onChange={(e) => handleZeroPhaseChange(e.target.checked)} />
     </div>
@@ -63,10 +75,10 @@ const LowpassFilter = () => {
   return (
     <div>
       <Field label={'Freq (Hz)'}>
-        <Input type="number" min={0.01} value={lowpass.freq.toString()} onChange={(_, data) => handleFreqChange(data.value)} />
+        <Input appearance="filled-darker" type="number" min={0.01} value={lowpass.freq.toString()} onChange={(_, data) => handleFreqChange(data.value)} />
       </Field>
       <Field label={'Order'}>
-        <Input type="number" min={0} value={lowpass.order.toString()} onChange={(_, data) => handleOrderChange(data.value)} />
+        <Input appearance="filled-darker" type="number" min={0} value={lowpass.order.toString()} onChange={(_, data) => handleOrderChange(data.value)} />
       </Field>
       <Switch label={'Zero phase'} checked={lowpass.zerophase} onChange={(e) => handleZeroPhaseChange(e.target.checked)} />
     </div>
@@ -93,10 +105,10 @@ const HighpassFilter = () => {
   return (
     <div>
       <Field label={'Freq (Hz)'}>
-        <Input type="number" min={0.01} value={highpass.freq.toString()} onChange={(_, data) => handleFreqChange(data.value)} />
+        <Input appearance="filled-darker" type="number" min={0.01} value={highpass.freq.toString()} onChange={(_, data) => handleFreqChange(data.value)} />
       </Field>
       <Field label={'Order'}>
-        <Input type="number" min={0} value={highpass.order.toString()} onChange={(_, data) => handleOrderChange(data.value)} />
+        <Input appearance="filled-darker" type="number" min={0} value={highpass.order.toString()} onChange={(_, data) => handleOrderChange(data.value)} />
       </Field>
       <Switch label={'Zero phase'} checked={highpass.zerophase} onChange={(e) => handleZeroPhaseChange(e.target.checked)} />
     </div>
@@ -117,7 +129,7 @@ const TaperOptions = () => {
   return (
     <div>
       <Field label={'Taper type'}>
-        <Select defaultValue={taperType} onChange={(_, data) => handleTaperTypeChange(data.value)}>
+        <Select appearance="filled-darker" defaultValue={taperType} onChange={(_, data) => handleTaperTypeChange(data.value)}>
           <option value="none">None</option>
           <option value="cosine">Cosine</option>
           <option value="barthann">Barthann</option>
@@ -140,7 +152,14 @@ const TaperOptions = () => {
         </Select>
       </Field>
       <Field label={'Taper width (%)'}>
-        <Input type="number" min={0} step={50} value={taperWidth.toString()} onChange={(_, data) => handleTaperWidthChange(data.value)} />
+        <Input
+          appearance="filled-darker"
+          type="number"
+          min={0}
+          step={50}
+          value={taperWidth.toString()}
+          onChange={(_, data) => handleTaperWidthChange(data.value)}
+        />
       </Field>
     </div>
   );
@@ -169,34 +188,36 @@ const FilterToolbox: React.FC = () => {
   };
 
   return (
-    <div className="p-2 mb-4">
-      <div>
-        <Field label={'Filter type'}>
-          <Select defaultValue={filterType} onChange={(_, data) => handleFilterTypeChange(data.value)}>
+    <div>
+      <div className="flex items-center justify-start px-2 py-2 border-b dark:border-b-gray-800">
+        <div className="font-semibold">Filter Toolbox</div>
+      </div>
+      <div className="p-2 mb-4">
+        <Field label="Type">
+          <Select appearance="filled-darker" defaultValue={filterType} onChange={(_, data) => handleFilterTypeChange(data.value)}>
             <option value="bandpass">Bandpass</option>
             <option value="lowpass">Lowpass</option>
             <option value="highpass">Highpass</option>
           </Select>
         </Field>
-      </div>
-      <div className="mt-2">
-        <Label>Options</Label>
-        {filterType === 'bandpass' && <BandpassFilter />}
-        {filterType === 'lowpass' && <LowpassFilter />}
-        {filterType === 'highpass' && <HighpassFilter />}
-      </div>
-      <div className="mt-2">
-        <Label>Taper</Label>
-        <TaperOptions />
-      </div>
+        <div className="mt-2">
+          <Label>Options</Label>
+          {filterType === 'bandpass' && <BandpassFilter />}
+          {filterType === 'lowpass' && <LowpassFilter />}
+          {filterType === 'highpass' && <HighpassFilter />}
+        </div>
+        <div className="mt-2">
+          <TaperOptions />
+        </div>
 
-      <div className="flex gap-1 justify-end mt-2">
-        <Button appearance="subtle" onClick={handleReset} disabled={appliedFilter === null}>
-          Reset
-        </Button>
-        <Button appearance="primary" onClick={handleApply}>
-          Apply
-        </Button>
+        <div className="flex gap-1 justify-end mt-2">
+          <Button appearance="subtle" onClick={handleReset} disabled={appliedFilter === null}>
+            Reset
+          </Button>
+          <Button appearance="primary" onClick={handleApply}>
+            Apply
+          </Button>
+        </div>
       </div>
     </div>
   );

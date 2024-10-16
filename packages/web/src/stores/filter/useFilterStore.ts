@@ -23,7 +23,7 @@ const filterStore = create<FilterStore>((set, get) => {
       zerophase: false,
     },
     taperType: 'hann',
-    taperWidth: 5,
+    taperWidth: 1,
     setFilterType: (filterType) => set({ filterType }),
     setBandpass: (bandpass) => set({ bandpass }),
     setLowpass: (lowpass) => set({ lowpass }),
