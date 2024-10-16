@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
-import { SeismogramChartRef } from './SeismogramChart';
 import { HelicorderChartRef } from './HelicorderChart';
+import { SeismogramChartRef } from './SeismogramChart';
 
 export function useSeismogramKeyboardShortcuts(chartRef: React.MutableRefObject<SeismogramChartRef | null>) {
   const onArrowLeft = useCallback(() => {
@@ -85,6 +85,14 @@ export function useHelicorderKeyboardShortcuts(chartRef: React.MutableRefObject<
     chartRef.current?.decreaseAmplitude(0.1);
   }, [chartRef]);
 
+  const onArrowLeft = useCallback(() => {
+    chartRef.current?.previousSelection();
+  }, [chartRef]);
+
+  const onArrowRight = useCallback(() => {
+    chartRef.current?.nextSelection();
+  }, [chartRef]);
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!chartRef.current || !chartRef.current.isFocused()) {
@@ -108,6 +116,12 @@ export function useHelicorderKeyboardShortcuts(chartRef: React.MutableRefObject<
           }
           break;
         }
+        case 'ArrowLeft':
+          onArrowLeft();
+          break;
+        case 'ArrowRight':
+          onArrowRight();
+          break;
         default:
           break;
       }
@@ -117,5 +131,5 @@ export function useHelicorderKeyboardShortcuts(chartRef: React.MutableRefObject<
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [chartRef, onArrowUp, onArrowDown, onArrowUpShift, onArrowDownShift]);
+  }, [chartRef, onArrowUp, onArrowDown, onArrowUpShift, onArrowDownShift, onArrowLeft, onArrowRight]);
 }
