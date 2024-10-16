@@ -12,7 +12,7 @@ export interface RefreshOptions {
    * for all tracks. If the mode is `cache`, the worker will fetch data for the
    * tracks that are not in the cache.
    */
-  mode: 'force' | 'cache';
+  mode: 'force' | 'cache' | 'refresh';
 }
 
 export interface HelicorderWebWorkerOptions {
@@ -67,6 +67,11 @@ export class HelicorderWebWorker {
       case 'cache':
         this.fetchAllTracksDataCache();
         break;
+      case 'refresh':
+        this.fetchAllTracksDataRefresh();
+        break;
+      default:
+        break;
     }
   }
 
@@ -112,6 +117,32 @@ export class HelicorderWebWorker {
     }
     if (!this.hasRequest()) {
       this.chart.render({ refreshSignal: true });
+    }
+  }
+
+  private fetchAllTracksDataRefresh(): void {
+    this.busy();
+
+    const trackManager = this.chart.getTrackManager();
+    const now = Date.now();
+    for (const segment of trackManager.segments()) {
+      const key = JSON.stringify(segment);
+      const series = cache.get(key);
+      if (series) {
+        const [, end] = segment;
+        if (end > now) {
+          this.postRequestMessage(segment);
+        } else {
+          this.chart.setTrackData(segment, series);
+        }
+      } else {
+        this.postRequestMessage(segment);
+      }
+    }
+    const [, end] = this.chart.getChartExtent();
+    const refreshSignal = end > now;
+    if (!this.hasRequest()) {
+      this.chart.render({ refreshSignal });
     }
   }
 
