@@ -6,6 +6,12 @@ export interface SeriesOptions<I extends NDFrameArray> {
   index: I | Index<I>;
 }
 
+export interface SeriesJSON {
+  name: string;
+  index: number[];
+  values: number[];
+}
+
 export class Series<
   D extends NDFrameArray = NDFrameArray,
   I extends NDFrameArray = NDFrameArray
@@ -119,6 +125,16 @@ export class Series<
    */
   get nbytes(): number {
     return this.values.length * this.values.BYTES_PER_ELEMENT;
+  }
+
+  /**
+   * Copy the Series.
+   */
+  copy(): Series<D, I> {
+    return new Series(this.values.slice() as D, {
+      name: this.name,
+      index: this.index,
+    });
   }
 
   /**
@@ -494,5 +510,16 @@ export class Series<
    */
   toArray(): number[] {
     return Array.from(this.values);
+  }
+
+  /**
+   * Return a JSON representation of the Series.
+   */
+  toJSON(): SeriesJSON {
+    return {
+      name: this.name,
+      index: this.index.toArray(),
+      values: this.toArray(),
+    };
   }
 }

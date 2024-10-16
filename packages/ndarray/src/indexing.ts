@@ -54,6 +54,13 @@ export class Index<T extends NDFrameArray = NDFrameArray> {
   }
 
   /**
+   * Copy the index.
+   */
+  copy(): Index<T> {
+    return new Index(this.values.slice() as T) as Index<T>;
+  }
+
+  /**
    * Check if the index is empty.
    */
   isEmpty(): boolean {
