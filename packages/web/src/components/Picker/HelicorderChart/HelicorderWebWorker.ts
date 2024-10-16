@@ -111,7 +111,7 @@ export class HelicorderWebWorker {
       }
     }
     if (!this.hasRequest()) {
-      this.chart.render();
+      this.chart.render({ refreshSignal: true });
     }
   }
 
