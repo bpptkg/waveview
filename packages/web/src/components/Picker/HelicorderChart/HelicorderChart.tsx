@@ -9,7 +9,7 @@ import { HelicorderWebWorker } from './HelicorderWebWorker';
 export type HelicorderChartType = React.ForwardRefExoticComponent<HelicorderChartProps & React.RefAttributes<HelicorderChartRef>>;
 
 export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref) => {
-  const { initOptions, className, onFocus, onSelectionChange, onReady, onEventMarkerClick, onLoading } = props;
+  const { initOptions, className, appliedFilter, onFocus, onSelectionChange, onReady, onEventMarkerClick, onLoading } = props;
 
   const parentRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<Helicorder | null>(null);
@@ -19,7 +19,11 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
   const [isMounted, setIsMounted] = useState(false);
 
   const fetchData = useCallback(() => {
-    webWorkerRef.current?.fetchAllTracksDataDebounced();
+    if (webWorkerRef.current?.hasFilter()) {
+      webWorkerRef.current?.fetchAllFiltersDataDebounced();
+    } else {
+      webWorkerRef.current?.fetchAllTracksDataDebounced();
+    }
   }, []);
 
   useImperativeHandle(ref, () => ({
@@ -185,7 +189,11 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
       }
     },
     fetchAllData: (options) => {
-      webWorkerRef.current?.fetchAllTracksData(options);
+      if (webWorkerRef.current?.hasFilter()) {
+        webWorkerRef.current.fetchAllFiltersData(options);
+      } else {
+        webWorkerRef.current?.fetchAllTracksData(options);
+      }
     },
     setWindowSize: (size: number) => {
       if (chartRef.current) {
@@ -229,6 +237,13 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
         }
       }
     },
+    applyFilter: (options) => {
+      if (webWorkerRef.current) {
+        // Fetch data is handled when .setChannel() is applied. So no need to
+        // fetch filter data here.
+        webWorkerRef.current.mergeOptions({ appliedFilter: options });
+      }
+    },
   }));
 
   const handleSelectionChange = useCallback(
@@ -270,6 +285,7 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
       workerRef.current = new Worker(new URL('../../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
       workerRef.current.postMessage({ type: 'setup', payload: { token } });
       webWorkerRef.current = new HelicorderWebWorker(chartRef.current, workerRef.current);
+      webWorkerRef.current.mergeOptions({ appliedFilter });
       chartRef.current.on('selectionChanged', handleSelectionChange);
       chartRef.current.on('eventMarkerClicked', handleEventMarkerClick);
       chartRef.current.on('loading', handleOnLoading);
@@ -293,7 +309,11 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
     init();
 
     setTimeout(() => {
-      webWorkerRef.current?.fetchAllTracksData({ mode: 'cache' });
+      if (webWorkerRef.current?.hasFilter()) {
+        webWorkerRef.current?.fetchAllFiltersData({ mode: 'cache' });
+      } else {
+        webWorkerRef.current?.fetchAllTracksData({ mode: 'cache' });
+      }
     }, 100);
 
     return () => {

@@ -16,11 +16,13 @@ export const createHelicorderSlice: StateCreator<PickerStore, [], [], Helicorder
     helicorderToolbarCheckedValues: {
       options: [], // scaling
     },
+    helicorderFilter: null,
     setWindowSize: (windowSize) => set({ windowSize }),
     setHelicorderChannelId: (channelId) => set({ channelId }),
     setHelicorderDuration: (helicorderDuration) => set({ helicorderDuration }),
     setHelicorderInterval: (helicorderInterval) => set({ helicorderInterval }),
     setHelicorderOffsetDate: (offsetDate) => set({ offsetDate }),
+    setHelicorderFilter: (helicorderFilter) => set({ helicorderFilter }),
     setSelectionWindow: (extent) => set({ selectionWindow: extent }),
     getHelicorderExtent: () => {
       const { helicorderDuration, helicorderInterval, offsetDate } = get();

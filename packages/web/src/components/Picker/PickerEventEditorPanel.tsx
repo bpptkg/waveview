@@ -24,7 +24,7 @@ const PickerEventEditorPanel = () => {
     };
   }, [setSeisChartRef]);
 
-  const { showEvent, seismogramToolbarCheckedValues, getFilterOptions } = usePickerStore();
+  const { showEvent, seismogramToolbarCheckedValues, getSeismogramFilterOptions } = usePickerStore();
   const { appliedFilter, setAppliedFilter } = useFilterStore();
   const {
     getSeismogramInitOptions,
@@ -71,7 +71,7 @@ const PickerEventEditorPanel = () => {
             checkedValues={seismogramToolbarCheckedValues}
             appliedFilter={appliedFilter}
             showHideEvent={false}
-            filterOptions={getFilterOptions()}
+            filterOptions={getSeismogramFilterOptions()}
             onZoomIn={handleSeismogramZoomIn}
             onZoomOut={handleSeismogramZoomOut}
             onScrollLeft={handleSeismogramScrollLeft}

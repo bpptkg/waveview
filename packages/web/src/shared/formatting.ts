@@ -1,3 +1,4 @@
+import { BandpassFilterOptions, FilterOperationOptions, HighpassFilterOptions, LowpassFilterOptions } from '../types/filter';
 import { formatTimezonedDate } from './time';
 
 export interface FormatNumberOptions {
@@ -50,4 +51,28 @@ export function shortUUID(uuid: string | null | undefined): string {
 
 export function numberFormatterFactory(digits = 0) {
   return (v: number) => (isFinite(v) ? v.toFixed(digits) : '-');
+}
+
+export interface FormatFilterTextOptions {
+  defaultText?: string;
+}
+
+export function formatFilterText(appliedFilter: FilterOperationOptions | null | undefined, options?: FormatFilterTextOptions): string {
+  const { defaultText = '' } = options || {};
+  if (!appliedFilter) {
+    return defaultText;
+  }
+  let text = '';
+  const { filterType, filterOptions } = appliedFilter;
+  if (filterType === 'bandpass') {
+    const bandpass = filterOptions as BandpassFilterOptions;
+    text = `BP: ${bandpass.freqmin}-${bandpass.freqmax} Hz, order ${bandpass.order}`;
+  } else if (filterType === 'lowpass') {
+    const lowpass = filterOptions as LowpassFilterOptions;
+    text = `LP: ${lowpass.freq} Hz, order ${lowpass.order}`;
+  } else if (filterType === 'highpass') {
+    const highpass = filterOptions as HighpassFilterOptions;
+    text = `HP: ${highpass.freq} Hz, order ${highpass.order}`;
+  }
+  return text;
 }

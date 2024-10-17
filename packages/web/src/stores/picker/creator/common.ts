@@ -2,13 +2,56 @@ import { StateCreator } from 'zustand';
 import { api } from '../../../services/api';
 import apiVersion from '../../../services/apiVersion';
 import { BandpassFilterOptions, FilterOperationOptions, HighpassFilterOptions, LowpassFilterOptions } from '../../../types/filter';
-import { PickerConfig } from '../../../types/picker';
+import { FilterOptions, PickerConfig } from '../../../types/picker';
 import { CustomError, ErrorData } from '../../../types/response';
 import { useCatalogStore } from '../../catalog';
 import { useInventoryStore } from '../../inventory';
 import { useOrganizationStore } from '../../organization';
 import { useVolcanoStore } from '../../volcano/useVolcanoStore';
 import { ChannelConfig, CommonSlice, PickerStore } from '../slices';
+
+const extractFilterOptions = (item: FilterOptions): FilterOperationOptions => {
+  if (item.type === 'bandpass') {
+    return {
+      id: item.id,
+      filterType: 'bandpass',
+      filterOptions: {
+        freqmin: item.freqmin,
+        freqmax: item.freqmax,
+        order: item.order,
+        zerophase: item.zerophase,
+      } as BandpassFilterOptions,
+      taperType: item.taper,
+      taperWidth: item.taper_width,
+    } as FilterOperationOptions;
+  } else if (item.type === 'lowpass') {
+    return {
+      id: item.id,
+      filterType: 'lowpass',
+      filterOptions: {
+        freq: item.freq,
+        order: item.order,
+        zerophase: item.zerophase,
+      } as LowpassFilterOptions,
+      taperType: item.taper,
+      taperWidth: item.taper_width,
+    } as FilterOperationOptions;
+  } else if (item.type === 'highpass') {
+    return {
+      id: item.id,
+      filterType: 'highpass',
+      filterOptions: {
+        freq: item.freq,
+        order: item.order,
+        zerophase: item.zerophase,
+      } as HighpassFilterOptions,
+      taperType: item.taper,
+      taperWidth: item.taper_width,
+    } as FilterOperationOptions;
+  } else {
+    throw new CustomError('Invalid filter type');
+  }
+};
 
 export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> = (set, get) => {
   return {
@@ -31,7 +74,7 @@ export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> =
     setShowEvent: (showEvent) => set({ showEvent }),
 
     setPickerConfig: (pickerConfig) => {
-      const { helicorder_channel, seismogram_channels, force_center, window_size } = pickerConfig.data;
+      const { helicorder_channel, seismogram_channels, force_center, window_size, helicorder_filter } = pickerConfig.data;
 
       const availableChannels = useInventoryStore.getState().channels();
       const selectedChannels: ChannelConfig[] = [];
@@ -46,7 +89,8 @@ export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> =
       });
       const forceCenter = force_center || true;
       const windowSize = window_size || 5; // 5 minutes
-      set({ pickerConfig, channelId: helicorder_channel.channel_id, selectedChannels, forceCenter, windowSize });
+      const helicorderFilter = helicorder_filter ? extractFilterOptions(helicorder_filter) : null;
+      set({ pickerConfig, channelId: helicorder_channel.channel_id, selectedChannels, forceCenter, windowSize, helicorderFilter });
     },
 
     fetchPickerConfig: async () => {
@@ -165,49 +209,15 @@ export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> =
       set({ eventMarkers });
     },
 
-    getFilterOptions: () => {
+    getSeismogramFilterOptions: () => {
       const { pickerConfig } = get();
-      return (
-        pickerConfig?.data?.seismogram_filters.map((item) => {
-          if (item.type === 'bandpass') {
-            return {
-              filterType: 'bandpass',
-              filterOptions: {
-                freqmin: item.freqmin,
-                freqmax: item.freqmax,
-                order: item.order,
-                zerophase: item.zerophase,
-              } as BandpassFilterOptions,
-              taperType: item.taper,
-              taperWidth: item.taper_width,
-            } as FilterOperationOptions;
-          } else if (item.type === 'lowpass') {
-            return {
-              filterType: 'lowpass',
-              filterOptions: {
-                freq: item.freq,
-                order: item.order,
-                zerophase: item.zerophase,
-              } as LowpassFilterOptions,
-              taperType: item.taper,
-              taperWidth: item.taper_width,
-            } as FilterOperationOptions;
-          } else if (item.type === 'highpass') {
-            return {
-              filterType: 'highpass',
-              filterOptions: {
-                freq: item.freq,
-                order: item.order,
-                zerophase: item.zerophase,
-              } as HighpassFilterOptions,
-              taperType: item.taper,
-              taperWidth: item.taper_width,
-            } as FilterOperationOptions;
-          } else {
-            throw new CustomError('Invalid filter type');
-          }
-        }) ?? []
-      );
+      const seismogramFilters = pickerConfig?.data.seismogram_filters ?? [];
+      return seismogramFilters.map(extractFilterOptions);
+    },
+    getHelicorderFilterOptions: () => {
+      const { pickerConfig } = get();
+      const helicorderFilters = pickerConfig?.data.helicorder_filters ?? [];
+      return helicorderFilters.map(extractFilterOptions);
     },
   };
 };

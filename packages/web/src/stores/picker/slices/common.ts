@@ -91,9 +91,13 @@ export interface CommonSlice {
    */
   setEventMarkers: (eventMarkers: SeismicEvent[]) => void;
   /**
-   * Get the filter options.
+   * Get seismogram filter options.
    */
-  getFilterOptions: () => FilterOperationOptions[];
+  getSeismogramFilterOptions: () => FilterOperationOptions[];
+  /**
+   * Get helicorder filter options.
+   */
+  getHelicorderFilterOptions: () => FilterOperationOptions[];
   /**
    * Set the loading state of the picker.
    */

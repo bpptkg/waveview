@@ -1,6 +1,7 @@
 import { Channel, Helicorder, HelicorderEventMarkerOptions, HelicorderOptions } from '@waveview/zcharts';
 import { RefreshOptions } from './HelicorderWebWorker';
 import { ScalingType } from '../../../types/scaling';
+import { FilterOperationOptions } from '../../../types/filter';
 
 export interface HelicorderChartProps {
   /**
@@ -11,6 +12,10 @@ export interface HelicorderChartProps {
    * The initial options to be applied to the chart.
    */
   initOptions?: Partial<HelicorderOptions>;
+  /**
+   * If set, show filtered spectrogram signal instead of raw signal.
+   */
+  appliedFilter?: FilterOperationOptions | null;
   /**
    * Callback fired when the chart is focused.
    */
@@ -40,6 +45,7 @@ export interface HelicorderChartProps {
 export interface HelicorderChartRef {
   addEventMarker: (marker: HelicorderEventMarkerOptions) => void;
   addEventMarkers: (markers: HelicorderEventMarkerOptions[]) => void;
+  applyFilter: (options: FilterOperationOptions | null) => void;
   blur: () => void;
   clearEventMarkers: () => void;
   decreaseAmplitude: (by: number) => void;

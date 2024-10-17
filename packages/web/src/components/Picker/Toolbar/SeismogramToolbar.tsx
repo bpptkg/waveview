@@ -26,8 +26,9 @@ import {
 } from '@fluentui/react-icons';
 import { isEqual } from 'lodash';
 import React, { useCallback, useMemo } from 'react';
+import { formatFilterText } from '../../../shared/formatting';
 import { useAppStore } from '../../../stores/app';
-import { BandpassFilterOptions, FilterOperationOptions, HighpassFilterOptions, LowpassFilterOptions } from '../../../types/filter';
+import { FilterOperationOptions } from '../../../types/filter';
 import { ScalingType } from '../../../types/scaling';
 
 export interface SeismogramToolbarProps {
@@ -53,22 +54,6 @@ export interface SeismogramToolbarProps {
   onScalingChange?: (scaling: ScalingType) => void;
   onFilterChange?: (filter: FilterOperationOptions | null) => void;
 }
-
-const formatFilterText = (appliedFilter: FilterOperationOptions): string => {
-  let text = '';
-  const { filterType, filterOptions } = appliedFilter;
-  if (filterType === 'bandpass') {
-    const bandpass = filterOptions as BandpassFilterOptions;
-    text = `BP: ${bandpass.freqmin}-${bandpass.freqmax} Hz, order ${bandpass.order}`;
-  } else if (filterType === 'lowpass') {
-    const lowpass = filterOptions as LowpassFilterOptions;
-    text = `LP: ${lowpass.freq} Hz, order ${lowpass.order}`;
-  } else if (filterType === 'highpass') {
-    const highpass = filterOptions as HighpassFilterOptions;
-    text = `HP: ${highpass.freq} Hz, order ${highpass.order}`;
-  }
-  return text;
-};
 
 const useStyles = makeStyles({
   btn: {

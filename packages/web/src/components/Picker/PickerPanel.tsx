@@ -26,7 +26,17 @@ const PickerPanel = () => {
   const trackContextMenuRef = useRef<TrackContextMenuRef | null>(null);
 
   const { setSeisChartRef, setHeliChartRef, setContextMenuRef } = usePickerContext();
-  const { offsetDate, showEvent, seismogramToolbarCheckedValues, helicorderToolbarCheckedValues, getFilterOptions } = usePickerStore();
+  const {
+    offsetDate,
+    showEvent,
+    helicorderFilter,
+    selectedChart,
+    autoUpdate,
+    autoUpdateInterval,
+    seismogramToolbarCheckedValues,
+    helicorderToolbarCheckedValues,
+    getSeismogramFilterOptions,
+  } = usePickerStore();
   const {
     getHelicorderInitOptions,
     getSeismogramInitOptions,
@@ -68,8 +78,6 @@ const PickerPanel = () => {
     handleSeismogramZoomIn,
     handleSeismogramZoomOut,
   } = usePickerCallback();
-
-  const { selectedChart, autoUpdate, autoUpdateInterval } = usePickerStore();
 
   const helicorderClassName = useMemo(() => {
     return selectedChart === 'helicorder' ? 'border border-brand-hosts-80' : 'border border-transparent';
@@ -147,6 +155,7 @@ const PickerPanel = () => {
                   <HelicorderChart
                     ref={heliChartRef}
                     className={helicorderClassName}
+                    appliedFilter={helicorderFilter}
                     initOptions={getHelicorderInitOptions()}
                     onFocus={handleHelicorderFocus}
                     onSelectionChange={handleHelicorderSelectionChange}
@@ -166,7 +175,7 @@ const PickerPanel = () => {
               showEvent={showEvent}
               checkedValues={seismogramToolbarCheckedValues}
               appliedFilter={appliedFilter}
-              filterOptions={getFilterOptions()}
+              filterOptions={getSeismogramFilterOptions()}
               onZoomIn={handleSeismogramZoomIn}
               onZoomOut={handleSeismogramZoomOut}
               onZoomFirstMinute={handleSeismogramZoomFirstMinute}

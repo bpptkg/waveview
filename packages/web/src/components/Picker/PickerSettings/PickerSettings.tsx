@@ -14,15 +14,17 @@ import {
 } from '@fluentui/react-components';
 import { ArrowLeftRegular, ChevronRightRegular } from '@fluentui/react-icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { formatNumber } from '../../../shared/formatting';
+import { formatFilterText, formatNumber } from '../../../shared/formatting';
 import { useInventoryStore } from '../../../stores/inventory';
 import { usePickerStore } from '../../../stores/picker';
 import { ChannelConfig } from '../../../stores/picker/slices';
 import { Channel } from '../../../types/channel';
-import { PickerConfigPayload } from '../../../types/picker';
+import { BandpassFilterOptions, FilterOperationOptions, LowpassFilterOptions } from '../../../types/filter';
+import { FilterOptions, PickerConfigPayload } from '../../../types/picker';
 import { CustomError } from '../../../types/response';
 import { usePickerContext } from '../PickerContext';
 import HelicorderDefaultChannel from './HelicorderDefaultChannel';
+import HelicorderFilter from './HelicorderFilter';
 import SeismogramChannelList from './SeismogramChannelList';
 import SelectionWindow from './SelectionWindow';
 
@@ -58,7 +60,53 @@ const useStyles = makeStyles({
   },
 });
 
-type View = 'default' | 'helcorderDefaultChannel' | 'seismogramChannelList' | 'selectionWindow';
+type View = 'default' | 'helcorderDefaultChannel' | 'helicorderFilter' | 'seismogramChannelList' | 'selectionWindow';
+
+const extractFilterOptions = (appliedFilter: FilterOperationOptions | null): FilterOptions | null => {
+  if (!appliedFilter) {
+    return null;
+  }
+  const taper = appliedFilter.taperType;
+  const taper_width = appliedFilter.taperWidth;
+  const id = appliedFilter.id;
+  if (appliedFilter.filterType === 'bandpass') {
+    const { freqmin, freqmax, zerophase, order } = appliedFilter.filterOptions as BandpassFilterOptions;
+    return {
+      type: 'bandpass',
+      id,
+      freqmin,
+      freqmax,
+      zerophase,
+      order,
+      taper,
+      taper_width,
+    };
+  } else if (appliedFilter.filterType === 'lowpass') {
+    const { freq, zerophase, order } = appliedFilter.filterOptions as LowpassFilterOptions;
+    return {
+      type: 'lowpass',
+      id,
+      freq,
+      zerophase,
+      order,
+      taper,
+      taper_width,
+    };
+  } else if (appliedFilter.filterType === 'highpass') {
+    const { freq, zerophase, order } = appliedFilter.filterOptions as LowpassFilterOptions;
+    return {
+      type: 'highpass',
+      id,
+      freq,
+      zerophase,
+      order,
+      taper,
+      taper_width,
+    };
+  } else {
+    throw new Error('Invalid filter type');
+  }
+};
 
 const PickerSettings: React.FC = () => {
   const {
@@ -66,6 +114,8 @@ const PickerSettings: React.FC = () => {
     channelId: defaultChannelId,
     windowSize,
     forceCenter,
+    helicorderFilter,
+    getHelicorderFilterOptions,
     getChannelsConfig,
     setPickerSettingsOpen,
     savePickerConfig,
@@ -98,6 +148,7 @@ const PickerSettings: React.FC = () => {
   const [channelList, setChannelList] = useState<ChannelConfig[]>(getChannelsConfig());
   const [selectionWindow, setSelectionWindow] = useState<number>(windowSize);
   const [detrend, setDetrend] = useState<boolean>(forceCenter);
+  const [editedHelicorderFilter, setEditedHelicorderFilter] = useState<FilterOperationOptions | null>(helicorderFilter);
 
   const handleOpenChange = useCallback(
     (open: boolean) => {
@@ -111,7 +162,8 @@ const PickerSettings: React.FC = () => {
     setChannelList(getChannelsConfig());
     setSelectionWindow(windowSize);
     setDetrend(forceCenter);
-  }, [defaultChannelId, windowSize, forceCenter, getChannelsConfig]);
+    setEditedHelicorderFilter(helicorderFilter);
+  }, [defaultChannelId, windowSize, forceCenter, helicorderFilter, getChannelsConfig]);
 
   const handleCancel = useCallback(() => {
     resetState();
@@ -126,21 +178,25 @@ const PickerSettings: React.FC = () => {
   }, [pickerSettingsOpen, resetState]);
 
   const handleApplySettings = useCallback(() => {
+    const item = getChannelsConfig().find((item) => item.channel.id === channelId)!;
+    heliChartRef.current?.setWindowSize(selectionWindow);
+    const currentChannel = heliChartRef.current?.getChannel();
+    heliChartRef.current?.applyFilter(editedHelicorderFilter);
+    if (currentChannel?.id !== item.channel.id) {
+      heliChartRef.current?.setChannel({ id: item.channel.id, label: item.channel.stream_id });
+    } else {
+      heliChartRef.current?.fetchAllData();
+    }
+    heliChartRef.current?.setForceCenter(detrend);
+
     const channels = getChannelsConfig().map((item) => ({
       id: item.channel.id,
       label: item.channel.net_sta_code,
       color: item.color,
     }));
     seisChartRef.current?.setChannels(channels);
-    const item = getChannelsConfig().find((item) => item.channel.id === channelId)!;
-    heliChartRef.current?.setWindowSize(selectionWindow);
-    const currentChannel = heliChartRef.current?.getChannel();
-    if (currentChannel?.id !== item.channel.id) {
-      heliChartRef.current?.setChannel({ id: item.channel.id, label: item.channel.stream_id });
-    }
-    heliChartRef.current?.setForceCenter(detrend);
     seisChartRef.current?.setForceCenter(detrend);
-  }, [channelId, selectionWindow, detrend, heliChartRef, seisChartRef, getChannelsConfig]);
+  }, [channelId, selectionWindow, detrend, editedHelicorderFilter, heliChartRef, seisChartRef, getChannelsConfig]);
 
   const handleReset = useCallback(async () => {
     setLoading(true);
@@ -167,6 +223,7 @@ const PickerSettings: React.FC = () => {
       })),
       window_size: selectionWindow,
       force_center: detrend,
+      helicorder_filter: extractFilterOptions(editedHelicorderFilter),
     };
     try {
       await savePickerConfig(payload);
@@ -177,7 +234,7 @@ const PickerSettings: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [channelId, channelList, selectionWindow, detrend, setPickerSettingsOpen, savePickerConfig, showErrorToast, handleApplySettings]);
+  }, [channelId, channelList, selectionWindow, detrend, editedHelicorderFilter, setPickerSettingsOpen, savePickerConfig, showErrorToast, handleApplySettings]);
 
   const handleHelicorderChannelChange = useCallback((channel: Channel) => {
     setChannelId(channel.id);
@@ -241,6 +298,13 @@ const PickerSettings: React.FC = () => {
     setDetrend(value);
   }, []);
 
+  const handleHelicorderFilterChange = useCallback(
+    (filter: FilterOperationOptions | null) => {
+      setEditedHelicorderFilter(filter);
+    },
+    [setEditedHelicorderFilter]
+  );
+
   const Component = useMemo(() => {
     if (view === 'helcorderDefaultChannel') {
       return <HelicorderDefaultChannel channelId={channelId} onChange={handleHelicorderChannelChange} />;
@@ -257,6 +321,8 @@ const PickerSettings: React.FC = () => {
       );
     } else if (view === 'selectionWindow') {
       return <SelectionWindow value={selectionWindow.toString()} onChange={handleSelectionWindowChange} />;
+    } else if (view === 'helicorderFilter') {
+      return <HelicorderFilter appliedFilter={helicorderFilter} filterOptions={getHelicorderFilterOptions()} onChange={handleHelicorderFilterChange} />;
     } else {
       return (
         <div className="flex flex-col gap-1 mt-2">
@@ -268,6 +334,16 @@ const PickerSettings: React.FC = () => {
             <div>Helicorder Channel</div>
             <div className="flex items-center">
               <div className="font-normal">{channels().find((channel) => channel.id === channelId)?.stream_id}</div>
+              <ChevronRightRegular fontSize={20} />
+            </div>
+          </a>
+          <a
+            className="h-[40px] flex items-center justify-between border border-gray-300 dark:border-gray-700 rounded-md p-2 cursor-pointer"
+            onClick={() => setView('helicorderFilter')}
+          >
+            <div>Helicorder Filter</div>
+            <div className="flex items-center">
+              <div className="font-normal">{formatFilterText(helicorderFilter, { defaultText: 'None' })}</div>
               <ChevronRightRegular fontSize={20} />
             </div>
           </a>
@@ -304,20 +380,23 @@ const PickerSettings: React.FC = () => {
       );
     }
   }, [
-    view,
     channelId,
     channelList,
-    selectionWindow,
     detrend,
+    helicorderFilter,
+    selectionWindow,
+    view,
     channels,
+    getHelicorderFilterOptions,
+    handleForceCenterChange,
     handleHelicorderChannelChange,
+    handleHelicorderFilterChange,
     handleSeismogramChannelAdd,
+    handleSeismogramChannelColorChange,
     handleSeismogramChannelDelete,
     handleSeismogramChannelMoveDown,
     handleSeismogramChannelMoveUp,
-    handleSeismogramChannelColorChange,
     handleSelectionWindowChange,
-    handleForceCenterChange,
   ]);
 
   return (

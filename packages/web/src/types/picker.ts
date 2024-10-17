@@ -9,6 +9,7 @@ export interface AmplitudeConfig {
 }
 
 export interface BaseFilterOptions {
+  id: string;
   order: number;
   zerophase: boolean;
   taper: string;
@@ -40,6 +41,8 @@ export interface PickerConfigData {
   force_center: boolean;
   amplitude_config: AmplitudeConfig;
   seismogram_filters: FilterOptions[];
+  helicorder_filters: FilterOptions[];
+  helicorder_filter: FilterOptions | null;
 }
 
 export interface PickerConfig {
@@ -55,4 +58,5 @@ export interface PickerConfigPayload {
   seismogram_channels: ChannelConfig[];
   force_center: boolean;
   window_size: number;
+  helicorder_filter: FilterOptions | null;
 }

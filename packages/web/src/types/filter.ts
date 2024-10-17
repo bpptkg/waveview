@@ -41,6 +41,7 @@ export interface HighpassFilterOptions {
 export type FilterOptions = BandpassFilterOptions | LowpassFilterOptions | HighpassFilterOptions;
 
 export interface FilterOperationOptions {
+  id: string;
   filterType: FilterType;
   filterOptions: FilterOptions;
   taperType: TaperType;

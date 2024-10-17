@@ -1,3 +1,4 @@
+import { FilterOperationOptions } from '../../../types/filter';
 import { ScalingType } from '../../../types/scaling';
 
 export interface HelicorderSlice {
@@ -42,11 +43,16 @@ export interface HelicorderSlice {
    * The checked values of the helicorder toolbar.
    */
   helicorderToolbarCheckedValues: Record<string, string[]>;
+  /**
+   * The applied filter to the helicorder chart.
+   */
+  helicorderFilter: FilterOperationOptions | null;
   setWindowSize: (size: number) => void;
   setHelicorderChannelId: (channelId: string) => void;
   setHelicorderDuration: (duration: number) => void;
   setHelicorderInterval: (interval: number) => void;
   setHelicorderOffsetDate: (offsetDate: number) => void;
+  setHelicorderFilter: (helicorderFilter: FilterOperationOptions | null) => void;
   getHelicorderExtent: () => [number, number];
   setSelectionWindow: (extent: [number, number]) => void;
   setAutoUpdate: (autoUpdate: boolean) => void;
