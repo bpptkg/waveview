@@ -1,4 +1,4 @@
-import { DateAdapter, DefaultDateAdapter } from "../util/time";
+import { DateAdapter, DefaultDateAdapter, ONE_MINUTE } from "../util/time";
 import { ScaleTick, TimeUnit } from "../util/types";
 import { Scale, ScaleOptions } from "./scale";
 
@@ -89,6 +89,13 @@ export class TimeScale extends Scale<TimeScaleOptions> {
 
   constructor(options?: TimeScaleOptions) {
     super(options);
+    if (options?.min !== undefined && options?.max !== undefined) {
+      this.setExtent([options.min, options.max]);
+    } else {
+      const end = Date.now();
+      const start = end - 5 * ONE_MINUTE;
+      this.setExtent([start, end]);
+    }
   }
 
   static fromJSON(options: TimeScaleOptions): TimeScale {
@@ -167,6 +174,13 @@ export class TimeScale extends Scale<TimeScaleOptions> {
   }
 
   override toJSON(): TimeScaleOptions {
-    return this.getOptions();
+    const { useUTC, locale } = this.getOptions();
+    const [min, max] = this.getExtent();
+    return {
+      useUTC,
+      min,
+      max,
+      locale,
+    };
   }
 }
