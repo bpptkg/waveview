@@ -541,6 +541,9 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     const trackRenderContexts: OffscreenRenderTrackContext[] = [];
     for (const item of trackManager.items()) {
       const [channel, track] = item;
+      if (!track.visible) {
+        continue;
+      }
       const signal = track.getSignal();
       let series = this.getChannelData(channel.id);
       if (!series || series.isEmpty()) {
