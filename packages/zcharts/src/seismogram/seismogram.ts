@@ -340,12 +340,14 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     for (const track of this.trackManager.tracks()) {
       track.showSignal();
     }
+    this.offscreenSignal.show();
   }
 
   hideSignals(): void {
     for (const track of this.trackManager.tracks()) {
       track.hideSignal();
     }
+    this.offscreenSignal.hide();
   }
 
   showSpectrograms(): void {
