@@ -91,6 +91,18 @@ export class HelicorderWebWorker {
     this.chart.emit('loading', false);
   }
 
+  /**
+   * Convenient method to restore all channels data. Use this when initializing
+   * the chart only.
+   */
+  restoreAllTracksData(): void {
+    if (this.hasFilter()) {
+      this.fetchAllFiltersData({ mode: 'cache' });
+    } else {
+      this.fetchAllTracksData({ mode: 'cache' });
+    }
+  }
+
   fetchAllTracksData(options?: RefreshOptions): void {
     const { mode } = options || { mode: 'cache' };
     switch (mode) {

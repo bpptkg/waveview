@@ -1,5 +1,5 @@
 import { Channel, Seismogram, SeismogramEventMarkerOptions } from '@waveview/zcharts';
-import { MutableRefObject, useMemo } from 'react';
+import { MutableRefObject, useCallback, useMemo } from 'react';
 import { ONE_MINUTE } from '../../../shared/time';
 import { SeismogramChartRef, SetExtentOptions } from './SeismogramChart.types';
 import { SeismogramWebWorker } from './SeismogramWebWorker';
@@ -12,37 +12,34 @@ export interface SeismogramChartInitOptions {
 export default function useSeismogramChartApi(options: SeismogramChartInitOptions): SeismogramChartRef {
   const { chartRef, webWorkerRef } = options;
 
+  const fetchData = useCallback(() => {
+    if (chartRef.current && webWorkerRef.current) {
+      if (webWorkerRef.current.hasFilter()) {
+        webWorkerRef.current.fetchAllFiltersData();
+      } else {
+        webWorkerRef.current.fetchAllChannelsData();
+      }
+      if (chartRef.current.isSpectrogramShown()) {
+        webWorkerRef.current.fetchAllSpectrogramData();
+      }
+    }
+  }, [chartRef, webWorkerRef]);
+
   return useMemo(() => {
     return {
       getInstance: () => chartRef.current!,
       setChannels: (channels: Channel[]) => {
-        if (chartRef.current && webWorkerRef.current) {
+        if (chartRef.current) {
           chartRef.current.setChannels(channels);
-          if (webWorkerRef.current.hasFilter()) {
-            const { appliedFilter } = webWorkerRef.current.getOptions();
-            webWorkerRef.current.fetchAllFiltersData(appliedFilter!);
-          } else {
-            webWorkerRef.current.fetchAllChannelsData();
-          }
-          if (chartRef.current.isSpectrogramShown()) {
-            webWorkerRef.current.fetchAllSpectrogramData();
-          }
           chartRef.current.render();
+          fetchData();
         }
       },
       addChannel: (channel: Channel) => {
-        if (chartRef.current && webWorkerRef.current) {
+        if (chartRef.current) {
           chartRef.current.addChannel(channel);
-          if (webWorkerRef.current.hasFilter()) {
-            const { appliedFilter } = webWorkerRef.current.getOptions();
-            webWorkerRef.current.fetchAllFiltersData(appliedFilter!);
-          } else {
-            webWorkerRef.current.fetchAllChannelsData();
-          }
-          if (chartRef.current.isSpectrogramShown()) {
-            webWorkerRef.current.fetchSpecrogramData(channel.id);
-          }
           chartRef.current.render();
+          fetchData();
         }
       },
       removeChannel: (index: number) => {
@@ -126,17 +123,8 @@ export default function useSeismogramChartApi(options: SeismogramChartInitOption
           }
 
           webWorkerRef.current.mergeOptions({ selectionWindow: extent });
-
-          if (webWorkerRef.current.hasFilter()) {
-            const { appliedFilter } = webWorkerRef.current.getOptions();
-            webWorkerRef.current.fetchAllFiltersData(appliedFilter!);
-          } else {
-            webWorkerRef.current.fetchAllChannelsData();
-          }
-          if (chartRef.current.isSpectrogramShown()) {
-            webWorkerRef.current.fetchAllSpectrogramData();
-          }
           chartRef.current.render();
+          fetchData();
         }
       },
       zoomFirstMinute: () => {
@@ -275,7 +263,7 @@ export default function useSeismogramChartApi(options: SeismogramChartInitOption
       },
       applyFilter: (options) => {
         webWorkerRef.current?.mergeOptions({ appliedFilter: options });
-        webWorkerRef.current?.fetchAllFiltersData(options);
+        webWorkerRef.current?.fetchAllFiltersData();
       },
       resetFilter: () => {
         webWorkerRef.current?.fetchAllChannelsData();
@@ -354,5 +342,5 @@ export default function useSeismogramChartApi(options: SeismogramChartInitOption
         }
       },
     };
-  }, [chartRef, webWorkerRef]);
+  }, [chartRef, webWorkerRef, fetchData]);
 }

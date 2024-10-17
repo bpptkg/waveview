@@ -309,11 +309,7 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
     init();
 
     setTimeout(() => {
-      if (webWorkerRef.current?.hasFilter()) {
-        webWorkerRef.current?.fetchAllFiltersData({ mode: 'cache' });
-      } else {
-        webWorkerRef.current?.fetchAllTracksData({ mode: 'cache' });
-      }
+      webWorkerRef.current?.restoreAllTracksData();
     }, 100);
 
     return () => {

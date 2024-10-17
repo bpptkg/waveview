@@ -152,6 +152,10 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
 
     init();
 
+    setTimeout(() => {
+      webWorkerRef.current?.restoreAllChannelsData();
+    }, 100);
+
     return () => {
       chartRef.current?.dispose();
       workerRef.current?.terminate();

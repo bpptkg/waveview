@@ -137,8 +137,7 @@ export class SeismogramWebWorker {
    */
   restoreAllChannelsData(): void {
     if (this.hasFilter()) {
-      const { appliedFilter } = this.options;
-      this.fetchAllFiltersData(appliedFilter!);
+      this.fetchAllFiltersData();
     } else {
       this.fetchAllChannelsData({ mode: 'cache' });
     }
@@ -268,9 +267,13 @@ export class SeismogramWebWorker {
     this.spectrogramRequests.set(requestId, Date.now());
   }
 
-  fetchAllFiltersData(options: FilterOperationOptions): void {
+  fetchAllFiltersData(): void {
+    const { appliedFilter } = this.options;
+    if (!appliedFilter) {
+      return;
+    }
     for (const channel of this.chart.getChannels()) {
-      this.fetchFilterData(channel.id, options);
+      this.fetchFilterData(channel.id, appliedFilter);
     }
   }
 
