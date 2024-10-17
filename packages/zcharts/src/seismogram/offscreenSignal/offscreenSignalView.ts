@@ -19,7 +19,7 @@ export class OffscreenSignalView extends View<OffscreenSignalModel> {
     this.rect = chart.getRect();
     this.chart = chart;
     this.image = new zrender.Image({
-      z: -1,
+      z: 0,
       silent: true,
     });
     const clipRect = this.chart.getXAxis().getRect();
@@ -58,7 +58,7 @@ export class OffscreenSignalView extends View<OffscreenSignalModel> {
   }
 
   render(): void {
-    if (this.model.isEmpty()) {
+    if (this.model.isEmpty() || !this.visible) {
       this.group.hide();
       return;
     }
