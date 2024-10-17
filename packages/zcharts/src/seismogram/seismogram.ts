@@ -12,14 +12,27 @@ import { TrackView } from "../track/trackView";
 import { almostEquals } from "../util/math";
 import { ONE_MINUTE, ONE_SECOND } from "../util/time";
 import { Channel, LayoutRect } from "../util/types";
-import { AxisPointer } from "./axisPointer";
+import { AxisPointerView } from "./axisPointer/axisPointerView";
 import { getDefaultOptions, SeismogramOptions } from "./chartOptions";
 import { DataStore } from "./dataStore";
 import { SeismogramEventMap } from "./eventMap";
 import { EventMarkerOptions } from "./eventMarker/eventMarkerModel";
 import { EventMarkerView } from "./eventMarker/eventMarkerView";
+import {
+  OffscreenRenderContext,
+  OffscreenRenderTrackContext,
+} from "./offscreen";
+import { OffscreenSignalView } from "./offscreenSignal/offscreenSignalView";
 import { EventTooltip } from "./tooltip";
 import { TrackManager } from "./trackManager";
+
+export interface SeismogramRenderOptions {
+  /**
+   * Refresh the offscreen rendering. Set to `true` to rerender the signal on
+   * the offscreen canvas.
+   */
+  refreshSignal?: boolean;
+}
 
 /**
  * A seismogram is a type of chart used primarily in seismology to display a
@@ -33,7 +46,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   private grid: GridView;
   private xAxis: AxisView;
   private trackManager: TrackManager;
-  private axisPointer: AxisPointer;
+  private axisPointer: AxisPointerView;
   private picker: PickerView;
   private markers: EventMarkerView[] = [];
   private channelDataStore: DataStore<Series> = new DataStore();
@@ -43,6 +56,9 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   private inExpandMode = false;
   private expandIndex = -1;
   readonly eventTooltip: EventTooltip;
+  private worker: Worker | null = null;
+  private offscreenSignal: OffscreenSignalView;
+  private rendering = false;
 
   constructor(dom: HTMLElement, options?: Partial<SeismogramOptions>) {
     const opts = merge(
@@ -78,7 +94,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     });
     this.addComponent(this.xAxis);
 
-    this.axisPointer = new AxisPointer(this.xAxis, this);
+    this.axisPointer = new AxisPointerView(this.xAxis, this);
     this.axisPointer.attachEventListeners();
     this.addComponent(this.axisPointer);
 
@@ -102,6 +118,17 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     if (showSpecrogram) {
       this.showSpectrograms();
     }
+
+    const { useOffscrrenRendering } = opts;
+    if (useOffscrrenRendering && typeof Worker !== "undefined") {
+      this.worker = new Worker(
+        new URL("../workers/seismogram.worker.ts", import.meta.url),
+        { type: "module" }
+      );
+      this.worker.onmessage = this.onWorkerMessage.bind(this);
+    }
+    this.offscreenSignal = new OffscreenSignalView(this);
+    this.addComponent(this.offscreenSignal);
   }
 
   setChannels(channels: Channel[]): void {
@@ -425,7 +452,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     return this.picker;
   }
 
-  getAxisPointer(): AxisPointer {
+  getAxisPointer(): AxisPointerView {
     return this.axisPointer;
   }
 
@@ -473,6 +500,77 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     ...args: Parameters<SeismogramEventMap[K]>
   ): void {
     this.eventEmitter.emit(event, ...args);
+  }
+
+  isRendering(): boolean {
+    return this.rendering;
+  }
+
+  override dispose(): void {
+    this.worker?.terminate();
+    this.worker = null;
+    super.dispose();
+  }
+
+  override render(options?: SeismogramRenderOptions): void {
+    const { refreshSignal = true } = options || {};
+    this.rendering = true;
+    this.emit("loading", true);
+
+    const { useOffscrrenRendering } = this.model.getOptions();
+    if (useOffscrrenRendering && refreshSignal) {
+      // this.offscreenSignal.clear();
+      this.refreshOffscreen();
+    }
+
+    super.render();
+
+    if (useOffscrrenRendering) {
+      this.rendering = refreshSignal;
+    } else {
+      this.rendering = false;
+    }
+    if (!this.rendering) {
+      this.emit("loading", false);
+    }
+  }
+
+  private refreshOffscreen(): void {
+    const trackManager = this.getTrackManager();
+    const trackRenderContexts: OffscreenRenderTrackContext[] = [];
+    for (const item of trackManager.items()) {
+      const [channel, track] = item;
+      const signal = track.getSignal();
+      let series = this.getChannelData(channel.id);
+      if (!series || series.isEmpty()) {
+        series = Series.empty();
+      }
+      const offscreenRendertrack: OffscreenRenderTrackContext = {
+        trackRect: track.getRect(),
+        xScaleOptions: this.xAxis.getModel().getScale().toJSON(),
+        yScaleOptions: signal.getYAxis().getModel().getScale().toJSON(),
+        seriesData: series.toJSON(),
+      };
+      trackRenderContexts.push(offscreenRendertrack);
+    }
+
+    const { scaling } = this.getModel().getOptions();
+    const color = this.getThemeStyle().foregroundColor;
+    const offscreenRenderContext: OffscreenRenderContext = {
+      rect: this.getRect(),
+      gridRect: this.getGrid().getRect(),
+      tracks: trackRenderContexts,
+      pixelRatio: window.devicePixelRatio,
+      scaling,
+      color,
+    };
+    this.worker?.postMessage(offscreenRenderContext);
+  }
+
+  private onWorkerMessage(event: MessageEvent): void {
+    const image = event.data as string;
+    this.offscreenSignal.setImage(image);
+    this.render({ refreshSignal: false });
   }
 
   private getRectForTrack(index: number, count: number): LayoutRect {

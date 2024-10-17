@@ -17,4 +17,5 @@ export interface SeismogramEventMap extends EventMap {
     event: ElementEvent,
     marker: EventMarkerOptions
   ) => void;
+  loading: (loading: boolean) => void;
 }
