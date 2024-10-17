@@ -8,9 +8,9 @@ import { debounce } from "../util/debounce";
 import { Segment } from "../helicorder/dataStore";
 
 /**
- * Get the minimum and maximum values of the series data.
+ * Get global min and max values of the series data.
  */
-const getMinMax = (tracks: OffscreenRenderTrackContext[]): number => {
+const getGlobalNormFactor = (tracks: OffscreenRenderTrackContext[]): number => {
   let normFactor = Infinity;
   tracks.forEach((track) => {
     const { seriesData } = track;
@@ -41,6 +41,14 @@ const timeToOffset = (
 };
 
 /**
+ * Get local min and max values of the series data.
+ */
+const getLocalNormFactor = (series: Series): number => {
+  const normFactor = Math.max(Math.abs(series.min()), Math.abs(series.max()));
+  return isFinite(normFactor) ? normFactor : 1;
+};
+
+/**
  * Render the helicorder tracks to an offscreen canvas.
  */
 const render = debounce((event: MessageEvent) => {
@@ -59,7 +67,7 @@ const render = debounce((event: MessageEvent) => {
   ctx.strokeStyle = color;
 
   let first = true;
-  const norm = getMinMax(tracks);
+  const globalNormFactor = getGlobalNormFactor(tracks);
 
   tracks.forEach((track) => {
     ctx.beginPath();
@@ -74,12 +82,9 @@ const render = debounce((event: MessageEvent) => {
     });
     let data: Series;
     if (scaling === "global") {
-      data = series.scalarDivide(norm);
+      data = series.scalarDivide(globalNormFactor);
     } else {
-      const localNormFactor = Math.max(
-        Math.abs(series.min()),
-        Math.abs(series.max())
-      );
+      const localNormFactor = getLocalNormFactor(series);
       data = series.scalarDivide(localNormFactor);
     }
     data.setIndex(
