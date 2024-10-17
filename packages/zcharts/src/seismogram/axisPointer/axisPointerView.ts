@@ -1,36 +1,12 @@
 import * as zrender from "zrender";
-import { AxisView } from "../axis/axisView";
-import { Model } from "../core/model";
-import { View } from "../core/view";
-import { formatDate } from "../util/time";
-import { LayoutRect, ThemeStyle } from "../util/types";
-import { Seismogram } from "./seismogram";
+import { AxisView } from "../../axis/axisView";
+import { View } from "../../core/view";
+import { formatDate } from "../../util/time";
+import { LayoutRect, ThemeStyle } from "../../util/types";
+import { Seismogram } from "../seismogram";
+import { AxisPointerModel, AxisPointerOptions } from "./axisPointerModel";
 
-export interface AxisPointerOptions {
-  enable: boolean;
-  lineColor: string;
-  lineWidth: number;
-  textColor: string;
-  fontSize: number;
-  backgroundColor: string;
-}
-
-export class AxisPointerModel extends Model<AxisPointerOptions> {
-  static readonly defaultOptions: AxisPointerOptions = {
-    enable: true,
-    lineColor: "#ff0000",
-    lineWidth: 1,
-    textColor: "#fff",
-    fontSize: 12,
-    backgroundColor: "#ff0000",
-  };
-
-  constructor(options?: Partial<AxisPointerOptions>) {
-    super({ ...AxisPointerModel.defaultOptions, ...options });
-  }
-}
-
-export class AxisPointer extends View<AxisPointerModel> {
+export class AxisPointerView extends View<AxisPointerModel> {
   private readonly chart: Seismogram;
   private readonly axis: AxisView;
   private rect: LayoutRect;
