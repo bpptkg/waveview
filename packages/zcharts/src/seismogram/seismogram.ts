@@ -521,7 +521,6 @@ export class Seismogram extends ChartView<SeismogramOptions> {
 
     const { useOffscrrenRendering } = this.model.getOptions();
     if (useOffscrrenRendering && refreshSignal) {
-      // this.offscreenSignal.clear();
       this.refreshOffscreen();
     }
 
