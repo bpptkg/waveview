@@ -285,7 +285,7 @@ export default function useSeismogramChartApi(options: SeismogramChartInitOption
         if (chartRef.current) {
           chartRef.current.showSpectrograms();
           chartRef.current.render();
-          webWorkerRef.current?.fetchAllSpectrogramData();
+          webWorkerRef.current?.fetchAllSpectrogramData({ mode: 'cache' });
         }
       },
       hideSpectrogram: () => {
