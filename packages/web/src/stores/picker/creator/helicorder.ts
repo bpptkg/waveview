@@ -12,7 +12,7 @@ export const createHelicorderSlice: StateCreator<PickerStore, [], [], Helicorder
     lastSelection: 0,
     windowSize: 5,
     autoUpdate: true,
-    autoUpdateInterval: 30,
+    autoUpdateInterval: 60,
     helicorderToolbarCheckedValues: {
       options: [], // scaling
     },
