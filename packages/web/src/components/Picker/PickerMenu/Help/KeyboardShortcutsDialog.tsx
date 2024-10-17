@@ -59,6 +59,14 @@ const KeyboardShortcutsDialog: React.FC<KeyboardShortcutsDialogProps> = ({ open,
                     <span>Shift View Down</span>
                   </ShortcutItem>
                   <ShortcutItem>
+                    <Key>Arrow Left</Key>
+                    <span>Previous Selection Window</span>
+                  </ShortcutItem>
+                  <ShortcutItem>
+                    <Key>Arrow Right</Key>
+                    <span>Next Selection Window</span>
+                  </ShortcutItem>
+                  <ShortcutItem>
                     <Key>Shift</Key>
                     <Key>Arrow Up</Key> <span>Increase Amplitude</span>
                   </ShortcutItem>
