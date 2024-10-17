@@ -236,7 +236,7 @@ export class SeismogramWebWorker {
       }
     }
     if (!this.hasSpectrogramRequest()) {
-      this.chart.render();
+      this.chart.render({ refreshSignal: false });
     }
   }
 
@@ -354,7 +354,6 @@ export class SeismogramWebWorker {
       return;
     }
     this.chart.setSpectrogramData(channelId, specgram);
-    this.chart.render();
 
     const [start, end] = this.options.selectionWindow;
     const key = JSON.stringify([channelId, start, end]);
@@ -362,7 +361,7 @@ export class SeismogramWebWorker {
 
     this.spectrogramRequests.delete(requestId);
     if (this.spectrogramRequests.size === 0) {
-      this.chart.render();
+      this.chart.render({ refreshSignal: false });
     }
   }
 
