@@ -79,12 +79,15 @@ export class SeismogramWebWorker {
   private worker: Worker;
   private chart: Seismogram;
   private options: SeismogramWebWorkerOptions;
+  private signalRequests: Map<string, number> = new Map();
+  private spectrogramRequests: Map<string, number> = new Map();
+  private filterRequests: Map<string, number> = new Map();
 
   static readonly defaultOptions: SeismogramWebWorkerOptions = {
     forceCenter: true,
     selectionWindow: [Date.now() - 5 * ONE_MINUTE, Date.now()],
     appliedFilter: null,
-    resample: true,
+    resample: false,
     sampleRate: 50,
   };
 
@@ -106,6 +109,26 @@ export class SeismogramWebWorker {
 
   hasFilter(): boolean {
     return this.options.appliedFilter !== null && this.options.appliedFilter !== undefined;
+  }
+
+  hasSignalRequest(): boolean {
+    return this.signalRequests.size > 0;
+  }
+
+  hasSpectrogramRequest(): boolean {
+    return this.spectrogramRequests.size > 0;
+  }
+
+  hasFilterRequest(): boolean {
+    return this.filterRequests.size > 0;
+  }
+
+  busy(): void {
+    this.chart.emit('loading', true);
+  }
+
+  idle(): void {
+    this.chart.emit('loading', false);
   }
 
   /**
@@ -155,8 +178,9 @@ export class SeismogramWebWorker {
         this.fetchChannelData(channel.id);
       }
     }
-    this.chart.refreshChannelData();
-    this.chart.render();
+    if (!this.hasSignalRequest()) {
+      this.chart.render();
+    }
   }
 
   fetchChannelData(channelId: string): void {
@@ -177,6 +201,7 @@ export class SeismogramWebWorker {
     };
 
     this.worker.postMessage(msg);
+    this.signalRequests.set(requestId, Date.now());
   }
 
   fetchAllSpectrogramData(options?: RefreshOptions): void {
@@ -210,7 +235,9 @@ export class SeismogramWebWorker {
         this.fetchSpecrogramData(channel.id);
       }
     }
-    this.chart.render();
+    if (!this.hasSpectrogramRequest()) {
+      this.chart.render();
+    }
   }
 
   fetchSpecrogramData(channelId: string): void {
@@ -238,6 +265,7 @@ export class SeismogramWebWorker {
     };
 
     this.worker.postMessage(msg);
+    this.spectrogramRequests.set(requestId, Date.now());
   }
 
   fetchAllFiltersData(options: FilterOperationOptions): void {
@@ -251,13 +279,13 @@ export class SeismogramWebWorker {
     if (filterType === 'none') {
       return;
     }
-
+    const requestId = uuid4();
     const [start, end] = this.options.selectionWindow;
     const { resample, sampleRate } = this.options;
     const msg: WorkerRequestData<FilterRequestData> = {
       type: 'stream.filter',
       payload: {
-        requestId: uuid4(),
+        requestId,
         channelId,
         filterType,
         start,
@@ -270,6 +298,7 @@ export class SeismogramWebWorker {
       },
     };
     this.worker.postMessage(msg);
+    this.filterRequests.set(requestId, Date.now());
   }
 
   private onMessage(event: MessageEvent<WorkerResponseData<unknown>>): void {
@@ -291,22 +320,25 @@ export class SeismogramWebWorker {
   }
 
   private onStreamFetchMessage(payload: StreamResponseData): void {
-    const { data, index, channelId } = payload;
+    const { data, index, channelId, requestId } = payload;
     const series = new Series(data, {
       index: index,
       name: channelId,
     });
     this.chart.setChannelData(channelId, series);
-    this.chart.refreshChannelData();
-    this.chart.render();
 
     const [start, end] = this.options.selectionWindow;
     const key = JSON.stringify([channelId, start, end]);
     signalCache.set(key, series);
+
+    this.signalRequests.delete(requestId);
+    if (this.signalRequests.size === 0) {
+      this.chart.render();
+    }
   }
 
   private onSpecrogramFetchMessage(payload: SpectrogramResponseData): void {
-    const { image, channelId, timeMin, timeMax, freqMin, freqMax, timeLength, freqLength, min, max } = payload;
+    const { image, channelId, timeMin, timeMax, freqMin, freqMax, timeLength, freqLength, min, max, requestId } = payload;
     const specgram = new SpectrogramData({
       image,
       timeMin,
@@ -327,16 +359,24 @@ export class SeismogramWebWorker {
     const [start, end] = this.options.selectionWindow;
     const key = JSON.stringify([channelId, start, end]);
     spectrogramCache.set(key, specgram);
+
+    this.spectrogramRequests.delete(requestId);
+    if (this.spectrogramRequests.size === 0) {
+      this.chart.render();
+    }
   }
 
   private onStreamFilterMessage(payload: StreamResponseData): void {
-    const { data, index, channelId } = payload;
+    const { data, index, channelId, requestId } = payload;
     const series = new Series(data, {
       index: index,
       name: channelId,
     });
     this.chart.setChannelData(channelId, series);
-    this.chart.refreshChannelData();
-    this.chart.render();
+
+    this.signalRequests.delete(requestId);
+    if (this.signalRequests.size === 0) {
+      this.chart.render();
+    }
   }
 }

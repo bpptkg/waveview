@@ -348,6 +348,11 @@ export default function useSeismogramChartApi(options: SeismogramChartInitOption
           chartRef.current.render();
         }
       },
+      setWorkerOptions: (options) => {
+        if (webWorkerRef.current) {
+          webWorkerRef.current.mergeOptions(options);
+        }
+      },
     };
   }, [chartRef, webWorkerRef]);
 }

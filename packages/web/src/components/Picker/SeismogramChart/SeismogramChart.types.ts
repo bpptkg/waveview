@@ -1,6 +1,7 @@
 import { Channel, ElementEvent, Seismogram, SeismogramEventMarkerOptions, SeismogramOptions } from '@waveview/zcharts';
 import { FilterOperationOptions } from '../../../types/filter';
 import { ScalingType } from '../../../types/scaling';
+import { SeismogramWebWorkerOptions } from './SeismogramWebWorker';
 
 export interface SeismogramChartProps {
   /**
@@ -67,6 +68,10 @@ export interface SeismogramChartProps {
    * Callback fired when the user request context menu on a track.
    */
   onTrackContextMenu?: (event: ElementEvent, index: number) => void;
+  /**
+   * Callback fired when the chart is loading or fetching data.
+   */
+  onLoading?: (loading: boolean) => void;
 }
 
 export interface SetExtentOptions {
@@ -119,6 +124,7 @@ export interface SeismogramChartRef {
   setScaling: (scaling: ScalingType) => void;
   setTheme: (theme: 'light' | 'dark') => void;
   setUseUTC: (useUTC: boolean) => void;
+  setWorkerOptions: (options: SeismogramWebWorkerOptions) => void;
   showEventMarkers: () => void;
   showSignal: () => void;
   showSpectrogram: () => void;
