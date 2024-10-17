@@ -204,7 +204,7 @@ export class SeismogramWebWorker {
   }
 
   fetchAllSpectrogramData(options?: RefreshOptions): void {
-    const { mode } = options || { mode: 'force' };
+    const { mode = 'force' } = options || {};
     switch (mode) {
       case 'force':
         this.fetchAllSpectrogramDataForce();
@@ -353,14 +353,13 @@ export class SeismogramWebWorker {
       min,
       max,
     });
-    if (specgram.isEmpty()) {
-      return;
-    }
-    this.chart.setSpectrogramData(channelId, specgram);
+    if (!specgram.isEmpty()) {
+      this.chart.setSpectrogramData(channelId, specgram);
 
-    const [start, end] = this.options.selectionWindow;
-    const key = JSON.stringify([channelId, start, end]);
-    spectrogramCache.set(key, specgram);
+      const [start, end] = this.options.selectionWindow;
+      const key = JSON.stringify([channelId, start, end]);
+      spectrogramCache.set(key, specgram);
+    }
 
     this.spectrogramRequests.delete(requestId);
     if (this.spectrogramRequests.size === 0) {
