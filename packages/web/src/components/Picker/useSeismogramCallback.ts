@@ -294,6 +294,7 @@ export const useSeismogramCallback = () => {
       endTime,
       scaling,
       showSpecrogram: isShowSpecrogram(),
+      useOffscrrenRendering: true,
     };
     return initOptions;
   }, [darkMode, useUTC, event, lastSeismogramExtent, getChannelsConfig, getSeismogramScalingType, isShowSpecrogram]);
