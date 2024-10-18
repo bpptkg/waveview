@@ -1,40 +1,30 @@
 import { Model } from "../../core/model";
 import { ModelOptions } from "../../util/types";
+import { Segment } from "../dataStore";
 
 export interface OffscreenSignalOptions extends ModelOptions {
-  image?: string;
-  dirty?: boolean;
+  image: string;
+  segmentStart: Segment;
+  segmentEnd: Segment;
 }
 
 export class OffscreenSignalModel extends Model<OffscreenSignalOptions> {
   static readonly defaultOptions: OffscreenSignalOptions = {
-    image: undefined,
-    dirty: true,
+    image: "",
+    segmentStart: [0, 0],
+    segmentEnd: [0, 0],
   };
 
-  constructor(options: OffscreenSignalOptions) {
+  constructor(options: Partial<OffscreenSignalOptions>) {
     const opts = { ...OffscreenSignalModel.defaultOptions, ...options };
     super(opts);
   }
 
   isEmpty(): boolean {
-    return !this.options.image;
+    return this.options.image === "";
   }
 
-  getImage(): string {
-    return this.options.image || "";
-  }
-
-  setImage(image: string): void {
-    this.options.image = image;
-    this.options.dirty = false;
-  }
-
-  dirty(): boolean {
-    return this.options.dirty || false;
-  }
-
-  setDirty(dirty: boolean): void {
-    this.options.dirty = dirty;
+  clear(): void {
+    this.mergeOptions({ ...OffscreenSignalModel.defaultOptions });
   }
 }

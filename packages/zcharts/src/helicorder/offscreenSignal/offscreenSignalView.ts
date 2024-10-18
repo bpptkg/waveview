@@ -1,3 +1,4 @@
+import * as zrender from "zrender";
 import { View } from "../../core/view";
 import { LayoutRect, ThemeStyle } from "../../util/types";
 import { Helicorder } from "../helicorder";
@@ -5,7 +6,6 @@ import {
   OffscreenSignalModel,
   OffscreenSignalOptions,
 } from "./offscreenSignalModel";
-import * as zrender from "zrender";
 
 export class OffscreenSignalView extends View<OffscreenSignalModel> {
   override readonly type: string = "offscreenSignal";
@@ -27,8 +27,9 @@ export class OffscreenSignalView extends View<OffscreenSignalModel> {
     this.group.add(this.image);
   }
 
-  setImage(image: string): void {
-    this.model.setImage(image);
+  updateData(options: OffscreenSignalOptions): void {
+    const { image } = options;
+    this.model.mergeOptions(options);
     this.image.setStyle({
       image,
     });
@@ -49,8 +50,10 @@ export class OffscreenSignalView extends View<OffscreenSignalModel> {
   }
 
   clear(): void {
-    this.model.setImage("");
-    this.model.setDirty(true);
+    this.model.clear();
+    this.image.setStyle({
+      image: "",
+    });
   }
 
   dispose(): void {
@@ -62,7 +65,10 @@ export class OffscreenSignalView extends View<OffscreenSignalModel> {
       this.group.hide();
       return;
     }
-    const { x, y, width, height } = this.chart.getRect();
+    const { segmentStart } = this.model.getOptions();
+    const trackManager = this.chart.getTrackManager();
+    const { x, y } = trackManager.getTrackRectBySegment(segmentStart);
+    const { width, height } = this.chart.getGrid().getRect();
     this.image.attr({
       style: {
         x,
