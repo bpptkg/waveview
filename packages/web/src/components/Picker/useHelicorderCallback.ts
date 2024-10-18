@@ -169,7 +169,7 @@ export function useHelicorderCallback() {
       const { start, end } = marker;
       seisChartRef.current?.removeEventMarker(start, end);
 
-      const range: [number, number] = [start - 10 * ONE_SECOND, end + 10 * ONE_SECOND];
+      const range: [number, number] = [start - 15 * ONE_SECOND, end + 15 * ONE_SECOND];
       seisChartRef.current?.setExtent(range, { autoZoom: false });
       seisChartRef.current?.clearPickRange();
       setSelectionWindow(range);
