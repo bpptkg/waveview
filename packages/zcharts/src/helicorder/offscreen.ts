@@ -22,12 +22,18 @@ export interface OffscreenRenderContext {
   duration: number;
 }
 
-export interface OffscreenRenderTrackInfo {
-  segment: Segment;
-  minMax: [number, number];
-}
-
 export interface OffscreenRenderResult {
+  /**
+   * Base64 encoded image of the offscreen canvas.
+   */
   image: string;
-  tracks: OffscreenRenderTrackInfo[];
+  /**
+   * Helicorder segment start time. Segment can be used to identify the
+   * helicorder segment and the corresponding track to place the image.
+   */
+  segmentStart: Segment;
+  /**
+   * Helicorder segment end time
+   */
+  segmentEnd: Segment;
 }
