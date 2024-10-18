@@ -28,11 +28,21 @@ export class OffscreenSignalView extends View<OffscreenSignalModel> {
   }
 
   updateData(options: OffscreenSignalOptions): void {
-    const { image } = options;
+    const { image: src } = options;
     this.model.mergeOptions(options);
-    this.image.setStyle({
-      image,
-    });
+
+    const image = new Image();
+    image.src = src;
+    image.onload = () => {
+      const { x, y, width, height } = this.getImageRect();
+      this.image.setStyle({
+        image,
+        x,
+        y,
+        width,
+        height,
+      });
+    };
   }
 
   getRect(): LayoutRect {
@@ -60,15 +70,20 @@ export class OffscreenSignalView extends View<OffscreenSignalModel> {
     this.clear();
   }
 
+  private getImageRect(): LayoutRect {
+    const { segmentStart } = this.model.getOptions();
+    const trackManager = this.chart.getTrackManager();
+    const { x, y } = trackManager.getTrackRectBySegment(segmentStart);
+    const { width, height } = this.chart.getGrid().getRect();
+    return new zrender.BoundingRect(x, y, width, height);
+  }
+
   render(): void {
     if (this.model.isEmpty()) {
       this.group.hide();
       return;
     }
-    const { segmentStart } = this.model.getOptions();
-    const trackManager = this.chart.getTrackManager();
-    const { x, y } = trackManager.getTrackRectBySegment(segmentStart);
-    const { width, height } = this.chart.getGrid().getRect();
+    const { x, y, width, height } = this.getImageRect();
     this.image.attr({
       style: {
         x,

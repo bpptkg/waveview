@@ -1,3 +1,4 @@
+import * as zrender from "zrender";
 import { View } from "../../core/view";
 import { LayoutRect, ThemeStyle } from "../../util/types";
 import { Seismogram } from "../seismogram";
@@ -5,7 +6,6 @@ import {
   OffscreenSignalModel,
   OffscreenSignalOptions,
 } from "./offscreenSignalModel";
-import * as zrender from "zrender";
 
 export class OffscreenSignalView extends View<OffscreenSignalModel> {
   override readonly type: string = "offscreenSignal";
@@ -27,11 +27,22 @@ export class OffscreenSignalView extends View<OffscreenSignalModel> {
     this.group.add(this.image);
   }
 
-  setImage(image: string): void {
-    this.model.setImage(image);
-    this.image.setStyle({
-      image,
-    });
+  updateData(options: OffscreenSignalOptions): void {
+    const { image: src } = options;
+    this.model.mergeOptions(options);
+
+    const image = new Image();
+    image.src = src;
+    image.onload = () => {
+      const { x, y, width, height } = this.getImageRect();
+      this.image.setStyle({
+        image,
+        x,
+        y,
+        width,
+        height,
+      });
+    };
   }
 
   getRect(): LayoutRect {
@@ -49,12 +60,25 @@ export class OffscreenSignalView extends View<OffscreenSignalModel> {
   }
 
   clear(): void {
-    this.model.setImage("");
-    this.model.setDirty(true);
+    this.image.setStyle({
+      image: "",
+    });
+    this.model.clear();
   }
 
   dispose(): void {
     this.clear();
+  }
+
+  private getImageRect(): LayoutRect {
+    const { y, height } = this.chart.getGrid().getRect();
+    const xAxis = this.chart.getXAxis();
+    const { start, end } = this.model.getOptions();
+    const x1 = xAxis.getPixelForValue(start);
+    const x2 = xAxis.getPixelForValue(end);
+    const width = x2 - x1;
+
+    return new zrender.BoundingRect(x1, y, width, height);
   }
 
   render(): void {
@@ -62,7 +86,8 @@ export class OffscreenSignalView extends View<OffscreenSignalModel> {
       this.group.hide();
       return;
     }
-    const { x, y, width, height } = this.chart.getRect();
+
+    const { x, y, width, height } = this.getImageRect();
     this.image.attr({
       style: {
         x,
@@ -71,6 +96,7 @@ export class OffscreenSignalView extends View<OffscreenSignalModel> {
         height,
       },
     });
+
     this.group.show();
   }
 

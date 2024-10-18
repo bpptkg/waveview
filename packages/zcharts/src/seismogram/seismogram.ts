@@ -20,6 +20,7 @@ import { EventMarkerOptions } from "./eventMarker/eventMarkerModel";
 import { EventMarkerView } from "./eventMarker/eventMarkerView";
 import {
   OffscreenRenderContext,
+  OffscreenRenderResult,
   OffscreenRenderTrackContext,
 } from "./offscreen";
 import { OffscreenSignalView } from "./offscreenSignal/offscreenSignalView";
@@ -560,6 +561,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
 
     const { scaling } = this.getModel().getOptions();
     const color = this.getThemeStyle().foregroundColor;
+    const [timeMin, timeMax] = this.getXAxis().getExtent();
     const offscreenRenderContext: OffscreenRenderContext = {
       rect: this.getRect(),
       gridRect: this.getGrid().getRect(),
@@ -567,14 +569,19 @@ export class Seismogram extends ChartView<SeismogramOptions> {
       pixelRatio: window.devicePixelRatio,
       scaling,
       color,
+      timeMin,
+      timeMax,
     };
     this.worker?.postMessage(offscreenRenderContext);
   }
 
   private onWorkerMessage(event: MessageEvent): void {
-    const image = event.data as string;
-    this.offscreenSignal.setImage(image);
-    this.render({ refreshSignal: false });
+    const result = event.data as OffscreenRenderResult;
+    requestAnimationFrame(() => {
+      this.offscreenSignal.updateData(result);
+      this.rendering = false;
+      this.emit("loading", false);
+    });
   }
 
   private getRectForTrack(index: number, count: number): LayoutRect {

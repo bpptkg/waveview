@@ -16,4 +16,21 @@ export interface OffscreenRenderContext {
   pixelRatio: number;
   scaling: "global" | "local";
   color: string;
+  timeMin: number;
+  timeMax: number;
+}
+
+export interface OffscreenRenderResult {
+  /**
+   * Image data of the rendered seismogram.
+   */
+  image: string;
+  /**
+   * The start time of the rendered seismogram.
+   */
+  start: number;
+  /**
+   * The end time of the rendered seismogram.
+   */
+  end: number;
 }

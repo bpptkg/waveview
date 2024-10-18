@@ -410,7 +410,10 @@ export class Helicorder extends ChartView<HelicorderOptions> {
 
   private onWorkerMessage(event: MessageEvent): void {
     const result = event.data as OffscreenRenderResult;
-    this.offscreenSignal.updateData(result);
-    this.render({ refreshSignal: false });
+    requestAnimationFrame(() => {
+      this.offscreenSignal.updateData(result);
+      this.rendering = false;
+      this.emit("loading", false);
+    });
   }
 }

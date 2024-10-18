@@ -1,9 +1,11 @@
 import { Index, Series } from "@waveview/ndarray";
+import { LinearScale } from "../scale/linear";
 import {
   OffscreenRenderContext,
+  OffscreenRenderResult,
   OffscreenRenderTrackContext,
-} from "../helicorder/offscreen";
-import { LinearScale } from "../scale/linear";
+} from "../seismogram/offscreen";
+import { debounce } from "../util/debounce";
 
 /**
  * Get global min and max values of the series data.
@@ -42,12 +44,14 @@ const getLocalNormFactor = (series: Series): number => {
 /**
  * Render the helicorder tracks to an offscreen canvas.
  */
-const render = (event: MessageEvent) => {
+const render = debounce((event: MessageEvent) => {
   const renderContext = event.data as OffscreenRenderContext;
-  const { rect, gridRect, tracks, pixelRatio, color, scaling } = renderContext;
+  const { gridRect, tracks, pixelRatio, color, scaling, timeMin, timeMax } =
+    renderContext;
+  // Create an offscreen canvas with the same size as the grid rect.
   const canvas = new OffscreenCanvas(
-    rect.width * pixelRatio,
-    rect.height * pixelRatio
+    gridRect.width * pixelRatio,
+    gridRect.height * pixelRatio
   );
   const ctx = canvas.getContext("2d");
   if (!ctx) {
@@ -77,17 +81,19 @@ const render = (event: MessageEvent) => {
       data = series.scalarDivide(localNormFactor);
     }
 
+    // Invert the x value to the canvas coordinate system.
     const invertX = (value: number): number => {
-      const { x, width } = gridRect;
+      const { width } = gridRect;
 
       const percent = xScale.valueToPercentage(value);
-      return x + width * percent;
+      return width * percent;
     };
 
+    // Invert the y value to the canvas coordinate system.
     const invertY = (value: number): number => {
       const { y, height } = trackRect;
       const percent = yScale.valueToPercentage(value);
-      return y + height * percent;
+      return y + height * percent - gridRect.y;
     };
 
     for (const [x, y] of data.iterIndexValuePairs()) {
@@ -112,11 +118,16 @@ const render = (event: MessageEvent) => {
   canvas.convertToBlob().then((blob) => {
     const reader = new FileReader();
     reader.onloadend = () => {
-      postMessage(reader.result);
+      const result: OffscreenRenderResult = {
+        image: reader.result as string,
+        start: timeMin,
+        end: timeMax,
+      };
+      postMessage(result);
     };
     reader.readAsDataURL(blob);
   });
-};
+}, 100);
 
 self.addEventListener("message", (event: MessageEvent) => {
   render(event);
