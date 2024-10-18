@@ -1,3 +1,4 @@
+import { Tooltip } from '@fluentui/react-components';
 import { useMemo } from 'react';
 import { formatTimezonedDate } from '../../../shared/time';
 import { useAppStore } from '../../../stores/app';
@@ -23,7 +24,11 @@ const TimeRangeLabel = () => {
     }
   }, [selectionWindow, useUTC]);
 
-  return <span className="text-xs dark:text-neutral-grey-84">{labelFormatted}</span>;
+  return (
+    <Tooltip content={`Current time range of seismogram chart: ${labelFormatted}`} relationship="description" showDelay={1500}>
+      <span className="text-xs dark:text-neutral-grey-84">{labelFormatted}</span>
+    </Tooltip>
+  );
 };
 
 export default TimeRangeLabel;
