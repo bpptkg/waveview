@@ -174,45 +174,47 @@ const PickEdit = () => {
   }, [savePickedEvent, showErrorToast, onSavedCallback]);
 
   return (
-    <div>
-      {loading && <ProgressBar shape="square" />}
-      <div className="flex items-center justify-end px-2 py-2 border-b dark:border-b-gray-800">
-        <div className="flex items-center gap-1">
-          <Button size="small" appearance="outline" onClick={handleCancel}>
-            Cancel
-          </Button>
-          <Button size="small" appearance="primary" onClick={handleSave} disabled={loading || !canSave}>
-            Save
-          </Button>
+    <div className="h-full w-full overflow-hidden relative">
+      <div className="absolute top-0 right-[-17px] left-0 bottom-0 overflow-y-scroll">
+        {loading && <ProgressBar shape="square" />}
+        <div className="flex items-center justify-end px-2 py-2 border-b dark:border-b-gray-800">
+          <div className="flex items-center gap-1">
+            <Button size="small" appearance="outline" onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button size="small" appearance="primary" onClick={handleSave} disabled={loading || !canSave}>
+              Save
+            </Button>
+          </div>
         </div>
-      </div>
 
-      <EditItemTabList selectedValue={tab} onTabSelect={handleTabSelect} />
-      {tab === 'event' && <PickEditEvent />}
-      {tab === 'attachment' && <PickEditAttachments />}
-      {tab === 'visual' && <PickEditVisual />}
-      {tab === 'amplitude' && <PickEditAmplitude />}
+        <EditItemTabList selectedValue={tab} onTabSelect={handleTabSelect} />
+        {tab === 'event' && <PickEditEvent />}
+        {tab === 'attachment' && <PickEditAttachments />}
+        {tab === 'visual' && <PickEditVisual />}
+        {tab === 'amplitude' && <PickEditAmplitude />}
 
-      <Toaster toasterId={toasterId} />
+        <Toaster toasterId={toasterId} />
 
-      <Dialog open={cancelDialogOpen} onOpenChange={(_, data) => setCancelDialogOpen(data.open)}>
-        <DialogSurface>
-          <DialogBody>
-            <DialogTitle>Cancel Pick</DialogTitle>
-            <DialogContent>Are you sure you want to cancel pick?</DialogContent>
-            <DialogActions>
-              <DialogTrigger disableButtonEnhancement>
-                <Button appearance="secondary" onClick={() => setCancelDialogOpen(false)}>
-                  No
+        <Dialog open={cancelDialogOpen} onOpenChange={(_, data) => setCancelDialogOpen(data.open)}>
+          <DialogSurface>
+            <DialogBody>
+              <DialogTitle>Cancel Pick</DialogTitle>
+              <DialogContent>Are you sure you want to cancel pick?</DialogContent>
+              <DialogActions>
+                <DialogTrigger disableButtonEnhancement>
+                  <Button appearance="secondary" onClick={() => setCancelDialogOpen(false)}>
+                    No
+                  </Button>
+                </DialogTrigger>
+                <Button appearance="primary" onClick={handleResetPick}>
+                  Yes
                 </Button>
-              </DialogTrigger>
-              <Button appearance="primary" onClick={handleResetPick}>
-                Yes
-              </Button>
-            </DialogActions>
-          </DialogBody>
-        </DialogSurface>
-      </Dialog>
+              </DialogActions>
+            </DialogBody>
+          </DialogSurface>
+        </Dialog>
+      </div>
     </div>
   );
 };
