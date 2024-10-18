@@ -63,6 +63,16 @@ export class TrackManager {
     return Math.floor(diff / segment);
   }
 
+  /**
+   * Get the track rectangle for the given segment.
+   */
+  getTrackRectBySegment(segment: Segment): LayoutRect {
+    const [start, end] = segment;
+    const time = start + (end - start) / 2;
+    const trackIndex = this.getTrackIndexByTime(time);
+    return this.getRectForTrack(trackIndex, this.count() - 1);
+  }
+
   getTrackIndexByPosition(y: number): number {
     const { y: gridY, height } = this.helicorder.getGrid().getRect();
     const trackHeight = height / this.count();
