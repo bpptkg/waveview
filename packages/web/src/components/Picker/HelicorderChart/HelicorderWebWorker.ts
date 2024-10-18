@@ -53,7 +53,7 @@ export class HelicorderWebWorker {
   static readonly defaultOptions: HelicorderWebWorkerOptions = {
     forceCenter: true,
     resample: true,
-    sampleRate: 50,
+    sampleRate: 25,
     appliedFilter: null,
   };
 
