@@ -216,7 +216,7 @@ export const useSeismogramCallback = () => {
           chart.increaseAmplitude(0.1);
         }
       } else {
-        if (wheelDelta > 0) {
+        if (wheelDelta < 0) {
           chart.scrollRight(0.1);
         } else {
           chart.scrollLeft(0.1);
