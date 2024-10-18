@@ -1,11 +1,12 @@
 import { Index, Series } from "@waveview/ndarray";
+import { Segment } from "../helicorder/dataStore";
 import {
   OffscreenRenderContext,
+  OffscreenRenderResult,
   OffscreenRenderTrackContext,
 } from "../helicorder/offscreen";
 import { LinearScale } from "../scale/linear";
 import { debounce } from "../util/debounce";
-import { Segment } from "../helicorder/dataStore";
 
 /**
  * Get global min and max values of the series data.
@@ -53,11 +54,12 @@ const getLocalNormFactor = (series: Series): number => {
  */
 const render = debounce((event: MessageEvent) => {
   const renderContext = event.data as OffscreenRenderContext;
-  const { rect, gridRect, tracks, pixelRatio, color, scaling, interval } =
+  const { gridRect, tracks, pixelRatio, color, scaling, interval } =
     renderContext;
+  // Use the grid rect to create an offscreen canvas.
   const canvas = new OffscreenCanvas(
-    rect.width * pixelRatio,
-    rect.height * pixelRatio
+    gridRect.width * pixelRatio,
+    gridRect.height * pixelRatio
   );
   const ctx = canvas.getContext("2d");
   if (!ctx) {
@@ -91,17 +93,19 @@ const render = debounce((event: MessageEvent) => {
       data.index.map((value: number) => timeToOffset(segment, interval, value))
     );
 
+    // Invert the x value to the canvas coordinate system.
     const invertX = (value: number): number => {
-      const { x, width } = gridRect;
+      const { width } = gridRect;
 
       const percent = xScale.valueToPercentage(value);
-      return x + width * percent;
+      return width * percent;
     };
 
+    // Invert the y value to the canvas coordinate system.
     const invertY = (value: number): number => {
       const { y, height } = trackRect;
       const percent = yScale.valueToPercentage(value);
-      return y + height * percent;
+      return y + height * percent - gridRect.y;
     };
 
     for (const [x, y] of data.iterIndexValuePairs()) {
@@ -126,7 +130,24 @@ const render = debounce((event: MessageEvent) => {
   canvas.convertToBlob().then((blob) => {
     const reader = new FileReader();
     reader.onloadend = () => {
-      postMessage(reader.result);
+      const result: OffscreenRenderResult = {
+        image: reader.result as string,
+        segmentStart: tracks.reduce(
+          (acc, { segment }) => {
+            const [start] = segment;
+            return start < acc[0] ? segment : acc;
+          },
+          [Infinity, 0]
+        ),
+        segmentEnd: tracks.reduce(
+          (acc, { segment }) => {
+            const [, end] = segment;
+            return end > acc[0] ? segment : acc;
+          },
+          [-Infinity, 0]
+        ),
+      };
+      postMessage(result);
     };
     reader.readAsDataURL(blob);
   });

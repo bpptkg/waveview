@@ -17,6 +17,7 @@ import { EventMarkerOptions } from "./eventMarker/eventMarkerModel";
 import { EventMarkerView } from "./eventMarker/eventMarkerView";
 import {
   OffscreenRenderContext,
+  OffscreenRenderResult,
   OffscreenRenderTrackContext,
 } from "./offscreen";
 import { OffscreenSignalView } from "./offscreenSignal/offscreenSignalView";
@@ -361,7 +362,6 @@ export class Helicorder extends ChartView<HelicorderOptions> {
 
     const { useOffscrrenRendering } = this.model.getOptions();
     if (useOffscrrenRendering && refreshSignal) {
-      this.offscreenSignal.clear();
       this.refreshOffscreen();
     }
 
@@ -409,8 +409,8 @@ export class Helicorder extends ChartView<HelicorderOptions> {
   }
 
   private onWorkerMessage(event: MessageEvent): void {
-    const image = event.data as string;
-    this.offscreenSignal.setImage(image);
+    const result = event.data as OffscreenRenderResult;
+    this.offscreenSignal.updateData(result);
     this.render({ refreshSignal: false });
   }
 }
