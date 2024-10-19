@@ -103,7 +103,7 @@ const PickerEventEditorPanel = () => {
         </div>
       </Panel>
       <PanelResizeHandle />
-      <Panel defaultSize={25} minSize={10} order={2} className="relative">
+      <Panel defaultSize={20} minSize={10} order={2} className="relative">
         <Sidebar />
       </Panel>
     </PanelGroup>

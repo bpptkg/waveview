@@ -175,9 +175,10 @@ const PickEdit = () => {
 
   return (
     <div className="h-full w-full overflow-hidden relative">
-      <div className="absolute top-0 right-[-17px] left-0 bottom-0 overflow-y-scroll">
+      <div className="absolute top-0 right-0 left-0 bottom-0 overflow-y-auto">
         {loading && <ProgressBar shape="square" />}
-        <div className="flex items-center justify-end px-2 py-2 border-b dark:border-b-gray-800">
+        <div className="flex items-center justify-between px-2 py-2 border-b dark:border-b-gray-800">
+          <div className="font-semibold">Editor</div>
           <div className="flex items-center gap-1">
             <Button size="small" appearance="outline" onClick={handleCancel}>
               Cancel
