@@ -231,6 +231,7 @@ const EventTable = () => {
         'Latitude (°)',
         'Longitude (°)',
         'Depth (km)',
+        'Method',
         'Evaluation Mode',
         'Evaluation Status',
         'Author',
@@ -250,6 +251,7 @@ const EventTable = () => {
             row.item.preferred_origin?.latitude,
             row.item.preferred_origin?.longitude,
             row.item.preferred_origin?.depth,
+            row.item.method,
             row.item.evaluation_mode,
             row.item.evaluation_status,
             row.item.author.name || row.item.author.username,
@@ -307,6 +309,7 @@ const EventTable = () => {
               <TableHeaderCell>Latitude</TableHeaderCell>
               <TableHeaderCell>Longitude</TableHeaderCell>
               <TableHeaderCell>Depth</TableHeaderCell>
+              <TableHeaderCell>Method</TableHeaderCell>
               <TableHeaderCell>Evaluation Mode</TableHeaderCell>
               <TableHeaderCell>Evaluation Status</TableHeaderCell>
               <TableHeaderCell>Author</TableHeaderCell>
@@ -326,6 +329,7 @@ const EventTable = () => {
                   <TableCell>{formatNumber(item.preferred_origin?.latitude, { unit: '°', precision: 5 })}</TableCell>
                   <TableCell>{formatNumber(item.preferred_origin?.longitude, { unit: '°', precision: 5 })}</TableCell>
                   <TableCell>{formatNumber(item.preferred_origin?.depth, { unit: ' km', precision: 2 })}</TableCell>
+                  <TableCell>{item.method}</TableCell>
                   <TableCell>{item.evaluation_mode}</TableCell>
                   <TableCell>{item.evaluation_status}</TableCell>
                   <TableCell>
@@ -341,7 +345,7 @@ const EventTable = () => {
               ))
             ) : (
               <TableRow>
-                <TableHeaderCell colSpan={11}>
+                <TableHeaderCell colSpan={12}>
                   <span className="text-center w-full">No events found</span>
                 </TableHeaderCell>
               </TableRow>
