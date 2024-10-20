@@ -42,7 +42,7 @@ const getLocalNormFactor = (series: Series): number => {
 };
 
 /**
- * Render the helicorder tracks to an offscreen canvas.
+ * Render the seismogram tracks to an offscreen canvas.
  */
 const render = debounce((event: MessageEvent) => {
   const renderContext = event.data as OffscreenRenderContext;
