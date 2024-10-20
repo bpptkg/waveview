@@ -338,17 +338,25 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   }
 
   showSignals(): void {
-    for (const track of this.trackManager.tracks()) {
-      track.showSignal();
+    const { useOffscrrenRendering } = this.getModel().getOptions();
+    if (useOffscrrenRendering) {
+      this.offscreenSignal.show();
+    } else {
+      for (const track of this.trackManager.tracks()) {
+        track.showSignal();
+      }
     }
-    this.offscreenSignal.show();
   }
 
   hideSignals(): void {
-    for (const track of this.trackManager.tracks()) {
-      track.hideSignal();
+    const { useOffscrrenRendering } = this.getModel().getOptions();
+    if (useOffscrrenRendering) {
+      this.offscreenSignal.hide();
+    } else {
+      for (const track of this.trackManager.tracks()) {
+        track.hideSignal();
+      }
     }
-    this.offscreenSignal.hide();
   }
 
   showSpectrograms(): void {
