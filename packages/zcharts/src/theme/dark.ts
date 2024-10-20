@@ -20,7 +20,7 @@ export const darkTheme: ThemeStyle = {
     lineWidth: 1,
   },
   highlightStyle: {
-    color: "#9747ff",
+    color: "#9747FF",
     opacity: 0.75,
     borderWidth: 1,
   },
@@ -32,7 +32,7 @@ export const darkTheme: ThemeStyle = {
     backgroundColor: "#FF0000",
   },
   pickerStyle: {
-    color: "#9747ff",
+    color: "#9747FF",
     opacity: 0.4,
     borderWidth: 1,
   },
