@@ -140,11 +140,13 @@ const EventMarkerContextMenu: React.ForwardRefExoticComponent<React.RefAttribute
 
   const { fetchEditedEvent, deleteEvent, removeEventMarker } = usePickerStore();
   const { handleSetupEventEditing, handleUpdateEventMarkers } = usePickerCallback();
+  const [loading, setLoading] = useState(false);
 
   const handleEditEvent = useCallback(() => {
     if (!selectedEvent) {
       return;
     }
+    setLoading(true);
     fetchEditedEvent(selectedEvent.id)
       .then((event) => {
         handleSetupEventEditing(event);
@@ -154,23 +156,34 @@ const EventMarkerContextMenu: React.ForwardRefExoticComponent<React.RefAttribute
       })
       .finally(() => {
         handleClose();
+        setLoading(false);
       });
   }, [selectedEvent, fetchEditedEvent, showErrorToast, handleSetupEventEditing, handleClose]);
 
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  const handleOpenDeleteDialog = useCallback(() => {
+    setDialogOpen(true);
+    handleClose();
+  }, [handleClose]);
+
   const handleDeleteEvent = useCallback(async () => {
     if (!selectedEvent) {
       return;
     }
+
+    setLoading(true);
     try {
       await deleteEvent(selectedEvent.id);
+      setDialogOpen(false);
       removeEventMarker(selectedEvent.id);
-      handleClose();
       handleUpdateEventMarkers();
     } catch (e) {
       showErrorToast(e as CustomError);
+    } finally {
+      setLoading(false);
     }
-  }, [selectedEvent, deleteEvent, removeEventMarker, handleClose, handleUpdateEventMarkers, showErrorToast]);
+  }, [selectedEvent, deleteEvent, removeEventMarker, handleUpdateEventMarkers, showErrorToast]);
 
   return createPortal(
     <FluentProvider theme={darkMode ? webDarkTheme : webLightTheme}>
@@ -188,11 +201,11 @@ const EventMarkerContextMenu: React.ForwardRefExoticComponent<React.RefAttribute
         </div>
         <Divider />
         <MenuList hasIcons>
-          <MenuItem onClick={handleEditEvent} icon={<EditRegular />}>
+          <MenuItem onClick={handleEditEvent} icon={<EditRegular />} disabled={loading}>
             Edit Event...
           </MenuItem>
-          <MenuItem onClick={() => setDialogOpen(true)} icon={<DeleteRegular />}>
-            Delete
+          <MenuItem onClick={handleOpenDeleteDialog} icon={<DeleteRegular />}>
+            <span className="text-red-500">Delete...</span>
           </MenuItem>
         </MenuList>
 
@@ -207,7 +220,7 @@ const EventMarkerContextMenu: React.ForwardRefExoticComponent<React.RefAttribute
                     No
                   </Button>
                 </DialogTrigger>
-                <Button appearance="primary" onClick={handleDeleteEvent}>
+                <Button appearance="primary" onClick={handleDeleteEvent} disabled={loading}>
                   Yes
                 </Button>
               </DialogActions>
