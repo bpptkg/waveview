@@ -50,12 +50,26 @@ const getLocalNormFactor = (series: Series): number => {
 };
 
 /**
+ * Threshold for overscale values. Values greater than this threshold will be
+ * clipped. It roughly corresponds to 6 track heights.
+ */
+const OVERSCALE_THRESHOLD = 6;
+
+/**
  * Render the helicorder tracks to an offscreen canvas.
  */
 const render = debounce((event: MessageEvent) => {
   const renderContext = event.data as OffscreenRenderContext;
-  const { gridRect, tracks, pixelRatio, color, scaling, interval } =
-    renderContext;
+  const {
+    gridRect,
+    tracks,
+    pixelRatio,
+    color,
+    scaling,
+    interval,
+    clip,
+    showClip,
+  } = renderContext;
   // Use the grid rect to create an offscreen canvas.
   const canvas = new OffscreenCanvas(
     gridRect.width * pixelRatio,
@@ -70,6 +84,19 @@ const render = debounce((event: MessageEvent) => {
 
   let first = true;
   const globalNormFactor = getGlobalNormFactor(tracks);
+  const useGlobalScaling = scaling === "global";
+
+  // Check if the value is overscale.
+  const isOverscale = (value: number): boolean => {
+    const v = value / globalNormFactor;
+    return Math.abs(v) > OVERSCALE_THRESHOLD;
+  };
+
+  // Clip the value to the overscale threshold.
+  const clipValue = (value: number): number => {
+    const ratio = value / globalNormFactor;
+    return Math.sign(ratio) * Math.min(OVERSCALE_THRESHOLD, Math.abs(ratio));
+  };
 
   tracks.forEach((track) => {
     ctx.beginPath();
@@ -78,20 +105,14 @@ const render = debounce((event: MessageEvent) => {
     const xScale = new LinearScale(xScaleOptions);
     const yScale = new LinearScale(yScaleOptions);
     const { name, index, values } = seriesData;
-    const series = Series.from(new Float64Array(values), {
+    const data = Series.from(new Float64Array(values), {
       index: new Index(new Float64Array(index)),
       name,
     });
-    let data: Series;
-    if (scaling === "global") {
-      data = series.scalarDivide(globalNormFactor);
-    } else {
-      const localNormFactor = getLocalNormFactor(series);
-      data = series.scalarDivide(localNormFactor);
-    }
     data.setIndex(
       data.index.map((value: number) => timeToOffset(segment, interval, value))
     );
+    const localNormFactor = getLocalNormFactor(data);
 
     // Invert the x value to the canvas coordinate system.
     const invertX = (value: number): number => {
@@ -101,10 +122,20 @@ const render = debounce((event: MessageEvent) => {
       return width * percent;
     };
 
+    // Normalize the value to the range specified by the scaling method.
+    const normalize = (value: number): number => {
+      if (useGlobalScaling) {
+        return clip ? clipValue(value) : value / globalNormFactor;
+      } else {
+        return value / localNormFactor;
+      }
+    };
+
     // Invert the y value to the canvas coordinate system.
     const invertY = (value: number): number => {
+      const normValue = normalize(value);
       const { y, height } = trackRect;
-      const percent = yScale.valueToPercentage(value);
+      const percent = yScale.valueToPercentage(normValue);
       return y + height * percent - gridRect.y;
     };
 
@@ -115,11 +146,40 @@ const render = debounce((event: MessageEvent) => {
 
       const cx = invertX(x);
       const cy = invertY(y);
-      if (first) {
+
+      if (useGlobalScaling && isOverscale(y)) {
+        // Draw the segment up to this point in the default color
+        ctx.strokeStyle = color;
+        if (!first) {
+          ctx.lineTo(cx, cy);
+          ctx.stroke();
+        }
+
+        if (showClip) {
+          // Draw the overscale segment as a red rectangle
+          const rectWidth = 2;
+          const rectHeight = Math.abs(trackRect.y - cy);
+          ctx.fillStyle = "red";
+          ctx.fillRect(
+            cx - rectWidth / 2,
+            Math.min(trackRect.y, cy),
+            rectWidth,
+            rectHeight
+          );
+        }
+
+        // Move to the next point
+        ctx.beginPath();
         ctx.moveTo(cx, cy);
-        first = false;
       } else {
-        ctx.lineTo(cx, cy);
+        // Draw the segment in the default color
+        ctx.strokeStyle = color;
+        if (first) {
+          ctx.moveTo(cx, cy);
+          first = false;
+        } else {
+          ctx.lineTo(cx, cy);
+        }
       }
     }
 

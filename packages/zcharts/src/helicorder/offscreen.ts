@@ -4,22 +4,69 @@ import { LayoutRect } from "../util/types";
 import { Segment } from "./dataStore";
 
 export interface OffscreenRenderTrackContext {
+  /**
+   * Track rectangle in the helicorder grid.
+   */
   trackRect: LayoutRect;
+  /**
+   * Scale options for the x-axis.
+   */
   xScaleOptions: ScaleOptions;
+  /**
+   * Scale options for the y-axis.
+   */
   yScaleOptions: ScaleOptions;
+  /**
+   * Series data to render.
+   */
   seriesData: SeriesJSON;
+  /**
+   * Helicorder segment.
+   */
   segment: Segment;
 }
 
 export interface OffscreenRenderContext {
+  /**
+   * Helicorder tracks to render.
+   */
   tracks: OffscreenRenderTrackContext[];
+  /**
+   * Chart rectangle of the helicorder.
+   */
   rect: LayoutRect;
+  /**
+   * Grid rectangle of the helicorder.
+   */
   gridRect: LayoutRect;
+  /**
+   * Pixel ratio of the canvas.
+   */
   pixelRatio: number;
+  /**
+   * Scaling method for the helicorder tracks.
+   */
   scaling: "global" | "local";
+  /**
+   * Color of the signal.
+   */
   color: string;
+  /**
+   * Interval of the helicorder chart in minutes.
+   */
   interval: number;
+  /**
+   * Duration of the helicorder chart in hours.
+   */
   duration: number;
+  /**
+   * Clip the overscaled signal or not.
+   */
+  clip: boolean;
+  /**
+   * Show the clip indicator or not.
+   */
+  showClip: boolean;
 }
 
 export interface OffscreenRenderResult {
