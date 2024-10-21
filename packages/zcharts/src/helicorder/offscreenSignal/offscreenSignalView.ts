@@ -35,13 +35,16 @@ export class OffscreenSignalView extends View<OffscreenSignalModel> {
     image.src = src;
     image.onload = () => {
       const { x, y, width, height } = this.getImageRect();
-      this.image.setStyle({
-        image,
-        x,
-        y,
-        width,
-        height,
+      this.image.attr({
+        style: {
+          image,
+          x,
+          y,
+          width,
+          height,
+        },
       });
+      this.group.show();
     };
   }
 
