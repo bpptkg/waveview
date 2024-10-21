@@ -27,7 +27,7 @@ import {
   useOverflowMenu,
   useToastController,
 } from '@fluentui/react-components';
-import { AttachRegular, CalendarAgendaRegular, MoreHorizontalRegular, SearchVisualRegular } from '@fluentui/react-icons';
+import { AttachRegular, CalendarAgendaRegular, MoreHorizontalRegular, MoreVerticalRegular, SearchVisualRegular } from '@fluentui/react-icons';
 import React, { useCallback, useMemo, useState } from 'react';
 import { usePickerStore } from '../../../../stores/picker';
 import { SeismicEventDetail } from '../../../../types/event';
@@ -144,11 +144,13 @@ const PickEdit = () => {
   );
 
   const [loading, setLoading] = useState(false);
-  const { time, duration, eventTypeId, stationOfFirstArrivalId, savePickedEvent, addEventMarker } = usePickerStore();
+  const { eventId, time, duration, eventTypeId, stationOfFirstArrivalId, savePickedEvent, addEventMarker, deleteEvent, removeEventMarker } = usePickerStore();
 
   const canSave = useMemo(() => {
     return time !== 0 && duration !== 0 && eventTypeId !== '' && stationOfFirstArrivalId !== '';
   }, [time, duration, eventTypeId, stationOfFirstArrivalId]);
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const onSavedCallback = useCallback(
     (event: SeismicEventDetail) => {
@@ -173,6 +175,25 @@ const PickEdit = () => {
     }
   }, [savePickedEvent, showErrorToast, onSavedCallback]);
 
+  const handleDelete = useCallback(async () => {
+    if (!eventId) {
+      return;
+    }
+    setLoading(true);
+    try {
+      await deleteEvent(eventId);
+      seisChartRef.current?.clearPickRange();
+      resetEditing();
+      removeEventMarker(eventId);
+      handleUpdateEventMarkers();
+      setDeleteDialogOpen(false);
+    } catch (error) {
+      showErrorToast(error as CustomError);
+    } finally {
+      setLoading(false);
+    }
+  }, [eventId, seisChartRef, deleteEvent, showErrorToast, removeEventMarker, handleUpdateEventMarkers, resetEditing]);
+
   return (
     <div className="h-full w-full overflow-hidden relative">
       <div className="absolute top-0 right-0 left-0 bottom-0 overflow-y-auto">
@@ -186,6 +207,26 @@ const PickEdit = () => {
             <Button size="small" appearance="primary" onClick={handleSave} disabled={loading || !canSave}>
               Save
             </Button>
+            {eventId && (
+              <Menu>
+                <MenuTrigger disableButtonEnhancement>
+                  <Tooltip content={'More Options'} relationship="label" showDelay={1500}>
+                    <Button icon={<MoreVerticalRegular fontSize={20} />} appearance="transparent" />
+                  </Tooltip>
+                </MenuTrigger>
+                <MenuPopover>
+                  <MenuList>
+                    <MenuItem
+                      onClick={() => {
+                        setDeleteDialogOpen(true);
+                      }}
+                    >
+                      <span className="text-red-500">Delete...</span>
+                    </MenuItem>
+                  </MenuList>
+                </MenuPopover>
+              </Menu>
+            )}
           </div>
         </div>
 
@@ -210,6 +251,25 @@ const PickEdit = () => {
                 </DialogTrigger>
                 <Button appearance="primary" onClick={handleResetPick}>
                   Yes
+                </Button>
+              </DialogActions>
+            </DialogBody>
+          </DialogSurface>
+        </Dialog>
+
+        <Dialog open={deleteDialogOpen} onOpenChange={(_, data) => setDeleteDialogOpen(data.open)}>
+          <DialogSurface>
+            <DialogBody>
+              <DialogTitle>Delete Event</DialogTitle>
+              <DialogContent>Are you sure you want to delete this event?</DialogContent>
+              <DialogActions>
+                <DialogTrigger disableButtonEnhancement>
+                  <Button appearance="secondary" onClick={() => setDeleteDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                </DialogTrigger>
+                <Button appearance="primary" color="red" onClick={handleDelete} disabled={loading}>
+                  Delete
                 </Button>
               </DialogActions>
             </DialogBody>
