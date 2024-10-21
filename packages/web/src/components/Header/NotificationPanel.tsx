@@ -22,7 +22,13 @@ import { useCallback, useEffect, useState } from 'react';
 import { formatTimezonedDate } from '../../shared/time';
 import { useAppStore } from '../../stores/app';
 import { usePickerStore } from '../../stores/picker';
-import { NewEventNotificationData, NotificationMessage, WebSocketResponse } from '../../types/websocket';
+import {
+  EventDeleteNotificationData,
+  EventUpdateNotificationData,
+  NewEventNotificationData,
+  NotificationMessage,
+  WebSocketResponse,
+} from '../../types/websocket';
 import EventTypeLabel from '../Catalog/EventTypeLabel';
 import { useWebSocket } from '../WebSocket/WebSocketContext';
 
@@ -130,10 +136,56 @@ const NotificationPanel = () => {
     );
   };
 
+  const renderEventUpdateNotification = (data: EventUpdateNotificationData) => {
+    const { event } = data;
+    return (
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center justify-between">
+          <div className="text-sm font-semibold">Event Updated</div>
+          <span className="text-xs">{formatDistanceToNow(new Date(event.updated_at), { addSuffix: false })}</span>
+        </div>
+        <div className="flex justify-between">
+          <div>
+            <EventTypeLabel eventType={event.type} />
+            <div className="text-xs">{formatTimezonedDate(event.time, 'yyyy-MM-dd HH:mm:ss', useUTC)}</div>
+          </div>
+          <Tooltip content={event.author.name} relationship="label">
+            <Avatar aria-label={event.author.name} name={event.author.name} color="colorful" image={{ src: event.author.avatar }} />
+          </Tooltip>
+        </div>
+      </div>
+    );
+  };
+
+  const renderEventDeleteNotification = (data: EventDeleteNotificationData) => {
+    const { event } = data;
+    return (
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center justify-between">
+          <div className="text-sm font-semibold">Event Deleted</div>
+          <span className="text-xs">{formatDistanceToNow(new Date(event.deleted_at), { addSuffix: false })}</span>
+        </div>
+        <div className="flex justify-between">
+          <div>
+            <EventTypeLabel eventType={event.type} />
+            <div className="text-xs">{formatTimezonedDate(event.time, 'yyyy-MM-dd HH:mm:ss', useUTC)}</div>
+          </div>
+          <Tooltip content={event.author.name} relationship="label">
+            <Avatar aria-label={event.author.name} name={event.author.name} color="colorful" image={{ src: event.author.avatar }} />
+          </Tooltip>
+        </div>
+      </div>
+    );
+  };
+
   const renderNotification = (notification: NotificationMessage) => {
     switch (notification.type) {
       case 'new_event':
         return renderNewEventNotification(notification.data as NewEventNotificationData);
+      case 'event_update':
+        return renderEventUpdateNotification(notification.data as EventUpdateNotificationData);
+      case 'event_delete':
+        return renderEventDeleteNotification(notification.data as EventDeleteNotificationData);
       default:
         return null;
     }

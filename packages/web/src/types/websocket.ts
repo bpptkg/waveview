@@ -1,5 +1,6 @@
 import { JwtToken } from './auth';
-import { SeismicEvent } from './event';
+import { EventType, SeismicEvent } from './event';
+import { User } from './user';
 
 export type WebSocketCommand = 'stream.fetch' | 'stream.spectrogram' | 'stream.filter' | 'ping' | 'notify';
 export type WebSocketMessageType = 'request' | 'response' | 'notify';
@@ -28,6 +29,23 @@ export interface WebSocketSetupData {
 
 export interface NewEventNotificationData {
   event: SeismicEvent;
+}
+
+export interface EventUpdateNotificationData {
+  event: SeismicEvent;
+}
+
+export interface DeletedEvent {
+  id: string;
+  time: string;
+  type: EventType;
+  duration: number;
+  author: User;
+  deleted_at: string;
+}
+
+export interface EventDeleteNotificationData {
+  event: DeletedEvent;
 }
 
 export interface NotificationMessage<T = any> {
