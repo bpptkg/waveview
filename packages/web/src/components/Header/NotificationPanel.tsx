@@ -67,9 +67,8 @@ const NotificationPanel = () => {
       const { type, data } = response as WebSocketResponse;
       if (type === 'notify') {
         const notification = data as NotificationMessage;
-        setNotifications((prev) => [...prev, notification]);
+        setNotifications((prev) => [notification, ...prev]);
         setUnreadCount((prev) => prev + 1);
-
         showNotificationToast({ title: notification.title, body: notification.body });
       }
     },
