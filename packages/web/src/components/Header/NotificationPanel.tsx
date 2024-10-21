@@ -21,6 +21,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useCallback, useEffect, useState } from 'react';
 import { formatTimezonedDate } from '../../shared/time';
 import { useAppStore } from '../../stores/app';
+import { usePickerStore } from '../../stores/picker';
 import { NewEventNotificationData, NotificationMessage, WebSocketResponse } from '../../types/websocket';
 import EventTypeLabel from '../Catalog/EventTypeLabel';
 import { useWebSocket } from '../WebSocket/WebSocketContext';
@@ -61,6 +62,13 @@ const NotificationPanel = () => {
     [dispatchToast]
   );
 
+  // Fetch event markers when event notification is received.
+  const { fetchEventMarkers, getHelicorderExtent } = usePickerStore();
+  const handleUpdateEventMarkers = useCallback(() => {
+    const [start, end] = getHelicorderExtent();
+    fetchEventMarkers(start, end);
+  }, [fetchEventMarkers, getHelicorderExtent]);
+
   const handleNotiticationMessage = useCallback(
     (event: MessageEvent<string>) => {
       const response = JSON.parse(event.data);
@@ -70,9 +78,10 @@ const NotificationPanel = () => {
         setNotifications((prev) => [notification, ...prev]);
         setUnreadCount((prev) => prev + 1);
         showNotificationToast({ title: notification.title, body: notification.body });
+        handleUpdateEventMarkers();
       }
     },
-    [showNotificationToast]
+    [showNotificationToast, handleUpdateEventMarkers]
   );
 
   useEffect(() => {
