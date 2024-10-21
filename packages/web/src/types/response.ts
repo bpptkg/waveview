@@ -21,6 +21,12 @@ export class CustomError extends Error {
       return new CustomError(`Unknown error. Please report this issue to the developers.`);
     }
     const error = errors[0];
-    return new CustomError(`${error.detail} (${error.attr})`, error.code);
+    let msg: string;
+    if (error.attr) {
+      msg = `${error.detail} (${error.attr})`;
+    } else {
+      msg = error.detail;
+    }
+    return new CustomError(msg, error.code);
   }
 }
