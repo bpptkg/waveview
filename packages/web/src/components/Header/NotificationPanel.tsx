@@ -1,5 +1,4 @@
 import {
-  Avatar,
   Button,
   CounterBadge,
   Divider,
@@ -12,7 +11,6 @@ import {
   ToastBody,
   Toaster,
   ToastTitle,
-  Tooltip,
   useId,
   useToastController,
 } from '@fluentui/react-components';
@@ -30,6 +28,7 @@ import {
   WebSocketResponse,
 } from '../../types/websocket';
 import EventTypeLabel from '../Catalog/EventTypeLabel';
+import Author from '../Common/Author';
 import { useWebSocket } from '../WebSocket/WebSocketContext';
 
 const useNotificationPanelStyles = makeStyles({
@@ -116,7 +115,7 @@ const NotificationPanel = () => {
   }, []);
 
   const renderNewEventNotification = (data: NewEventNotificationData) => {
-    const { event } = data;
+    const { event, actor } = data;
     return (
       <div className="flex flex-col gap-1">
         <div className="flex items-center justify-between">
@@ -128,16 +127,14 @@ const NotificationPanel = () => {
             <EventTypeLabel eventType={event.type} />
             <div className="text-xs">{formatTimezonedDate(event.time, 'yyyy-MM-dd HH:mm:ss', useUTC)}</div>
           </div>
-          <Tooltip content={event.author.name} relationship="label">
-            <Avatar aria-label={event.author.name} name={event.author.name} color="colorful" image={{ src: event.author.avatar }} />
-          </Tooltip>
+          <Author author={actor} />
         </div>
       </div>
     );
   };
 
   const renderEventUpdateNotification = (data: EventUpdateNotificationData) => {
-    const { event } = data;
+    const { event, actor } = data;
     return (
       <div className="flex flex-col gap-1">
         <div className="flex items-center justify-between">
@@ -149,16 +146,14 @@ const NotificationPanel = () => {
             <EventTypeLabel eventType={event.type} />
             <div className="text-xs">{formatTimezonedDate(event.time, 'yyyy-MM-dd HH:mm:ss', useUTC)}</div>
           </div>
-          <Tooltip content={event.author.name} relationship="label">
-            <Avatar aria-label={event.author.name} name={event.author.name} color="colorful" image={{ src: event.author.avatar }} />
-          </Tooltip>
+          <Author author={actor} />
         </div>
       </div>
     );
   };
 
   const renderEventDeleteNotification = (data: EventDeleteNotificationData) => {
-    const { event } = data;
+    const { event, actor } = data;
     return (
       <div className="flex flex-col gap-1">
         <div className="flex items-center justify-between">
@@ -170,9 +165,7 @@ const NotificationPanel = () => {
             <EventTypeLabel eventType={event.type} />
             <div className="text-xs">{formatTimezonedDate(event.time, 'yyyy-MM-dd HH:mm:ss', useUTC)}</div>
           </div>
-          <Tooltip content={event.author.name} relationship="label">
-            <Avatar aria-label={event.author.name} name={event.author.name} color="colorful" image={{ src: event.author.avatar }} />
-          </Tooltip>
+          <Author author={actor} />
         </div>
       </div>
     );
