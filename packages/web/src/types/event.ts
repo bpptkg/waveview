@@ -99,6 +99,7 @@ export interface SeismicEvent {
   created_at: string;
   updated_at: string;
   author: User;
+  collaborators: User[];
   origins: Origin[];
   magnitudes: Magnitude[];
   amplitudes: Amplitude[];

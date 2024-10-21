@@ -1,5 +1,4 @@
 import {
-  Avatar,
   Button,
   createTableColumn,
   InputOnChangeData,
@@ -31,6 +30,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import EventTableFilter from '../../components/Catalog/EventTableFilter';
 import EventTypeLabel from '../../components/Catalog/EventTypeLabel';
+import Collaborators from '../../components/Common/Collaborators';
 import { formatNumber, formatTime } from '../../shared/formatting';
 import { useAppStore } from '../../stores/app';
 import { FilterData, useCatalogStore } from '../../stores/catalog';
@@ -310,9 +310,9 @@ const EventTable = () => {
               <TableHeaderCell>Longitude</TableHeaderCell>
               <TableHeaderCell>Depth</TableHeaderCell>
               <TableHeaderCell>Method</TableHeaderCell>
-              <TableHeaderCell>Evaluation Mode</TableHeaderCell>
-              <TableHeaderCell>Evaluation Status</TableHeaderCell>
-              <TableHeaderCell>Author</TableHeaderCell>
+              <TableHeaderCell>Mode</TableHeaderCell>
+              <TableHeaderCell>Status</TableHeaderCell>
+              <TableHeaderCell>Collaborators</TableHeaderCell>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -333,13 +333,7 @@ const EventTable = () => {
                   <TableCell>{item.evaluation_mode}</TableCell>
                   <TableCell>{item.evaluation_status}</TableCell>
                   <TableCell>
-                    <TableCellLayout
-                      media={
-                        <Tooltip content={item.author.name || item.author.username} relationship="label">
-                          <Avatar aria-label={item.author.name} name={item.author.name} color="colorful" image={{ src: item.author.avatar }} />
-                        </Tooltip>
-                      }
-                    />
+                    <TableCellLayout media={<Collaborators collaborators={item.collaborators} enableShowAll={false} avatarSize={24} maxShown={3} />} />
                   </TableCell>
                 </TableRow>
               ))

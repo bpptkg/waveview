@@ -1,10 +1,12 @@
-import { Avatar, Dropdown, Field, Input, makeStyles, Option, Spinner, Textarea } from '@fluentui/react-components';
+import { Dropdown, Field, Input, makeStyles, Option, Spinner, Textarea } from '@fluentui/react-components';
 import { CircleFilled } from '@fluentui/react-icons';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { formatNumber, formatTime } from '../../../../shared/formatting';
 import { useAppStore } from '../../../../stores/app';
 import { useEventTypeStore } from '../../../../stores/eventType';
 import { usePickerStore } from '../../../../stores/picker';
+import Author from '../../../Common/Author';
+import Collaborators from '../../../Common/Collaborators';
 import { usePickerContext } from '../../PickerContext';
 
 const useStyles = makeStyles({
@@ -185,12 +187,17 @@ const PickEditEvent: React.FC = () => {
       </Field>
 
       {editedEvent && (
-        <Field label="Author">
-          <div className="inline-flex items-center gap-1">
-            <Avatar aria-label={editedEvent.author.name} name={editedEvent.author.name} color="colorful" image={{ src: editedEvent.author.avatar }} />{' '}
-            <span>{editedEvent.author.name}</span>
-          </div>
-        </Field>
+        <>
+          <Field label="Author">
+            <Author author={editedEvent.author} />
+          </Field>
+
+          {editedEvent.collaborators.length > 1 && (
+            <Field label="Collaborators">
+              <Collaborators collaborators={editedEvent.collaborators} />
+            </Field>
+          )}
+        </>
       )}
     </div>
   );
