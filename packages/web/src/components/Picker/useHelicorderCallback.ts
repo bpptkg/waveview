@@ -10,7 +10,7 @@ import { usePickerStore } from '../../stores/picker';
 import { useSidebarStore } from '../../stores/sidebar';
 import { useVolcanoStore } from '../../stores/volcano/useVolcanoStore';
 import { Channel } from '../../types/channel';
-import { SeismicEvent, SeismicEventDetail } from '../../types/event';
+import { SeismicEvent } from '../../types/event';
 import { ScalingType } from '../../types/scaling';
 import { usePickerContext } from './PickerContext';
 import { useSeismogramCallback } from './useSeismogramCallback';
@@ -33,7 +33,7 @@ export function useHelicorderCallback() {
     setSelectionWindow,
   } = usePickerStore();
 
-  const { heliChartRef, seisChartRef, props } = usePickerContext();
+  const { heliChartRef, seisChartRef } = usePickerContext();
 
   const handleHelicorderShiftViewUp = useCallback(() => {
     heliChartRef.current?.shiftViewUp();
@@ -105,7 +105,6 @@ export function useHelicorderCallback() {
   const { currentVolcano } = useVolcanoStore();
   const { token } = useAuthStore();
   const { darkMode, useUTC } = useAppStore();
-  const { event } = props;
   const { eventId, helicorderDuration, helicorderInterval, channelId, offsetDate, eventMarkers } = usePickerStore();
   const { setHeliChartReady } = usePickerContext();
   const { handleSetupEventEditing } = useSeismogramCallback();
@@ -249,13 +248,14 @@ export function useHelicorderCallback() {
     [heliChartRef]
   );
 
-  const calcHelicorderOffsetDate = (event: SeismicEventDetail) => {
-    const [start, end] = getPickExtent(event);
-    return new Date((start + end) / 2);
-  };
+  const handleHelicorderOffsetDateChange = useCallback(
+    (date: number) => {
+      setHelicorderOffsetDate(date);
+    },
+    [setHelicorderOffsetDate]
+  );
 
   const getHelicorderInitOptions = useCallback(() => {
-    const initialOffsetDate = event ? calcHelicorderOffsetDate(event) : new Date(offsetDate);
     const scaling = getHelicorderScalingType();
     const initOptions: Partial<HelicorderOptions> = {
       useOffscrrenRendering: true,
@@ -265,7 +265,7 @@ export function useHelicorderCallback() {
         id: channelId,
       },
       darkMode,
-      offsetDate: initialOffsetDate.getTime(),
+      offsetDate,
       grid: {
         top: 25,
         right: 15,
@@ -289,19 +289,7 @@ export function useHelicorderCallback() {
       }),
     };
     return initOptions;
-  }, [
-    helicorderDuration,
-    helicorderInterval,
-    channelId,
-    darkMode,
-    offsetDate,
-    useUTC,
-    event,
-    windowSize,
-    selectionWindow,
-    eventMarkers,
-    getHelicorderScalingType,
-  ]);
+  }, [helicorderDuration, helicorderInterval, channelId, darkMode, offsetDate, useUTC, windowSize, selectionWindow, eventMarkers, getHelicorderScalingType]);
 
   return {
     getHelicorderInitOptions,
@@ -314,6 +302,7 @@ export function useHelicorderCallback() {
     handleHelicorderEventMarkerClick,
     handleHelicorderFocus,
     handleHelicorderIncreaseAmplitude,
+    handleHelicorderOffsetDateChange,
     handleHelicorderOnLoading,
     handleHelicorderOnReady,
     handleHelicorderRefreshData,

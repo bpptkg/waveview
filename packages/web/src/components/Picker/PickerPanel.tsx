@@ -46,6 +46,7 @@ const PickerPanel = () => {
     handleHelicorderEventMarkerClick,
     handleHelicorderFocus,
     handleHelicorderIncreaseAmplitude,
+    handleHelicorderOffsetDateChange,
     handleHelicorderOnLoading,
     handleHelicorderOnReady,
     handleHelicorderRefreshData,
@@ -157,6 +158,7 @@ const PickerPanel = () => {
                     className={helicorderClassName}
                     appliedFilter={helicorderFilter}
                     initOptions={getHelicorderInitOptions()}
+                    onOffsetDateChange={handleHelicorderOffsetDateChange}
                     onFocus={handleHelicorderFocus}
                     onSelectionChange={handleHelicorderSelectionChange}
                     onEventMarkerClick={handleHelicorderEventMarkerClick}

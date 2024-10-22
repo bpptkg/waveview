@@ -17,6 +17,10 @@ export interface HelicorderChartProps {
    */
   appliedFilter?: FilterOperationOptions | null;
   /**
+   * Callback fired when the offset date is changed.
+   */
+  onOffsetDateChange?: (date: number) => void;
+  /**
    * Callback fired when the chart is focused.
    */
   onFocus?: () => void;

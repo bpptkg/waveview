@@ -9,7 +9,7 @@ import { HelicorderWebWorker } from './HelicorderWebWorker';
 export type HelicorderChartType = React.ForwardRefExoticComponent<HelicorderChartProps & React.RefAttributes<HelicorderChartRef>>;
 
 export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref) => {
-  const { initOptions, className, appliedFilter, onFocus, onSelectionChange, onReady, onEventMarkerClick, onLoading } = props;
+  const { initOptions, className, appliedFilter, onFocus, onSelectionChange, onReady, onEventMarkerClick, onLoading, onOffsetDateChange } = props;
 
   const parentRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<Helicorder | null>(null);
@@ -274,6 +274,13 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
     [onLoading]
   );
 
+  const handleOffsetDateChange = useCallback(
+    (date: number) => {
+      onOffsetDateChange?.(date);
+    },
+    [onOffsetDateChange]
+  );
+
   useEffect(() => {
     function init() {
       if (!parentRef.current) {
@@ -289,6 +296,7 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
       chartRef.current.on('selectionChanged', handleSelectionChange);
       chartRef.current.on('eventMarkerClicked', handleEventMarkerClick);
       chartRef.current.on('loading', handleOnLoading);
+      chartRef.current.on('offsetDateChanged', handleOffsetDateChange);
       chartRef.current.zr.on('click', handleFocus);
       chartRef.current.render();
     }
