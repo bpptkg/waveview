@@ -44,7 +44,6 @@ export class OffscreenSignalView extends View<OffscreenSignalModel> {
           height,
         },
       });
-      this.group.show();
     };
   }
 
