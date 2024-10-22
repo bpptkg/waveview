@@ -60,7 +60,13 @@ const useStyles = makeStyles({
   },
 });
 
-type View = 'default' | 'helcorderDefaultChannel' | 'helicorderFilter' | 'seismogramChannelList' | 'selectionWindow';
+enum ViewType {
+  HOME,
+  HELICORDER_CHANNEL,
+  HELICORDER_FILTER,
+  SEISMOGRAM_CHANNELS,
+  SELECTION_WINDOW,
+}
 
 const extractFilterOptions = (appliedFilter: FilterOperationOptions | null): FilterOptions | null => {
   if (!appliedFilter) {
@@ -109,9 +115,11 @@ const extractFilterOptions = (appliedFilter: FilterOperationOptions | null): Fil
 };
 
 const PickerSettings: React.FC = () => {
+  const styles = useStyles();
+
   const {
     pickerSettingsOpen,
-    channelId: defaultChannelId,
+    channelId,
     windowSize,
     forceCenter,
     helicorderFilter,
@@ -125,7 +133,6 @@ const PickerSettings: React.FC = () => {
 
   const toasterId = useId('picker-settings');
   const { dispatchToast } = useToastController(toasterId);
-
   const showErrorToast = useCallback(
     (error: CustomError) => {
       dispatchToast(
@@ -139,16 +146,15 @@ const PickerSettings: React.FC = () => {
   );
 
   const { heliChartRef, seisChartRef } = usePickerContext();
-
-  const styles = useStyles();
   const [loading, setLoading] = useState(false);
-  const [view, setView] = useState<View>('default');
+  const [view, setView] = useState<ViewType>(ViewType.HOME);
 
-  const [channelId, setChannelId] = useState<string>(defaultChannelId);
-  const [channelList, setChannelList] = useState<ChannelConfig[]>(getChannelsConfig());
-  const [selectionWindow, setSelectionWindow] = useState<number>(windowSize);
-  const [detrend, setDetrend] = useState<boolean>(forceCenter);
-  const [editedHelicorderFilter, setEditedHelicorderFilter] = useState<FilterOperationOptions | null>(helicorderFilter);
+  // All the states below are used to store the current settings.
+  const [selectedHelicorderChannel, setSelectedHelicorderChannel] = useState<string>(channelId);
+  const [selectedSeismogramChannels, setSelectedSeismogramChannels] = useState<ChannelConfig[]>(getChannelsConfig());
+  const [selectedSelectionWindow, setSelectedSelectionWindow] = useState<number>(windowSize);
+  const [isForceCenter, setIsForceCenter] = useState<boolean>(forceCenter);
+  const [currentHelicorderFilter, setCurrentHelicorderFilter] = useState<FilterOperationOptions | null>(helicorderFilter);
 
   const handleOpenChange = useCallback(
     (open: boolean) => {
@@ -157,13 +163,14 @@ const PickerSettings: React.FC = () => {
     [setPickerSettingsOpen]
   );
 
+  // Reset the state to the current settings.
   const resetState = useCallback(() => {
-    setChannelId(defaultChannelId);
-    setChannelList(getChannelsConfig());
-    setSelectionWindow(windowSize);
-    setDetrend(forceCenter);
-    setEditedHelicorderFilter(helicorderFilter);
-  }, [defaultChannelId, windowSize, forceCenter, helicorderFilter, getChannelsConfig]);
+    setSelectedHelicorderChannel(channelId);
+    setSelectedSeismogramChannels(getChannelsConfig());
+    setSelectedSelectionWindow(windowSize);
+    setIsForceCenter(forceCenter);
+    setCurrentHelicorderFilter(helicorderFilter);
+  }, [channelId, windowSize, forceCenter, helicorderFilter, getChannelsConfig]);
 
   const handleCancel = useCallback(() => {
     resetState();
@@ -173,31 +180,36 @@ const PickerSettings: React.FC = () => {
   useEffect(() => {
     if (pickerSettingsOpen) {
       resetState();
-      setView('default');
+      setView(ViewType.HOME);
     }
   }, [pickerSettingsOpen, resetState]);
 
+  // Apply the settings to the helicorder and seismogram charts.
   const handleApplySettings = useCallback(() => {
-    const item = getChannelsConfig().find((item) => item.channel.id === channelId)!;
-    heliChartRef.current?.setWindowSize(selectionWindow);
-    const currentChannel = heliChartRef.current?.getChannel();
-    heliChartRef.current?.applyFilter(editedHelicorderFilter);
-    if (currentChannel?.id !== item.channel.id) {
-      heliChartRef.current?.setChannel({ id: item.channel.id, label: item.channel.stream_id });
-    } else {
-      heliChartRef.current?.fetchAllData();
+    if (!heliChartRef.current || !seisChartRef.current) {
+      return;
     }
-    heliChartRef.current?.setForceCenter(detrend);
 
-    const channels = getChannelsConfig().map((item) => ({
+    heliChartRef.current.setWindowSize(selectedSelectionWindow);
+    const currentChannel = heliChartRef.current.getChannel();
+    heliChartRef.current.applyFilter(currentHelicorderFilter);
+    if (currentChannel.id !== selectedHelicorderChannel) {
+      heliChartRef.current.setChannel({ id: selectedHelicorderChannel });
+    } else {
+      heliChartRef.current.fetchAllData();
+    }
+    heliChartRef.current.setForceCenter(isForceCenter);
+
+    const seismogramChannels = getChannelsConfig().map((item) => ({
       id: item.channel.id,
       label: item.channel.net_sta_code,
       color: item.color,
     }));
-    seisChartRef.current?.setChannels(channels);
-    seisChartRef.current?.setForceCenter(detrend);
-  }, [channelId, selectionWindow, detrend, editedHelicorderFilter, heliChartRef, seisChartRef, getChannelsConfig]);
+    seisChartRef.current.setChannels(seismogramChannels);
+    seisChartRef.current.setForceCenter(isForceCenter);
+  }, [selectedHelicorderChannel, selectedSelectionWindow, isForceCenter, currentHelicorderFilter, heliChartRef, seisChartRef, getChannelsConfig]);
 
+  // Reset the settings to the default.
   const handleReset = useCallback(async () => {
     setLoading(true);
     try {
@@ -211,19 +223,20 @@ const PickerSettings: React.FC = () => {
     }
   }, [resetPickerConfig, showErrorToast, handleApplySettings, setPickerSettingsOpen, setLoading]);
 
+  // Save the settings to the server and apply them to the charts.
   const handleSave = useCallback(async () => {
     setLoading(true);
     const payload: PickerConfigPayload = {
       helicorder_channel: {
-        channel_id: channelId,
+        channel_id: selectedHelicorderChannel,
       },
-      seismogram_channels: channelList.map((channel) => ({
+      seismogram_channels: selectedSeismogramChannels.map((channel) => ({
         channel_id: channel.channel.id,
         color: channel.color === 'none' ? undefined : channel.color,
       })),
-      window_size: selectionWindow,
-      force_center: detrend,
-      helicorder_filter: extractFilterOptions(editedHelicorderFilter),
+      window_size: selectedSelectionWindow,
+      force_center: isForceCenter,
+      helicorder_filter: extractFilterOptions(currentHelicorderFilter),
     };
     try {
       await savePickerConfig(payload);
@@ -234,84 +247,94 @@ const PickerSettings: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [channelId, channelList, selectionWindow, detrend, editedHelicorderFilter, setPickerSettingsOpen, savePickerConfig, showErrorToast, handleApplySettings]);
+  }, [
+    selectedHelicorderChannel,
+    selectedSeismogramChannels,
+    selectedSelectionWindow,
+    isForceCenter,
+    currentHelicorderFilter,
+    setPickerSettingsOpen,
+    savePickerConfig,
+    showErrorToast,
+    handleApplySettings,
+  ]);
 
   const handleHelicorderChannelChange = useCallback((channel: Channel) => {
-    setChannelId(channel.id);
-    setView('default');
+    setSelectedHelicorderChannel(channel.id);
+    setView(ViewType.HOME);
   }, []);
 
   const handleSeismogramChannelMoveUp = useCallback(
     (index: number) => {
-      const newChannelList = [...channelList];
+      const newChannelList = [...selectedSeismogramChannels];
       const temp = newChannelList[index];
       newChannelList[index] = newChannelList[index - 1];
       newChannelList[index - 1] = temp;
-      setChannelList(newChannelList);
+      setSelectedSeismogramChannels(newChannelList);
     },
-    [channelList]
+    [selectedSeismogramChannels]
   );
 
   const handleSeismogramChannelMoveDown = useCallback(
     (index: number) => {
-      const newChannelList = [...channelList];
+      const newChannelList = [...selectedSeismogramChannels];
       const temp = newChannelList[index];
       newChannelList[index] = newChannelList[index + 1];
       newChannelList[index + 1] = temp;
-      setChannelList(newChannelList);
+      setSelectedSeismogramChannels(newChannelList);
     },
-    [channelList]
+    [selectedSeismogramChannels]
   );
 
   const handleSeismogramChannelAdd = useCallback(
     (channel: Channel) => {
-      setChannelList((prev) => {
+      setSelectedSeismogramChannels((prev) => {
         return [...prev, { channel }];
       });
     },
-    [setChannelList]
+    [setSelectedSeismogramChannels]
   );
 
   const handleSeismogramChannelDelete = useCallback(
     (index: number) => {
-      const newChannelList = [...channelList];
+      const newChannelList = [...selectedSeismogramChannels];
       newChannelList.splice(index, 1);
-      setChannelList(newChannelList);
+      setSelectedSeismogramChannels(newChannelList);
     },
-    [channelList]
+    [selectedSeismogramChannels]
   );
 
   const handleSeismogramChannelColorChange = useCallback(
     (index: number, color?: string) => {
-      const newChannelList = [...channelList];
+      const newChannelList = [...selectedSeismogramChannels];
       newChannelList[index].color = color;
-      setChannelList(newChannelList);
+      setSelectedSeismogramChannels(newChannelList);
     },
-    [channelList]
+    [selectedSeismogramChannels]
   );
 
   const handleSelectionWindowChange = useCallback((value: string) => {
-    setSelectionWindow(parseInt(value, 10));
+    setSelectedSelectionWindow(parseInt(value, 10));
   }, []);
 
   const handleForceCenterChange = useCallback((value: boolean) => {
-    setDetrend(value);
+    setIsForceCenter(value);
   }, []);
 
   const handleHelicorderFilterChange = useCallback(
     (filter: FilterOperationOptions | null) => {
-      setEditedHelicorderFilter(filter);
+      setCurrentHelicorderFilter(filter);
     },
-    [setEditedHelicorderFilter]
+    [setCurrentHelicorderFilter]
   );
 
   const Component = useMemo(() => {
-    if (view === 'helcorderDefaultChannel') {
-      return <HelicorderDefaultChannel channelId={channelId} onChange={handleHelicorderChannelChange} />;
-    } else if (view === 'seismogramChannelList') {
+    if (view === ViewType.HELICORDER_CHANNEL) {
+      return <HelicorderDefaultChannel channelId={selectedHelicorderChannel} onChange={handleHelicorderChannelChange} />;
+    } else if (view === ViewType.SEISMOGRAM_CHANNELS) {
       return (
         <SeismogramChannelList
-          channelList={channelList}
+          channelList={selectedSeismogramChannels}
           onMoveUp={handleSeismogramChannelMoveUp}
           onMoveDown={handleSeismogramChannelMoveDown}
           onAdd={handleSeismogramChannelAdd}
@@ -319,9 +342,9 @@ const PickerSettings: React.FC = () => {
           onColorChange={handleSeismogramChannelColorChange}
         />
       );
-    } else if (view === 'selectionWindow') {
-      return <SelectionWindow value={selectionWindow.toString()} onChange={handleSelectionWindowChange} />;
-    } else if (view === 'helicorderFilter') {
+    } else if (view === ViewType.SELECTION_WINDOW) {
+      return <SelectionWindow value={selectedSelectionWindow.toString()} onChange={handleSelectionWindowChange} />;
+    } else if (view === ViewType.HELICORDER_FILTER) {
       return <HelicorderFilter appliedFilter={helicorderFilter} filterOptions={getHelicorderFilterOptions()} onChange={handleHelicorderFilterChange} />;
     } else {
       return (
@@ -329,17 +352,17 @@ const PickerSettings: React.FC = () => {
           <h1 className="text-xl font-bold">Picker Settings</h1>
           <a
             className="h-[40px] flex items-center justify-between border border-gray-300 dark:border-gray-700 rounded-md p-2 cursor-pointer"
-            onClick={() => setView('helcorderDefaultChannel')}
+            onClick={() => setView(ViewType.HELICORDER_CHANNEL)}
           >
             <div>Helicorder Channel</div>
             <div className="flex items-center">
-              <div className="font-normal">{channels().find((channel) => channel.id === channelId)?.stream_id}</div>
+              <div className="font-normal">{channels().find((channel) => channel.id === selectedHelicorderChannel)?.stream_id}</div>
               <ChevronRightRegular fontSize={20} />
             </div>
           </a>
           <a
             className="h-[40px] flex items-center justify-between border border-gray-300 dark:border-gray-700 rounded-md p-2 cursor-pointer"
-            onClick={() => setView('helicorderFilter')}
+            onClick={() => setView(ViewType.HELICORDER_FILTER)}
           >
             <div>Helicorder Filter</div>
             <div className="flex items-center">
@@ -349,42 +372,42 @@ const PickerSettings: React.FC = () => {
           </a>
           <a
             className="h-[40px] flex items-center justify-between border border-gray-300 dark:border-gray-700 rounded-md p-2 cursor-pointer"
-            onClick={() => setView('seismogramChannelList')}
+            onClick={() => setView(ViewType.SEISMOGRAM_CHANNELS)}
           >
             <div>Seismogram Channels</div>
             <div className="flex items-center">
-              <div className="font-normal">{channelList.length} channels</div>
+              <div className="font-normal">{selectedSeismogramChannels.length} channels</div>
               <ChevronRightRegular fontSize={20} />
             </div>
           </a>
           <a
             className="h-[40px] flex items-center justify-between border border-gray-300 dark:border-gray-700 rounded-md p-2 cursor-pointer"
-            onClick={() => setView('selectionWindow')}
+            onClick={() => setView(ViewType.SELECTION_WINDOW)}
           >
             <div>Selection Window</div>
             <div className="flex items-center">
-              <div className="font-normal">{formatNumber(selectionWindow, { unit: ' minutes' })}</div>
+              <div className="font-normal">{formatNumber(selectedSelectionWindow, { unit: ' minutes' })}</div>
               <ChevronRightRegular fontSize={20} />
             </div>
           </a>
           <a
             className="h-[40px] flex items-center justify-between border border-gray-300 dark:border-gray-700 rounded-md p-2 cursor-pointer"
-            onClick={() => handleForceCenterChange(!detrend)}
+            onClick={() => handleForceCenterChange(!isForceCenter)}
           >
             <div>Force Center</div>
             <div className="flex">
-              <Switch checked={detrend} onChange={(e) => handleForceCenterChange(e.target.checked)} />
+              <Switch checked={isForceCenter} onChange={(e) => handleForceCenterChange(e.target.checked)} />
             </div>
           </a>
         </div>
       );
     }
   }, [
-    channelId,
-    channelList,
-    detrend,
+    selectedHelicorderChannel,
+    selectedSeismogramChannels,
+    isForceCenter,
     helicorderFilter,
-    selectionWindow,
+    selectedSelectionWindow,
     view,
     channels,
     getHelicorderFilterOptions,
@@ -403,9 +426,9 @@ const PickerSettings: React.FC = () => {
     <Dialog open={pickerSettingsOpen} onOpenChange={(_, data) => handleOpenChange(data.open)}>
       <DialogSurface className={styles.dialogSurface}>
         {loading && <ProgressBar shape="square" />}
-        {view !== 'default' && (
+        {view !== ViewType.HOME && (
           <div className="mt-2">
-            <Button appearance="transparent" icon={<ArrowLeftRegular />} onClick={() => setView('default')}>
+            <Button appearance="transparent" icon={<ArrowLeftRegular />} onClick={() => setView(ViewType.HOME)}>
               Back
             </Button>
           </div>
