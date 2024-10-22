@@ -1,11 +1,10 @@
 import { StateCreator } from 'zustand';
-import { ONE_MINUTE } from '../../../shared/time';
 import { useInventoryStore } from '../../inventory';
 import { PickerStore, SeismogramSlice } from '../slices';
+import { getDefaultSeismogramExtent } from '../../../shared/common';
 
 export const createSeismogramSlice: StateCreator<PickerStore, [], [], SeismogramSlice> = (set, get) => {
-  const end = Date.now();
-  const start = end - 5 * ONE_MINUTE;
+  const [start, end] = getDefaultSeismogramExtent();
 
   return {
     lastSeismogramExtent: [start, end],

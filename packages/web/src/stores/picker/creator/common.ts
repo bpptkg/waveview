@@ -9,6 +9,7 @@ import { useInventoryStore } from '../../inventory';
 import { useOrganizationStore } from '../../organization';
 import { useVolcanoStore } from '../../volcano/useVolcanoStore';
 import { ChannelConfig, CommonSlice, PickerStore } from '../slices';
+import { getDefaultSeismogramExtent } from '../../../shared/common';
 
 const extractFilterOptions = (item: FilterOptions): FilterOperationOptions => {
   if (item.type === 'bandpass') {
@@ -214,10 +215,63 @@ export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> =
       const seismogramFilters = pickerConfig?.data.seismogram_filters ?? [];
       return seismogramFilters.map(extractFilterOptions);
     },
+
     getHelicorderFilterOptions: () => {
       const { pickerConfig } = get();
       const helicorderFilters = pickerConfig?.data.helicorder_filters ?? [];
       return helicorderFilters.map(extractFilterOptions);
+    },
+
+    resetPickerState: () => {
+      const [start, end] = getDefaultSeismogramExtent();
+      set({
+        // common
+        selectedChart: 'helicorder',
+        showEvent: true,
+        pickerConfig: null,
+        eventMarkers: [],
+        pickerSettingsOpen: false,
+        forceCenter: true,
+        loading: false,
+
+        // helicorder
+        channelId: '',
+        helicorderDuration: 12,
+        helicorderInterval: 30,
+        offsetDate: Date.now(),
+        selectionWindow: undefined,
+        lastSelection: 0,
+        windowSize: 5,
+        autoUpdate: true,
+        autoUpdateInterval: 60,
+        helicorderToolbarCheckedValues: {
+          options: [],
+        },
+        helicorderFilter: null,
+
+        // pick
+        pickRange: [0, 0],
+        pickMode: true,
+        eventId: undefined,
+        time: 0,
+        duration: 0,
+        eventTypeId: '',
+        stationOfFirstArrivalId: '',
+        note: '',
+        attachments: [],
+        amplitudes: [],
+        editedEvent: null,
+        isCalculatingAmplitudes: false,
+
+        // seismogram
+        lastSeismogramExtent: [start, end],
+        seismogramToolbarCheckedValues: {
+          options: ['signal'],
+        },
+        isExpandMode: false,
+        expandedChannelIndex: -1,
+        selectedChannels: [],
+      });
     },
   };
 };

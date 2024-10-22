@@ -24,20 +24,30 @@ const filterStore = create<FilterStore>((set, get) => {
     },
     taperType: 'hann',
     taperWidth: 1,
+
     setFilterType: (filterType) => set({ filterType }),
+
     setBandpass: (bandpass) => set({ bandpass }),
+
     setLowpass: (lowpass) => set({ lowpass }),
+
     setHighpass: (highpass) => set({ highpass }),
+
     clearFilter: () => set({ filterType: 'none' }),
+
     setTaperType: (taperType) => set({ taperType }),
+
     setTaperWidth: (taperWidth) => set({ taperWidth }),
+
     setAppliedFilter: (filter) => set({ appliedFilter: filter }),
+
     buildFilterOptions: () => {
       const { filterType, bandpass, lowpass, highpass, taperType, taperWidth } = get();
-      const taperPercent = taperWidth / 100;
+      const taperPercent = taperWidth / 100; // Convert to percentage
       switch (filterType) {
         case 'bandpass':
           return {
+            id: 'bandpass',
             filterType,
             filterOptions: bandpass,
             taperType,
@@ -45,6 +55,7 @@ const filterStore = create<FilterStore>((set, get) => {
           };
         case 'lowpass':
           return {
+            id: 'lowpass',
             filterType,
             filterOptions: lowpass,
             taperType,
@@ -52,6 +63,7 @@ const filterStore = create<FilterStore>((set, get) => {
           };
         case 'highpass':
           return {
+            id: 'highpass',
             filterType,
             filterOptions: highpass,
             taperType,
@@ -60,6 +72,31 @@ const filterStore = create<FilterStore>((set, get) => {
         default:
           return null;
       }
+    },
+
+    resetFilterState: () => {
+      set({
+        appliedFilter: null,
+        filterType: 'bandpass',
+        bandpass: {
+          freqmin: 0.1,
+          freqmax: 15,
+          order: 4,
+          zerophase: false,
+        },
+        lowpass: {
+          freq: 15,
+          order: 4,
+          zerophase: false,
+        },
+        highpass: {
+          freq: 15,
+          order: 4,
+          zerophase: false,
+        },
+        taperType: 'hann',
+        taperWidth: 1,
+      });
     },
   };
 });

@@ -29,7 +29,9 @@ import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../../stores/app';
 import { useAuthStore } from '../../stores/auth';
+import { useFilterStore } from '../../stores/filter';
 import { useOrganizationStore } from '../../stores/organization';
+import { usePickerStore } from '../../stores/picker';
 import { useUserStore } from '../../stores/user';
 import LanguageSelector from './LanguageSelector';
 import ThemeSelector from './ThemeSelector';
@@ -46,11 +48,12 @@ const useAccountStyles = makeStyles({
 type View = 'default' | 'theme' | 'language' | 'timezone';
 
 const Account = () => {
+  const styles = useAccountStyles();
   const navigate = useNavigate();
   const { user } = useUserStore();
   const { currentLanguage, theme, timeZone, useUTC } = useAppStore();
   const { currentOrganization } = useOrganizationStore();
-  const styles = useAccountStyles();
+
   const [open, setOpen] = useState(false);
   const handleOpenChange: PopoverProps['onOpenChange'] = (_, data) => {
     setOpen(data.open || false);
@@ -67,9 +70,13 @@ const Account = () => {
   const toasterId = useId('account');
   const { dispatchToast } = useToastController(toasterId);
 
+  const { resetPickerState } = usePickerStore();
+  const { resetFilterState } = useFilterStore();
   const handleLogout = useCallback(() => {
     blacklistToken()
       .then(() => {
+        resetPickerState();
+        resetFilterState();
         navigate('/login');
       })
       .catch(() => {
@@ -80,7 +87,7 @@ const Account = () => {
           { intent: 'error' }
         );
       });
-  }, [blacklistToken, dispatchToast, navigate]);
+  }, [blacklistToken, dispatchToast, navigate, resetPickerState, resetFilterState]);
 
   const renderView = () => {
     switch (view) {

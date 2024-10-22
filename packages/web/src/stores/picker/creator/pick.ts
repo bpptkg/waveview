@@ -34,39 +34,48 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
     amplitudes: [],
     editedEvent: null,
     isCalculatingAmplitudes: false,
+
     setTime: (time) => {
       const pickStart = time;
       const pickEnd = pickStart + get().duration * ONE_SECOND;
       set({ time, pickRange: [pickStart, pickEnd] });
     },
+
     setDuration: (duration) => {
       const { time } = get();
       const pickStart = time;
       const pickEnd = pickStart + duration * ONE_SECOND;
       set({ duration, pickRange: [pickStart, pickEnd] });
     },
+
     setPickMode: (isActive) => {
       set({ pickMode: isActive });
     },
+
     setEventTypeId: (eventTypeId) => {
       set({ eventTypeId });
     },
+
     setStationOfFirstArrivalId: (stationId) => {
       set({ stationOfFirstArrivalId: stationId });
     },
+
     setNote: (note) => {
       set({ note });
     },
+
     addAttachment: (attachment) => {
       set((state) => {
         return { attachments: [...state.attachments, attachment] };
       });
     },
+
     removeAttachment: (attachmentId) => {
       set((state) => {
         return { attachments: state.attachments.filter((attachment) => attachment.id !== attachmentId) };
       });
     },
+
     resetEditing: () => {
       set({
         eventId: undefined,
@@ -81,6 +90,7 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
         editedEvent: null,
       });
     },
+
     setEditedEvent: (editedEvent) => {
       const { getChannelById } = useInventoryStore.getState();
       const { pickerConfig } = get();
@@ -143,20 +153,24 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
         }
       }
     },
+
     isPickEmpty: () => {
       const { pickRange } = get();
       const [pickStart, pickEnd] = pickRange;
       return pickStart === 0 && pickEnd === 0;
     },
+
     clearPick: () => {
       set({ pickRange: [0, 0] });
     },
+
     setPickRange: (range) => {
       const [pickStart, pickEnd] = range;
       let duration = (pickEnd - pickStart) / ONE_SECOND;
       duration = parseFloat(duration.toFixed(2));
       set({ pickRange: [pickStart, pickEnd], time: pickStart, duration });
     },
+
     savePickedEvent: async () => {
       const { currentOrganization } = useOrganizationStore.getState();
       if (!currentOrganization) {
@@ -242,6 +256,7 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
 
       return eventDetail;
     },
+
     fetchEditedEvent: async (eventId) => {
       const { currentOrganization } = useOrganizationStore.getState();
       if (!currentOrganization) {
@@ -264,6 +279,7 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
       }
       return await response.json();
     },
+
     deleteEvent: async (eventId) => {
       const { currentOrganization } = useOrganizationStore.getState();
       if (!currentOrganization) {
@@ -285,6 +301,7 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
         throw CustomError.fromErrorData(err);
       }
     },
+
     calcSignalAmplitudes: async () => {
       const { currentOrganization } = useOrganizationStore.getState();
       if (!currentOrganization) {

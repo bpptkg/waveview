@@ -102,4 +102,8 @@ export interface CommonSlice {
    * Set the loading state of the picker.
    */
   setLoading: (loading: boolean) => void;
+  /**
+   * Reset the picker state.
+   */
+  resetPickerState: () => void;
 }

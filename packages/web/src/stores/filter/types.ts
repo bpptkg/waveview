@@ -17,4 +17,5 @@ export interface FilterStore {
   setTaperWidth: (taperWidth: number) => void;
   setAppliedFilter: (filter: FilterOperationOptions | null) => void;
   buildFilterOptions: () => FilterOperationOptions | null;
+  resetFilterState: () => void;
 }
