@@ -277,9 +277,31 @@ export function useHelicorderCallback() {
       windowSize,
       selectionWindow,
       scaling,
+      markers: eventMarkers.map((event) => {
+        const [start, end] = getPickExtent(event);
+        return {
+          start,
+          end,
+          color: getEventTypeColor(event.type, darkMode),
+          eventType: event.type.code,
+          data: event,
+        };
+      }),
     };
     return initOptions;
-  }, [helicorderDuration, helicorderInterval, channelId, darkMode, offsetDate, useUTC, event, windowSize, selectionWindow, getHelicorderScalingType]);
+  }, [
+    helicorderDuration,
+    helicorderInterval,
+    channelId,
+    darkMode,
+    offsetDate,
+    useUTC,
+    event,
+    windowSize,
+    selectionWindow,
+    eventMarkers,
+    getHelicorderScalingType,
+  ]);
 
   return {
     getHelicorderInitOptions,

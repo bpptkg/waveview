@@ -119,6 +119,11 @@ export class Helicorder extends ChartView<HelicorderOptions> {
     this.axisPointer = new AxisPointerView(this.topXAxis, this);
     this.axisPointer.attachEventListeners();
     this.addComponent(this.axisPointer);
+
+    const { markers } = opts;
+    if (markers) {
+      this.addEventMarkers(markers);
+    }
   }
 
   setChannel(channel: Channel): void {
