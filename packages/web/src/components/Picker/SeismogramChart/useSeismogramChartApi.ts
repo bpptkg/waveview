@@ -9,7 +9,7 @@ export interface SeismogramChartInitOptions {
   webWorkerRef: MutableRefObject<SeismogramWebWorker | null>;
 }
 
-export default function useSeismogramChartApi(options: SeismogramChartInitOptions): SeismogramChartRef {
+export function useSeismogramChartApi(options: SeismogramChartInitOptions): SeismogramChartRef {
   const { chartRef, webWorkerRef } = options;
 
   const fetchData = useCallback(() => {

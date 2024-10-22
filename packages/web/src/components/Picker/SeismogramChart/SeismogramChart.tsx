@@ -5,7 +5,7 @@ import { debounce } from '../../../shared/debounce';
 import { getJwtToken } from '../../../stores/auth/utils';
 import { SeismogramChartProps, SeismogramChartRef } from './SeismogramChart.types';
 import { SeismogramWebWorker } from './SeismogramWebWorker';
-import useSeismogramChartApi from './useSeismogramChartApi';
+import { useSeismogramChartApi } from './useSeismogramChartApi';
 
 export type SeismogramChartType = React.ForwardRefExoticComponent<SeismogramChartProps & React.RefAttributes<SeismogramChartRef>>;
 
@@ -157,9 +157,22 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
     }, 100);
 
     return () => {
-      chartRef.current?.dispose();
-      workerRef.current?.terminate();
-      resizeObserverRef.current?.disconnect();
+      if (chartRef.current) {
+        chartRef.current.dispose();
+        chartRef.current = null;
+      }
+      if (workerRef.current) {
+        workerRef.current.terminate();
+        workerRef.current = null;
+      }
+      if (webWorkerRef.current) {
+        webWorkerRef.current.dispose();
+        webWorkerRef.current = null;
+      }
+      if (resizeObserverRef.current) {
+        resizeObserverRef.current.disconnect();
+        resizeObserverRef.current = null;
+      }
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

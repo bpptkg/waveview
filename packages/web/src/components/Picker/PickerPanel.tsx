@@ -1,4 +1,4 @@
-import { ElementEvent, SeismogramEventMarkerOptions } from '@waveview/zcharts';
+import { ElementEvent, Helicorder, SeismogramEventMarkerOptions } from '@waveview/zcharts';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { useFilterStore } from '../../stores/filter';
@@ -88,11 +88,7 @@ const PickerPanel = () => {
     return selectedChart === 'seismogram' ? 'border border-brand-hosts-80' : 'border border-transparent';
   }, [selectedChart]);
 
-  // Set refs on mount
   useEffect(() => {
-    setSeisChartRef(seisChartRef.current);
-    setHeliChartRef(heliChartRef.current);
-
     return () => {
       setSeisChartRef(null);
       setHeliChartRef(null);
@@ -131,6 +127,19 @@ const PickerPanel = () => {
 
   const { appliedFilter } = useFilterStore();
 
+  const onHelicorderReady = useCallback(
+    (chart: Helicorder) => {
+      handleHelicorderOnReady(chart);
+      setHeliChartRef(heliChartRef.current);
+    },
+    [handleHelicorderOnReady, setHeliChartRef]
+  );
+
+  const onSeismogramReady = useCallback(() => {
+    handleSeismogramOnReady();
+    setSeisChartRef(seisChartRef.current);
+  }, [handleSeismogramOnReady, setSeisChartRef]);
+
   return (
     <div className="flex-grow relative flex mt-1 border-t dark:border-t-gray-800 dark:border-transparent">
       <PanelGroup direction="horizontal" className="relative">
@@ -162,8 +171,8 @@ const PickerPanel = () => {
                     onFocus={handleHelicorderFocus}
                     onSelectionChange={handleHelicorderSelectionChange}
                     onEventMarkerClick={handleHelicorderEventMarkerClick}
-                    onReady={handleHelicorderOnReady}
                     onLoading={handleHelicorderOnLoading}
+                    onReady={onHelicorderReady}
                   />
                 </div>
               </div>
@@ -204,10 +213,10 @@ const PickerPanel = () => {
                 onExtentChange={handleSeismogramExtentChange}
                 onMouseWheel={handleSeismogramMouseWheel}
                 onPick={handleSeismogramPickChange}
-                onReady={handleSeismogramOnReady}
                 onEventMarkerContextMenu={handleEventMarkerContextMenu}
                 onTrackContextMenu={handleTrackContextMenu}
                 onTrackDoubleClick={handleSeismogramTrackDoubleClick}
+                onReady={onSeismogramReady}
               />
               <RestoreViewButton />
               <EventMarkerContextMenu ref={eventMarkerContextMenuRef} />

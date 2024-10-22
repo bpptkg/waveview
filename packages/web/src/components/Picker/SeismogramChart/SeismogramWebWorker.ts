@@ -304,6 +304,8 @@ export class SeismogramWebWorker {
     this.filterRequests.set(requestId, Date.now());
   }
 
+  dispose(): void {}
+
   private onMessage(event: MessageEvent<WorkerResponseData<unknown>>): void {
     const { type, payload } = event.data;
 
