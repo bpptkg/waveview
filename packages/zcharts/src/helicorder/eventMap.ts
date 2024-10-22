@@ -9,7 +9,7 @@ export interface HelicorderEventMap extends EventMap {
   /**
    * Fired when the offset date changes.
    */
-  offsetChanged: (offset: number) => void;
+  offsetDateChanged: (offset: number) => void;
   /**
    * Fired when the amplitude range changes.
    */

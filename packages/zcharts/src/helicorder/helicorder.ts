@@ -139,7 +139,7 @@ export class Helicorder extends ChartView<HelicorderOptions> {
   setOffsetDate(date: number): void {
     this.model.mergeOptions({ offsetDate: date });
     this.trackManager.updateTracks();
-    this.emit("offsetChanged", date);
+    this.emit("offsetDateChanged", date);
   }
 
   setInterval(interval: number): void {
