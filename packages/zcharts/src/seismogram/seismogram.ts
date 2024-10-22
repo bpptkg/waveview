@@ -130,6 +130,11 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     }
     this.offscreenSignal = new OffscreenSignalView(this);
     this.addComponent(this.offscreenSignal);
+
+    const { markers } = opts;
+    if (markers) {
+      this.addEventMarkers(markers);
+    }
   }
 
   setChannels(channels: Channel[]): void {
