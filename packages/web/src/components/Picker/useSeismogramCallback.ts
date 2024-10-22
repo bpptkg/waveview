@@ -1,5 +1,6 @@
 import { ElementEvent, SeismogramOptions } from '@waveview/zcharts';
 import { useCallback } from 'react';
+import { getEventTypeColor } from '../../shared/theme';
 import { getPickExtent, ONE_SECOND } from '../../shared/time';
 import { useAppStore } from '../../stores/app';
 import { useFilterStore } from '../../stores/filter';
@@ -14,6 +15,7 @@ export const useSeismogramCallback = () => {
   const {
     lastSeismogramExtent,
     isExpandMode,
+    eventMarkers,
     calcSignalAmplitudes,
     clearPick,
     getChannelsConfig,
@@ -295,9 +297,19 @@ export const useSeismogramCallback = () => {
       scaling,
       showSpecrogram: isShowSpecrogram(),
       useOffscrrenRendering: true,
+      markers: eventMarkers.map((event) => {
+        const [start, end] = getPickExtent(event);
+        return {
+          start,
+          end,
+          color: getEventTypeColor(event.type, darkMode),
+          eventType: event.type.code,
+          data: event,
+        };
+      }),
     };
     return initOptions;
-  }, [darkMode, useUTC, event, lastSeismogramExtent, getChannelsConfig, getSeismogramScalingType, isShowSpecrogram]);
+  }, [darkMode, useUTC, event, lastSeismogramExtent, eventMarkers, getChannelsConfig, getSeismogramScalingType, isShowSpecrogram]);
 
   const handleSeismogramScalingChange = useCallback(
     (scaling: ScalingType) => {
