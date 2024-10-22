@@ -1,4 +1,4 @@
-import { ElementEvent, Helicorder, SeismogramEventMarkerOptions } from '@waveview/zcharts';
+import { ElementEvent, SeismogramEventMarkerOptions } from '@waveview/zcharts';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { useFilterStore } from '../../stores/filter';
@@ -89,6 +89,9 @@ const PickerPanel = () => {
   }, [selectedChart]);
 
   useEffect(() => {
+    setHeliChartRef(heliChartRef.current);
+    setSeisChartRef(seisChartRef.current);
+
     return () => {
       setSeisChartRef(null);
       setHeliChartRef(null);
@@ -127,19 +130,6 @@ const PickerPanel = () => {
 
   const { appliedFilter } = useFilterStore();
 
-  const onHelicorderReady = useCallback(
-    (chart: Helicorder) => {
-      handleHelicorderOnReady(chart);
-      setHeliChartRef(heliChartRef.current);
-    },
-    [handleHelicorderOnReady, setHeliChartRef]
-  );
-
-  const onSeismogramReady = useCallback(() => {
-    handleSeismogramOnReady();
-    setSeisChartRef(seisChartRef.current);
-  }, [handleSeismogramOnReady, setSeisChartRef]);
-
   return (
     <div className="flex-grow relative flex mt-1 border-t dark:border-t-gray-800 dark:border-transparent">
       <PanelGroup direction="horizontal" className="relative">
@@ -172,7 +162,7 @@ const PickerPanel = () => {
                     onSelectionChange={handleHelicorderSelectionChange}
                     onEventMarkerClick={handleHelicorderEventMarkerClick}
                     onLoading={handleHelicorderOnLoading}
-                    onReady={onHelicorderReady}
+                    onReady={handleHelicorderOnReady}
                   />
                 </div>
               </div>
@@ -216,7 +206,7 @@ const PickerPanel = () => {
                 onEventMarkerContextMenu={handleEventMarkerContextMenu}
                 onTrackContextMenu={handleTrackContextMenu}
                 onTrackDoubleClick={handleSeismogramTrackDoubleClick}
-                onReady={onSeismogramReady}
+                onReady={handleSeismogramOnReady}
               />
               <RestoreViewButton />
               <EventMarkerContextMenu ref={eventMarkerContextMenuRef} />
