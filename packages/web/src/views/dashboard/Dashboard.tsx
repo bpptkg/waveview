@@ -1,6 +1,6 @@
 import { Button, Spinner } from '@fluentui/react-components';
 import { ArrowClockwise20Regular, ChatHelp24Regular, CursorHover24Regular, Folder24Regular, Molecule24Regular } from '@fluentui/react-icons';
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { AppBar, AppBarTab } from '../../components/AppBar';
 import Header from '../../components/Header/Header';
@@ -21,7 +21,7 @@ const CatalogIcon = Folder24Regular;
 const HelpIcon = ChatHelp24Regular;
 const StatusIcon = Molecule24Regular;
 
-const Dashboard = () => {
+const Dashboard: React.FC = () => {
   const { org, volcano } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,41 +29,25 @@ const Dashboard = () => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { currentOrganization, fetchAllOrganizations } = useOrganizationStore();
-  const { inventory, fetchInventory } = useInventoryStore();
-  const { user, fetchUser } = useUserStore();
-  const { pickerConfig, fetchPickerConfig } = usePickerStore();
-  const { eventTypes, fetchEventTypes } = useEventTypeStore();
-  const { currentVolcano, fetchAllVolcanoes } = useVolcanoStore();
-  const { currentCatalog, fetchAllCatalogs } = useCatalogStore();
-  const { allFallDirections, fetchAllFallDirections } = useFallDirectionStore();
+  const { fetchAllOrganizations } = useOrganizationStore();
+  const { fetchInventory } = useInventoryStore();
+  const { fetchUser } = useUserStore();
+  const { fetchPickerConfig } = usePickerStore();
+  const { fetchEventTypes } = useEventTypeStore();
+  const { fetchAllVolcanoes } = useVolcanoStore();
+  const { fetchAllCatalogs } = useCatalogStore();
+  const { fetchAllFallDirections } = useFallDirectionStore();
 
   useMount(() => {
     const initializeApp = async () => {
-      if (!currentOrganization) {
-        await fetchAllOrganizations(org);
-      }
-      if (!currentVolcano) {
-        await fetchAllVolcanoes(volcano);
-      }
-      if (!inventory) {
-        await fetchInventory();
-      }
-      if (!user) {
-        await fetchUser();
-      }
-      if (!currentCatalog) {
-        await fetchAllCatalogs();
-      }
-      if (eventTypes.length === 0) {
-        await fetchEventTypes();
-      }
-      if (!pickerConfig) {
-        await fetchPickerConfig();
-      }
-      if (allFallDirections.length === 0) {
-        await fetchAllFallDirections();
-      }
+      await fetchAllOrganizations(org);
+      await fetchAllVolcanoes(volcano);
+      await fetchInventory();
+      await fetchUser();
+      await fetchAllCatalogs();
+      await fetchEventTypes();
+      await fetchPickerConfig();
+      await fetchAllFallDirections();
 
       setIsInitialized(true);
     };
@@ -72,6 +56,9 @@ const Dashboard = () => {
       setError(`Failed to initialize app: ${error.message}`);
     });
   });
+
+  const { currentOrganization } = useOrganizationStore();
+  const { currentVolcano } = useVolcanoStore();
 
   const pickerUrl = useMemo(() => {
     return `/${currentOrganization?.slug}/${currentVolcano?.slug}/picker`;
