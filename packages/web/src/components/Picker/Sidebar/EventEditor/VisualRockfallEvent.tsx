@@ -111,7 +111,7 @@ const VisualRockfallEvent = () => {
         </Select>
       </Field>
       <Field label={'Lava Flow'}>
-        <Checkbox label={'Is Lava Flow'} checked={isLavaFlow} onChange={() => setIsLavaFlow(!isLavaFlow)} />
+        <Checkbox label={'Is Incandescent Lava'} checked={isLavaFlow} onChange={() => setIsLavaFlow(!isLavaFlow)} />
       </Field>
       <Field label={'Event Size'}>
         <Select appearance={appearance} defaultValue={eventSize} onChange={(_, data) => handleEventSizeChange(data.value)}>
