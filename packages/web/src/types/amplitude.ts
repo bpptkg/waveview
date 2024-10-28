@@ -6,6 +6,7 @@ export interface SignalAmplitude {
   category: string;
   time: string;
   duration: number;
+  label: string;
 }
 
 export interface SignalAmplitudePayload {

@@ -115,7 +115,7 @@ const PickEditEvent: React.FC = () => {
         ) : amplitudes.length ? (
           amplitudes.map((amplitude, index) => (
             <div key={index} className="flex flex-wrap items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-800">
-              <div className="text-sm">{amplitude.stream_id}</div>
+              <div className="text-sm">{amplitude.label ?? amplitude.stream_id}</div>
               <div className="text-sm">{formatNumber(amplitude.amplitude, { precision: 2, unit: ` ${amplitude.unit}` })}</div>
             </div>
           ))

@@ -23,6 +23,7 @@ const AmplitudeDetail: React.FC<{ currentAmplitude: Amplitude; useUTC: boolean }
 
   const items = [
     { label: 'ID', value: currentAmplitude.id },
+    { label: 'Type', value: currentAmplitude.type },
     { label: 'Category', value: currentAmplitude.category },
     { label: 'Time', value: formatTime(currentAmplitude.time, { useUTC }) },
     { label: 'Begin', value: formatNumber(currentAmplitude.begin, { unit: ' sec', precision: 2 }) },
@@ -31,6 +32,7 @@ const AmplitudeDetail: React.FC<{ currentAmplitude: Amplitude; useUTC: boolean }
     { label: 'SNR', value: currentAmplitude.snr },
     { label: 'Unit', value: currentAmplitude.unit },
     { label: 'Stream ID', value: getChannelById(currentAmplitude.waveform_id)?.stream_id },
+    { label: 'Label', value: currentAmplitude.label },
     { label: 'Method', value: currentAmplitude.method },
     { label: 'Evaluation Mode', value: currentAmplitude.evaluation_mode },
     { label: 'Is Preferred', value: currentAmplitude.is_preferred ? 'yes' : 'no' },
@@ -121,7 +123,7 @@ const EventDetailAmplitude = () => {
                   <TableHeaderCell>{formatNumber(amplitude.amplitude, { precision: 2 })}</TableHeaderCell>
                   <TableHeaderCell>{amplitude.unit}</TableHeaderCell>
                   <TableHeaderCell>{amplitude.category}</TableHeaderCell>
-                  <TableHeaderCell>{getChannelById(amplitude.waveform_id)?.stream_id}</TableHeaderCell>
+                  <TableHeaderCell>{amplitude.label ?? getChannelById(amplitude.waveform_id)?.stream_id}</TableHeaderCell>
                 </TableRow>
               ))
             ) : (

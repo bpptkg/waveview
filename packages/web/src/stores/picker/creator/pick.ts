@@ -117,6 +117,7 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
               category: amplitude.category,
               time: amplitude.time,
               duration: amplitude.duration,
+              label: amplitude.label,
             } as SignalAmplitude)
         );
 
