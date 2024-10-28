@@ -32,7 +32,7 @@ const AmplitudeDetail: React.FC<{ currentAmplitude: Amplitude; useUTC: boolean }
     { label: 'SNR', value: currentAmplitude.snr },
     { label: 'Unit', value: currentAmplitude.unit },
     { label: 'Stream ID', value: getChannelById(currentAmplitude.waveform_id)?.stream_id },
-    { label: 'Label', value: currentAmplitude.label },
+    { label: 'Label', value: currentAmplitude.label ?? 'none' },
     { label: 'Method', value: currentAmplitude.method },
     { label: 'Evaluation Mode', value: currentAmplitude.evaluation_mode },
     { label: 'Is Preferred', value: currentAmplitude.is_preferred ? 'yes' : 'no' },
