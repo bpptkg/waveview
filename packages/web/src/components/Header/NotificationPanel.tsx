@@ -11,6 +11,7 @@ import {
   ToastBody,
   Toaster,
   ToastTitle,
+  Tooltip,
   useId,
   useToastController,
 } from '@fluentui/react-components';
@@ -188,14 +189,16 @@ const NotificationPanel = () => {
     <>
       <Popover open={open} onOpenChange={handleOpenChange} withArrow>
         <PopoverTrigger disableButtonEnhancement>
-          <div className="relative">
-            <Button size="small" appearance="transparent" icon={<AlertRegular fontSize={20} />} />
-            {unreadCount > 0 && (
-              <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
-                <CounterBadge count={unreadCount} size="small" appearance="filled" color="danger" />
-              </div>
-            )}
-          </div>
+          <Tooltip content={'Notifications'} relationship="label" showDelay={1500}>
+            <div className="relative">
+              <Button size="small" appearance="transparent" icon={<AlertRegular fontSize={20} />} />
+              {unreadCount > 0 && (
+                <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
+                  <CounterBadge count={unreadCount} size="small" appearance="filled" color="danger" />
+                </div>
+              )}
+            </div>
+          </Tooltip>
         </PopoverTrigger>
 
         <PopoverSurface tabIndex={-1} className={styles.popoverSurface}>
