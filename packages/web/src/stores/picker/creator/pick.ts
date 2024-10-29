@@ -34,6 +34,7 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
     amplitudes: [],
     editedEvent: null,
     isCalculatingAmplitudes: false,
+    useMedianFilter: false,
 
     setTime: (time) => {
       const pickStart = time;
@@ -312,10 +313,11 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
       if (!currentVolcano) {
         throw new CustomError('Volcano is not set');
       }
-      const { time, duration, isCalculatingAmplitudes } = get();
+      const { time, duration, isCalculatingAmplitudes, useMedianFilter } = get();
       const payload: SignalAmplitudePayload = {
         time: new Date(time).toISOString(),
         duration: duration,
+        use_median_filter: useMedianFilter,
       };
       if (isCalculatingAmplitudes) {
         return;
@@ -335,6 +337,10 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
       } finally {
         set({ isCalculatingAmplitudes: false });
       }
+    },
+
+    setUseMedianFilter: (useMedianFilter) => {
+      set({ useMedianFilter });
     },
   };
 };

@@ -12,4 +12,5 @@ export interface SignalAmplitude {
 export interface SignalAmplitudePayload {
   time: string;
   duration: number;
+  use_median_filter: boolean;
 }

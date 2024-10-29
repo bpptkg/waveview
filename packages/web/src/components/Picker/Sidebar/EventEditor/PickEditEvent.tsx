@@ -1,4 +1,4 @@
-import { Dropdown, Field, Input, makeStyles, Option, Spinner, Textarea } from '@fluentui/react-components';
+import { Dropdown, Field, Input, makeStyles, Option, Spinner, Switch, Textarea } from '@fluentui/react-components';
 import { CircleFilled } from '@fluentui/react-icons';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { formatNumber, formatTime } from '../../../../shared/formatting';
@@ -23,22 +23,25 @@ const useStyles = makeStyles({
 
 const PickEditEvent: React.FC = () => {
   const {
-    eventId,
-    time,
+    amplitudes,
     duration,
-    stationOfFirstArrivalId,
+    editedEvent,
+    eventId,
     eventTypeId,
+    isCalculatingAmplitudes,
     note,
     pickRange,
-    editedEvent,
-    amplitudes,
-    isCalculatingAmplitudes,
+    stationOfFirstArrivalId,
+    time,
+    useMedianFilter,
+    calcSignalAmplitudes,
     getSelectedStations,
-    setTime,
     setDuration,
     setEventTypeId,
-    setStationOfFirstArrivalId,
     setNote,
+    setStationOfFirstArrivalId,
+    setTime,
+    setUseMedianFilter,
   } = usePickerStore();
   const { eventTypes } = useEventTypeStore();
   const { useUTC, darkMode } = useAppStore();
@@ -95,6 +98,14 @@ const PickEditEvent: React.FC = () => {
     [setNote]
   );
 
+  const handleMedianFilterChange = useCallback(
+    (value: boolean) => {
+      setUseMedianFilter(value);
+      calcSignalAmplitudes();
+    },
+    [setUseMedianFilter, calcSignalAmplitudes]
+  );
+
   return (
     <div className="p-2">
       <div className="h-[32px] font-semibold">{eventId ? 'Edit Event' : 'Pick New Event'}</div>
@@ -108,6 +119,7 @@ const PickEditEvent: React.FC = () => {
       </Field>
 
       <Field label="Amplitudes">
+        <Switch label="Use Median Filter" checked={useMedianFilter} onChange={(_, data) => handleMedianFilterChange(data.checked)} />
         {isCalculatingAmplitudes ? (
           <div className="flex justify-start py-2">
             <Spinner label={<span className="text-md">Calculating amplitudes...</span>} size="extra-tiny" />
