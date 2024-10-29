@@ -1,3 +1,5 @@
+import { BUILD_VENDOR } from '../../config/envs';
+import AppLauncher from '../Cendana15/AppLauncher';
 import OrganizationPicker from '../Organization/OrganizationPicker';
 import VolcanoPicker from '../Volcano/VolcanoPicker';
 import Account from './Account';
@@ -26,6 +28,7 @@ const Header = () => {
       </div>
 
       <div className="flex items-center gap-3">
+        {BUILD_VENDOR === 'cendana15' && <AppLauncher />}
         <OfflineIndicator />
         <NotificationPanel />
         <Account />
