@@ -46,7 +46,7 @@ const AppLauncher: React.FC = () => {
           </div>
           <a
             href="https://cendana15.com"
-            className="flex items-center justify-center p-3 bg-neutral-grey-98 dark:bg-neutral-grey-12 rounded-2xl cursor-pointer"
+            className="flex items-center justify-center p-3 bg-neutral-grey-96 dark:bg-neutral-grey-12 rounded-2xl cursor-pointer"
           >
             More from Cendana15
           </a>
