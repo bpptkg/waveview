@@ -28,8 +28,8 @@ const Header = () => {
       </div>
 
       <div className="flex items-center gap-3">
-        {BUILD_VENDOR === 'cendana15' && <AppLauncher />}
         <OfflineIndicator />
+        {BUILD_VENDOR === 'cendana15' && <AppLauncher />}
         <NotificationPanel />
         <Account />
       </div>
