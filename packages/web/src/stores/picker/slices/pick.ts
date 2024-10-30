@@ -14,7 +14,7 @@ export interface PickSlice {
   amplitudes: SignalAmplitude[];
   editedEvent: SeismicEventDetail | null;
   isCalculatingAmplitudes: boolean;
-  useMedianFilter: boolean;
+  useOutlierFilter: boolean;
   setTime: (time: number) => void;
   setDuration: (duration: number) => void;
   setEventTypeId: (eventTypeId: string) => void;
@@ -32,5 +32,5 @@ export interface PickSlice {
   fetchEditedEvent: (eventId: string) => Promise<SeismicEventDetail>;
   deleteEvent: (eventId: string) => Promise<void>;
   calcSignalAmplitudes(): Promise<void>;
-  setUseMedianFilter: (useMedianFilter: boolean) => void;
+  setUseOutlierFilter: (useOutlierFilter: boolean) => void;
 }

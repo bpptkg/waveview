@@ -33,7 +33,7 @@ const PickEditEvent: React.FC = () => {
     pickRange,
     stationOfFirstArrivalId,
     time,
-    useMedianFilter,
+    useOutlierFilter,
     calcSignalAmplitudes,
     getSelectedStations,
     setDuration,
@@ -41,7 +41,7 @@ const PickEditEvent: React.FC = () => {
     setNote,
     setStationOfFirstArrivalId,
     setTime,
-    setUseMedianFilter,
+    setUseOutlierFilter,
   } = usePickerStore();
   const { eventTypes } = useEventTypeStore();
   const { useUTC, darkMode } = useAppStore();
@@ -98,12 +98,12 @@ const PickEditEvent: React.FC = () => {
     [setNote]
   );
 
-  const handleMedianFilterChange = useCallback(
+  const handleOutlierFilterChange = useCallback(
     (value: boolean) => {
-      setUseMedianFilter(value);
+      setUseOutlierFilter(value);
       calcSignalAmplitudes();
     },
-    [setUseMedianFilter, calcSignalAmplitudes]
+    [setUseOutlierFilter, calcSignalAmplitudes]
   );
 
   return (
@@ -119,7 +119,7 @@ const PickEditEvent: React.FC = () => {
       </Field>
 
       <Field label="Amplitudes">
-        <Switch label="Use Median Filter" checked={useMedianFilter} onChange={(_, data) => handleMedianFilterChange(data.checked)} />
+        <Switch label="Use Outlier Filter" checked={useOutlierFilter} onChange={(_, data) => handleOutlierFilterChange(data.checked)} />
         {isCalculatingAmplitudes ? (
           <div className="flex justify-start py-2">
             <Spinner label={<span className="text-md">Calculating amplitudes...</span>} size="extra-tiny" />
