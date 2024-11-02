@@ -16,8 +16,6 @@ WORKDIR /app/packages/web
 
 RUN . ~/.shrc && pnpm build
 
-RUN . ~/.shrc && pnpm install -g serve
-
 EXPOSE 5333
 
-CMD ["serve", "-s", "dist", "-l", "5333"]
+CMD ["npx", "serve", "-s", "dist", "-l", "5333"]
