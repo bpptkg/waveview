@@ -5,7 +5,7 @@ import { TabValue } from './AppBarTab/AppBarTab.types';
 import { useAppBarStyles } from './useAppBarStyles';
 
 export const useAppBar = (props: AppBarProps, ref: React.Ref<HTMLElement>): AppBarState => {
-  const { vertical = true, selectedValue = 0, as = 'nav', children } = props;
+  const { vertical = true, selectedValue = '0', as = 'nav', children } = props;
 
   const styles = useAppBarStyles();
 

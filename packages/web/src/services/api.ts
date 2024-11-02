@@ -59,7 +59,7 @@ const constructUrl = (baseUrl: string, url: string, params?: Record<string, stri
 export const api = async (url: string, options: APIOptions = {}): Promise<Response> => {
   let attempts = 0;
 
-  const tryFetch = async () => {
+  const tryFetch = async (): Promise<Response> => {
     const { method = 'GET', body, params } = options;
 
     const token = getJwtToken();
