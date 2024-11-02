@@ -5,3 +5,6 @@ services:
       - "5333:5333"
     environment:
       - NODE_ENV=production
+      - VITE_API_URL=http://veps-api.cendana15.com
+      - VITE_WS_URL=ws://veps-api.cendana15.com
+      - VITE_BUILD_VENDOR=cendana15
