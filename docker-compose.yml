@@ -5,8 +5,3 @@ services:
       - "5333:5333"
     environment:
       - NODE_ENV=production
-
-networks:
-  default:
-    external:
-      name: waveview-network
