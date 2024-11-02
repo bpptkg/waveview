@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  waveview:
+    build: .
+    ports:
+      - "5333:5333"
+    environment:
+      - NODE_ENV=production
