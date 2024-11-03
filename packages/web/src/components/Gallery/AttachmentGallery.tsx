@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { media } from '../../shared/media';
 import { Attachment } from '../../types/event';
 
 export interface AttachmentGalleryProps {
@@ -20,7 +21,7 @@ const AttachmentGallery: React.FC<AttachmentGalleryProps> = (props) => {
     <div className="flex flex-row flex-wrap gap-1">
       {items.map((attachment) => (
         <a key={attachment.id} href={attachment.file} target="_blank">
-          <img src={attachment.thumbnail} alt={attachment.name} className="w-[80px] h-[80px] object-cover" />
+          <img src={media(attachment.thumbnail)} alt={attachment.name} className="w-[80px] h-[80px] object-cover" />
         </a>
       ))}
       {maxShown && attachments.length > maxShown && (

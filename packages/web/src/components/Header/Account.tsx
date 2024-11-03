@@ -27,6 +27,7 @@ import {
 } from '@fluentui/react-icons';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { media } from '../../shared/media';
 import { useAppStore } from '../../stores/app';
 import { useAuthStore } from '../../stores/auth';
 import { useFilterStore } from '../../stores/filter';
@@ -101,7 +102,7 @@ const Account = () => {
         return (
           <MenuList>
             <div className="flex items-center gap-2 mb-3">
-              <Avatar size={48} color="colorful" name={user?.name ?? user?.username} image={{ src: user?.avatar }} />
+              <Avatar size={48} color="colorful" name={user?.name ?? user?.username} image={{ src: media(user?.avatar) }} />
               <div className="flex flex-col gap-0">
                 <div className="text-sm font-semibold">{user?.name}</div>
                 <div className="text-sm">@{user?.username}</div>
@@ -176,7 +177,7 @@ const Account = () => {
     <div className="flex items-center justify-center w-[68px]">
       <Popover open={open} onOpenChange={handleOpenChange}>
         <PopoverTrigger disableButtonEnhancement>
-          <Avatar color="colorful" name={user?.name ?? user?.username} image={{ src: user?.avatar }} />
+          <Avatar color="colorful" name={user?.name ?? user?.username} image={{ src: media(user?.avatar) }} />
         </PopoverTrigger>
         <PopoverSurface tabIndex={-1} className={styles.popoverSuface}>
           {renderView()}

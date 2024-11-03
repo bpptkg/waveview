@@ -20,6 +20,7 @@ import React, { useCallback, useState } from 'react';
 import { api, baseUrl } from '../../services/api';
 import apiVersion from '../../services/apiVersion';
 import { humanizeFileSize } from '../../shared/file';
+import { media } from '../../shared/media';
 import { useAuthStore } from '../../stores/auth';
 import { Attachment } from '../../types/event';
 import { MediaType } from '../../types/media';
@@ -282,7 +283,7 @@ const AttachmentUpload: React.FC<AttachmentUploadProps> = ({ initialAttachments 
           <div key={attachment.id} className="flex h-[80px] items-center">
             <div className="w-[80px] h-[80px] flex items-center justify-center">
               {isPreviewable(attachment) ? (
-                <img src={attachment.thumbnail} alt={attachment.name} className="w-[80px] h-[80px] object-cover" />
+                <img src={media(attachment.thumbnail)} alt={attachment.name} className="w-[80px] h-[80px] object-cover" />
               ) : (
                 <DocumentRegular fontSize={40} />
               )}

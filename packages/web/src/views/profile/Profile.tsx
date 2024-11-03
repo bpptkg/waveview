@@ -5,6 +5,7 @@ import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '../../services/api';
 import apiVersion from '../../services/apiVersion';
+import { media } from '../../shared/media';
 import { useUserStore } from '../../stores/user';
 import { CustomError } from '../../types/response';
 import { UserDetail } from '../../types/user';
@@ -218,7 +219,7 @@ const Profile = () => {
 
                 <div className="flex items-center gap-4 relative">
                   <div className="relative">
-                    <Avatar size={128} color="colorful" name={user.name ?? user.username} image={{ src: user.avatar }} />
+                    <Avatar size={128} color="colorful" name={user.name ?? user.username} image={{ src: media(user.avatar) }} />
                     <div className="absolute top-0 right-0 rounded-full bg-blue-600 dark:bg-blue-700">
                       <Tooltip content={'Change avatar'} relationship="label" showDelay={1500}>
                         <Button appearance="transparent" size="medium" icon={<EditRegular color="white" fontSize={16} />} onClick={handleAvatarChange} />

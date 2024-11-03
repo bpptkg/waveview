@@ -6,6 +6,7 @@ import AttachmentGallery from '../../components/Gallery/AttachmentGallery';
 import EventDetailErrorMessage from '../../components/Loading/EventDetailErrorMessage';
 import EventDetailLoadingIndicator from '../../components/Loading/EventDetailLoadingIndicator';
 import { humanizeFileSize } from '../../shared/file';
+import { media } from '../../shared/media';
 import { useEventDetailStore } from '../../stores/eventDetail';
 
 type AttachmentType = 'photo' | 'video' | 'audio' | 'document';
@@ -81,7 +82,7 @@ const EventDetailAttachments = () => {
               <div className="flex flex-col flex-wrap gap-1">
                 {documents.map((attachment) => (
                   <div key={attachment.id} className="flex items-center gap-2">
-                    <a href={attachment.file} target="_blank" className="w-[48px] h-[48px] flex items-center justify-center border rounded-md">
+                    <a href={media(attachment.file)} target="_blank" className="w-[48px] h-[48px] flex items-center justify-center border rounded-md">
                       <AttachRegular fontSize={36} />
                     </a>
                     <div>

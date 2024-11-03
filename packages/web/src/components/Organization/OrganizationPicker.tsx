@@ -1,6 +1,7 @@
 import { Button, Image, makeStyles, MenuButton, MenuItem, MenuList, Popover, PopoverProps, PopoverSurface, PopoverTrigger } from '@fluentui/react-components';
 import { CheckmarkRegular, Dismiss16Regular } from '@fluentui/react-icons';
 import { useCallback, useState } from 'react';
+import { media } from '../../shared/media';
 import { useOrganizationStore } from '../../stores/organization';
 
 const useOrganizationPickerStyles = makeStyles({
@@ -54,7 +55,7 @@ const OrganizationPicker = () => {
                       {org?.avatar && (
                         <div>
                           <div className="w-[24px] h-[24px]">
-                            <Image alt={org.name} src={org.avatar} fit="cover" shape="circular" />
+                            <Image alt={org.name} src={media(org.avatar)} fit="cover" shape="circular" />
                           </div>
                         </div>
                       )}
