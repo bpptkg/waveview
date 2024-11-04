@@ -37,9 +37,12 @@ const refreshToken = async () => {
     gotoLogin();
   }
 
-  const data = (await response.json()) as JwtToken;
-  if (data) {
-    setJwtToken(data);
+  const { access } = (await response.json()) as JwtToken;
+  if (access) {
+    setJwtToken({
+      access,
+      refresh,
+    });
   }
 };
 
@@ -90,6 +93,8 @@ export const api = async (url: string, options: APIOptions = {}): Promise<Respon
 
       return tryFetch();
     }
+
+    attempts = 0;
 
     return response;
   };
