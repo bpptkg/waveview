@@ -2,7 +2,6 @@ import { ElementEvent, Seismogram, SeismogramEventMarkerOptions } from '@wavevie
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { debounce } from '../../../shared/debounce';
-import { getJwtToken } from '../../../stores/auth/utils';
 import { SeismogramChartProps, SeismogramChartRef } from './SeismogramChart.types';
 import { SeismogramWebWorker } from './SeismogramWebWorker';
 import { useSeismogramChartApi } from './useSeismogramChartApi';
@@ -113,11 +112,10 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
       }
 
       chartRef.current = new Seismogram(parentRef.current, initOptions);
-      const token = getJwtToken();
 
       workerRef.current = new Worker(new URL('../../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
-      workerRef.current.postMessage({ type: 'setup', payload: { token } });
       webWorkerRef.current = new SeismogramWebWorker(chartRef.current, workerRef.current);
+      webWorkerRef.current.setup();
       const { startTime, endTime } = initOptions || {};
       if (startTime && endTime) {
         webWorkerRef.current.mergeOptions({ selectionWindow: [startTime, endTime] });

@@ -11,12 +11,18 @@ export interface APIOptions {
   params?: Record<string, any>;
 }
 
-const gotoLogin = () => {
+export const gotoLogin = () => {
   removeJwtToken();
   window.location.href = '/login';
 };
 
-const refreshToken = async () => {
+export interface RefreshTokenOptions {
+  saveToken?: boolean;
+}
+
+export const refreshToken = async (options?: RefreshTokenOptions): Promise<JwtToken> => {
+  const { saveToken = true } = options || {};
+
   const token = getJwtToken();
   if (!token) {
     gotoLogin();
@@ -38,12 +44,13 @@ const refreshToken = async () => {
   }
 
   const { access } = (await response.json()) as JwtToken;
-  if (access) {
+  if (access && saveToken) {
     setJwtToken({
       access,
       refresh,
     });
   }
+  return { access, refresh } as JwtToken;
 };
 
 const isAbsoluteUrl = (url: string): boolean => /^(?:[a-z]+:)?\/\//i.test(url);

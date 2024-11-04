@@ -1,7 +1,10 @@
 import { Series } from '@waveview/ndarray';
 import { Seismogram, SpectrogramData } from '@waveview/zcharts';
+import { refreshToken } from '../../../services/api';
 import { ONE_MINUTE } from '../../../shared/time';
 import { uuid4 } from '../../../shared/uuid';
+import { getJwtToken } from '../../../stores/auth/utils';
+import { JwtToken } from '../../../types/auth';
 import { FilterOperationOptions } from '../../../types/filter';
 import {
   FilterRequestData,
@@ -306,6 +309,17 @@ export class SeismogramWebWorker {
 
   dispose(): void {}
 
+  setup(jwt?: JwtToken): void {
+    const token = jwt || getJwtToken();
+    this.worker.postMessage({ type: 'setup', payload: { token } });
+  }
+
+  refreshToken(): void {
+    refreshToken({ saveToken: false }).then((token) => {
+      this.setup(token);
+    });
+  }
+
   private onMessage(event: MessageEvent<WorkerResponseData<unknown>>): void {
     const { type, payload } = event.data;
 
@@ -318,6 +332,9 @@ export class SeismogramWebWorker {
         break;
       case 'stream.filter':
         this.onStreamFilterMessage(payload as StreamResponseData);
+        break;
+      case 'refreshToken':
+        this.refreshToken();
         break;
       default:
         break;

@@ -1,10 +1,13 @@
 import { Series } from '@waveview/ndarray';
 import { Helicorder } from '@waveview/zcharts';
+import { Segment } from '../../../../../zcharts/src/helicorder/dataStore';
+import { refreshToken } from '../../../services/api';
 import { debounce } from '../../../shared/debounce';
 import { uuid4 } from '../../../shared/uuid';
-import { FilterRequestData, StreamRequestData, StreamResponseData, WorkerRequestData, WorkerResponseData } from '../../../types/worker';
+import { getJwtToken } from '../../../stores/auth/utils';
+import { JwtToken } from '../../../types/auth';
 import { FilterOperationOptions } from '../../../types/filter';
-import { Segment } from '../../../../../zcharts/src/helicorder/dataStore';
+import { FilterRequestData, StreamRequestData, StreamResponseData, WorkerRequestData, WorkerResponseData } from '../../../types/worker';
 
 const signalCache = new Map<string, Series>();
 const filterCache = new Map<string, Series>();
@@ -314,6 +317,17 @@ export class HelicorderWebWorker {
     this.worker.removeEventListener('message', this.onMessage);
   }
 
+  setup(jwt?: JwtToken): void {
+    const token = jwt || getJwtToken();
+    this.worker.postMessage({ type: 'setup', payload: { token } });
+  }
+
+  refreshToken(): void {
+    refreshToken({ saveToken: false }).then((token) => {
+      this.setup(token);
+    });
+  }
+
   private onMessage(event: MessageEvent<WorkerResponseData<unknown>>): void {
     const { type, payload } = event.data;
 
@@ -323,6 +337,9 @@ export class HelicorderWebWorker {
         break;
       case 'stream.filter':
         this.onStreamFilterMessage(payload as StreamResponseData);
+        break;
+      case 'refreshToken':
+        this.refreshToken();
         break;
       default:
         break;

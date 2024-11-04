@@ -2,7 +2,6 @@ import { Helicorder, HelicorderEventMarkerOptions } from '@waveview/zcharts';
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { debounce } from '../../../shared/debounce';
-import { getJwtToken } from '../../../stores/auth/utils';
 import { HelicorderChartProps, HelicorderChartRef } from './HelicorderChart.types';
 import { HelicorderWebWorker } from './HelicorderWebWorker';
 import { useHelicorderChartApi } from './useHelicorderApi';
@@ -67,10 +66,9 @@ export const HelicorderChart: HelicorderChartType = React.forwardRef((props, ref
       }
 
       chartRef.current = new Helicorder(parentRef.current, initOptions);
-      const token = getJwtToken();
       workerRef.current = new Worker(new URL('../../../workers/stream.worker.ts', import.meta.url), { type: 'module' });
-      workerRef.current.postMessage({ type: 'setup', payload: { token } });
       webWorkerRef.current = new HelicorderWebWorker(chartRef.current, workerRef.current);
+      webWorkerRef.current.setup();
       webWorkerRef.current.mergeOptions({ appliedFilter });
       chartRef.current.on('selectionChanged', handleSelectionChange);
       chartRef.current.on('eventMarkerClicked', handleEventMarkerClick);

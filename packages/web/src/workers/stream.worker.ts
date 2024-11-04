@@ -1,7 +1,6 @@
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { WebSocketCommand, WebSocketHeader, WebSocketRequest, WebSocketSetupData } from '../types/websocket';
 import {
-  ConnectionStatus,
   FilterRequestData,
   SpectrogramRequestData,
   SpectrogramResponseData,
@@ -28,30 +27,24 @@ async function parseWebSocketHeader(blob: Blob): Promise<WebSocketHeader> {
   return { requestId, command };
 }
 
+async function refreshToken(): Promise<void> {
+  const msg: WorkerResponseData<unknown> = {
+    type: 'refreshToken',
+    payload: null,
+  };
+  self.postMessage(msg);
+}
+
 function onSetup(data: WebSocketSetupData): void {
   const { token } = data;
 
   const url = `${wsUrl}/ws/stream/?token=${token.access}`;
   socket = new ReconnectingWebSocket(url, [], { connectionTimeout: 5000 });
 
-  socket.addEventListener('open', () => {
-    const msg: WorkerResponseData<ConnectionStatus> = {
-      type: 'connection.status',
-      payload: {
-        connected: true,
-      },
-    };
-    self.postMessage(msg);
-  });
-
-  socket.addEventListener('close', () => {
-    const msg: WorkerResponseData<ConnectionStatus> = {
-      type: 'connection.status',
-      payload: {
-        connected: false,
-      },
-    };
-    self.postMessage(msg);
+  socket.addEventListener('close', (event) => {
+    if (event.code === 4001) {
+      refreshToken();
+    }
   });
 
   socket.addEventListener('message', (event: MessageEvent<Blob>) => {
