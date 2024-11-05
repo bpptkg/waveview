@@ -56,7 +56,8 @@ export async function readStream(blob: Blob): Promise<StreamResponseData> {
 }
 
 export async function readSpectrogram(blob: Blob): Promise<SpectrogramResponseData> {
-  const buffer = await blob.arrayBuffer();
+  const decompressed = await decompress(blob);
+  const buffer = await decompressed.arrayBuffer();
   const requestId = new TextDecoder('utf-8').decode(new Uint8Array(buffer, 0, 64)).replace(/\0+$/, '').trim();
   const command = new TextDecoder('utf-8').decode(new Uint8Array(buffer, 64, 64)).replace(/\0+$/, '').trim();
   const channelId = new TextDecoder('utf-8')
