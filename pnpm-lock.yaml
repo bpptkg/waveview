@@ -282,6 +282,9 @@ importers:
       scheduler:
         specifier: 0.23.0
         version: 0.23.0
+      zstd-codec:
+        specifier: ^0.1.5
+        version: 0.1.5
       zustand:
         specifier: ^4.5.2
         version: 4.5.2(@types/react@18.3.3)(react@18.3.1)
@@ -5087,6 +5090,9 @@ packages:
 
   zrender@5.6.0:
     resolution: {integrity: sha512-uzgraf4njmmHAbEUxMJ8Oxg+P3fT04O+9p7gY+wJRVxo8Ge+KmYv0WJev945EH4wFuc4OY2NLXz46FZrWS9xJg==}
+
+  zstd-codec@0.1.5:
+    resolution: {integrity: sha512-v3fyjpK8S/dpY/X5WxqTK3IoCnp/ZOLxn144GZVlNUjtwAchzrVo03h+oMATFhCIiJ5KTr4V3vDQQYz4RU684g==}
 
   zustand@4.5.2:
     resolution: {integrity: sha512-2cN1tPkDVkwCy5ickKrI7vijSjPksFRfqS6237NzT0vqSsztTNnQdHw9mmN7uBdk3gceVXU0a+21jFzFzAc9+g==}
@@ -11048,6 +11054,8 @@ snapshots:
   zrender@5.6.0:
     dependencies:
       tslib: 2.3.0
+
+  zstd-codec@0.1.5: {}
 
   zustand@4.5.2(@types/react@18.3.3)(react@18.3.1):
     dependencies:

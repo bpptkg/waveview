@@ -13,17 +13,17 @@ import {
 import { baseUrl, wsUrl } from '../services/api';
 import apiVersion from '../services/apiVersion';
 import { debounce } from '../shared/debounce';
-import { readSpectrogram, readStream } from '../shared/stream';
+import { decompress, readSpectrogram, readStream } from '../shared/stream';
 import { SeismicEvent } from '../types/event';
 import { EventRequestData, EventResponseData } from '../types/fetcher';
 
 let socket: ReconnectingWebSocket;
 
 async function parseWebSocketHeader(blob: Blob): Promise<WebSocketHeader> {
-  const buffer = await blob.arrayBuffer();
+  const decompressed = await decompress(blob);
+  const buffer = await decompressed.arrayBuffer();
   const requestId = new TextDecoder('utf-8').decode(new Uint8Array(buffer, 0, 64)).replace(/\0+$/, '').trim();
   const command = new TextDecoder('utf-8').decode(new Uint8Array(buffer, 64, 64)).replace(/\0+$/, '').trim() as WebSocketCommand;
-
   return { requestId, command };
 }
 

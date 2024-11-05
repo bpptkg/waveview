@@ -1,7 +1,25 @@
+import { ZstdCodec } from 'zstd-codec';
 import { SpectrogramResponseData, StreamResponseData } from '../types/worker';
 
-export async function readStream(blob: Blob): Promise<StreamResponseData> {
+export async function decompress(blob: Blob): Promise<Blob> {
   const buffer = await blob.arrayBuffer();
+  return new Promise((resolve, reject) => {
+    ZstdCodec.run((zstd) => {
+      try {
+        const simple = new zstd.Simple();
+        const compressed = new Uint8Array(buffer);
+        const decompressed = simple.decompress(compressed);
+        resolve(new Blob([decompressed]));
+      } catch (error) {
+        reject(error);
+      }
+    });
+  });
+}
+
+export async function readStream(blob: Blob): Promise<StreamResponseData> {
+  const decompressed = await decompress(blob);
+  const buffer = await decompressed.arrayBuffer();
   const requestId = new TextDecoder('utf-8').decode(new Uint8Array(buffer, 0, 64)).replace(/\0+$/, '').trim();
   const command = new TextDecoder('utf-8').decode(new Uint8Array(buffer, 64, 64)).replace(/\0+$/, '').trim();
   const channelId = new TextDecoder('utf-8')
