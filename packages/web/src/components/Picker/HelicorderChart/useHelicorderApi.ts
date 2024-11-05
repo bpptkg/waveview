@@ -1,7 +1,7 @@
 import { Channel, Helicorder } from '@waveview/zcharts';
 import { MutableRefObject, useCallback, useMemo } from 'react';
 import { HelicorderChartRef } from './HelicorderChart.types';
-import { HelicorderWebWorker } from './HelicorderWebWorker';
+import { HelicorderWebWorker, RefreshOptions } from './HelicorderWebWorker';
 
 export interface HelicorderChartInitOptions {
   chartRef: MutableRefObject<Helicorder | null>;
@@ -11,13 +11,16 @@ export interface HelicorderChartInitOptions {
 export function useHelicorderChartApi(options: HelicorderChartInitOptions): HelicorderChartRef {
   const { chartRef, webWorkerRef } = options;
 
-  const fetchData = useCallback(() => {
-    if (webWorkerRef.current?.hasFilter()) {
-      webWorkerRef.current?.fetchAllFiltersDataDebounced();
-    } else {
-      webWorkerRef.current?.fetchAllTracksDataDebounced();
-    }
-  }, [webWorkerRef]);
+  const fetchData = useCallback(
+    (options?: RefreshOptions) => {
+      if (webWorkerRef.current?.hasFilter()) {
+        webWorkerRef.current?.fetchAllFiltersDataDebounced(options);
+      } else {
+        webWorkerRef.current?.fetchAllTracksDataDebounced(options);
+      }
+    },
+    [webWorkerRef]
+  );
 
   return useMemo(() => {
     return {
@@ -65,7 +68,7 @@ export function useHelicorderChartApi(options: HelicorderChartInitOptions): Heli
         if (chartRef.current) {
           chartRef.current.clearData();
           chartRef.current.setChannel(channel);
-          fetchData();
+          fetchData({ mode: 'force' });
         }
       },
       getChannel: () => {

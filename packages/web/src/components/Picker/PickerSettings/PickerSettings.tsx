@@ -17,10 +17,11 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { formatFilterText, formatNumber } from '../../../shared/formatting';
 import { useInventoryStore } from '../../../stores/inventory';
 import { usePickerStore } from '../../../stores/picker';
+import { extractFilterOptions } from '../../../stores/picker/creator';
 import { ChannelConfig } from '../../../stores/picker/slices';
 import { Channel } from '../../../types/channel';
 import { BandpassFilterOptions, FilterOperationOptions, LowpassFilterOptions } from '../../../types/filter';
-import { FilterOptions, PickerConfigPayload } from '../../../types/picker';
+import { FilterOptions, PickerConfig, PickerConfigPayload } from '../../../types/picker';
 import { CustomError } from '../../../types/response';
 import { usePickerContext } from '../PickerContext';
 import HelicorderDefaultChannel from './HelicorderDefaultChannel';
@@ -68,7 +69,7 @@ enum ViewType {
   SELECTION_WINDOW,
 }
 
-const extractFilterOptions = (appliedFilter: FilterOperationOptions | null): FilterOptions | null => {
+const extractFilterOperationOptions = (appliedFilter: FilterOperationOptions | null): FilterOptions | null => {
   if (!appliedFilter) {
     return null;
   }
@@ -185,43 +186,59 @@ const PickerSettings: React.FC = () => {
   }, [pickerSettingsOpen, resetState]);
 
   // Apply the settings to the helicorder and seismogram charts.
-  const handleApplySettings = useCallback(() => {
-    if (!heliChartRef.current || !seisChartRef.current) {
-      return;
-    }
+  const handleApplySettings = useCallback(
+    (config: PickerConfig) => {
+      if (!heliChartRef.current || !seisChartRef.current) {
+        return;
+      }
 
-    heliChartRef.current.setWindowSize(selectedSelectionWindow);
-    const currentChannel = heliChartRef.current.getChannel();
-    heliChartRef.current.applyFilter(currentHelicorderFilter);
-    if (currentChannel.id !== selectedHelicorderChannel) {
-      heliChartRef.current.setChannel({ id: selectedHelicorderChannel });
-    } else {
-      heliChartRef.current.fetchAllData();
-    }
-    heliChartRef.current.setForceCenter(isForceCenter);
+      const { helicorder_channel, seismogram_channels, force_center, window_size, helicorder_filter } = config.data;
 
-    const seismogramChannels = getChannelsConfig().map((item) => ({
-      id: item.channel.id,
-      label: item.channel.net_sta_code,
-      color: item.color,
-    }));
-    seisChartRef.current.setChannels(seismogramChannels);
-    seisChartRef.current.setForceCenter(isForceCenter);
-  }, [selectedHelicorderChannel, selectedSelectionWindow, isForceCenter, currentHelicorderFilter, heliChartRef, seisChartRef, getChannelsConfig]);
+      const availableChannels = useInventoryStore.getState().channels();
+      const selectedChannels: ChannelConfig[] = [];
+      seismogram_channels.forEach((channel) => {
+        const item = availableChannels.find((c) => c.id === channel.channel_id);
+        if (item) {
+          selectedChannels.push({
+            channel: item,
+            color: channel.color ?? undefined,
+          });
+        }
+      });
+      const forceCenter = force_center || true;
+      const windowSize = window_size || 5; // 5 minutes
+      const helicorderFilter = helicorder_filter ? extractFilterOptions(helicorder_filter) : null;
+
+      const channelId = helicorder_channel.channel_id;
+      heliChartRef.current.setWindowSize(windowSize);
+      heliChartRef.current.applyFilter(helicorderFilter);
+      heliChartRef.current.setChannel({ id: channelId });
+      heliChartRef.current.setForceCenter(forceCenter);
+
+      const seismogramChannels = getChannelsConfig().map((item) => ({
+        id: item.channel.id,
+        label: item.channel.net_sta_code,
+        color: item.color,
+      }));
+      seisChartRef.current.setChannels(seismogramChannels);
+      seisChartRef.current.setForceCenter(forceCenter);
+    },
+    [heliChartRef, seisChartRef, getChannelsConfig]
+  );
 
   // Reset the settings to the default.
   const handleReset = useCallback(async () => {
     setLoading(true);
     try {
-      await resetPickerConfig();
-      handleApplySettings();
+      const config = await resetPickerConfig();
+      handleApplySettings(config);
       setPickerSettingsOpen(false);
     } catch (e) {
       showErrorToast(e as CustomError);
     } finally {
       setLoading(false);
     }
-  }, [resetPickerConfig, showErrorToast, handleApplySettings, setPickerSettingsOpen, setLoading]);
+  }, [resetPickerConfig, showErrorToast, setPickerSettingsOpen, setLoading, handleApplySettings]);
 
   // Save the settings to the server and apply them to the charts.
   const handleSave = useCallback(async () => {
@@ -236,11 +253,11 @@ const PickerSettings: React.FC = () => {
       })),
       window_size: selectedSelectionWindow,
       force_center: isForceCenter,
-      helicorder_filter: extractFilterOptions(currentHelicorderFilter),
+      helicorder_filter: extractFilterOperationOptions(currentHelicorderFilter),
     };
     try {
-      await savePickerConfig(payload);
-      handleApplySettings();
+      const config = await savePickerConfig(payload);
+      handleApplySettings(config);
       setPickerSettingsOpen(false);
     } catch (e) {
       showErrorToast(e as CustomError);

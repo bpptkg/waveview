@@ -64,11 +64,11 @@ export interface CommonSlice {
   /**
    * Saves the picker configuration.
    */
-  savePickerConfig: (payload: PickerConfigPayload) => Promise<void>;
+  savePickerConfig: (payload: PickerConfigPayload) => Promise<PickerConfig>;
   /**
    * Resets the picker configuration to the default state.
    */
-  resetPickerConfig: () => Promise<void>;
+  resetPickerConfig: () => Promise<PickerConfig>;
   /**
    * Fetches the event markers within the given time range.
    */

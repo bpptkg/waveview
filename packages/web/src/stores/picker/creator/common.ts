@@ -11,7 +11,7 @@ import { useVolcanoStore } from '../../volcano/useVolcanoStore';
 import { ChannelConfig, CommonSlice, PickerStore } from '../slices';
 import { getDefaultSeismogramExtent } from '../../../shared/common';
 
-const extractFilterOptions = (item: FilterOptions): FilterOperationOptions => {
+export const extractFilterOptions = (item: FilterOptions): FilterOperationOptions => {
   if (item.type === 'bandpass') {
     return {
       id: item.id,
@@ -131,6 +131,7 @@ export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> =
       }
       const pickerConfig: PickerConfig = await response.json();
       get().setPickerConfig(pickerConfig);
+      return pickerConfig;
     },
 
     resetPickerConfig: async () => {
@@ -151,6 +152,7 @@ export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> =
       }
       const pickerConfig: PickerConfig = await response.json();
       get().setPickerConfig(pickerConfig);
+      return pickerConfig;
     },
 
     fetchEventMarkers: async (start, end) => {

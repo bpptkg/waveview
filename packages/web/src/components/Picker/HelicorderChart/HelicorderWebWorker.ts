@@ -135,10 +135,11 @@ export class HelicorderWebWorker {
   private fetchAllTracksDataCache(): void {
     this.busy();
 
+    const channelId = this.chart.getChannel().id;
     const trackManager = this.chart.getTrackManager();
     const now = Date.now();
     for (const segment of trackManager.segments()) {
-      const key = JSON.stringify(segment);
+      const key = JSON.stringify([channelId, ...segment]);
       const series = signalCache.get(key);
       if (series) {
         const [, end] = segment;
@@ -159,10 +160,11 @@ export class HelicorderWebWorker {
   private fetchAllTracksDataRefresh(): void {
     this.busy();
 
+    const channelId = this.chart.getChannel().id;
     const trackManager = this.chart.getTrackManager();
     const now = Date.now();
     for (const segment of trackManager.segments()) {
-      const key = JSON.stringify(segment);
+      const key = JSON.stringify([channelId, ...segment]);
       const series = signalCache.get(key);
       if (series) {
         const [, end] = segment;
@@ -237,10 +239,11 @@ export class HelicorderWebWorker {
   private fetchAllFiltersDataCache(options: FilterOperationOptions): void {
     this.busy();
 
+    const channelId = this.chart.getChannel().id;
     const trackManager = this.chart.getTrackManager();
     const now = Date.now();
     for (const segment of trackManager.segments()) {
-      const key = JSON.stringify(segment);
+      const key = JSON.stringify([channelId, ...segment]);
       const series = filterCache.get(key);
       if (series) {
         const [, end] = segment;
@@ -261,10 +264,11 @@ export class HelicorderWebWorker {
   private fetchAllFiltersDataRefresh(options: FilterOperationOptions): void {
     this.busy();
 
+    const channelId = this.chart.getChannel().id;
     const trackManager = this.chart.getTrackManager();
     const now = Date.now();
     for (const segment of trackManager.segments()) {
-      const key = JSON.stringify(segment);
+      const key = JSON.stringify([channelId, ...segment]);
       const series = filterCache.get(key);
       if (series) {
         const [, end] = segment;
@@ -353,7 +357,7 @@ export class HelicorderWebWorker {
       name: channelId,
     });
     const segment: [number, number] = [start, end];
-    const key = JSON.stringify(segment);
+    const key = JSON.stringify([channelId, ...segment]);
     signalCache.set(key, series);
     this.chart.setTrackData(segment, series);
 
@@ -370,7 +374,7 @@ export class HelicorderWebWorker {
       name: channelId,
     });
     const segment: [number, number] = [start, end];
-    const key = JSON.stringify(segment);
+    const key = JSON.stringify([channelId, ...segment]);
     filterCache.set(key, series);
     this.chart.setTrackData(segment, series);
 
