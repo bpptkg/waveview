@@ -91,7 +91,7 @@ export class SeismogramWebWorker {
     selectionWindow: [Date.now() - 5 * ONE_MINUTE, Date.now()],
     appliedFilter: null,
     resample: false,
-    sampleRate: 50,
+    sampleRate: 1,
   };
 
   constructor(chart: Seismogram, worker: Worker, options?: Partial<SeismogramWebWorkerOptions>) {
