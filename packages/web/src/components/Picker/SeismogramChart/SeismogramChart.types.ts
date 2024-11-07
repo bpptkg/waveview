@@ -1,4 +1,4 @@
-import { Channel, ElementEvent, Seismogram, SeismogramEventMarkerOptions, SeismogramOptions } from '@waveview/zcharts';
+import { AddMarkerOptions, Channel, ElementEvent, Seismogram, SeismogramEventMarkerOptions, SeismogramOptions } from '@waveview/zcharts';
 import { FilterOperationOptions } from '../../../types/filter';
 import { ScalingType } from '../../../types/scaling';
 import { SeismogramWebWorkerOptions } from './SeismogramWebWorker';
@@ -84,8 +84,8 @@ export interface SetExtentOptions {
 
 export interface SeismogramChartRef {
   addChannel: (channel: Channel) => void;
-  addEventMarker: (marker: SeismogramEventMarkerOptions) => void;
-  addEventMarkers: (markers: SeismogramEventMarkerOptions[]) => void;
+  addEventMarker: (markerOptions: SeismogramEventMarkerOptions, options?: AddMarkerOptions) => void;
+  addEventMarkers: (markersOptions: SeismogramEventMarkerOptions[], options?: AddMarkerOptions) => void;
   applyFilter: (options: FilterOperationOptions) => void;
   blur(): void;
   clearEventMarkers: () => void;

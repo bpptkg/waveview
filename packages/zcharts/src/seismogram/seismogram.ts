@@ -11,7 +11,7 @@ import { SpectrogramData } from "../spectrogram/spectrogramModel";
 import { TrackView } from "../track/trackView";
 import { almostEquals } from "../util/math";
 import { ONE_MINUTE, ONE_SECOND } from "../util/time";
-import { Channel, LayoutRect } from "../util/types";
+import { AddMarkerOptions, Channel, LayoutRect } from "../util/types";
 import { AxisPointerView } from "./axisPointer/axisPointerView";
 import { getDefaultOptions, SeismogramOptions } from "./chartOptions";
 import { DataStore } from "./dataStore";
@@ -409,18 +409,32 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     return this.focused;
   }
 
-  addEventMarker(options: EventMarkerOptions): EventMarkerView {
-    const marker = new EventMarkerView(this, options);
+  addEventMarker(
+    markerOptions: EventMarkerOptions,
+    options?: AddMarkerOptions
+  ): EventMarkerView {
+    const marker = new EventMarkerView(this, markerOptions);
     this.markers.push(marker);
     this.addComponent(marker);
+    const { show = true } = options || {};
+    if (!show) {
+      marker.hide();
+    }
     return marker;
   }
 
-  addEventMarkers(markers: EventMarkerOptions[]): EventMarkerView[] {
+  addEventMarkers(
+    markersOptions: EventMarkerOptions[],
+    option?: AddMarkerOptions
+  ): EventMarkerView[] {
+    const { show = true } = option || {};
     const addedMarkers: EventMarkerView[] = [];
-    for (const options of markers) {
+    for (const options of markersOptions) {
       const marker = this.addEventMarker(options);
       addedMarkers.push(marker);
+      if (!show) {
+        marker.hide();
+      }
     }
     return addedMarkers;
   }

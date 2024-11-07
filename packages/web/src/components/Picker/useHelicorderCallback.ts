@@ -105,7 +105,7 @@ export function useHelicorderCallback() {
   const { currentVolcano } = useVolcanoStore();
   const { token } = useAuthStore();
   const { darkMode, useUTC } = useAppStore();
-  const { eventId, helicorderDuration, helicorderInterval, channelId, offsetDate, eventMarkers } = usePickerStore();
+  const { eventId, helicorderDuration, helicorderInterval, channelId, offsetDate, eventMarkers, showEvent } = usePickerStore();
   const { setHeliChartReady } = usePickerContext();
   const { handleSetupEventEditing } = useSeismogramCallback();
   const { setShowSidebar, setSelectedTab } = useSidebarStore();
@@ -128,8 +128,8 @@ export function useHelicorderCallback() {
         data: event,
       });
     });
-    seisChartRef.current?.addEventMarkers(markers);
-  }, [seisChartRef, eventMarkers, darkMode, eventId]);
+    seisChartRef.current?.addEventMarkers(markers, { show: showEvent });
+  }, [seisChartRef, eventMarkers, darkMode, eventId, showEvent]);
 
   const handleHelicorderUpdateEventMarkers = useCallback(async () => {
     heliChartRef.current?.clearEventMarkers();
@@ -146,8 +146,8 @@ export function useHelicorderCallback() {
         data: event,
       });
     });
-    heliChartRef.current?.addEventMarkers(markers);
-  }, [heliChartRef, eventMarkers, darkMode]);
+    heliChartRef.current?.addEventMarkers(markers, { show: showEvent });
+  }, [heliChartRef, eventMarkers, darkMode, showEvent]);
 
   const handleUpdateEventMarkers = useCallback(() => {
     handleSeismogramUpdateEventMarkers();

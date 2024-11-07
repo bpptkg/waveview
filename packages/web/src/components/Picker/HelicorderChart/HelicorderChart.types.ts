@@ -1,7 +1,7 @@
-import { Channel, Helicorder, HelicorderEventMarkerOptions, HelicorderOptions } from '@waveview/zcharts';
-import { RefreshOptions } from './HelicorderWebWorker';
-import { ScalingType } from '../../../types/scaling';
+import { AddMarkerOptions, Channel, Helicorder, HelicorderEventMarkerOptions, HelicorderOptions } from '@waveview/zcharts';
 import { FilterOperationOptions } from '../../../types/filter';
+import { ScalingType } from '../../../types/scaling';
+import { RefreshOptions } from './HelicorderWebWorker';
 
 export interface HelicorderChartProps {
   /**
@@ -47,8 +47,8 @@ export interface HelicorderChartProps {
 }
 
 export interface HelicorderChartRef {
-  addEventMarker: (marker: HelicorderEventMarkerOptions) => void;
-  addEventMarkers: (markers: HelicorderEventMarkerOptions[]) => void;
+  addEventMarker: (markerOptions: HelicorderEventMarkerOptions, options?: AddMarkerOptions) => void;
+  addEventMarkers: (markersOptions: HelicorderEventMarkerOptions[], options?: AddMarkerOptions) => void;
   applyFilter: (options: FilterOperationOptions | null) => void;
   blur: () => void;
   clearEventMarkers: () => void;

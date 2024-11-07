@@ -125,15 +125,15 @@ export function useHelicorderChartApi(options: HelicorderChartInitOptions): Heli
         return chartRef.current?.isFocused() ?? false;
       },
 
-      addEventMarker: (marker) => {
+      addEventMarker: (markerOptions, options) => {
         if (chartRef.current) {
-          chartRef.current.addEventMarker(marker);
+          chartRef.current.addEventMarker(markerOptions, options);
           chartRef.current.render({ refreshSignal: false });
         }
       },
-      addEventMarkers: (markers) => {
+      addEventMarkers: (markersOptions, options) => {
         if (chartRef.current) {
-          chartRef.current.addEventMarkers(markers);
+          chartRef.current.addEventMarkers(markersOptions, options);
           chartRef.current.render({ refreshSignal: false });
         }
       },

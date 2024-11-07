@@ -219,15 +219,15 @@ export function useSeismogramChartApi(options: SeismogramChartInitOptions): Seis
           chartRef.current.render();
         }
       },
-      addEventMarker: (marker: SeismogramEventMarkerOptions) => {
+      addEventMarker: (markerOptions: SeismogramEventMarkerOptions, options) => {
         if (chartRef.current) {
-          chartRef.current.addEventMarker(marker);
+          chartRef.current.addEventMarker(markerOptions, options);
           chartRef.current.render();
         }
       },
-      addEventMarkers: (markers: SeismogramEventMarkerOptions[]) => {
+      addEventMarkers: (markersOptions: SeismogramEventMarkerOptions[], options) => {
         if (chartRef.current) {
-          chartRef.current.addEventMarkers(markers);
+          chartRef.current.addEventMarkers(markersOptions, options);
           chartRef.current.render();
         }
       },

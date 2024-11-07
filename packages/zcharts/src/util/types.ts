@@ -106,3 +106,7 @@ export interface Channel {
    */
   color?: string;
 }
+
+export interface AddMarkerOptions {
+  show?: boolean;
+}

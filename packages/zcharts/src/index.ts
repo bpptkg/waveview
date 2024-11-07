@@ -14,4 +14,4 @@ export { Seismogram } from "./seismogram/seismogram";
 export { SpectrogramData } from "./spectrogram/spectrogramModel";
 export { registerTheme } from "./theme/themeManager";
 export { generateSampleData } from "./util/sample";
-export type { Channel, EventMap } from "./util/types";
+export type { AddMarkerOptions, Channel, EventMap } from "./util/types";
