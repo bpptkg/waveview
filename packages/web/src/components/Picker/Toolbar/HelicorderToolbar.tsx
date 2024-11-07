@@ -67,6 +67,9 @@ const useStyles = makeStyles({
     },
     color: tokens.colorNeutralForeground1,
   },
+  calendarPopover: {
+    borderRadius: '16px',
+  },
 });
 
 const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
@@ -127,7 +130,7 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
                 <ToolbarButton aria-label="Change Offset Date" icon={<Calendar20Regular />} />
               </Tooltip>
             </PopoverTrigger>
-            <PopoverSurface>
+            <PopoverSurface className={styles.calendarPopover}>
               <Calendar value={offsetDate} onSelectDate={handleSelectDate} />
             </PopoverSurface>
           </Popover>

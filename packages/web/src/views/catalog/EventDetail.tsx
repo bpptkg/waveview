@@ -54,6 +54,9 @@ const useEventDetailStyles = makeStyles({
   divider: {
     flexGrow: 0,
   },
+  menuPopover: {
+    borderRadius: '16px',
+  },
 });
 
 interface EventTabItem {
@@ -73,7 +76,14 @@ const OverflowMenuItem: React.FC<{ tab: EventTabItem }> = (props) => {
   return <MenuItem onClick={() => navigate(tab.value)}>{tab.label}</MenuItem>;
 };
 
+const overflowMenuStyles = makeStyles({
+  menuPopover: {
+    borderRadius: '16px',
+  },
+});
+
 const OverflowMenu: React.FC<{ tabs: EventTabItem[] }> = ({ tabs }) => {
+  const styles = overflowMenuStyles();
   const { ref, isOverflowing } = useOverflowMenu<HTMLButtonElement>();
 
   if (!isOverflowing) {
@@ -86,7 +96,7 @@ const OverflowMenu: React.FC<{ tabs: EventTabItem[] }> = ({ tabs }) => {
         <MenuButton ref={ref} appearance="transparent" icon={<MoreHorizontalRegular fontSize={20} />}></MenuButton>
       </MenuTrigger>
 
-      <MenuPopover>
+      <MenuPopover className={styles.menuPopover}>
         <MenuList>
           {tabs.map((tab) => {
             return <OverflowMenuItem key={tab.value} tab={tab} />;
@@ -240,7 +250,7 @@ const EventDetail: React.FC<EventDetailProps> = () => {
                 <Button icon={<MoreHorizontal20Regular />} appearance="transparent" />
               </Tooltip>
             </MenuTrigger>
-            <MenuPopover>
+            <MenuPopover className={styles.menuPopover}>
               <MenuList>
                 <MenuItem onClick={handleCopyPermalink}>Copy Permalink</MenuItem>
                 <MenuItem

@@ -8,7 +8,7 @@ const useStyles = makeStyles({
     minWidth: 'auto',
   },
   menuPopover: {
-    borderRadius: '8px',
+    borderRadius: '16px',
   },
 });
 
