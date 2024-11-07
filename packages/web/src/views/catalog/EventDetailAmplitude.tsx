@@ -24,6 +24,7 @@ const AmplitudeDetail: React.FC<{ currentAmplitude: Amplitude; useUTC: boolean }
   const items = [
     { label: 'ID', value: currentAmplitude.id },
     { label: 'Type', value: currentAmplitude.type },
+    { label: 'Amplitude', value: formatNumber(currentAmplitude.amplitude, { unit: ` ${currentAmplitude.unit}`, precision: 2 }) },
     { label: 'Category', value: currentAmplitude.category },
     { label: 'Time', value: formatTime(currentAmplitude.time, { useUTC }) },
     { label: 'Begin', value: formatNumber(currentAmplitude.begin, { unit: ' sec', precision: 2 }) },
