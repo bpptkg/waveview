@@ -6,6 +6,9 @@ const useStyles = makeStyles({
   btn: {
     minWidth: 'auto',
   },
+  menuPopover: {
+    borderRadius: '8px',
+  },
 });
 
 const HelicorderSignalMenuList = () => {
@@ -66,7 +69,7 @@ const SignalMenu = () => {
           Signal
         </Button>
       </MenuTrigger>
-      <MenuPopover>
+      <MenuPopover className={styles.menuPopover}>
         {selectedChart === 'helicorder' && <HelicorderSignalMenuList />}
         {selectedChart === 'seismogram' && <SeismogramSignalMenuList />}
       </MenuPopover>

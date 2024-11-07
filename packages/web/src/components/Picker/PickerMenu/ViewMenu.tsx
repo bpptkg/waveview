@@ -6,6 +6,9 @@ const useStyles = makeStyles({
   btn: {
     minWidth: 'auto',
   },
+  menuPopover: {
+    borderRadius: '8px',
+  },
 });
 
 const ViewMenu = () => {
@@ -33,7 +36,7 @@ const ViewMenu = () => {
           View
         </Button>
       </MenuTrigger>
-      <MenuPopover>
+      <MenuPopover className={styles.menuPopover}>
         <MenuList>
           <MenuItem onClick={handleEventEditor}>Event Editor</MenuItem>
           <MenuItem onClick={handleFilterToolbox}>Filter Toolbox</MenuItem>

@@ -7,6 +7,9 @@ const useStyles = makeStyles({
   btn: {
     minWidth: 'auto',
   },
+  menuPopover: {
+    borderRadius: '8px',
+  },
 });
 
 const FileMenu = () => {
@@ -47,7 +50,7 @@ const FileMenu = () => {
           File
         </Button>
       </MenuTrigger>
-      <MenuPopover>
+      <MenuPopover className={styles.menuPopover}>
         <MenuList>
           <MenuItem onClick={handleExportToImage}>Export to Image</MenuItem>
           <MenuItem onClick={handleSettings}>Settings...</MenuItem>

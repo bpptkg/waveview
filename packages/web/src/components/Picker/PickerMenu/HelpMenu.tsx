@@ -7,6 +7,9 @@ const useStyles = makeStyles({
   btn: {
     minWidth: 'auto',
   },
+  menuPopover: {
+    borderRadius: '8px',
+  },
 });
 
 const HelpMenu = () => {
@@ -28,7 +31,7 @@ const HelpMenu = () => {
             Help
           </Button>
         </MenuTrigger>
-        <MenuPopover>
+        <MenuPopover className={styles.menuPopover}>
           <MenuList>
             <MenuItem onClick={handleKeyboardShortcuts}>Keyboard Shortcuts</MenuItem>
             <MenuItem onClick={handleAbout}>About VEPS</MenuItem>
