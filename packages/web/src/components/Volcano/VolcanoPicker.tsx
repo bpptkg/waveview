@@ -7,6 +7,7 @@ import { useVolcanoStore } from '../../stores/volcano/useVolcanoStore';
 const useVolcanoPickerStyles = makeStyles({
   popoverSurface: {
     padding: '8px',
+    borderRadius: '16px',
   },
 });
 

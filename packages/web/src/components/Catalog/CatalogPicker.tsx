@@ -6,6 +6,7 @@ import { useCatalogStore } from '../../stores/catalog';
 const useCatalogPickerStyles = makeStyles({
   popoverSurface: {
     padding: '8px',
+    borderRadius: '16px',
   },
 });
 

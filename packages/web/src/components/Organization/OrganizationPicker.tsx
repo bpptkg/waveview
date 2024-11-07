@@ -7,6 +7,7 @@ import { useOrganizationStore } from '../../stores/organization';
 const useOrganizationPickerStyles = makeStyles({
   popoverSurface: {
     padding: '8px',
+    borderRadius: '16px',
   },
 });
 

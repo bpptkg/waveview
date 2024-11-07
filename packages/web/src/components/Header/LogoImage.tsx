@@ -1,30 +1,54 @@
 import React from 'react';
 
 export interface LogoProps {
-  size?: number;
+  size?: 24 | 32;
 }
 
-const LogoImage: React.FC<LogoProps> = (props) => {
-  const { size = 24 } = props;
+const LogoImage32 = () => {
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx={size / 2} cy={size / 2} r={size / 2} fill="url(#paint0_radial_6415_23699)" />
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="16" fill="url(#paint0_linear_6976_13853)" />
+      <path
+        d="M10.1667 10C8.97005 10 8 10.912 8 12.037V19.3703C8 20.4953 8.97005 21.4074 10.1667 21.4074H14.0667V15.5C14.0667 14.9626 14.388 14.4709 14.8978 14.228C15.4076 13.9852 16.0193 14.0324 16.4802 14.3501L22.9802 20.4612C23.3052 20.6852 23.5134 21.0143 23.5783 21.3706C24.5781 21.1899 25.3333 20.363 25.3333 19.3703V12.037C25.3333 10.912 24.3633 10 23.1667 10H10.1667ZM16.043 15.0679C15.8571 14.8931 15.5775 14.8408 15.3346 14.9354C15.0917 15.03 14.9333 15.2528 14.9333 15.5V24.0555C14.9333 24.3232 15.1186 24.5597 15.3905 24.6391C15.6624 24.7185 15.9577 24.6223 16.119 24.4017L18.2568 21.4782L21.9494 22.2091C22.2309 22.2648 22.5179 22.1399 22.6549 21.9022C22.7919 21.6644 22.7463 21.3702 22.543 21.179L16.043 15.0679Z"
+        fill="white"
+        fillOpacity="0.8"
+      />
       <defs>
-        <radialGradient
-          id="paint0_radial_6415_23699"
-          cx="0"
-          cy="0"
-          r="1"
-          gradientUnits="userSpaceOnUse"
-          gradientTransform={`translate(${(17.04 * size) / 24} ${(4.56 * size) / 24}) rotate(121.304) scale(${(20.786 * size) / 24})`}
-        >
-          <stop stopColor="#EBD3FF" />
-          <stop offset="0.326154" stopColor="#BEB4FF" />
+        <linearGradient id="paint0_linear_6976_13853" x1="22.6667" y1="2" x2="8.32" y2="29.76" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#BEB4FF" />
           <stop offset="1" stopColor="#9197FF" />
-        </radialGradient>
+        </linearGradient>
       </defs>
     </svg>
   );
+};
+
+const LogoImage24 = () => {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="12" fill="url(#paint0_linear_6976_13853)" />
+      <path
+        d="M7.625 7.5C6.72754 7.5 6 8.18401 6 9.02777V14.5277C6 15.3715 6.72754 16.0555 7.625 16.0555H10.55V11.625C10.55 11.222 10.791 10.8532 11.1733 10.671C11.5557 10.4889 12.0145 10.5243 12.3602 10.7626L17.2352 15.3459C17.4789 15.5139 17.635 15.7607 17.6837 16.028C18.4336 15.8924 19 15.2723 19 14.5277V9.02777C19 8.18401 18.2725 7.5 17.375 7.5H7.625ZM12.0322 11.3009C11.8928 11.1698 11.6831 11.1306 11.5009 11.2016C11.3188 11.2725 11.2 11.4396 11.2 11.625V18.0416C11.2 18.2424 11.339 18.4198 11.5429 18.4793C11.7468 18.5389 11.9682 18.4667 12.0892 18.3013L13.6926 16.1086L16.4621 16.6568C16.6732 16.6986 16.8884 16.605 16.9911 16.4266C17.0939 16.2483 17.0598 16.0276 16.9072 15.8842L12.0322 11.3009Z"
+        fill="white"
+        fillOpacity="0.8"
+      />
+      <defs>
+        <linearGradient id="paint0_linear_6976_13853" x1="17" y1="1.5" x2="6.24" y2="22.32" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#BEB4FF" />
+          <stop offset="1" stopColor="#9197FF" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+};
+
+const LogoImage: React.FC<LogoProps> = (props) => {
+  const { size = 24 } = props;
+  if (size === 24) {
+    return <LogoImage24 />;
+  } else {
+    return <LogoImage32 />;
+  }
 };
 
 export default LogoImage;

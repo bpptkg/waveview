@@ -14,7 +14,7 @@ const Header = () => {
     <div className="flex h-[48px] items-center justify-between z-50">
       <div className="flex items-center">
         <div className="flex items-center justify-center w-[68px]">
-          <LogoImage />
+          <LogoImage size={32} />
         </div>
         <OrganizationPicker />
         <VolcanoPicker />

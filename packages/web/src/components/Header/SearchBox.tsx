@@ -1,4 +1,4 @@
-import { SearchBox as FluentSearchBox, InputOnChangeData, makeStyles, SearchBoxChangeEvent } from '@fluentui/react-components';
+import { SearchBox as FluentSearchBox, InputOnChangeData, makeStyles, SearchBoxChangeEvent, tokens } from '@fluentui/react-components';
 import { SearchRegular } from '@fluentui/react-icons';
 import Fuse from 'fuse.js';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -10,6 +10,7 @@ const useStyles = makeStyles({
   searchBox: {
     width: '364px',
     position: 'relative',
+    borderRadius: tokens.borderRadiusCircular,
   },
 });
 
