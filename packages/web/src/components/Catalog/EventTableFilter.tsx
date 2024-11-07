@@ -75,7 +75,7 @@ const EventTableFilter: React.FC<EventTableFilterProps> = ({ eventTypes = [], in
   }, []);
 
   return (
-    <Popover trapFocus open={open} onOpenChange={() => setOpen(!open)}>
+    <Popover trapFocus open={open} onOpenChange={() => setOpen(!open)} positioning="before-top">
       <PopoverTrigger>
         <Tooltip content={'Filter'} relationship="label" showDelay={1500}>
           <Button appearance="transparent" icon={<FilterRegular fontSize={20} />} />
@@ -97,7 +97,7 @@ const EventTableFilter: React.FC<EventTableFilterProps> = ({ eventTypes = [], in
         <div className="mt-1">
           <p>Event types</p>
           <Checkbox checked={selectedTypes.length === eventTypes.length} label={'All'} onChange={() => handleSelectAll()}></Checkbox>
-          <div className="grid grid-cols-2 gap-0">
+          <div className="grid grid-cols-3 gap-0">
             {eventTypes.map((item) => (
               <Checkbox key={item.id} checked={selectedTypes.includes(item.code)} label={item.code} onChange={() => handleSelect(item.code)}></Checkbox>
             ))}
