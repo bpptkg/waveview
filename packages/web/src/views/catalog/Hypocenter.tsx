@@ -134,6 +134,12 @@ const Hypocenter = () => {
   }, [useUTC, darkMode]);
 
   useEffect(() => {
+    if (workspace === '3d') {
+      updatePlot({ refreshHypo: false });
+    }
+  }, [workspace, updatePlot]);
+
+  useEffect(() => {
     if (!hypocenter) {
       updatePlot();
     } else {
