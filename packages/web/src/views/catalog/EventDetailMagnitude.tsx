@@ -20,6 +20,7 @@ const MagnitudeDetail: React.FC<{ currentMagnitude: Magnitude }> = ({ currentMag
   const items = [
     { label: 'ID', value: currentMagnitude.id },
     { label: 'Type', value: currentMagnitude.type },
+    { label: 'Magnitude', value: formatNumber(currentMagnitude.magnitude, { precision: 2 }) },
     { label: 'Method', value: currentMagnitude.method },
     { label: 'Station count', value: currentMagnitude.station_count },
     { label: 'Azimuthal gap', value: formatNumber(currentMagnitude.azimuthal_gap, { unit: '°', precision: 5 }) },
