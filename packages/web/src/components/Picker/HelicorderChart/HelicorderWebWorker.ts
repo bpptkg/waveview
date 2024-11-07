@@ -124,17 +124,13 @@ export class HelicorderWebWorker {
   }
 
   private fetchAllTracksDataForce(): void {
-    this.busy();
-
     const trackManager = this.chart.getTrackManager();
     for (const segment of trackManager.segments()) {
-      this.postRequestMessage(segment);
+      this.fetchTrackData(segment);
     }
   }
 
   private fetchAllTracksDataCache(): void {
-    this.busy();
-
     const channelId = this.chart.getChannel().id;
     const trackManager = this.chart.getTrackManager();
     const now = Date.now();
@@ -144,12 +140,12 @@ export class HelicorderWebWorker {
       if (series) {
         const [, end] = segment;
         if (end > now) {
-          this.postRequestMessage(segment);
+          this.fetchTrackData(segment);
         } else {
           this.chart.setTrackData(segment, series);
         }
       } else {
-        this.postRequestMessage(segment);
+        this.fetchTrackData(segment);
       }
     }
     if (!this.hasSignalRequests()) {
@@ -158,8 +154,6 @@ export class HelicorderWebWorker {
   }
 
   private fetchAllTracksDataRefresh(): void {
-    this.busy();
-
     const channelId = this.chart.getChannel().id;
     const trackManager = this.chart.getTrackManager();
     const now = Date.now();
@@ -169,12 +163,12 @@ export class HelicorderWebWorker {
       if (series) {
         const [, end] = segment;
         if (end > now) {
-          this.postRequestMessage(segment);
+          this.fetchTrackData(segment);
         } else {
           this.chart.setTrackData(segment, series);
         }
       } else {
-        this.postRequestMessage(segment);
+        this.fetchTrackData(segment);
       }
     }
     const [, end] = this.chart.getChartExtent();
@@ -184,7 +178,7 @@ export class HelicorderWebWorker {
     }
   }
 
-  private postRequestMessage(extent: [number, number]): void {
+  private fetchTrackData(extent: [number, number]): void {
     const requestId = uuid4();
     const [start, end] = extent;
     const channel = this.chart.getChannel();
@@ -228,8 +222,6 @@ export class HelicorderWebWorker {
   }
 
   private fetchAllFiltersDataForce(options: FilterOperationOptions): void {
-    this.busy();
-
     const trackManager = this.chart.getTrackManager();
     for (const segment of trackManager.segments()) {
       this.fetchFilterData(segment, options);
@@ -237,8 +229,6 @@ export class HelicorderWebWorker {
   }
 
   private fetchAllFiltersDataCache(options: FilterOperationOptions): void {
-    this.busy();
-
     const channelId = this.chart.getChannel().id;
     const trackManager = this.chart.getTrackManager();
     const now = Date.now();
@@ -262,8 +252,6 @@ export class HelicorderWebWorker {
   }
 
   private fetchAllFiltersDataRefresh(options: FilterOperationOptions): void {
-    this.busy();
-
     const channelId = this.chart.getChannel().id;
     const trackManager = this.chart.getTrackManager();
     const now = Date.now();
@@ -351,6 +339,7 @@ export class HelicorderWebWorker {
   }
 
   private onStreamFetchMessage(payload: StreamResponseData): void {
+    this.busy();
     const { requestId, data, index, start, end, channelId } = payload;
     const series = new Series(data, {
       index: index,
@@ -363,11 +352,13 @@ export class HelicorderWebWorker {
 
     this.signalRequests.delete(requestId);
     if (this.signalRequests.size === 0) {
+      this.idle();
       this.chart.render({ refreshSignal: true });
     }
   }
 
   private onStreamFilterMessage(payload: StreamResponseData): void {
+    this.busy();
     const { requestId, data, index, start, end, channelId } = payload;
     const series = new Series(data, {
       index: index,
@@ -380,6 +371,7 @@ export class HelicorderWebWorker {
 
     this.filterRequests.delete(requestId);
     if (this.filterRequests.size === 0) {
+      this.idle();
       this.chart.render({ refreshSignal: true });
     }
   }
