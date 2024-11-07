@@ -54,23 +54,18 @@ const NetworkStatus: React.FC = () => {
     fetchNetworkStatus();
   }, [fetchNetworkStatus]);
 
+  const buttonIcon = loading ? null : <ArrowClockwiseRegular />;
+  const buttonContent = loading ? <Spinner size="tiny" label="Loading..." /> : 'Refresh';
+
   return (
     <div className="relative h-full w-full">
       <div className="absolute top-0 right-0 bottom-0 left-0 overflow-auto">
-        {loading ? (
-          <div className="flex flex-col justify-center h-full">
-            <Spinner label="Loading network status..." />
-          </div>
-        ) : (
-          <div>
-            <div className="flex items-center justify-end">
-              <Button appearance="transparent" icon={<ArrowClockwiseRegular />} onClick={handleRefresh}>
-                Refresh
-              </Button>
-            </div>
-            <NetworkStateList networkStatus={networkStatus} />
-          </div>
-        )}
+        <div className="flex items-center justify-end">
+          <Button appearance="transparent" icon={buttonIcon} onClick={handleRefresh} disabled={loading}>
+            {buttonContent}
+          </Button>
+        </div>
+        <NetworkStateList networkStatus={networkStatus} />
       </div>
     </div>
   );
