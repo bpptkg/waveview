@@ -1,5 +1,5 @@
 import { Button, Checkbox, Field, makeStyles, Popover, PopoverSurface, PopoverTrigger, Tooltip } from '@fluentui/react-components';
-import { FilterRegular } from '@fluentui/react-icons';
+import { DismissRegular, FilterRegular } from '@fluentui/react-icons';
 import { useCallback, useState } from 'react';
 import { EventType } from '../../types/event';
 import DatePicker from '../DatePicker/DatePicker';
@@ -21,6 +21,7 @@ const useEventTableFilterStyles = makeStyles({
   popoverSurface: {
     maxHeight: '500px',
     overflowY: 'auto',
+    borderRadius: '16px',
   },
 });
 
@@ -81,36 +82,39 @@ const EventTableFilter: React.FC<EventTableFilterProps> = ({ eventTypes = [], in
         </Tooltip>
       </PopoverTrigger>
       <PopoverSurface className={styles.popoverSurface}>
+        <div className="flex items-center justify-between">
+          <span className="font-semibold text-md">Filter Events</span>
+          <Button appearance="transparent" onClick={() => setOpen(false)} icon={<DismissRegular />} />
+        </div>
         <div>
-          <p className="font-semibold text-md">Filter Events</p>
-          <div className="flex items-center justify-between gap-1 mt-1">
-            <Field label={'Start date'}>
-              <DatePicker selected={startDate} onChange={handleStartDateChange} />
-            </Field>
-            <Field label={'End date'}>
-              <DatePicker selected={endDate} onChange={handleEndDateChange} />
-            </Field>
+          <Field label={'Start date'}>
+            <DatePicker selected={startDate} onChange={handleStartDateChange} />
+          </Field>
+          <Field label={'End date'}>
+            <DatePicker selected={endDate} onChange={handleEndDateChange} />
+          </Field>
+        </div>
+        <div className="mt-1">
+          <p>Event types</p>
+          <Checkbox checked={selectedTypes.length === eventTypes.length} label={'All'} onChange={() => handleSelectAll()}></Checkbox>
+          <div className="grid grid-cols-2 gap-0">
+            {eventTypes.map((item) => (
+              <Checkbox key={item.id} checked={selectedTypes.includes(item.code)} label={item.code} onChange={() => handleSelect(item.code)}></Checkbox>
+            ))}
           </div>
-          <div className="mt-1">
-            <p>Event types</p>
-            <Checkbox checked={selectedTypes.length === eventTypes.length} label={'All'} onChange={() => handleSelectAll()}></Checkbox>
-            <div className="grid grid-cols-3 gap-0">
-              {eventTypes.map((item) => (
-                <Checkbox key={item.id} checked={selectedTypes.includes(item.code)} label={item.code} onChange={() => handleSelect(item.code)}></Checkbox>
-              ))}
-            </div>
-          </div>
-          <div className="mt-1">
-            <Checkbox checked={isBookmarked} label={'Bookmarked'} onChange={() => setIsBookmarked(!isBookmarked)} />
-          </div>
-          <div className="flex items-center justify-end mt-2 gap-2">
-            <Button appearance="secondary" onClick={handleReset}>
-              Reset
-            </Button>
-            <Button appearance="primary" onClick={handleApply}>
-              Apply
-            </Button>
-          </div>
+        </div>
+        <div className="mt-1">
+          <Field label={'Bookmark'}>
+            <Checkbox checked={isBookmarked} label={'Bookmarked only'} onChange={() => setIsBookmarked(!isBookmarked)} />
+          </Field>
+        </div>
+        <div className="flex items-center justify-end mt-2 gap-2">
+          <Button appearance="secondary" onClick={handleReset}>
+            Reset
+          </Button>
+          <Button appearance="primary" onClick={handleApply}>
+            Apply
+          </Button>
         </div>
       </PopoverSurface>
     </Popover>
