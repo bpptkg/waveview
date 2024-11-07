@@ -131,7 +131,7 @@ const Hypocenter = () => {
   useEffect(() => {
     updatePlot({ refreshHypo: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [useUTC, darkMode]);
+  }, [useUTC, darkMode, updatePlot]);
 
   useEffect(() => {
     if (workspace === '3d') {
@@ -229,8 +229,6 @@ const Hypocenter = () => {
               width: '100%',
               height: '100%',
             }}
-            option={{}}
-            notMerge={true}
           />
         </div>
       )}
