@@ -1,4 +1,4 @@
-import { Button, MenuItemRadio, MenuList, MenuProps, Popover, PopoverSurface, PopoverTrigger, Tooltip } from '@fluentui/react-components';
+import { Button, makeStyles, MenuItemRadio, MenuList, MenuProps, Popover, PopoverSurface, PopoverTrigger, Tooltip } from '@fluentui/react-components';
 import { CheckmarkRegular, ColumnDoubleCompareRegular } from '@fluentui/react-icons';
 import React, { useCallback, useState } from 'react';
 
@@ -9,7 +9,15 @@ export interface MethodFilterProps {
   onReset?: () => void;
 }
 
+const useStyles = makeStyles({
+  popoverSurface: {
+    padding: '8px',
+    borderRadius: '16px',
+  },
+});
+
 const MethodFilter: React.FC<MethodFilterProps> = ({ methods = [], selected = '', onChange, onReset }) => {
+  const styles = useStyles();
   const [open, setOpen] = useState<boolean>(false);
   const [checkedValues, setCheckedValues] = useState<Record<string, string[]>>({ methods: [selected] });
 
@@ -34,7 +42,8 @@ const MethodFilter: React.FC<MethodFilterProps> = ({ methods = [], selected = ''
           <Button appearance="transparent" aria-label="Filter by method" icon={<ColumnDoubleCompareRegular fontSize={20} />} />
         </Tooltip>
       </PopoverTrigger>
-      <PopoverSurface>
+      <PopoverSurface className={styles.popoverSurface}>
+        <div className="p-2 text-md font-semibold">Filter by Method</div>
         {methods.length ? (
           <MenuList hasCheckmarks checkedValues={checkedValues} onCheckedValueChange={handleChange}>
             {methods.map((item) => (
