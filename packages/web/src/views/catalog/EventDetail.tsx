@@ -93,7 +93,9 @@ const OverflowMenu: React.FC<{ tabs: EventTabItem[] }> = ({ tabs }) => {
   return (
     <Menu>
       <MenuTrigger disableButtonEnhancement>
-        <MenuButton ref={ref} appearance="transparent" icon={<MoreHorizontalRegular fontSize={20} />}></MenuButton>
+        <Tooltip content={'More Options'} relationship="label" showDelay={1500}>
+          <MenuButton ref={ref} appearance="transparent" icon={<MoreHorizontalRegular fontSize={20} />}></MenuButton>
+        </Tooltip>
       </MenuTrigger>
 
       <MenuPopover className={styles.menuPopover}>
