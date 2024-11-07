@@ -35,7 +35,8 @@ import { useWebSocket } from '../WebSocket/WebSocketContext';
 const useNotificationPanelStyles = makeStyles({
   popoverSurface: {
     padding: '0px',
-    width: '300px',
+    width: '270px',
+    borderRadius: '16px',
   },
 });
 
