@@ -197,7 +197,7 @@ const Seismicity = () => {
             </div>
           </div>
 
-          <ReactECharts ref={chartRef} style={chartStyle} option={{}} notMerge={true} lazyUpdate={true} autoResize={true} />
+          <ReactECharts ref={chartRef} style={chartStyle} notMerge={true} lazyUpdate={true} autoResize={true} />
 
           <Table aria-label="Seismicity Table" className="mt-2">
             <TableHeader>
