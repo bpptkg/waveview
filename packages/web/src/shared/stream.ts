@@ -1,5 +1,6 @@
 import { ZstdCodec } from 'zstd-codec';
 import { SpectrogramResponseData, StreamResponseData } from '../types/worker';
+import { ONE_SECOND } from './time';
 
 export async function decompress(blob: Blob): Promise<Blob> {
   const buffer = await blob.arrayBuffer();
@@ -30,9 +31,14 @@ export async function readStream(blob: Blob): Promise<StreamResponseData> {
   const start = Number(header[0]);
   const end = Number(header[1]);
   const length = Number(header[2]);
+  const time = Number(header[3]);
+  const sampleRate = Number(header[4]);
 
-  const index = new Float64Array(buffer, 64 * 4, length);
-  const data = new Float64Array(buffer, 64 * 4 + length * 8, length);
+  const index = new Float64Array(length);
+  for (let i = 0; i < length; i++) {
+    index[i] = time + (i / sampleRate) * ONE_SECOND;
+  }
+  const data = new Float64Array(buffer, 64 * 4, length);
 
   const extent = data.reduce(
     (acc, val) => {
