@@ -9,7 +9,7 @@ const Help = () => {
     <div className="relative h-full w-full">
       <div className="absolute top-0 right-0 bottom-0 left-0 overflow-auto">
         <div className="flex flex-col items-center">
-          <div className="bg-white dark:bg-black mt-2 mb-4 rounded-lg w-1/2 p-3">
+          <div className="bg-white dark:bg-black mt-2 mb-4 rounded-2xl w-1/2 p-3">
             <h1 className="text-2xl font-bold mb-4">How can we help you?</h1>
             <p className="mb-4">
               If you have any questions or issues, please contact your system administrator for assistance. They can help you with troubleshooting common
