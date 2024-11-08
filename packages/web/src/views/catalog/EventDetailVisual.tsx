@@ -44,7 +44,7 @@ const EventDetailVisual = () => {
     case 'volcanic_emission':
       return <EventDetailVisualVolcanicEmission event={event} />;
     default:
-      return null;
+      return <div className="p-2">Visual not available</div>;
   }
 };
 
