@@ -13,7 +13,7 @@ const NetworkState: React.FC<{ status: SeismicNetworkStatus }> = ({ status }) =>
   }, []);
 
   return (
-    <div className="bg-white dark:bg-black mb-4 rounded-lg w-1/2 p-3">
+    <div className="bg-white dark:bg-black mb-4 rounded-2xl w-1/2 p-3">
       <h1 className="text-xl font-bold mb-4" style={{ color: status.color }}>
         {status.state_label}
       </h1>
