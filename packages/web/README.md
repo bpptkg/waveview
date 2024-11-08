@@ -15,6 +15,10 @@ WaveView backend API endpoints URL, e.g. `http://localhost:8000`.
 
 WaveView backend API WebSocket URL, e.g. `ws://localhost:8000`.
 
+- VITE_BUILD_VENDOR
+
+Vendor specific features and UI extensions. Available vendors are: `cendana15`.
+
 Then, install all package dependencies:
 
     pnpm install
@@ -22,6 +26,10 @@ Then, install all package dependencies:
 Run development server:
 
     pnpm run dev
+
+To build and minify for production:
+
+    pnpm run build
 
 ## License
 
