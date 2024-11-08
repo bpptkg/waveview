@@ -108,9 +108,12 @@ const Seismicity = () => {
   }, [seismicity, chartRef, getEChartsOption, updatePlot]);
 
   const chartStyle = useMemo(() => {
-    const length = seismicity?.length || 0;
+    const length = seismicity?.length || 1;
+    let height = length * 100;
+    height = Math.max(300, Math.min(height, 800));
     return {
-      height: 100 * length,
+      height: `${height}px`,
+      width: '100%',
     };
   }, [seismicity]);
 
@@ -197,7 +200,7 @@ const Seismicity = () => {
             </div>
           </div>
 
-          <ReactECharts ref={chartRef} style={chartStyle} notMerge={true} lazyUpdate={true} autoResize={true} />
+          <ReactECharts ref={chartRef} style={chartStyle} autoResize={true} />
 
           <Table aria-label="Seismicity Table" className="mt-2">
             <TableHeader>

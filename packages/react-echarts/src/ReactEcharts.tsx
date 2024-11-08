@@ -52,6 +52,7 @@ export const ReactECharts: React.ForwardRefExoticComponent<
   } = props;
   const containerRef = useRef<HTMLDivElement>(null);
   const echartInstanceRef = useRef<ECharts | null>(null);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
   useImperativeHandle(ref, () => ({
     getInstance: () => echartInstanceRef.current!,
@@ -87,6 +88,15 @@ export const ReactECharts: React.ForwardRefExoticComponent<
     },
   }));
 
+  const onResize = (entries: ResizeObserverEntry[]) => {
+    if (autoResize) {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        echartInstanceRef.current?.resize({ width, height });
+      }
+    }
+  };
+
   useEffect(() => {
     if (containerRef.current) {
       echartInstanceRef.current = init(containerRef.current);
@@ -94,21 +104,14 @@ export const ReactECharts: React.ForwardRefExoticComponent<
       if (showLoading) echartInstanceRef.current.showLoading(loadingOption);
       else echartInstanceRef.current.hideLoading();
       if (autoResize) {
-        window.addEventListener(
-          "resize",
-          () => {
-            echartInstanceRef.current?.resize();
-          },
-          { passive: true }
-        );
+        resizeObserverRef.current = new ResizeObserver(onResize);
+        resizeObserverRef.current.observe(containerRef.current);
       }
     }
 
     return () => {
       if (autoResize) {
-        window.removeEventListener("resize", () => {
-          echartInstanceRef.current?.resize();
-        });
+        resizeObserverRef.current?.disconnect();
       }
       echartInstanceRef.current?.dispose();
     };
