@@ -192,7 +192,7 @@ const SeismogramChannelList: React.FC<SeismogramChannelListProps> = ({ channelLi
           </PopoverSurface>
         </Popover>
       </div>
-      <div className="border border-gray-300 dark:border-gray-700 p-2 h-[300px] overflow-auto">
+      <div className="border border-gray-300 dark:border-gray-700 rounded-md p-2 h-[300px] overflow-auto">
         {channelList.map((channelListItem, index) => (
           <div key={channelListItem.channel.id} className="flex gap-1 items-center relative group h-[40px]">
             <ColorPicker color={channelListItem.color} onChange={(color) => handleColorChange(index, color)} />

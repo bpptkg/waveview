@@ -1,10 +1,11 @@
 import { Tab, TabList, TabListProps, Tooltip } from '@fluentui/react-components';
-import { CopySelectRegular, SoundWaveCircleRegular } from '@fluentui/react-icons';
+import { CalendarAgendaRegular, DeviceMeetingRoomRegular, PulseSquareRegular, SoundWaveCircleRegular, TabDesktopBottomRegular } from '@fluentui/react-icons';
 import React from 'react';
 import { useSidebarStore } from '../../../stores/sidebar';
 import { SidebarTab } from '../../../stores/sidebar/types';
 import EventEditor from './EventEditor/EventEditor';
 import FilterToolbox from './FilterToolbox';
+import InstrumentResponse from './InstrumentResponse';
 
 const Sidebar: React.FC = () => {
   const { selectedTab, setSelectedTab } = useSidebarStore();
@@ -20,15 +21,19 @@ const Sidebar: React.FC = () => {
         <div className="absolute top-0 right-0 bottom-0 left-0 overflow-auto">
           {selectedTab === 'eventEditor' && <EventEditor />}
           {selectedTab === 'filterToolbox' && <FilterToolbox />}
+          {selectedTab === 'instrumentResponse' && <InstrumentResponse />}
         </div>
       </div>
       <div className="relative bg-white dark:bg-neutral-grey-4 border-l dark:border-l-gray-800">
-        <TabList vertical size="medium" onTabSelect={handleTabSelect} selectedValue={selectedTab} className="absolute right-0 top-0 bottom-0">
+        <TabList vertical size="large" onTabSelect={handleTabSelect} selectedValue={selectedTab} className="absolute right-0 top-0 bottom-0">
           <Tooltip content="Event Editor" relationship="label" showDelay={1500}>
-            <Tab value={'eventEditor'} icon={<CopySelectRegular />}></Tab>
+            <Tab value={'eventEditor'} icon={<CalendarAgendaRegular />}></Tab>
           </Tooltip>
           <Tooltip content="Filter Toolbox" relationship="label" showDelay={1500}>
-            <Tab value={'filterToolbox'} icon={<SoundWaveCircleRegular />}></Tab>
+            <Tab value={'filterToolbox'} icon={<PulseSquareRegular />}></Tab>
+          </Tooltip>
+          <Tooltip content="Instrument Response" relationship="label" showDelay={1500}>
+            <Tab value={'instrumentResponse'} icon={<DeviceMeetingRoomRegular />}></Tab>
           </Tooltip>
         </TabList>
       </div>

@@ -15,16 +15,23 @@ const ViewMenu = () => {
   const styles = useStyles();
 
   const { selectedTab, showSidebar, setSelectedTab, setShowSidebar } = useSidebarStore();
-  const handleEventEditor = useCallback(() => {
+  const handleSelectEventEditor = useCallback(() => {
     setSelectedTab('eventEditor');
     if (selectedTab === 'eventEditor') {
       setShowSidebar(!showSidebar);
     }
   }, [showSidebar, selectedTab, setSelectedTab, setShowSidebar]);
 
-  const handleFilterToolbox = useCallback(() => {
+  const handleSelectFilterToolbox = useCallback(() => {
     setSelectedTab('filterToolbox');
     if (selectedTab === 'filterToolbox') {
+      setShowSidebar(!showSidebar);
+    }
+  }, [showSidebar, selectedTab, setSelectedTab, setShowSidebar]);
+
+  const handleSelectInstrumentResponseToolbox = useCallback(() => {
+    setSelectedTab('instrumentResponse');
+    if (selectedTab === 'instrumentResponse') {
       setShowSidebar(!showSidebar);
     }
   }, [showSidebar, selectedTab, setSelectedTab, setShowSidebar]);
@@ -38,8 +45,9 @@ const ViewMenu = () => {
       </MenuTrigger>
       <MenuPopover className={styles.menuPopover}>
         <MenuList>
-          <MenuItem onClick={handleEventEditor}>Event Editor</MenuItem>
-          <MenuItem onClick={handleFilterToolbox}>Filter Toolbox</MenuItem>
+          <MenuItem onClick={handleSelectEventEditor}>Event Editor</MenuItem>
+          <MenuItem onClick={handleSelectFilterToolbox}>Filter Toolbox</MenuItem>
+          <MenuItem onClick={handleSelectInstrumentResponseToolbox}>Instrument Response</MenuItem>
         </MenuList>
       </MenuPopover>
     </Menu>

@@ -1,11 +1,11 @@
 import { Field, InputOnChangeData, makeStyles, MenuItem, MenuList, SearchBox, SearchBoxChangeEvent } from '@fluentui/react-components';
 import Fuse from 'fuse.js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useInventoryStore } from '../../../stores/inventory';
-import { Channel } from '../../../types/channel';
+import { useInventoryStore } from '../../stores/inventory';
+import { Channel } from '../../types/channel';
 
-export interface HelicorderDefaultChannelProps {
-  channelId: string;
+export interface ChannelSelectorProps {
+  channelId?: string;
   onChange?: (channel: Channel) => void;
 }
 
@@ -15,7 +15,7 @@ const useStyles = makeStyles({
   },
   searchBox: {
     width: '100%',
-    maxWidth: '100%',
+    maxWidth: '200px',
   },
   toolbar: {
     gap: '3px',
@@ -26,7 +26,7 @@ const useStyles = makeStyles({
   },
 });
 
-const HelicorderDefaultChannel: React.FC<HelicorderDefaultChannelProps> = ({ channelId, onChange }) => {
+const ChannelSelector: React.FC<ChannelSelectorProps> = ({ channelId, onChange }) => {
   const { channels } = useInventoryStore();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const fuseRef = useRef<Fuse<Channel> | null>(null);
@@ -58,11 +58,10 @@ const HelicorderDefaultChannel: React.FC<HelicorderDefaultChannelProps> = ({ cha
   }, [searchQuery, candidateChannels]);
   return (
     <div>
-      <p className="mb-2">Select helicorder default channel.</p>
       <Field>
         <SearchBox className={styles.searchBox} placeholder="Search channel" size="medium" value={searchQuery} onChange={handleSearchChange} />
       </Field>
-      <div className="h-[300px] overflow-auto border border-gray-300 dark:border-gray-700 rounded-md mt-2">
+      <div className="max-h-[300px] border border-gray-300 dark:border-gray-700 rounded-md overflow-auto mt-2">
         <MenuList>
           {filterableChannels.length > 0 ? (
             filterableChannels.map((channel, index) => (
@@ -71,7 +70,7 @@ const HelicorderDefaultChannel: React.FC<HelicorderDefaultChannelProps> = ({ cha
               </MenuItem>
             ))
           ) : (
-            <MenuItem>No channels found</MenuItem>
+            <MenuItem disabled>No channels found</MenuItem>
           )}
         </MenuList>
       </div>
@@ -79,4 +78,4 @@ const HelicorderDefaultChannel: React.FC<HelicorderDefaultChannelProps> = ({ cha
   );
 };
 
-export default HelicorderDefaultChannel;
+export default ChannelSelector;

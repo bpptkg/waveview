@@ -200,7 +200,7 @@ const FilterToolbox: React.FC = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-start px-2 py-2 border-b dark:border-b-gray-800">
+      <div className="flex items-center justify-start px-2 h-[40px] border-b dark:border-b-gray-800">
         <div className="font-semibold">Filter Toolbox</div>
       </div>
       <div className="p-2 mb-4">

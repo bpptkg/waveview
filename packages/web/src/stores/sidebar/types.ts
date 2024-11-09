@@ -1,4 +1,4 @@
-export type SidebarTab = 'eventEditor' | 'filterToolbox';
+export type SidebarTab = 'eventEditor' | 'filterToolbox' | 'instrumentResponse';
 
 export interface SidebarStore {
   selectedTab: SidebarTab;
