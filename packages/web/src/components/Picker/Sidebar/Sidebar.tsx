@@ -1,5 +1,5 @@
 import { Tab, TabList, TabListProps, Tooltip } from '@fluentui/react-components';
-import { CalendarAgendaRegular, DeviceMeetingRoomRegular, PulseSquareRegular, SoundWaveCircleRegular, TabDesktopBottomRegular } from '@fluentui/react-icons';
+import { CalendarAgendaRegular, DeviceMeetingRoomRegular, PulseSquareRegular } from '@fluentui/react-icons';
 import React from 'react';
 import { useSidebarStore } from '../../../stores/sidebar';
 import { SidebarTab } from '../../../stores/sidebar/types';
