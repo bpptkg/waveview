@@ -9,13 +9,13 @@ export interface TimezoneSelectorProps {
 
 const TimezoneSelector: React.FC<TimezoneSelectorProps> = (props) => {
   const { onBack } = props;
-  const { setUseUTC, timeZone } = useAppStore();
+  const { setUseUTC, timeZone, useUTC } = useAppStore();
 
   const options = [
     { label: timeZone, value: 'local' },
     { label: 'UTC', value: 'utc' },
   ];
-  const [checkedValues, setCheckedValues] = React.useState<Record<string, string[]>>({ timezone: ['local'] });
+  const [checkedValues, setCheckedValues] = React.useState<Record<string, string[]>>({ timezone: [useUTC ? 'utc' : 'local'] });
   const onChange: MenuProps['onCheckedValueChange'] = (_, { name, checkedItems }) => {
     setCheckedValues((s) => ({ ...s, [name]: checkedItems }));
     if (name === 'timezone') {
