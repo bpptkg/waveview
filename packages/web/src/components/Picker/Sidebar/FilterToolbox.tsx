@@ -52,8 +52,9 @@ const BandpassFilter = () => {
           appearance={appearance}
           type="number"
           min={0.001}
+          step={0.01}
           max={50}
-          defaultValue={bandpass.freqmin.toString()}
+          value={bandpass.freqmin.toString()}
           onChange={(_, data) => handleFreqminChange(data.value)}
         />
       </Field>
@@ -62,13 +63,14 @@ const BandpassFilter = () => {
           appearance={appearance}
           type="number"
           min={0.001}
+          step={0.01}
           max={50}
-          defaultValue={bandpass.freqmax.toString()}
+          value={bandpass.freqmax.toString()}
           onChange={(_, data) => handleFreqmaxChange(data.value)}
         />
       </Field>
       <Field label={'Order'}>
-        <Input appearance={appearance} type="number" min={0} defaultValue={bandpass.order.toString()} onChange={(_, data) => handleOrderChange(data.value)} />
+        <Input appearance={appearance} type="number" min={0} value={bandpass.order.toString()} onChange={(_, data) => handleOrderChange(data.value)} />
       </Field>
       <Switch label={'Zero phase'} checked={bandpass.zerophase} onChange={(e) => handleZeroPhaseChange(e.target.checked)} />
     </div>
@@ -106,13 +108,14 @@ const LowpassFilter = () => {
           appearance={appearance}
           type="number"
           min={0.001}
+          step={0.01}
           max={50}
-          defaultValue={lowpass.freq.toString()}
+          value={lowpass.freq.toString()}
           onChange={(_, data) => handleFreqChange(data.value)}
         />
       </Field>
       <Field label={'Order'}>
-        <Input appearance={appearance} type="number" min={0} defaultValue={lowpass.order.toString()} onChange={(_, data) => handleOrderChange(data.value)} />
+        <Input appearance={appearance} type="number" min={0} value={lowpass.order.toString()} onChange={(_, data) => handleOrderChange(data.value)} />
       </Field>
       <Switch label={'Zero phase'} checked={lowpass.zerophase} onChange={(e) => handleZeroPhaseChange(e.target.checked)} />
     </div>
@@ -155,13 +158,14 @@ const HighpassFilter = () => {
           appearance={appearance}
           type="number"
           min={0.001}
+          step={0.01}
           max={50}
-          defaultValue={highpass.freq.toString()}
+          value={highpass.freq.toString()}
           onChange={(_, data) => handleFreqChange(data.value)}
         />
       </Field>
       <Field label={'Order'}>
-        <Input appearance={appearance} type="number" min={0} defaultValue={highpass.order.toString()} onChange={(_, data) => handleOrderChange(data.value)} />
+        <Input appearance={appearance} type="number" min={0} value={highpass.order.toString()} onChange={(_, data) => handleOrderChange(data.value)} />
       </Field>
       <Switch label={'Zero phase'} checked={highpass.zerophase} onChange={(e) => handleZeroPhaseChange(e.target.checked)} />
     </div>
@@ -214,6 +218,7 @@ const TaperOptions = () => {
           appearance={appearance}
           type="number"
           min={0}
+          step={1}
           max={50}
           value={taperWidth.toString()}
           onChange={(_, data) => handleTaperWidthChange(data.value)}
