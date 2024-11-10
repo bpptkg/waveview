@@ -5,25 +5,37 @@ import { useFilterStore } from '../../../stores/filter';
 import { FilterType, TaperType } from '../../../types/filter';
 import { usePickerContext } from '../PickerContext';
 
+const validateFreq = (value: number) => {
+  if (value <= 0) {
+    return 0.001;
+  }
+  return Math.min(value, 50);
+};
+
 const BandpassFilter = () => {
   const { bandpass, setBandpass } = useFilterStore();
   const handleFreqminChange = (value: string) => {
-    if (isNaN(parseFloat(value))) {
-      return;
+    const freqmin = parseFloat(value);
+    if (isNaN(freqmin)) {
+      setBandpass({ ...bandpass, freqmin: 0.001 });
+    } else {
+      setBandpass({ ...bandpass, freqmin: validateFreq(freqmin) });
     }
-    setBandpass({ ...bandpass, freqmin: parseFloat(value) });
   };
   const handleFreqmaxChange = (value: string) => {
-    if (isNaN(parseFloat(value))) {
-      return;
+    const freqmax = parseFloat(value);
+    if (isNaN(freqmax)) {
+      setBandpass({ ...bandpass, freqmax: 0.001 });
+    } else {
+      setBandpass({ ...bandpass, freqmax: validateFreq(freqmax) });
     }
-    setBandpass({ ...bandpass, freqmax: parseFloat(value) });
   };
   const handleOrderChange = (value: string) => {
     if (isNaN(parseFloat(value))) {
-      return;
+      setBandpass({ ...bandpass, order: 0 });
+    } else {
+      setBandpass({ ...bandpass, order: parseFloat(value) });
     }
-    setBandpass({ ...bandpass, order: parseFloat(value) });
   };
   const handleZeroPhaseChange = (value: boolean) => {
     setBandpass({ ...bandpass, zerophase: value });
@@ -36,13 +48,27 @@ const BandpassFilter = () => {
   return (
     <div>
       <Field label={'Freq min (Hz)'}>
-        <Input appearance={appearance} type="number" min={0.01} value={bandpass.freqmin.toString()} onChange={(_, data) => handleFreqminChange(data.value)} />
+        <Input
+          appearance={appearance}
+          type="number"
+          min={0.001}
+          max={50}
+          defaultValue={bandpass.freqmin.toString()}
+          onChange={(_, data) => handleFreqminChange(data.value)}
+        />
       </Field>
       <Field label={'Freq max (Hz)'}>
-        <Input appearance={appearance} type="number" min={0.01} value={bandpass.freqmax.toString()} onChange={(_, data) => handleFreqmaxChange(data.value)} />
+        <Input
+          appearance={appearance}
+          type="number"
+          min={0.001}
+          max={50}
+          defaultValue={bandpass.freqmax.toString()}
+          onChange={(_, data) => handleFreqmaxChange(data.value)}
+        />
       </Field>
       <Field label={'Order'}>
-        <Input appearance={appearance} type="number" min={0} value={bandpass.order.toString()} onChange={(_, data) => handleOrderChange(data.value)} />
+        <Input appearance={appearance} type="number" min={0} defaultValue={bandpass.order.toString()} onChange={(_, data) => handleOrderChange(data.value)} />
       </Field>
       <Switch label={'Zero phase'} checked={bandpass.zerophase} onChange={(e) => handleZeroPhaseChange(e.target.checked)} />
     </div>
@@ -52,16 +78,19 @@ const BandpassFilter = () => {
 const LowpassFilter = () => {
   const { lowpass, setLowpass } = useFilterStore();
   const handleFreqChange = (value: string) => {
-    if (isNaN(parseFloat(value))) {
-      return;
+    const freq = parseFloat(value);
+    if (isNaN(freq)) {
+      setLowpass({ ...lowpass, freq: 0.001 });
+    } else {
+      setLowpass({ ...lowpass, freq: validateFreq(freq) });
     }
-    setLowpass({ ...lowpass, freq: parseFloat(value) });
   };
   const handleOrderChange = (value: string) => {
     if (isNaN(parseFloat(value))) {
-      return;
+      setLowpass({ ...lowpass, order: 0 });
+    } else {
+      setLowpass({ ...lowpass, order: parseFloat(value) });
     }
-    setLowpass({ ...lowpass, order: parseFloat(value) });
   };
   const handleZeroPhaseChange = (value: boolean) => {
     setLowpass({ ...lowpass, zerophase: value });
@@ -73,10 +102,17 @@ const LowpassFilter = () => {
   return (
     <div>
       <Field label={'Freq (Hz)'}>
-        <Input appearance={appearance} type="number" min={0.01} value={lowpass.freq.toString()} onChange={(_, data) => handleFreqChange(data.value)} />
+        <Input
+          appearance={appearance}
+          type="number"
+          min={0.001}
+          max={50}
+          defaultValue={lowpass.freq.toString()}
+          onChange={(_, data) => handleFreqChange(data.value)}
+        />
       </Field>
       <Field label={'Order'}>
-        <Input appearance={appearance} type="number" min={0} value={lowpass.order.toString()} onChange={(_, data) => handleOrderChange(data.value)} />
+        <Input appearance={appearance} type="number" min={0} defaultValue={lowpass.order.toString()} onChange={(_, data) => handleOrderChange(data.value)} />
       </Field>
       <Switch label={'Zero phase'} checked={lowpass.zerophase} onChange={(e) => handleZeroPhaseChange(e.target.checked)} />
     </div>
@@ -85,32 +121,47 @@ const LowpassFilter = () => {
 
 const HighpassFilter = () => {
   const { highpass, setHighpass } = useFilterStore();
+
   const handleFreqChange = (value: string) => {
-    if (isNaN(parseFloat(value))) {
-      return;
+    const freq = parseFloat(value);
+    if (isNaN(freq)) {
+      setHighpass({ ...highpass, freq: 0.001 });
+    } else {
+      setHighpass({ ...highpass, freq: validateFreq(freq) });
     }
-    setHighpass({ ...highpass, freq: parseFloat(value) });
   };
+
   const handleOrderChange = (value: string) => {
     if (isNaN(parseFloat(value))) {
-      return;
+      setHighpass({ ...highpass, order: 0 });
+    } else {
+      setHighpass({ ...highpass, order: parseFloat(value) });
     }
-    setHighpass({ ...highpass, order: parseFloat(value) });
   };
+
   const handleZeroPhaseChange = (value: boolean) => {
     setHighpass({ ...highpass, zerophase: value });
   };
+
   const { darkMode } = useAppStore();
   const appearance = useMemo(() => {
     return darkMode ? 'filled-lighter' : 'filled-darker';
   }, [darkMode]);
+
   return (
     <div>
       <Field label={'Freq (Hz)'}>
-        <Input appearance={appearance} type="number" min={0.01} value={highpass.freq.toString()} onChange={(_, data) => handleFreqChange(data.value)} />
+        <Input
+          appearance={appearance}
+          type="number"
+          min={0.001}
+          max={50}
+          defaultValue={highpass.freq.toString()}
+          onChange={(_, data) => handleFreqChange(data.value)}
+        />
       </Field>
       <Field label={'Order'}>
-        <Input appearance={appearance} type="number" min={0} value={highpass.order.toString()} onChange={(_, data) => handleOrderChange(data.value)} />
+        <Input appearance={appearance} type="number" min={0} defaultValue={highpass.order.toString()} onChange={(_, data) => handleOrderChange(data.value)} />
       </Field>
       <Switch label={'Zero phase'} checked={highpass.zerophase} onChange={(e) => handleZeroPhaseChange(e.target.checked)} />
     </div>
@@ -124,9 +175,10 @@ const TaperOptions = () => {
   };
   const handleTaperWidthChange = (value: string) => {
     if (isNaN(parseFloat(value))) {
-      return;
+      setTaperWidth(0);
+    } else {
+      setTaperWidth(parseFloat(value));
     }
-    setTaperWidth(parseFloat(value));
   };
   const { darkMode } = useAppStore();
   const appearance = useMemo(() => {
@@ -162,7 +214,7 @@ const TaperOptions = () => {
           appearance={appearance}
           type="number"
           min={0}
-          step={50}
+          max={50}
           value={taperWidth.toString()}
           onChange={(_, data) => handleTaperWidthChange(data.value)}
         />
