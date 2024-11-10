@@ -210,9 +210,10 @@ const InstrumentResponseContent: React.FC = () => {
   const handleWaterLevelChange = useCallback(
     (value: string) => {
       if (isNaN(parseFloat(value))) {
-        return;
+        setWaterLevel(0);
+      } else {
+        setWaterLevel(parseFloat(value));
       }
-      setWaterLevel(parseFloat(value));
     },
     [setWaterLevel]
   );
@@ -227,9 +228,10 @@ const InstrumentResponseContent: React.FC = () => {
   const handleF1Change = useCallback(
     (value: string) => {
       if (isNaN(parseFloat(value))) {
-        return;
+        setF1(0);
+      } else {
+        setF1(parseFloat(value));
       }
-      setF1(parseFloat(value));
     },
     [setF1]
   );
@@ -237,9 +239,10 @@ const InstrumentResponseContent: React.FC = () => {
   const handleF2Change = useCallback(
     (value: string) => {
       if (isNaN(parseFloat(value))) {
-        return;
+        setF2(0);
+      } else {
+        setF2(parseFloat(value));
       }
-      setF2(parseFloat(value));
     },
     [setF2]
   );
@@ -247,9 +250,10 @@ const InstrumentResponseContent: React.FC = () => {
   const handleF3Change = useCallback(
     (value: string) => {
       if (isNaN(parseFloat(value))) {
-        return;
+        setF3(0);
+      } else {
+        setF3(parseFloat(value));
       }
-      setF3(parseFloat(value));
     },
     [setF3]
   );
@@ -257,9 +261,10 @@ const InstrumentResponseContent: React.FC = () => {
   const handleF4Change = useCallback(
     (value: string) => {
       if (isNaN(parseFloat(value))) {
-        return;
+        setF4(0);
+      } else {
+        setF4(parseFloat(value));
       }
-      setF4(parseFloat(value));
     },
     [setF4]
   );
@@ -281,9 +286,10 @@ const InstrumentResponseContent: React.FC = () => {
   const handleTaperFractionChange = useCallback(
     (value: string) => {
       if (isNaN(parseFloat(value))) {
-        return;
+        setTaperFraction(0);
+      } else {
+        setTaperFraction(parseFloat(value));
       }
-      setTaperFraction(parseFloat(value));
     },
     [setTaperFraction]
   );
@@ -333,7 +339,7 @@ const InstrumentResponseContent: React.FC = () => {
                 appearance={appearance}
                 type="number"
                 min={0}
-                value={f1.toString()}
+                defaultValue={f1.toString()}
                 onChange={(_, data) => handleF1Change(data.value)}
               />
             </div>
@@ -344,7 +350,7 @@ const InstrumentResponseContent: React.FC = () => {
                 appearance={appearance}
                 type="number"
                 min={0}
-                value={f2.toString()}
+                defaultValue={f2.toString()}
                 onChange={(_, data) => handleF2Change(data.value)}
               />
             </div>
@@ -355,7 +361,7 @@ const InstrumentResponseContent: React.FC = () => {
                 appearance={appearance}
                 type="number"
                 min={0}
-                value={f3.toString()}
+                defaultValue={f3.toString()}
                 onChange={(_, data) => handleF3Change(data.value)}
               />
             </div>
@@ -366,7 +372,7 @@ const InstrumentResponseContent: React.FC = () => {
                 appearance={appearance}
                 type="number"
                 min={0}
-                value={f4.toString()}
+                defaultValue={f4.toString()}
                 onChange={(_, data) => handleF4Change(data.value)}
               />
             </div>
@@ -379,7 +385,13 @@ const InstrumentResponseContent: React.FC = () => {
       </Field>
       {useWaterLevel && (
         <Field label="Water Level">
-          <Input appearance={appearance} type="number" min={0} value={waterLevel.toString()} onChange={(_, data) => handleWaterLevelChange(data.value)} />
+          <Input
+            appearance={appearance}
+            type="number"
+            min={0}
+            defaultValue={waterLevel.toString()}
+            onChange={(_, data) => handleWaterLevelChange(data.value)}
+          />
         </Field>
       )}
 
