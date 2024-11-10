@@ -24,6 +24,8 @@ const PickerPanel = () => {
   const seisChartRef = useRef<SeismogramChartRef | null>(null);
   const eventMarkerContextMenuRef = useRef<EventMarkerContextMenuRef | null>(null);
   const trackContextMenuRef = useRef<TrackContextMenuRef | null>(null);
+  const helicorderContainerRef = useRef<HTMLDivElement | null>(null);
+  const seismogramContainerRef = useRef<HTMLDivElement | null>(null);
 
   const { setSeisChartRef, setHeliChartRef, setContextMenuRef } = usePickerContext();
   const {
@@ -99,6 +101,22 @@ const PickerPanel = () => {
     };
   }, [setSeisChartRef, setHeliChartRef, setContextMenuRef]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (helicorderContainerRef.current && !helicorderContainerRef.current.contains(event.target as Node)) {
+        heliChartRef.current?.blur();
+      }
+      if (seismogramContainerRef.current && !seismogramContainerRef.current.contains(event.target as Node)) {
+        seisChartRef.current?.blur();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [heliChartRef, seisChartRef]);
+
   useHelicorderThemeEffect(heliChartRef);
   useSeismogramThemeEffect(seisChartRef);
   useHelicorderTimeZoneEffect(heliChartRef);
@@ -151,7 +169,7 @@ const PickerPanel = () => {
                   onCheckedValueChange={handleHelicorderCheckValueChange}
                   onScalingChange={handleHelicorderScalingChange}
                 />
-                <div className="flex-grow relative">
+                <div ref={helicorderContainerRef} className="flex-grow relative">
                   <HelicorderChart
                     ref={heliChartRef}
                     className={helicorderClassName}
@@ -193,7 +211,7 @@ const PickerPanel = () => {
               onScalingChange={handleSeismogramScalingChange}
               onFilterChange={handleSeismogramFilterChange}
             />
-            <div className="flex-grow relative">
+            <div ref={seismogramContainerRef} className="flex-grow relative">
               <SeismogramChart
                 ref={seisChartRef}
                 className={seismogramClassName}

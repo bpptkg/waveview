@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { usePickerContext } from './PickerContext';
 import { usePickerCallback } from './usePickerCallback';
 
@@ -7,23 +7,7 @@ export interface PickerRootProps {
 }
 
 const PickerRoot: React.FC<PickerRootProps> = ({ children }) => {
-  const workspaceRef = useRef<HTMLDivElement | null>(null);
-  const { heliChartRef, seisChartRef, seisChartReadyRef, heliChartReadyRef } = usePickerContext();
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (workspaceRef.current && !workspaceRef.current.contains(event.target as Node)) {
-        heliChartRef.current?.blur();
-        seisChartRef.current?.blur();
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [heliChartRef, seisChartRef]);
-
+  const { seisChartReadyRef, heliChartReadyRef } = usePickerContext();
   const { handleUpdateEventMarkers, handleSeismogramOnDestroy } = usePickerCallback();
 
   // Plot event markers.
@@ -40,11 +24,7 @@ const PickerRoot: React.FC<PickerRootProps> = ({ children }) => {
     };
   }, [handleSeismogramOnDestroy]);
 
-  return (
-    <div className="flex flex-col flex-grow relative overflow-hidden" ref={workspaceRef}>
-      {children}
-    </div>
-  );
+  return <div className="flex flex-col flex-grow relative overflow-hidden">{children}</div>;
 };
 
 export default PickerRoot;
