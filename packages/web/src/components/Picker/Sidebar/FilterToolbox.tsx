@@ -14,6 +14,7 @@ const validateFreq = (value: number) => {
 
 const BandpassFilter = () => {
   const { bandpass, setBandpass } = useFilterStore();
+
   const handleFreqminChange = (value: string) => {
     const freqmin = parseFloat(value);
     if (isNaN(freqmin)) {
@@ -22,6 +23,7 @@ const BandpassFilter = () => {
       setBandpass({ ...bandpass, freqmin: validateFreq(freqmin) });
     }
   };
+
   const handleFreqmaxChange = (value: string) => {
     const freqmax = parseFloat(value);
     if (isNaN(freqmax)) {
@@ -30,6 +32,7 @@ const BandpassFilter = () => {
       setBandpass({ ...bandpass, freqmax: validateFreq(freqmax) });
     }
   };
+
   const handleOrderChange = (value: string) => {
     if (isNaN(parseFloat(value))) {
       setBandpass({ ...bandpass, order: 0 });
@@ -37,9 +40,11 @@ const BandpassFilter = () => {
       setBandpass({ ...bandpass, order: parseFloat(value) });
     }
   };
+
   const handleZeroPhaseChange = (value: boolean) => {
     setBandpass({ ...bandpass, zerophase: value });
   };
+
   const { darkMode } = useAppStore();
   const appearance = useMemo(() => {
     return darkMode ? 'filled-lighter' : 'filled-darker';
@@ -79,6 +84,7 @@ const BandpassFilter = () => {
 
 const LowpassFilter = () => {
   const { lowpass, setLowpass } = useFilterStore();
+
   const handleFreqChange = (value: string) => {
     const freq = parseFloat(value);
     if (isNaN(freq)) {
@@ -87,6 +93,7 @@ const LowpassFilter = () => {
       setLowpass({ ...lowpass, freq: validateFreq(freq) });
     }
   };
+
   const handleOrderChange = (value: string) => {
     if (isNaN(parseFloat(value))) {
       setLowpass({ ...lowpass, order: 0 });
@@ -94,13 +101,16 @@ const LowpassFilter = () => {
       setLowpass({ ...lowpass, order: parseFloat(value) });
     }
   };
+
   const handleZeroPhaseChange = (value: boolean) => {
     setLowpass({ ...lowpass, zerophase: value });
   };
+
   const { darkMode } = useAppStore();
   const appearance = useMemo(() => {
     return darkMode ? 'filled-lighter' : 'filled-darker';
   }, [darkMode]);
+
   return (
     <div>
       <Field label={'Freq (Hz)'}>
@@ -174,9 +184,11 @@ const HighpassFilter = () => {
 
 const TaperOptions = () => {
   const { taperType, taperWidth, setTaperType, setTaperWidth } = useFilterStore();
+
   const handleTaperTypeChange = (value: string) => {
     setTaperType(value as TaperType);
   };
+
   const handleTaperWidthChange = (value: string) => {
     if (isNaN(parseFloat(value))) {
       setTaperWidth(0);
@@ -184,10 +196,12 @@ const TaperOptions = () => {
       setTaperWidth(parseFloat(value));
     }
   };
+
   const { darkMode } = useAppStore();
   const appearance = useMemo(() => {
     return darkMode ? 'filled-lighter' : 'filled-darker';
   }, [darkMode]);
+
   return (
     <div>
       <Field label={'Taper type'}>
