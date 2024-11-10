@@ -339,7 +339,9 @@ const InstrumentResponseContent: React.FC = () => {
                 appearance={appearance}
                 type="number"
                 min={0}
-                defaultValue={f1.toString()}
+                step={0.01}
+                max={50}
+                value={f1.toString()}
                 onChange={(_, data) => handleF1Change(data.value)}
               />
             </div>
@@ -350,7 +352,9 @@ const InstrumentResponseContent: React.FC = () => {
                 appearance={appearance}
                 type="number"
                 min={0}
-                defaultValue={f2.toString()}
+                step={0.01}
+                max={50}
+                value={f2.toString()}
                 onChange={(_, data) => handleF2Change(data.value)}
               />
             </div>
@@ -361,7 +365,9 @@ const InstrumentResponseContent: React.FC = () => {
                 appearance={appearance}
                 type="number"
                 min={0}
-                defaultValue={f3.toString()}
+                step={0.01}
+                max={50}
+                value={f3.toString()}
                 onChange={(_, data) => handleF3Change(data.value)}
               />
             </div>
@@ -372,7 +378,9 @@ const InstrumentResponseContent: React.FC = () => {
                 appearance={appearance}
                 type="number"
                 min={0}
-                defaultValue={f4.toString()}
+                step={0.01}
+                max={50}
+                value={f4.toString()}
                 onChange={(_, data) => handleF4Change(data.value)}
               />
             </div>
@@ -389,7 +397,8 @@ const InstrumentResponseContent: React.FC = () => {
             appearance={appearance}
             type="number"
             min={0}
-            defaultValue={waterLevel.toString()}
+            step={1}
+            value={waterLevel.toString()}
             onChange={(_, data) => handleWaterLevelChange(data.value)}
           />
         </Field>
