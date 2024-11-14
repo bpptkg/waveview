@@ -25,7 +25,7 @@ const getGlobalNormFactor = (tracks: OffscreenRenderTrackContext[]): number => {
     const max = series.max();
     normFactor = Math.min(normFactor, Math.abs(max - min));
   });
-  return isFinite(normFactor) ? normFactor / 1.5 : 1;
+  return isFinite(normFactor) ? normFactor : 1;
 };
 
 /**
@@ -81,7 +81,7 @@ const render = debounce((event: MessageEvent) => {
   }
   ctx.scale(pixelRatio, pixelRatio);
   ctx.strokeStyle = color;
-  ctx.lineWidth = 0.2;
+  ctx.lineWidth = 0.3;
 
   let first = true;
   const globalNormFactor = getGlobalNormFactor(tracks);
