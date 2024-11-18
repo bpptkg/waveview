@@ -5,6 +5,7 @@ import {
   makeStyles,
   SearchBox,
   SearchBoxChangeEvent,
+  Spinner,
   Table,
   TableBody,
   TableCell,
@@ -293,7 +294,12 @@ const EventTable = () => {
               <Button appearance="transparent" icon={<ArrowDownloadRegular fontSize={20} />} onClick={handleDownload} />
             </Tooltip>
             <Tooltip content={'Refresh'} relationship="label" showDelay={1500}>
-              <Button appearance="transparent" icon={<ArrowCounterclockwiseRegular fontSize={20} />} onClick={handleRefresh} />
+              <Button
+                appearance="transparent"
+                icon={loading ? <Spinner size="extra-tiny" /> : <ArrowCounterclockwiseRegular fontSize={20} />}
+                onClick={handleRefresh}
+                disabled={loading}
+              />
             </Tooltip>
           </div>
         </div>

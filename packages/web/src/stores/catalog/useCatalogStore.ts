@@ -89,11 +89,16 @@ const catalogStore = create<CatalogStore>((set, get) => {
         params.is_bookmarked = 'true';
       }
 
-      const response = await api(url, {
-        params,
-      });
-      const data: Pagination<SeismicEvent[]> = await response.json();
-      set({ events: data.results, nextEventsUrl: data.next });
+      set({ loading: true });
+      try {
+        const response = await api(url, {
+          params,
+        });
+        const data: Pagination<SeismicEvent[]> = await response.json();
+        set({ events: data.results, nextEventsUrl: data.next });
+      } finally {
+        set({ loading: false });
+      }
     },
 
     fetchNextEvents: async () => {
