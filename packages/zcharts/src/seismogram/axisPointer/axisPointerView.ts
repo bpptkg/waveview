@@ -11,6 +11,7 @@ export class AxisPointerView extends View<AxisPointerModel> {
   private readonly axis: AxisView;
   private rect: LayoutRect;
   private onPointerMoveBound: (event: zrender.ElementEvent) => void;
+  private onPointerLeaveBound: () => void;
   private position: zrender.Point = new zrender.Point();
   private line: zrender.Line;
   private label: zrender.Text;
@@ -31,20 +32,28 @@ export class AxisPointerView extends View<AxisPointerModel> {
     this.group.add(this.label);
 
     this.onPointerMoveBound = this.onPointerMove.bind(this);
+    this.onPointerLeaveBound = this.onPointerLeave.bind(this);
   }
 
   attachEventListeners(): void {
     this.chart.zr.on("mousemove", this.onPointerMoveBound);
+    this.chart.zr.on("mouseout", this.onPointerLeaveBound);
   }
 
   detachEventListeners(): void {
     this.chart.zr.off("mousemove", this.onPointerMoveBound);
+    this.chart.zr.off("mouseout", this.onPointerLeaveBound);
   }
 
   private onPointerMove(event: zrender.ElementEvent): void {
     this.position.x = event.offsetX;
     this.position.y = event.offsetY;
     this.render();
+  }
+
+  private onPointerLeave(): void {
+    this.line.hide();
+    this.label.hide();
   }
 
   getRect(): LayoutRect {
