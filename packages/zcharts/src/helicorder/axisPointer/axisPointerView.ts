@@ -1,15 +1,16 @@
+import * as zrender from "zrender";
 import { AxisView } from "../../axis/axisView";
 import { View } from "../../core/view";
 import { LayoutRect, ThemeStyle } from "../../util/types";
 import { Helicorder } from "../helicorder";
 import { AxisPointerModel, AxisPointerOptions } from "./axisPointerModel";
-import * as zrender from "zrender";
 
 export class AxisPointerView extends View<AxisPointerModel> {
   private readonly chart: Helicorder;
   private readonly axis: AxisView;
   private rect: LayoutRect;
   private onPointerMoveBound: (event: zrender.ElementEvent) => void;
+  private onPointerLeaveBound: () => void;
   private position: zrender.Point = new zrender.Point();
   private line: zrender.Line;
 
@@ -27,20 +28,27 @@ export class AxisPointerView extends View<AxisPointerModel> {
     this.group.add(this.line);
 
     this.onPointerMoveBound = this.onPointerMove.bind(this);
+    this.onPointerLeaveBound = this.onPointerLeave.bind(this);
   }
 
   attachEventListeners(): void {
     this.chart.zr.on("mousemove", this.onPointerMoveBound);
+    this.chart.zr.on("mouseout", this.onPointerLeaveBound);
   }
 
   detachEventListeners(): void {
     this.chart.zr.off("mousemove", this.onPointerMoveBound);
+    this.chart.zr.off("mouseout", this.onPointerLeaveBound);
   }
 
   private onPointerMove(event: zrender.ElementEvent): void {
     this.position.x = event.offsetX;
     this.position.y = event.offsetY;
     this.render();
+  }
+
+  private onPointerLeave(): void {
+    this.line.hide();
   }
 
   getRect(): LayoutRect {
