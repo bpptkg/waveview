@@ -63,7 +63,6 @@ export class TrackView extends View<TrackModel> {
       },
       axisLabel: {
         fontSize: 9,
-        reverse: true,
         formatter(value) {
           return value.toFixed(0);
         },

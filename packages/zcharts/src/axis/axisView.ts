@@ -148,7 +148,7 @@ export class AxisView extends View<AxisModel> {
       if (this.isHorizontal()) {
         pixel = x + range * percent;
       } else {
-        pixel = y + range * percent;
+        pixel = y + height - range * percent;
       }
       ticksPixels.push({ pixel, tick });
     }
@@ -184,22 +184,28 @@ export class AxisView extends View<AxisModel> {
   }
 
   getPixelForValue(value: number): number {
+    const { reverse } = this.model.getOptions().axisLabel;
     const { x, y, width, height } = this.getRect();
     const { scale } = this.model;
     const percent = scale.valueToPercentage(value);
     if (this.isHorizontal()) {
-      return x + width * percent;
+      return reverse ? x + width * (1 - percent) : x + width * percent;
     } else {
-      return y + height * percent;
+      return reverse ? y + height * percent : y + height * (1 - percent);
     }
   }
 
   getValueForPixel(pixel: number): number {
+    const { reverse } = this.model.getOptions().axisLabel;
     const { x, y, width, height } = this.getRect();
     const { scale } = this.model;
     const percent = this.isHorizontal()
-      ? (pixel - x) / width
-      : (pixel - y) / height;
+      ? reverse
+        ? 1 - (pixel - x) / width
+        : (pixel - x) / width
+      : reverse
+      ? (pixel - y) / height
+      : 1 - (pixel - y) / height;
     return scale.percentageToValue(percent);
   }
 
