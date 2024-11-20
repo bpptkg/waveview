@@ -1,6 +1,7 @@
 import * as zrender from "zrender";
 import { AxisView } from "../../axis/axisView";
 import { View } from "../../core/view";
+import { formatDate } from "../../util/time";
 import { LayoutRect, ThemeStyle } from "../../util/types";
 import { Helicorder } from "../helicorder";
 import { AxisPointerModel, AxisPointerOptions } from "./axisPointerModel";
@@ -10,9 +11,10 @@ export class AxisPointerView extends View<AxisPointerModel> {
   private readonly axis: AxisView;
   private rect: LayoutRect;
   private onPointerMoveBound: (event: zrender.ElementEvent) => void;
-  private onPointerLeaveBound: () => void;
+  private onPointerLeaveBound: (event: zrender.ElementEvent) => void;
   private position: zrender.Point = new zrender.Point();
-  private line: zrender.Line;
+  private verticalLine: zrender.Line;
+  private timeLabel: zrender.Text;
 
   constructor(
     axis: AxisView,
@@ -24,8 +26,10 @@ export class AxisPointerView extends View<AxisPointerModel> {
     this.chart = chart;
     this.axis = axis;
     this.rect = axis.getRect();
-    this.line = new zrender.Line();
-    this.group.add(this.line);
+    this.verticalLine = new zrender.Line();
+    this.timeLabel = new zrender.Text();
+    this.group.add(this.verticalLine);
+    this.group.add(this.timeLabel);
 
     this.onPointerMoveBound = this.onPointerMove.bind(this);
     this.onPointerLeaveBound = this.onPointerLeave.bind(this);
@@ -47,8 +51,11 @@ export class AxisPointerView extends View<AxisPointerModel> {
     this.render();
   }
 
-  private onPointerLeave(): void {
-    this.line.hide();
+  private onPointerLeave(event: zrender.ElementEvent): void {
+    this.position.x = event.offsetX;
+    this.position.y = event.offsetY;
+    this.verticalLine.hide();
+    this.timeLabel.hide();
   }
 
   getRect(): LayoutRect {
@@ -85,34 +92,71 @@ export class AxisPointerView extends View<AxisPointerModel> {
       return;
     }
 
-    const { lineColor, lineWidth, enable } = this.getModel().getOptions();
+    const {
+      lineColor,
+      lineWidth,
+      textColor,
+      fontSize,
+      backgroundColor,
+      enable,
+    } = this.getModel().getOptions();
     if (!enable) {
-      this.line.hide();
+      this.verticalLine.hide();
+      this.timeLabel.hide();
       return;
     }
 
     const { x, y } = this.position;
     if (!this.axis.getRect().contain(x, y)) {
-      this.line.hide();
-      return;
+      this.verticalLine.hide();
+      this.timeLabel.hide();
+    } else {
+      const { y: y0, height } = this.axis.getRect();
+      this.verticalLine.attr({
+        shape: {
+          x1: x,
+          y1: y0,
+          x2: x,
+          y2: y0 + height,
+        },
+        style: {
+          stroke: lineColor,
+          lineWidth,
+        },
+        z: 10,
+        silent: true,
+      });
+
+      const padding = 5;
+      const trackManager = this.chart.getTrackManager();
+      const value = trackManager.getTimeAtPoint(x, y);
+      const { useUTC } = this.chart.getModel().getOptions();
+      const template = "{yyyy}-{MM}-{dd} {HH}:{mm}:{ss}";
+      const valueFormatted = formatDate(value, template, useUTC);
+
+      this.timeLabel.attr({
+        style: {
+          text: valueFormatted,
+          fill: textColor,
+          fontSize,
+          backgroundColor,
+          padding: [padding, padding],
+          align: "center",
+        },
+        x,
+        y: y0,
+        anchorY: 22,
+        silent: true,
+      });
+      const chartWidth = this.chart.getWidth();
+      if (x + this.timeLabel.getBoundingRect().width / 2 > chartWidth) {
+        this.timeLabel.attr({
+          x: chartWidth - this.timeLabel.getBoundingRect().width / 2,
+        });
+      }
+
+      this.verticalLine.show();
+      this.timeLabel.show();
     }
-
-    const { y: y0, height } = this.axis.getRect();
-    this.line.attr({
-      shape: {
-        x1: x,
-        y1: y0,
-        x2: x,
-        y2: y0 + height,
-      },
-      style: {
-        stroke: lineColor,
-        lineWidth,
-      },
-      z: 10,
-      silent: true,
-    });
-
-    this.line.show();
   }
 }
