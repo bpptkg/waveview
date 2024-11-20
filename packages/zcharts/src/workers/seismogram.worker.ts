@@ -93,7 +93,7 @@ const render = debounce((event: MessageEvent) => {
     const invertY = (value: number): number => {
       const { y, height } = trackRect;
       const percent = yScale.valueToPercentage(value);
-      return y + height * percent - gridRect.y;
+      return y + height * (1 - percent) - gridRect.y;
     };
 
     for (const [x, y] of data.iterIndexValuePairs()) {
