@@ -23,6 +23,10 @@ const getGlobalNormFactor = (tracks: OffscreenRenderTrackContext[]): number => {
 
     const min = series.min();
     const max = series.max();
+    const range = Math.abs(max - min);
+    if (range === 0) {
+      return;
+    }
     normFactor = Math.min(normFactor, Math.abs(max - min));
   });
   return isFinite(normFactor) ? normFactor : 1;
