@@ -28,7 +28,7 @@ export const darkTheme: ThemeStyle = {
     lineColor: "#FF0000",
     lineWidth: 1,
     textColor: "#FFFFFF",
-    fontSize: 12,
+    fontSize: 11,
     backgroundColor: "#FF0000",
   },
   pickerStyle: {
