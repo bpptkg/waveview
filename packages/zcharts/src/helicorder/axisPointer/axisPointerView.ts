@@ -142,10 +142,10 @@ export class AxisPointerView extends View<AxisPointerModel> {
           backgroundColor,
           padding: [padding, padding],
           align: "center",
+          verticalAlign: "bottom",
         },
         x,
         y: y0,
-        anchorY: 22,
         silent: true,
       });
       const chartWidth = this.chart.getWidth();
