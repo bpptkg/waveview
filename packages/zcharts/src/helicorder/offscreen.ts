@@ -16,14 +16,23 @@ export interface OffscreenRenderTrackContext {
    * Scale options for the y-axis.
    */
   yScaleOptions: ScaleOptions;
-  /**
-   * Series data to render.
-   */
-  seriesData: SeriesJSON;
+
   /**
    * Helicorder segment.
    */
   segment: Segment;
+  /**
+   * Series data to render.
+   */
+  series: SeriesJSON;
+  /**
+   * Min value of the series data.
+   */
+  min: number;
+  /**
+   * Max value of the series data
+   */
+  max: number;
 }
 
 export interface OffscreenRenderContext {

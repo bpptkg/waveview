@@ -3,10 +3,13 @@ import { ScaleOptions } from "../scale/scale";
 import { LayoutRect } from "../util/types";
 
 export interface OffscreenRenderTrackContext {
+  channelId: string;
   trackRect: LayoutRect;
   xScaleOptions: ScaleOptions;
   yScaleOptions: ScaleOptions;
-  seriesData: SeriesJSON;
+  series: SeriesJSON;
+  min: number;
+  max: number;
 }
 
 export interface OffscreenRenderContext {
@@ -18,6 +21,16 @@ export interface OffscreenRenderContext {
   color: string;
   timeMin: number;
   timeMax: number;
+}
+
+export interface OffscreenRenderTrackInfo {
+  channelId: string;
+  scaling: "global" | "local";
+  min: number;
+  max: number;
+  normFactor: number;
+  normMin: number;
+  normMax: number;
 }
 
 export interface OffscreenRenderResult {
@@ -33,4 +46,8 @@ export interface OffscreenRenderResult {
    * The end time of the rendered seismogram.
    */
   end: number;
+  /**
+   * The general info of the rendered seismogram tracks.
+   */
+  info: OffscreenRenderTrackInfo[];
 }

@@ -26,13 +26,25 @@ export class EventMarkerView extends View<EventMarkerModel> {
     this.markerRect.on("click", () => {
       this.chart.emit("eventMarkerClicked", this.model.getOptions());
     });
-    this.markerRect.on("mouseover", (e) => {
-      const event = e.event as MouseEvent;
-      this.chart.eventTooltip.show(event.clientX, event.clientY, this.model.getOptions());
-    }, this);
-    this.markerRect.on("mouseout", () => {
-      this.chart.eventTooltip.hide();
-    }, this);
+    this.markerRect.on(
+      "mouseover",
+      (e) => {
+        const event = e.event as MouseEvent;
+        this.chart.eventTooltip.show(
+          event.clientX,
+          event.clientY,
+          this.model.getOptions()
+        );
+      },
+      this
+    );
+    this.markerRect.on(
+      "mouseout",
+      () => {
+        this.chart.eventTooltip.hide();
+      },
+      this
+    );
   }
 
   getRect(): LayoutRect {
@@ -79,6 +91,11 @@ export class EventMarkerView extends View<EventMarkerModel> {
     const c2 = Math.max(m1, m2);
 
     const { y, height } = xAxis.getRect();
+    if (c2 - c1 <= 0) {
+      this.markerRect.hide();
+      this.markerPillRect.hide();
+      return;
+    }
 
     const pillHeight = 5;
     this.markerRect.attr({

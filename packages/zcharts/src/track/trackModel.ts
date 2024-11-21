@@ -8,7 +8,7 @@ export interface TrackOptions {
   fontFamily: string;
   borderColor: string;
   borderWidth: number;
-  style: "default" | "bracket";
+  style: "default" | "bracket" | "hidden";
   markerColor?: string;
 }
 
@@ -19,7 +19,7 @@ export class TrackModel extends Model<TrackOptions> {
     textColor: "#000",
     fontSize: 11,
     fontFamily: "Arial",
-    style: "default",
+    style: "hidden",
     borderColor: "#000",
     borderWidth: 1,
   };

@@ -1,4 +1,3 @@
-import { Series } from "@waveview/ndarray";
 import { BoundingRect } from "zrender";
 import { merge } from "zrender/lib/core/util";
 import { AxisView } from "../axis/axisView";
@@ -8,7 +7,7 @@ import { ResizeOptions } from "../core/view";
 import { GridView } from "../grid/gridView";
 import { almostEquals } from "../util/math";
 import { ONE_MINUTE, ONE_SECOND } from "../util/time";
-import { AddMarkerOptions, Channel } from "../util/types";
+import { AddMarkerOptions, Channel, SeriesData } from "../util/types";
 import { AxisPointerView } from "./axisPointer/axisPointerView";
 import { getDefaultOptions, HelicorderOptions } from "./chartOptions";
 import { Segment } from "./dataStore";
@@ -163,11 +162,11 @@ export class Helicorder extends ChartView<HelicorderOptions> {
     this.getModel().mergeOptions({ scaling });
   }
 
-  setTrackData(segment: Segment, data: Series): void {
+  setTrackData(segment: Segment, data: SeriesData): void {
     this.trackManager.setTrackData(segment, data);
   }
 
-  getTrackData(segment: Segment): Series | undefined {
+  getTrackData(segment: Segment): SeriesData {
     return this.trackManager.getTrackData(segment);
   }
 
@@ -402,12 +401,15 @@ export class Helicorder extends ChartView<HelicorderOptions> {
     for (const item of trackManager.items()) {
       const [segment, track] = item;
       const signal = track.getSignal();
+      const { series, min, max } = trackManager.getTrackData(segment);
       const offscreenRendertrack: OffscreenRenderTrackContext = {
         trackRect: track.getRect(),
         xScaleOptions: signal.getXAxis().getModel().getScale().toJSON(),
         yScaleOptions: signal.getYAxis().getModel().getScale().toJSON(),
-        seriesData: trackManager.getTrackData(segment).toJSON(),
+        series: series.toJSON(),
         segment,
+        min,
+        max,
       };
       trackRenderContexts.push(offscreenRendertrack);
     }

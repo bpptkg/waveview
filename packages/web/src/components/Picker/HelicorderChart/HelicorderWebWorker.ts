@@ -1,16 +1,17 @@
 import { Series } from '@waveview/ndarray';
-import { Helicorder } from '@waveview/zcharts';
+import { Helicorder, SeriesData } from '@waveview/zcharts';
 import { Segment } from '../../../../../zcharts/src/helicorder/dataStore';
 import { refreshToken } from '../../../services/api';
 import { debounce } from '../../../shared/debounce';
+import { ONE_MINUTE } from '../../../shared/time';
 import { uuid4 } from '../../../shared/uuid';
 import { getJwtToken } from '../../../stores/auth/utils';
 import { JwtToken } from '../../../types/auth';
 import { FilterOperationOptions } from '../../../types/filter';
 import { FilterRequestData, StreamRequestData, StreamResponseData, WorkerRequestData, WorkerResponseData } from '../../../types/worker';
 
-const signalCache = new Map<string, Series>();
-const filterCache = new Map<string, Series>();
+const signalCache = new Map<string, SeriesData>();
+const filterCache = new Map<string, SeriesData>();
 
 export interface RefreshOptions {
   /**
@@ -136,13 +137,13 @@ export class HelicorderWebWorker {
     const now = Date.now();
     for (const segment of trackManager.segments()) {
       const key = JSON.stringify([channelId, ...segment]);
-      const series = signalCache.get(key);
-      if (series) {
+      const seriesData = signalCache.get(key);
+      if (seriesData) {
         const [, end] = segment;
-        if (end > now) {
+        if (end + ONE_MINUTE >= now) {
           this.fetchTrackData(segment);
         } else {
-          this.chart.setTrackData(segment, series);
+          this.chart.setTrackData(segment, seriesData);
         }
       } else {
         this.fetchTrackData(segment);
@@ -159,13 +160,13 @@ export class HelicorderWebWorker {
     const now = Date.now();
     for (const segment of trackManager.segments()) {
       const key = JSON.stringify([channelId, ...segment]);
-      const series = signalCache.get(key);
-      if (series) {
+      const seriesData = signalCache.get(key);
+      if (seriesData) {
         const [, end] = segment;
-        if (end > now) {
+        if (end + ONE_MINUTE > now) {
           this.fetchTrackData(segment);
         } else {
-          this.chart.setTrackData(segment, series);
+          this.chart.setTrackData(segment, seriesData);
         }
       } else {
         this.fetchTrackData(segment);
@@ -234,13 +235,13 @@ export class HelicorderWebWorker {
     const now = Date.now();
     for (const segment of trackManager.segments()) {
       const key = JSON.stringify([channelId, ...segment]);
-      const series = filterCache.get(key);
-      if (series) {
+      const seriesData = filterCache.get(key);
+      if (seriesData) {
         const [, end] = segment;
-        if (end > now) {
+        if (end + ONE_MINUTE > now) {
           this.fetchFilterData(segment, options);
         } else {
-          this.chart.setTrackData(segment, series);
+          this.chart.setTrackData(segment, seriesData);
         }
       } else {
         this.fetchFilterData(segment, options);
@@ -257,13 +258,13 @@ export class HelicorderWebWorker {
     const now = Date.now();
     for (const segment of trackManager.segments()) {
       const key = JSON.stringify([channelId, ...segment]);
-      const series = filterCache.get(key);
-      if (series) {
+      const seriesData = filterCache.get(key);
+      if (seriesData) {
         const [, end] = segment;
-        if (end > now) {
+        if (end + ONE_MINUTE > now) {
           this.fetchFilterData(segment, options);
         } else {
-          this.chart.setTrackData(segment, series);
+          this.chart.setTrackData(segment, seriesData);
         }
       } else {
         this.fetchFilterData(segment, options);
@@ -340,15 +341,16 @@ export class HelicorderWebWorker {
 
   private onStreamFetchMessage(payload: StreamResponseData): void {
     this.busy();
-    const { requestId, data, index, start, end, channelId } = payload;
+    const { requestId, data, index, start, end, channelId, min, max, mean, count } = payload;
     const series = new Series(data, {
       index: index,
       name: channelId,
     });
+    const seriesData: SeriesData = { series, min, max, mean, count };
     const segment: [number, number] = [start, end];
     const key = JSON.stringify([channelId, ...segment]);
-    signalCache.set(key, series);
-    this.chart.setTrackData(segment, series);
+    this.chart.setTrackData(segment, seriesData);
+    signalCache.set(key, seriesData);
 
     this.signalRequests.delete(requestId);
     if (this.signalRequests.size === 0) {
@@ -359,15 +361,16 @@ export class HelicorderWebWorker {
 
   private onStreamFilterMessage(payload: StreamResponseData): void {
     this.busy();
-    const { requestId, data, index, start, end, channelId } = payload;
+    const { requestId, data, index, start, end, channelId, min, max, mean, count } = payload;
     const series = new Series(data, {
       index: index,
       name: channelId,
     });
+    const seriesData: SeriesData = { series, min, max, mean, count };
     const segment: [number, number] = [start, end];
     const key = JSON.stringify([channelId, ...segment]);
-    filterCache.set(key, series);
-    this.chart.setTrackData(segment, series);
+    this.chart.setTrackData(segment, seriesData);
+    filterCache.set(key, seriesData);
 
     this.filterRequests.delete(requestId);
     if (this.filterRequests.size === 0) {

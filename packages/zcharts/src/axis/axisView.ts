@@ -87,6 +87,14 @@ export class AxisView extends View<AxisModel> {
     return this.model.scale.getExtent();
   }
 
+  getNormFactor(): number {
+    return this.model.scale.getNormFactor();
+  }
+
+  setNormFactor(normFactor: number): void {
+    this.model.scale.setNormFactor(normFactor);
+  }
+
   isHorizontal() {
     const options = this.model.getOptions();
     return options.position === "top" || options.position === "bottom";

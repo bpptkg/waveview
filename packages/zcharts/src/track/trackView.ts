@@ -25,6 +25,9 @@ export class TrackView extends View<TrackModel> {
   private topTick: zrender.Line;
   private bottomTick: zrender.Line;
 
+  private amplitudeMinLabel: zrender.Text;
+  private amplitudeMaxLabel: zrender.Text;
+
   constructor(chart: ChartView, options?: Partial<TrackOptions>) {
     const model = new TrackModel(options);
     super(model);
@@ -49,7 +52,6 @@ export class TrackView extends View<TrackModel> {
     );
 
     this.leftYAxis = new AxisView(this, { position: "left" });
-    this.leftYAxis.setExtent(chart.getYExtent());
     this.signal = new LineSeriesView(chart.getXAxis(), this.leftYAxis, this);
 
     this.rightYAxis = new AxisView(this, {
@@ -89,10 +91,14 @@ export class TrackView extends View<TrackModel> {
     this.leftBorder = new zrender.Line();
     this.topTick = new zrender.Line();
     this.bottomTick = new zrender.Line();
+    this.amplitudeMinLabel = new zrender.Text();
+    this.amplitudeMaxLabel = new zrender.Text();
     this.bracketGroup = new zrender.Group();
     this.bracketGroup.add(this.leftBorder);
     this.bracketGroup.add(this.topTick);
     this.bracketGroup.add(this.bottomTick);
+    this.bracketGroup.add(this.amplitudeMinLabel);
+    this.bracketGroup.add(this.amplitudeMaxLabel);
     this.group.add(this.bracketGroup);
   }
 
@@ -227,8 +233,13 @@ export class TrackView extends View<TrackModel> {
     if (style === "bracket") {
       this.renderBracketStyle();
       this.bracketGroup.show();
-    } else {
+      this.leftYAxis.hide();
+    } else if (style === "hidden") {
       this.bracketGroup.hide();
+      this.leftYAxis.hide();
+    } else if (style === "default") {
+      this.bracketGroup.hide();
+      this.leftYAxis.render();
     }
   }
 
@@ -236,6 +247,7 @@ export class TrackView extends View<TrackModel> {
     const { borderColor, borderWidth } = this.model.getOptions();
     const { x, y, height } = this.getRect();
     const tickLength = 5;
+
     this.leftBorder.attr({
       shape: {
         x1: x,
@@ -249,6 +261,7 @@ export class TrackView extends View<TrackModel> {
       },
       silent: true,
     });
+
     this.topTick.attr({
       shape: {
         x1: x,
@@ -262,6 +275,7 @@ export class TrackView extends View<TrackModel> {
       },
       silent: true,
     });
+
     this.bottomTick.attr({
       shape: {
         x1: x,
@@ -273,6 +287,35 @@ export class TrackView extends View<TrackModel> {
         stroke: borderColor,
         lineWidth: borderWidth,
       },
+      silent: true,
+    });
+
+    const margin = 5;
+    const [min, max] = this.leftYAxis.getExtent();
+    const normFactor = this.leftYAxis.getNormFactor();
+    this.amplitudeMinLabel.attr({
+      style: {
+        text: (min * normFactor).toFixed(0),
+        fill: borderColor,
+        fontSize: 9,
+        align: "left",
+        verticalAlign: "middle",
+      },
+      x: x + tickLength + margin,
+      y: y + height,
+      silent: true,
+    });
+
+    this.amplitudeMaxLabel.attr({
+      style: {
+        text: (max * normFactor).toFixed(0),
+        fill: borderColor,
+        fontSize: 9,
+        align: "left",
+        verticalAlign: "middle",
+      },
+      x: x + tickLength + margin,
+      y: y,
       silent: true,
     });
   }

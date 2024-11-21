@@ -1,8 +1,9 @@
 import { Series } from "@waveview/ndarray";
 import { BoundingRect } from "zrender";
 import { TrackView } from "../track/trackView";
+import { getGlobalNormFactor, getLocalNormFactor } from "../util/norm";
 import { formatDate, ONE_MINUTE } from "../util/time";
-import { LayoutRect } from "../util/types";
+import { LayoutRect, SeriesData } from "../util/types";
 import { DataStore, Segment } from "./dataStore";
 import { Helicorder } from "./helicorder";
 
@@ -16,7 +17,7 @@ export interface SetTrackDataOptions {
 export class TrackManager {
   private helicorder: Helicorder;
   private trackStore: Map<string, TrackView> = new Map();
-  private dataStore: DataStore<Series> = new DataStore();
+  private dataStore: DataStore<SeriesData> = new DataStore();
 
   constructor(helicorder: Helicorder) {
     this.helicorder = helicorder;
@@ -25,7 +26,7 @@ export class TrackManager {
   /**
    * Get the data store for the tracks.
    */
-  getDataStore(): DataStore<Series> {
+  getDataStore(): DataStore<SeriesData> {
     return this.dataStore;
   }
 
@@ -242,22 +243,19 @@ export class TrackManager {
   }
 
   private getNormFactor(): number {
-    let normFactor = Infinity;
+    const minmax: [number, number][] = [];
     for (const segment of this.segments()) {
-      const series = this.dataStore.get(segment);
-      if (series) {
-        const min = series.min();
-        const max = series.max();
-        normFactor = Math.min(normFactor, Math.abs(max - min));
-      }
+      const seriesData = this.getTrackData(segment);
+      const { min, max } = seriesData;
+      minmax.push([min, max]);
     }
-    return isFinite(normFactor) ? normFactor : 1;
+    return getGlobalNormFactor(minmax, "min");
   }
 
   /**
    * Set the data for the given segment.
    */
-  setTrackData(segment: Segment, data: Series): void {
+  setTrackData(segment: Segment, data: SeriesData): void {
     this.dataStore.set(segment, data);
   }
 
@@ -265,31 +263,41 @@ export class TrackManager {
    * Get the data for the given segment. If the data is not available, an empty
    * series is returned.
    */
-  getTrackData(segment: Segment): Series {
-    const data = this.dataStore.get(segment);
-    if (!data) {
-      return Series.empty();
+  getTrackData(segment: Segment): SeriesData {
+    const seriesData = this.dataStore.get(segment);
+    if (!seriesData) {
+      return {
+        series: Series.empty(),
+        min: 0,
+        max: 0,
+        mean: 0,
+        count: 0,
+      };
     }
-    return data;
+    return seriesData;
   }
 
   /**
    * Check if the data for the given segment is empty.
    */
   isTrackEmpty(segment: Segment): boolean {
-    const heliData = this.dataStore.get(segment);
-    return !heliData || heliData.length === 0;
+    const { count } = this.getTrackData(segment);
+    return count === 0;
   }
 
   /**
    * Slice the data from start to end for the given segment.
    */
-  sliceData(segment: Segment, start: number, end: number): Series {
-    const series = this.dataStore.get(segment);
-    if (!series) {
-      return Series.empty();
-    }
-    return series.slice(start, end);
+  sliceData(segment: Segment, start: number, end: number): SeriesData {
+    const { series } = this.getTrackData(segment);
+    const sliced = series.slice(start, end);
+    return {
+      series: sliced,
+      min: sliced.min(),
+      max: sliced.max(),
+      mean: sliced.mean(),
+      count: sliced.length,
+    };
   }
 
   /**
@@ -299,8 +307,8 @@ export class TrackManager {
     const segment = this.getTrackExtentAt(
       this.getTrackIndexByTime(start + (end - start) / 2)
     );
-    const series = this.sliceData(segment, start, end);
-    return [series.min(), series.max()];
+    const { min, max } = this.sliceData(segment, start, end);
+    return [min, max];
   }
 
   /**
@@ -325,14 +333,12 @@ export class TrackManager {
     for (const segment of this.segments()) {
       const track = this.get(segment);
       if (track) {
-        const series = this.dataStore.get(segment);
-        if (series) {
-          const norm = series.scalarDivide(normFactor);
-          norm.setIndex(
-            norm.index.map((value: number) => this.timeToOffset(segment, value))
-          );
-          track.getSignal().setData(norm);
-        }
+        const { series } = this.getTrackData(segment);
+        const norm = series.scalarDivide(normFactor);
+        norm.setIndex(
+          norm.index.map((value: number) => this.timeToOffset(segment, value))
+        );
+        track.getSignal().setData(norm);
       }
     }
   }
@@ -341,17 +347,13 @@ export class TrackManager {
     for (const segment of this.segments()) {
       const track = this.get(segment);
       if (track) {
-        const series = this.dataStore.get(segment);
-        if (series) {
-          const min = series.min();
-          const max = series.max();
-          const normFactor = Math.max(Math.abs(min), Math.abs(max));
-          const norm = series.scalarDivide(normFactor);
-          norm.setIndex(
-            norm.index.map((value: number) => this.timeToOffset(segment, value))
-          );
-          track.getSignal().setData(norm);
-        }
+        const { series, min, max } = this.getTrackData(segment);
+        const normFactor = getLocalNormFactor(min, max);
+        const norm = series.scalarDivide(normFactor);
+        norm.setIndex(
+          norm.index.map((value: number) => this.timeToOffset(segment, value))
+        );
+        track.getSignal().setData(norm);
       }
     }
   }
@@ -444,6 +446,7 @@ export class TrackManager {
 
     for (const segment of this.segments()) {
       const track = new TrackView(this.helicorder);
+      track.getLeftYAxis().setExtent(this.helicorder.getYExtent());
       track.applyThemeStyle(this.helicorder.getThemeStyle());
       const [start] = segment;
       const trackIndex = this.getTrackIndexByTime(start);

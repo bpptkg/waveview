@@ -11,10 +11,13 @@ export class AxisPointerView extends View<AxisPointerModel> {
   private readonly axis: AxisView;
   private rect: LayoutRect;
   private onPointerMoveBound: (event: zrender.ElementEvent) => void;
-  private onPointerLeaveBound: () => void;
+  private onPointerLeaveBound: (event: zrender.ElementEvent) => void;
   private position: zrender.Point = new zrender.Point();
-  private line: zrender.Line;
-  private label: zrender.Text;
+  private verticalLine: zrender.Line;
+  private horizontalLine: zrender.Line;
+  private timeLabel: zrender.Text;
+  private amplitudeLabel: zrender.Text;
+  private frequencyLabel: zrender.Text;
 
   constructor(
     axis: AxisView,
@@ -26,10 +29,17 @@ export class AxisPointerView extends View<AxisPointerModel> {
     this.chart = chart;
     this.axis = axis;
     this.rect = axis.getRect();
-    this.line = new zrender.Line();
-    this.label = new zrender.Text();
-    this.group.add(this.line);
-    this.group.add(this.label);
+
+    this.verticalLine = new zrender.Line();
+    this.horizontalLine = new zrender.Line();
+    this.timeLabel = new zrender.Text();
+    this.amplitudeLabel = new zrender.Text();
+    this.frequencyLabel = new zrender.Text();
+    this.group.add(this.verticalLine);
+    this.group.add(this.horizontalLine);
+    this.group.add(this.timeLabel);
+    this.group.add(this.amplitudeLabel);
+    this.group.add(this.frequencyLabel);
 
     this.onPointerMoveBound = this.onPointerMove.bind(this);
     this.onPointerLeaveBound = this.onPointerLeave.bind(this);
@@ -51,9 +61,14 @@ export class AxisPointerView extends View<AxisPointerModel> {
     this.render();
   }
 
-  private onPointerLeave(): void {
-    this.line.hide();
-    this.label.hide();
+  private onPointerLeave(event: zrender.ElementEvent): void {
+    this.position.x = event.offsetX;
+    this.position.y = event.offsetY;
+    this.verticalLine.hide();
+    this.horizontalLine.hide();
+    this.timeLabel.hide();
+    this.amplitudeLabel.hide();
+    this.frequencyLabel.hide();
   }
 
   getRect(): LayoutRect {
@@ -89,34 +104,20 @@ export class AxisPointerView extends View<AxisPointerModel> {
     });
   }
 
-  render(): void {
-    if (!this.visible) {
-      return;
-    }
+  private hideElements(): void {
+    this.verticalLine.hide();
+    this.horizontalLine.hide();
+    this.timeLabel.hide();
+    this.amplitudeLabel.hide();
+    this.frequencyLabel.hide();
+  }
 
-    const {
-      lineColor,
-      lineWidth,
-      textColor,
-      fontSize,
-      backgroundColor,
-      enable,
-    } = this.getModel().getOptions();
-    if (!enable) {
-      this.line.hide();
-      this.label.hide();
-      return;
-    }
-
-    const { x, y } = this.position;
-    if (!this.axis.getRect().contain(x, y)) {
-      this.line.hide();
-      this.label.hide();
-      return;
-    }
-
+  private updateVerticalCursor() {
+    const { lineColor, lineWidth, textColor, fontSize, backgroundColor } =
+      this.getModel().getOptions();
+    const { x } = this.position;
     const { y: y0, height } = this.axis.getRect();
-    this.line.attr({
+    this.verticalLine.attr({
       shape: {
         x1: x,
         y1: y0,
@@ -137,7 +138,7 @@ export class AxisPointerView extends View<AxisPointerModel> {
     const template = "{yyyy}-{MM}-{dd} {HH}:{mm}:{ss}.{SSS}";
     const valueFormatted = formatDate(value, template, useUTC);
 
-    this.label.attr({
+    this.timeLabel.attr({
       style: {
         text: valueFormatted,
         fill: textColor,
@@ -145,14 +146,143 @@ export class AxisPointerView extends View<AxisPointerModel> {
         backgroundColor,
         padding: [padding, padding],
         align: "center",
+        verticalAlign: "bottom",
       },
       x,
       y: y0,
-      anchorY: 22,
+      silent: true,
+    });
+    const chartWidth = this.chart.getWidth();
+    if (x + this.timeLabel.getBoundingRect().width / 2 > chartWidth) {
+      this.timeLabel.attr({
+        x: chartWidth - this.timeLabel.getBoundingRect().width / 2,
+      });
+    }
+
+    this.verticalLine.show();
+    this.timeLabel.show();
+  }
+
+  private updateHorizontalCursor() {
+    const { lineColor, lineWidth, textColor, fontSize, backgroundColor } =
+      this.getModel().getOptions();
+    const { y } = this.position;
+    const padding = 5;
+    const { x: x0, width } = this.axis.getRect();
+    const trackManager = this.chart.getTrackManager();
+    const trackIndex = this.chart.isInExpandMode()
+      ? this.chart.getExpandIndex()
+      : trackManager.getTrackIndexByY(y);
+
+    const hideLabelsAndLine = () => {
+      this.amplitudeLabel.hide();
+      this.frequencyLabel.hide();
+      this.horizontalLine.hide();
+    };
+
+    this.horizontalLine.attr({
+      shape: {
+        x1: x0,
+        y1: y,
+        x2: x0 + width,
+        y2: y,
+      },
+      style: {
+        stroke: lineColor,
+        lineWidth,
+      },
+      z: 10,
       silent: true,
     });
 
-    this.line.show();
-    this.label.show();
+    const showAmplitudeLabel = (
+      amplitudeValue: number,
+      x: number,
+      y: number
+    ) => {
+      this.amplitudeLabel.attr({
+        style: {
+          text: amplitudeValue.toFixed(2),
+          fill: textColor,
+          fontSize,
+          backgroundColor,
+          padding: [padding, padding],
+          align: "right",
+          verticalAlign: "middle",
+        },
+        x,
+        y,
+        silent: true,
+        z: 10,
+      });
+      this.amplitudeLabel.show();
+    };
+
+    const showFrequencyLabel = (
+      frequencyValue: number,
+      x: number,
+      y: number
+    ) => {
+      this.frequencyLabel.attr({
+        style: {
+          text: frequencyValue.toFixed(2),
+          fill: textColor,
+          fontSize,
+          backgroundColor,
+          padding: [padding, padding],
+          align: "left",
+          verticalAlign: "middle",
+        },
+        x,
+        y,
+        silent: true,
+        z: 10,
+      });
+      this.frequencyLabel.show();
+    };
+
+    if (trackIndex !== -1) {
+      const track = trackManager.getTrackByIndex(trackIndex);
+      const amplitudeValue = track.getLeftYAxis().getValueForPixel(y);
+      const normFactor = track.getLeftYAxis().getNormFactor();
+      showAmplitudeLabel(amplitudeValue * normFactor, x0, y);
+
+      if (this.chart.isSpectrogramShown()) {
+        const frequencyValue = track.getRightYAxis().getValueForPixel(y);
+        showFrequencyLabel(frequencyValue, x0 + width, y);
+      } else {
+        this.frequencyLabel.hide();
+      }
+
+      const trackRect = track.getRect();
+      if (y < trackRect.y || y > trackRect.y + trackRect.height) {
+        hideLabelsAndLine();
+      } else {
+        this.horizontalLine.show();
+      }
+    } else {
+      hideLabelsAndLine();
+    }
+  }
+
+  render(): void {
+    if (!this.visible) {
+      this.hideElements();
+      return;
+    }
+
+    const { enable } = this.getModel().getOptions();
+    if (!enable) {
+      this.hideElements();
+      return;
+    }
+
+    const { x, y } = this.position;
+    if (!this.axis.getRect().contain(x, y)) {
+      this.hideElements();
+    } else {
+      this.updateVerticalCursor();
+      this.updateHorizontalCursor();
+    }
   }
 }

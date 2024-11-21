@@ -10,8 +10,14 @@ import { PickerView } from "../picker/pickerView";
 import { SpectrogramData } from "../spectrogram/spectrogramModel";
 import { TrackView } from "../track/trackView";
 import { almostEquals } from "../util/math";
+import { getGlobalNormFactor, getLocalNormFactor } from "../util/norm";
 import { ONE_MINUTE, ONE_SECOND } from "../util/time";
-import { AddMarkerOptions, Channel, LayoutRect } from "../util/types";
+import {
+  AddMarkerOptions,
+  Channel,
+  LayoutRect,
+  SeriesData,
+} from "../util/types";
 import { AxisPointerView } from "./axisPointer/axisPointerView";
 import { getDefaultOptions, SeismogramOptions } from "./chartOptions";
 import { DataStore } from "./dataStore";
@@ -50,7 +56,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   private axisPointer: AxisPointerView;
   private picker: PickerView;
   private markers: EventMarkerView[] = [];
-  private channelDataStore: DataStore<Series> = new DataStore();
+  private channelDataStore: DataStore<SeriesData> = new DataStore();
   private spectrogramDataStore: DataStore<SpectrogramData> = new DataStore();
   private focused = false;
   private spectrogramShown = false;
@@ -246,12 +252,22 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     this.getModel().mergeOptions({ scaling });
   }
 
-  setChannelData(channelId: string, data: Series): void {
+  setChannelData(channelId: string, data: SeriesData): void {
     this.channelDataStore.set(channelId, data);
   }
 
-  getChannelData(channelId: string): Series | undefined {
-    return this.channelDataStore.get(channelId);
+  getChannelData(channelId: string): SeriesData {
+    const seriesData = this.channelDataStore.get(channelId);
+    if (!seriesData) {
+      return {
+        series: Series.empty(),
+        min: 0,
+        max: 0,
+        mean: 0,
+        count: 0,
+      };
+    }
+    return seriesData;
   }
 
   isChannelDataEmpty(channelId: string): boolean {
@@ -272,23 +288,17 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   }
 
   private refreshGlobalScaling(): void {
-    let normFactor = -Infinity;
+    const minmax: [number, number][] = [];
     for (const channel of this.trackManager.channels()) {
-      const series = this.channelDataStore.get(channel.id);
-      if (!series || series.isEmpty()) {
-        continue;
-      }
-
-      const factor = Math.abs(series.max() - series.min());
-      if (factor === 0) {
-        continue;
-      }
-      normFactor = Math.max(normFactor, factor);
+      const seriesData = this.getChannelData(channel.id);
+      const { min, max } = seriesData;
+      minmax.push([min, max]);
     }
+    const normFactor = getGlobalNormFactor(minmax);
 
     for (const [channel, track] of this.trackManager.items()) {
-      const series = this.getChannelData(channel.id);
-      if (!series || series.isEmpty()) {
+      const { series, count } = this.getChannelData(channel.id);
+      if (count === 0) {
         continue;
       }
       const norm = series.scalarDivide(normFactor);
@@ -298,16 +308,12 @@ export class Seismogram extends ChartView<SeismogramOptions> {
 
   private refreshLocalScaling(): void {
     for (const [channel, track] of this.trackManager.items()) {
-      const series = this.getChannelData(channel.id);
-      if (!series || series.isEmpty()) {
+      const seriesData = this.getChannelData(channel.id);
+      const { count, min, max, series } = seriesData;
+      if (count === 0) {
         continue;
       }
-      const min = series.min();
-      const max = series.max();
-      if (min === max) {
-        continue; // Avoid division by zero
-      }
-      const normFactor = Math.max(Math.abs(min), Math.abs(max));
+      const normFactor = getLocalNormFactor(min, max);
       const norm = series.scalarDivide(normFactor);
       track.getSignal().setData(norm);
     }
@@ -395,6 +401,14 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     this.inExpandMode = false;
     this.expandIndex = -1;
     this.updateTracksRect();
+  }
+
+  isInExpandMode(): boolean {
+    return this.inExpandMode;
+  }
+
+  getExpandIndex(): number {
+    return this.expandIndex;
   }
 
   focus(): void {
@@ -573,15 +587,16 @@ export class Seismogram extends ChartView<SeismogramOptions> {
         continue;
       }
       const signal = track.getSignal();
-      let series = this.getChannelData(channel.id);
-      if (!series || series.isEmpty()) {
-        series = Series.empty();
-      }
+      let seriesData = this.getChannelData(channel.id);
+      const { series, min, max } = seriesData;
       const offscreenRendertrack: OffscreenRenderTrackContext = {
+        channelId: channel.id,
         trackRect: track.getRect(),
         xScaleOptions: this.xAxis.getModel().getScale().toJSON(),
         yScaleOptions: signal.getYAxis().getModel().getScale().toJSON(),
-        seriesData: series.toJSON(),
+        series: series.toJSON(),
+        min,
+        max,
       };
       trackRenderContexts.push(offscreenRendertrack);
     }
@@ -605,6 +620,14 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   private onWorkerMessage(event: MessageEvent): void {
     const result = event.data as OffscreenRenderResult;
     requestAnimationFrame(() => {
+      const { info } = result;
+      info.forEach(({ channelId, normFactor }) => {
+        const track = this.trackManager.getTrackByChannelId(channelId);
+        if (track) {
+          track.getLeftYAxis().setNormFactor(normFactor);
+          track.render();
+        }
+      });
       this.offscreenSignal.updateData(result);
       this.rendering = false;
       this.emit("loading", false);
@@ -632,6 +655,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
       markerColor: channel.color,
       style: "bracket",
     });
+    track.getLeftYAxis().setExtent(this.getYExtent());
     track.interactive = true;
     track.on("contextmenu", (e, instance) => {
       const index = this.trackManager.indexOfTrack(instance);

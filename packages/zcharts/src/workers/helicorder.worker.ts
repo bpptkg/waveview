@@ -3,34 +3,10 @@ import { Segment } from "../helicorder/dataStore";
 import {
   OffscreenRenderContext,
   OffscreenRenderResult,
-  OffscreenRenderTrackContext,
 } from "../helicorder/offscreen";
 import { LinearScale } from "../scale/linear";
 import { debounce } from "../util/debounce";
-
-/**
- * Get global min and max values of the series data.
- */
-const getGlobalNormFactor = (tracks: OffscreenRenderTrackContext[]): number => {
-  let normFactor = Infinity;
-  tracks.forEach((track) => {
-    const { seriesData } = track;
-    const { name, index, values } = seriesData;
-    const series = Series.from(new Float64Array(values), {
-      index: new Index(new Float64Array(index)),
-      name,
-    });
-
-    const min = series.min();
-    const max = series.max();
-    const range = Math.abs(max - min);
-    if (range === 0) {
-      return;
-    }
-    normFactor = Math.min(normFactor, Math.abs(max - min));
-  });
-  return isFinite(normFactor) ? normFactor : 1;
-};
+import { getGlobalNormFactor, getLocalNormFactor } from "../util/norm";
 
 /**
  * Convert time to offset, where time is the time in seconds since the start of
@@ -43,14 +19,6 @@ const timeToOffset = (
 ): number => {
   const [start, end] = segment;
   return ((time - start) / (end - start)) * interval;
-};
-
-/**
- * Get local min and max values of the series data.
- */
-const getLocalNormFactor = (series: Series): number => {
-  const normFactor = Math.max(Math.abs(series.min()), Math.abs(series.max()));
-  return isFinite(normFactor) ? normFactor : 1;
 };
 
 /**
@@ -88,7 +56,10 @@ const render = debounce((event: MessageEvent) => {
   ctx.lineWidth = 0.3;
 
   let first = true;
-  const globalNormFactor = getGlobalNormFactor(tracks);
+  const globalNormFactor = getGlobalNormFactor(
+    tracks.map(({ min, max }) => [min, max]),
+    "min"
+  );
   const useGlobalScaling = scaling === "global";
 
   // Check if the value is overscale.
@@ -105,11 +76,18 @@ const render = debounce((event: MessageEvent) => {
 
   tracks.forEach((track) => {
     ctx.beginPath();
-    const { trackRect, xScaleOptions, yScaleOptions, seriesData, segment } =
-      track;
+    const {
+      trackRect,
+      xScaleOptions,
+      yScaleOptions,
+      series,
+      segment,
+      min,
+      max,
+    } = track;
     const xScale = new LinearScale(xScaleOptions);
     const yScale = new LinearScale(yScaleOptions);
-    const { name, index, values } = seriesData;
+    const { name, index, values } = series;
     const data = Series.from(new Float64Array(values), {
       index: new Index(new Float64Array(index)),
       name,
@@ -117,7 +95,7 @@ const render = debounce((event: MessageEvent) => {
     data.setIndex(
       data.index.map((value: number) => timeToOffset(segment, interval, value))
     );
-    const localNormFactor = getLocalNormFactor(data);
+    const localNormFactor = getLocalNormFactor(min, max);
 
     // Invert the x value to the canvas coordinate system.
     const invertX = (value: number): number => {

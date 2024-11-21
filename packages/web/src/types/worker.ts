@@ -25,14 +25,50 @@ export interface StreamRequestData {
 }
 
 export interface StreamResponseData {
+  /**
+   * The request ID.
+   */
   requestId: string;
+  /**
+   * The command that was executed on the worker.
+   */
   command: string;
-  index: Float64Array;
-  data: Float64Array;
-  extent: [number, number];
+  /**
+   * The channel ID.
+   */
   channelId: string;
+  /**
+   * The start time of the request.
+   */
   start: number;
+  /**
+   * The end time of the request.
+   */
   end: number;
+  /**
+   * The index array.
+   */
+  index: Float64Array;
+  /**
+   * The data array.
+   */
+  data: Float64Array;
+  /**
+   * The minimum value of the data array.
+   */
+  min: number;
+  /**
+   * The maximum value of the data array.
+   */
+  max: number;
+  /**
+   * The mean value of the data array.
+   */
+  mean: number;
+  /**
+   * The number of samples.
+   */
+  count: number;
 }
 
 export interface SpectrogramRequestData {

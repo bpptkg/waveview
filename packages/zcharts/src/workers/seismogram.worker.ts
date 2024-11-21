@@ -3,43 +3,10 @@ import { LinearScale } from "../scale/linear";
 import {
   OffscreenRenderContext,
   OffscreenRenderResult,
-  OffscreenRenderTrackContext,
+  OffscreenRenderTrackInfo,
 } from "../seismogram/offscreen";
 import { debounce } from "../util/debounce";
-
-/**
- * Get global min and max values of the series data.
- */
-const getGlobalNormFactor = (tracks: OffscreenRenderTrackContext[]): number => {
-  let normFactor = -Infinity;
-  tracks.forEach((track) => {
-    const { seriesData } = track;
-    const { name, index, values } = seriesData;
-    const series = Series.from(new Float64Array(values), {
-      index: new Index(new Float64Array(index)),
-      name,
-    });
-
-    if (!series || series.isEmpty()) {
-      return;
-    }
-
-    const factor = Math.abs(series.max() - series.min());
-    if (factor === 0) {
-      return;
-    }
-    normFactor = Math.max(normFactor, factor);
-  });
-  return isFinite(normFactor) ? normFactor : 1;
-};
-
-/**
- * Get local min and max values of the series data.
- */
-const getLocalNormFactor = (series: Series): number => {
-  const normFactor = Math.max(Math.abs(series.min()), Math.abs(series.max()));
-  return isFinite(normFactor) ? normFactor : 1;
-};
+import { getGlobalNormFactor, getLocalNormFactor } from "../util/norm";
 
 /**
  * Render the seismogram tracks to an offscreen canvas.
@@ -61,25 +28,47 @@ const render = debounce((event: MessageEvent) => {
   ctx.strokeStyle = color;
 
   let first = true;
-  const globalNormFactor = getGlobalNormFactor(tracks);
+  const globalNormFactor = getGlobalNormFactor(
+    tracks.map(({ min, max }) => [min, max])
+  );
+
+  const trackInfo: OffscreenRenderTrackInfo[] = [];
 
   tracks.forEach((track) => {
     ctx.beginPath();
-    const { trackRect, xScaleOptions, yScaleOptions, seriesData } = track;
+    const {
+      channelId,
+      trackRect,
+      xScaleOptions,
+      yScaleOptions,
+      series,
+      min,
+      max,
+    } = track;
     const xScale = new LinearScale(xScaleOptions);
     const yScale = new LinearScale(yScaleOptions);
-    const { name, index, values } = seriesData;
-    const series = Series.from(new Float64Array(values), {
+    const { name, index, values } = series;
+    const data = Series.from(new Float64Array(values), {
       index: new Index(new Float64Array(index)),
       name,
     });
-    let data: Series;
+    let norm: Series;
+    let localNormFactor: number = 1;
     if (scaling === "global") {
-      data = series.scalarDivide(globalNormFactor);
+      norm = data.scalarDivide(globalNormFactor);
     } else {
-      const localNormFactor = getLocalNormFactor(series);
-      data = series.scalarDivide(localNormFactor);
+      localNormFactor = getLocalNormFactor(min, max);
+      norm = data.scalarDivide(localNormFactor);
     }
+    trackInfo.push({
+      channelId,
+      scaling,
+      min,
+      max,
+      normFactor: scaling === "global" ? globalNormFactor : localNormFactor,
+      normMin: norm.min(),
+      normMax: norm.max(),
+    });
 
     // Invert the x value to the canvas coordinate system.
     const invertX = (value: number): number => {
@@ -96,7 +85,7 @@ const render = debounce((event: MessageEvent) => {
       return y + height * (1 - percent) - gridRect.y;
     };
 
-    for (const [x, y] of data.iterIndexValuePairs()) {
+    for (const [x, y] of norm.iterIndexValuePairs()) {
       if (!xScale.contains(x)) {
         continue;
       }
@@ -122,6 +111,7 @@ const render = debounce((event: MessageEvent) => {
         image: reader.result as string,
         start: timeMin,
         end: timeMax,
+        info: trackInfo,
       };
       postMessage(result);
     };

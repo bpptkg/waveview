@@ -14,11 +14,13 @@ export abstract class Scale<T extends ScaleOptions = ScaleOptions> {
   private _options: T;
   protected _extent: [number, number];
   private _isBlank: boolean;
+  private _normFactor: number;
 
   constructor(options?: T) {
     this._options = options || ({} as T);
     this._extent = [-Infinity, Infinity];
     this._isBlank = false;
+    this._normFactor = 1;
   }
 
   getOptions(): T {
@@ -73,6 +75,14 @@ export abstract class Scale<T extends ScaleOptions = ScaleOptions> {
 
   contains(value: number): boolean {
     return value >= this._extent[0] && value <= this._extent[1];
+  }
+
+  setNormFactor(normFactor: number): void {
+    this._normFactor = normFactor;
+  }
+
+  getNormFactor(): number {
+    return this._normFactor;
   }
 
   abstract calcNiceExtent(): void;

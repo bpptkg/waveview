@@ -48,16 +48,23 @@ export async function readStream(blob: Blob): Promise<StreamResponseData> {
     },
     [Infinity, -Infinity]
   ) as [number, number];
+  const mean = length > 0 ? data.reduce((acc, val) => acc + val, 0) / length : 0;
+  const min = isFinite(extent[0]) ? extent[0] : 0;
+  const max = isFinite(extent[1]) ? extent[1] : 0;
+  const count = length;
 
   return {
     requestId,
     command,
-    index,
-    data,
-    extent,
     channelId,
     start,
     end,
+    index,
+    data,
+    min,
+    max,
+    mean,
+    count,
   };
 }
 

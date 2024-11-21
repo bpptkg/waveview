@@ -1,5 +1,5 @@
 import { Series } from '@waveview/ndarray';
-import { Seismogram, SpectrogramData } from '@waveview/zcharts';
+import { Seismogram, SeriesData, SpectrogramData } from '@waveview/zcharts';
 import { refreshToken } from '../../../services/api';
 import { ONE_MINUTE } from '../../../shared/time';
 import { uuid4 } from '../../../shared/uuid';
@@ -48,7 +48,7 @@ export class DataStore<T> {
   }
 }
 
-const signalCache = new DataStore<Series>();
+const signalCache = new DataStore<SeriesData>();
 const spectrogramCache = new DataStore<SpectrogramData>();
 
 export interface SeismogramWebWorkerOptions {
@@ -173,9 +173,9 @@ export class SeismogramWebWorker {
     for (const channel of this.chart.getChannels()) {
       const [start, end] = this.options.selectionWindow;
       const key = JSON.stringify([channel.id, start, end]);
-      const series = signalCache.get(key);
-      if (series) {
-        this.chart.setChannelData(channel.id, series);
+      const seriesData = signalCache.get(key);
+      if (seriesData) {
+        this.chart.setChannelData(channel.id, seriesData);
       } else {
         this.fetchChannelData(channel.id);
       }
@@ -342,16 +342,17 @@ export class SeismogramWebWorker {
   }
 
   private onStreamFetchMessage(payload: StreamResponseData): void {
-    const { data, index, channelId, requestId } = payload;
+    const { data, index, channelId, requestId, min, max, mean, count } = payload;
     const series = new Series(data, {
       index: index,
       name: channelId,
     });
-    this.chart.setChannelData(channelId, series);
+    const seriesData: SeriesData = { series, min, max, mean, count };
+    this.chart.setChannelData(channelId, seriesData);
 
     const [start, end] = this.options.selectionWindow;
     const key = JSON.stringify([channelId, start, end]);
-    signalCache.set(key, series);
+    signalCache.set(key, seriesData);
 
     this.signalRequests.delete(requestId);
     if (this.signalRequests.size === 0) {
@@ -387,12 +388,13 @@ export class SeismogramWebWorker {
   }
 
   private onStreamFilterMessage(payload: StreamResponseData): void {
-    const { data, index, channelId, requestId } = payload;
+    const { data, index, channelId, requestId, min, max, mean, count } = payload;
     const series = new Series(data, {
       index: index,
       name: channelId,
     });
-    this.chart.setChannelData(channelId, series);
+    const seriesData: SeriesData = { series, min, max, mean, count };
+    this.chart.setChannelData(channelId, seriesData);
 
     this.signalRequests.delete(requestId);
     if (this.signalRequests.size === 0) {
