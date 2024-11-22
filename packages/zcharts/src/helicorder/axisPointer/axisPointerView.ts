@@ -51,9 +51,9 @@ export class AxisPointerView extends View<AxisPointerModel> {
     this.render();
   }
 
-  private onPointerLeave(event: zrender.ElementEvent): void {
-    this.position.x = event.offsetX;
-    this.position.y = event.offsetY;
+  private onPointerLeave(): void {
+    this.position.x = -1;
+    this.position.y = -1;
     this.verticalLine.hide();
     this.timeLabel.hide();
   }
