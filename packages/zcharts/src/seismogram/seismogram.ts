@@ -559,7 +559,6 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   override render(options?: SeismogramRenderOptions): void {
     const { refreshSignal = true } = options || {};
     this.rendering = true;
-    this.emit("loading", true);
 
     const { useOffscrrenRendering } = this.model.getOptions();
     if (useOffscrrenRendering && refreshSignal) {
@@ -572,9 +571,6 @@ export class Seismogram extends ChartView<SeismogramOptions> {
       this.rendering = refreshSignal;
     } else {
       this.rendering = false;
-    }
-    if (!this.rendering) {
-      this.emit("loading", false);
     }
   }
 
@@ -630,7 +626,6 @@ export class Seismogram extends ChartView<SeismogramOptions> {
       });
       this.offscreenSignal.updateData(result);
       this.rendering = false;
-      this.emit("loading", false);
     });
   }
 
