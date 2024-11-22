@@ -247,7 +247,7 @@ export class AxisPointerView extends View<AxisPointerModel> {
       const normFactor = track.getLeftYAxis().getNormFactor();
       showAmplitudeLabel(amplitudeValue * normFactor, x0, y);
 
-      if (this.chart.isSpectrogramShown()) {
+      if (this.chart.isSpectrogramVisible()) {
         const frequencyValue = track.getRightYAxis().getValueForPixel(y);
         showFrequencyLabel(frequencyValue, x0 + width, y);
       } else {
