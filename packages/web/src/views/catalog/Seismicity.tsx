@@ -167,7 +167,7 @@ const Seismicity = () => {
   return (
     <div className="relative h-full w-full">
       <div className="absolute top-0 right-0 bottom-0 left-0 overflow-auto">
-        <div className="p-3">
+        <div className="p-2 mb-4">
           <div>
             <div>
               <div className="flex items-center justify-between">
@@ -200,44 +200,46 @@ const Seismicity = () => {
             </div>
           </div>
 
-          <ReactECharts ref={chartRef} style={chartStyle} autoResize={true} />
+          <ReactECharts className="mt-2 border border-gray-300 dark:border-gray-700 rounded-lg" ref={chartRef} style={chartStyle} autoResize={true} />
 
-          <Table aria-label="Seismicity Table" className="mt-2">
-            <TableHeader>
-              <TableRow>
-                <TableHeaderCell>Event type</TableHeaderCell>
-                <TableHeaderCell>Min</TableHeaderCell>
-                <TableHeaderCell>Max</TableHeaderCell>
-                <TableHeaderCell>Average</TableHeaderCell>
-                <TableHeaderCell>Total</TableHeaderCell>
-                <TableHeaderCell>Median</TableHeaderCell>
-                <TableHeaderCell>Std Dev</TableHeaderCell>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {seismicity ? (
-                seismicity.map((item) => (
-                  <TableRow key={item.event_type.id}>
-                    <TableCell>
-                      <EventTypeLabel eventType={item.event_type} />
-                    </TableCell>
-                    <TableCell>{formatNumber(minNonZero(item.data.map((v) => v.count)), { precision: 0 })}</TableCell>
-                    <TableCell>{formatNumber(max(item.data.map((v) => v.count)), { precision: 0 })}</TableCell>
-                    <TableCell>{formatNumber(mean(item.data.map((v) => v.count)), { precision: 1 })}</TableCell>
-                    <TableCell>{formatNumber(sum(item.data.map((v) => v.count)), { precision: 0 })}</TableCell>
-                    <TableCell>{formatNumber(median(item.data.map((v) => v.count)), { precision: 1 })}</TableCell>
-                    <TableCell>{formatNumber(standardDeviation(item.data.map((v) => v.count)), { precision: 1 })}</TableCell>
-                  </TableRow>
-                ))
-              ) : (
+          <div className="p-2 mt-2 border border-gray-300 dark:border-gray-700 rounded-lg">
+            <Table aria-label="Seismicity Table" className="mt-2">
+              <TableHeader>
                 <TableRow>
-                  <TableHeaderCell colSpan={7}>
-                    <span className="text-center w-full">No data found</span>
-                  </TableHeaderCell>
+                  <TableHeaderCell>Event type</TableHeaderCell>
+                  <TableHeaderCell>Count</TableHeaderCell>
+                  <TableHeaderCell>Min</TableHeaderCell>
+                  <TableHeaderCell>Max</TableHeaderCell>
+                  <TableHeaderCell>Average</TableHeaderCell>
+                  <TableHeaderCell>Median</TableHeaderCell>
+                  <TableHeaderCell>Std Dev</TableHeaderCell>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {seismicity ? (
+                  seismicity.map((item) => (
+                    <TableRow key={item.event_type.id}>
+                      <TableCell>
+                        <EventTypeLabel eventType={item.event_type} />
+                      </TableCell>
+                      <TableCell>{formatNumber(sum(item.data.map((v) => v.count)), { precision: 0 })}</TableCell>
+                      <TableCell>{formatNumber(minNonZero(item.data.map((v) => v.count)), { precision: 0 })}</TableCell>
+                      <TableCell>{formatNumber(max(item.data.map((v) => v.count)), { precision: 0 })}</TableCell>
+                      <TableCell>{formatNumber(mean(item.data.map((v) => v.count)), { precision: 1 })}</TableCell>
+                      <TableCell>{formatNumber(median(item.data.map((v) => v.count)), { precision: 1 })}</TableCell>
+                      <TableCell>{formatNumber(standardDeviation(item.data.map((v) => v.count)), { precision: 1 })}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableHeaderCell colSpan={7}>
+                      <span className="text-center w-full">No data found</span>
+                    </TableHeaderCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       </div>
       <Toaster toasterId={toasterId} />

@@ -158,7 +158,7 @@ const RfApDirection: React.FC = () => {
   return (
     <div className="relative h-full w-full">
       <div className="absolute top-0 right-0 bottom-0 left-0 overflow-auto">
-        <div className="p-3">
+        <div className="p-2 mb-4">
           <div>
             <div>
               <div className="flex items-center justify-between">
@@ -186,9 +186,9 @@ const RfApDirection: React.FC = () => {
             </div>
           </div>
 
-          <div>
-            <div className="flex">
-              <div className="flex-1">
+          <div className="mt-2 flex flex-col gap-2">
+            <div className="flex gap-2">
+              <div className="flex-1 border border-gray-300 dark:border-gray-700 rounded-lg p-1">
                 <div className="flex items-center justify-end gap-1 mx-2">
                   <Tooltip content="Download as image" relationship="label" showDelay={1500}>
                     <Button appearance="transparent" size="small" icon={<ArrowDownRegular fontSize={16} />} onClick={handleRoseChartDownload} />
@@ -205,7 +205,7 @@ const RfApDirection: React.FC = () => {
                   }}
                 />
               </div>
-              <div className="flex-1">
+              <div className="flex-1 border border-gray-300 dark:border-gray-700 rounded-lg p-1">
                 <div className="flex items-center justify-end gap-1 mx-2">
                   <Tooltip content="Download as image" relationship="label" showDelay={1500}>
                     <Button appearance="transparent" size="small" icon={<ArrowDownRegular fontSize={16} />} onClick={handleBarChartDownload} />
@@ -223,7 +223,7 @@ const RfApDirection: React.FC = () => {
                 />
               </div>
             </div>
-            <div>
+            <div className="border border-gray-300 dark:border-gray-700 rounded-lg p-1">
               <div className="flex items-center justify-end gap-1 mx-2">
                 <Tooltip content="Download as image" relationship="label" showDelay={1500}>
                   <Button appearance="transparent" size="small" icon={<ArrowDownRegular fontSize={16} />} onClick={handleDistChartDownload} />
