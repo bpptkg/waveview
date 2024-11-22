@@ -1,6 +1,5 @@
 import HelicorderChannel from './HelicorderChannel';
 import HelicorderFilterStatus from './HelicorderFilterStatus';
-import LoadingIndicator from './LoadingIndicator';
 import RealtimeClock from './RealtimeClock';
 import SeismogramFilterStatus from './SeismogramFilterStatus';
 import TimeRangeLabel from './TimeRangeLabel';
@@ -14,7 +13,6 @@ const Statusbar = () => {
         <HelicorderFilterStatus />
         <TimeRangeLabel />
         <SeismogramFilterStatus />
-        <LoadingIndicator />
       </div>
       <div className="flex gap-2 items-center">
         <RealtimeClock />
