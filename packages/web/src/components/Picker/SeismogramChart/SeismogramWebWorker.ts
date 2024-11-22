@@ -342,6 +342,7 @@ export class SeismogramWebWorker {
   }
 
   private onStreamFetchMessage(payload: StreamResponseData): void {
+    this.busy();
     const { data, index, channelId, requestId, min, max, mean, count } = payload;
     const series = new Series(data, {
       index: index,
@@ -356,11 +357,13 @@ export class SeismogramWebWorker {
 
     this.signalRequests.delete(requestId);
     if (this.signalRequests.size === 0) {
+      this.idle();
       this.chart.render();
     }
   }
 
   private onSpecrogramFetchMessage(payload: SpectrogramResponseData): void {
+    this.busy();
     const { image, channelId, timeMin, timeMax, freqMin, freqMax, timeLength, freqLength, min, max, requestId } = payload;
     const specgram = new SpectrogramData({
       image,
@@ -383,11 +386,13 @@ export class SeismogramWebWorker {
 
     this.spectrogramRequests.delete(requestId);
     if (this.spectrogramRequests.size === 0) {
+      this.idle();
       this.chart.render({ refreshSignal: false });
     }
   }
 
   private onStreamFilterMessage(payload: StreamResponseData): void {
+    this.busy();
     const { data, index, channelId, requestId, min, max, mean, count } = payload;
     const series = new Series(data, {
       index: index,
@@ -398,6 +403,7 @@ export class SeismogramWebWorker {
 
     this.signalRequests.delete(requestId);
     if (this.signalRequests.size === 0) {
+      this.idle();
       this.chart.render();
     }
   }
