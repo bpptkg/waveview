@@ -79,6 +79,11 @@ export const createSeismogramSlice: StateCreator<PickerStore, [], [], Seismogram
       return seismogramToolbarCheckedValues.options.includes('spectrogram');
     },
 
+    isSignalVisible: () => {
+      const { seismogramToolbarCheckedValues } = get();
+      return seismogramToolbarCheckedValues.options.includes('signal');
+    },
+
     setSeismogramLoading: (loading) => set({ seismogramLoading: loading }),
   };
 };
