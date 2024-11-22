@@ -144,7 +144,7 @@ export class SeismogramWebWorker {
     } else {
       this.fetchAllChannelsData({ mode: 'cache' });
     }
-    if (this.chart.isSpectrogramShown()) {
+    if (this.chart.isSpectrogramVisible()) {
       this.fetchAllSpectrogramData({ mode: 'cache' });
     }
   }
