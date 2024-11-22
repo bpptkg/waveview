@@ -1,8 +1,11 @@
 import React, { useCallback, useEffect } from 'react';
+import { usePickerStore } from '../../stores/picker';
 import { HelicorderChartRef } from './HelicorderChart';
 import { SeismogramChartRef } from './SeismogramChart';
 
 export function useSeismogramKeyboardShortcuts(chartRef: React.MutableRefObject<SeismogramChartRef | null>) {
+  const { isSpectrogramVisible, isSignalVisible, seismogramToolbarAddCheckedValue, seismogramToolbarRemoveCheckedValue } = usePickerStore();
+
   const onArrowLeft = useCallback(() => {
     chartRef.current?.scrollLeft(0.1);
   }, [chartRef]);
@@ -26,6 +29,26 @@ export function useSeismogramKeyboardShortcuts(chartRef: React.MutableRefObject<
   const onArrowDownShift = useCallback(() => {
     chartRef.current?.zoomOut(0.1);
   }, [chartRef]);
+
+  const onSKey = useCallback(() => {
+    if (isSpectrogramVisible()) {
+      chartRef.current?.hideSpectrogram();
+      seismogramToolbarRemoveCheckedValue('options', 'spectrogram');
+    } else {
+      seismogramToolbarAddCheckedValue('options', 'spectrogram');
+      chartRef.current?.showSpectrogram();
+    }
+  }, [chartRef, isSpectrogramVisible, seismogramToolbarAddCheckedValue, seismogramToolbarRemoveCheckedValue]);
+
+  const onTKey = useCallback(() => {
+    if (isSignalVisible()) {
+      chartRef.current?.hideSignal();
+      seismogramToolbarRemoveCheckedValue('options', 'signal');
+    } else {
+      seismogramToolbarAddCheckedValue('options', 'signal');
+      chartRef.current?.showSignal();
+    }
+  }, [chartRef, isSignalVisible, seismogramToolbarAddCheckedValue, seismogramToolbarRemoveCheckedValue]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -56,6 +79,12 @@ export function useSeismogramKeyboardShortcuts(chartRef: React.MutableRefObject<
           }
           break;
         }
+        case 's':
+          onSKey();
+          break;
+        case 't':
+          onTKey();
+          break;
         default:
           break;
       }
@@ -65,7 +94,7 @@ export function useSeismogramKeyboardShortcuts(chartRef: React.MutableRefObject<
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [chartRef, onArrowLeft, onArrowRight, onArrowUp, onArrowDown, onArrowUpShift, onArrowDownShift]);
+  }, [chartRef, onArrowLeft, onArrowRight, onArrowUp, onArrowDown, onArrowUpShift, onArrowDownShift, onSKey, onTKey]);
 }
 
 export function useHelicorderKeyboardShortcuts(chartRef: React.MutableRefObject<HelicorderChartRef | null>) {
