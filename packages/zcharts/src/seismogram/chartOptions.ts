@@ -36,7 +36,7 @@ export interface SeismogramOptions extends ChartOptions {
    */
   timezone: string;
   /**
-   * The list of channel IDs.
+   * The list of channels to be displayed in the seismogram chart.
    */
   channels: Channel[];
   /**
@@ -48,7 +48,9 @@ export interface SeismogramOptions extends ChartOptions {
    */
   enableTooltip?: boolean;
   /**
-   * The vertical scaling of the seismogram chart.
+   * The vertical scaling of the seismogram chart. Global scaling scales all
+   * channels to the same scale. Local scaling scales each channel to its own
+   * scale.
    */
   scaling: "global" | "local";
   /**
