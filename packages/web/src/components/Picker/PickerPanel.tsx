@@ -1,3 +1,4 @@
+import { ProgressBar } from '@fluentui/react-components';
 import { ElementEvent, SeismogramEventMarkerOptions } from '@waveview/zcharts';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
@@ -37,6 +38,8 @@ const PickerPanel = () => {
     autoUpdateInterval,
     seismogramToolbarCheckedValues,
     helicorderToolbarCheckedValues,
+    helicorderLoading,
+    seismogramLoading,
     getSeismogramFilterOptions,
   } = usePickerStore();
   const {
@@ -67,6 +70,7 @@ const PickerPanel = () => {
     handleSeismogramFocus,
     handleSeismogramIncreaseAmplitude,
     handleSeismogramMouseWheel,
+    handleSeismogramOnLoading,
     handleSeismogramOnReady,
     handleSeismogramPickChange,
     handleSeismogramResetAmplitude,
@@ -169,6 +173,7 @@ const PickerPanel = () => {
                   onCheckedValueChange={handleHelicorderCheckValueChange}
                   onScalingChange={handleHelicorderScalingChange}
                 />
+                <div className="h-1">{helicorderLoading && <ProgressBar />}</div>
                 <div ref={helicorderContainerRef} className="flex-grow relative">
                   <HelicorderChart
                     ref={heliChartRef}
@@ -211,6 +216,7 @@ const PickerPanel = () => {
               onScalingChange={handleSeismogramScalingChange}
               onFilterChange={handleSeismogramFilterChange}
             />
+            <div className="h-1">{seismogramLoading && <ProgressBar />}</div>
             <div ref={seismogramContainerRef} className="flex-grow relative">
               <SeismogramChart
                 ref={seisChartRef}
@@ -224,6 +230,7 @@ const PickerPanel = () => {
                 onEventMarkerContextMenu={handleEventMarkerContextMenu}
                 onTrackContextMenu={handleTrackContextMenu}
                 onTrackDoubleClick={handleSeismogramTrackDoubleClick}
+                onLoading={handleSeismogramOnLoading}
                 onReady={handleSeismogramOnReady}
               />
               <RestoreViewButton />

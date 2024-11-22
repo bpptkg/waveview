@@ -26,9 +26,9 @@ export function useHelicorderCallback() {
     setHelicorderChannelId,
     setHelicorderDuration,
     setHelicorderInterval,
+    setHelicorderLoading,
     setHelicorderOffsetDate,
     setLastSeismogramExtent,
-    setLoading,
     setSelectedChart,
     setSelectionWindow,
   } = usePickerStore();
@@ -229,9 +229,9 @@ export function useHelicorderCallback() {
 
   const handleHelicorderOnLoading = useCallback(
     (loading: boolean) => {
-      setLoading(loading);
+      setHelicorderLoading(loading);
     },
-    [setLoading]
+    [setHelicorderLoading]
   );
 
   const handleHelicorderCheckValueChange = useCallback(

@@ -30,6 +30,7 @@ export const useSeismogramCallback = () => {
     setLastSeismogramExtent,
     setPickMode,
     setPickRange,
+    setSeismogramLoading,
     setSelectedChart,
     setShowEvent,
     setStationOfFirstArrivalId,
@@ -333,6 +334,13 @@ export const useSeismogramCallback = () => {
     [seisChartRef, setAppliedFilter]
   );
 
+  const handleSeismogramOnLoading = useCallback(
+    (loading: boolean) => {
+      setSeismogramLoading(loading);
+    },
+    [setSeismogramLoading]
+  );
+
   return {
     getSeismogramInitOptions,
     handleClearEventEditing,
@@ -346,6 +354,7 @@ export const useSeismogramCallback = () => {
     handleSeismogramIncreaseAmplitude,
     handleSeismogramMouseWheel,
     handleSeismogramOnDestroy,
+    handleSeismogramOnLoading,
     handleSeismogramOnReady,
     handleSeismogramPickChange,
     handleSeismogramPickModeChange,
