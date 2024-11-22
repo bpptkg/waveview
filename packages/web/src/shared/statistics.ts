@@ -1,6 +1,6 @@
 export function max(array: number[]): number {
   if (array.length === 0) {
-    return NaN;
+    return 0;
   }
   let max = -Infinity;
   for (const value of array) {
@@ -8,12 +8,12 @@ export function max(array: number[]): number {
       max = value;
     }
   }
-  return max;
+  return isFinite(max) ? max : 0;
 }
 
 export function min(array: number[]): number {
   if (array.length === 0) {
-    return NaN;
+    return 0;
   }
   let min = Infinity;
   for (const value of array) {
@@ -21,12 +21,12 @@ export function min(array: number[]): number {
       min = value;
     }
   }
-  return min;
+  return isFinite(min) ? min : 0;
 }
 
 export function minNonZero(array: number[]): number {
   if (array.length === 0) {
-    return NaN;
+    return 0;
   }
   let min = Infinity;
   for (const value of array) {
@@ -34,7 +34,7 @@ export function minNonZero(array: number[]): number {
       min = value;
     }
   }
-  return min;
+  return isFinite(min) ? min : 0;
 }
 
 export function sum(array: number[]): number {
@@ -50,14 +50,14 @@ export function sum(array: number[]): number {
 
 export function mean(array: number[]): number {
   if (array.length === 0) {
-    return NaN;
+    return 0;
   }
   return sum(array) / array.length;
 }
 
 export function median(array: number[]): number {
   if (array.length === 0) {
-    return NaN;
+    return 0;
   }
   const sorted = array.slice().sort((a, b) => a - b);
   const middle = Math.floor(sorted.length / 2);
@@ -69,12 +69,15 @@ export function median(array: number[]): number {
 
 export function variance(array: number[]): number {
   if (array.length === 0) {
-    return NaN;
+    return 0;
   }
   const meanValue = mean(array);
   return mean(array.map((value) => Math.pow(value - meanValue, 2)));
 }
 
 export function standardDeviation(array: number[]): number {
+  if (array.length === 0) {
+    return 0;
+  }
   return Math.sqrt(variance(array));
 }
