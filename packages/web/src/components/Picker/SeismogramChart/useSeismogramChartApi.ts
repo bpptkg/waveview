@@ -19,7 +19,7 @@ export function useSeismogramChartApi(options: SeismogramChartInitOptions): Seis
       } else {
         webWorkerRef.current.fetchAllChannelsData();
       }
-      if (chartRef.current.isSpectrogramShown()) {
+      if (chartRef.current.isSpectrogramVisible()) {
         webWorkerRef.current.fetchAllSpectrogramData();
       }
     }
@@ -332,7 +332,6 @@ export function useSeismogramChartApi(options: SeismogramChartInitOptions): Seis
       setScaling: (scaling) => {
         if (chartRef.current) {
           chartRef.current.setScaling(scaling);
-          chartRef.current.refreshChannelData();
           chartRef.current.render();
         }
       },
