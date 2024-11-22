@@ -49,7 +49,7 @@ export interface SeismogramSlice {
   /**
    * True if the spectrogram is shown.
    */
-  isShowSpecrogram: () => boolean;
+  isSpectrogramVisible: () => boolean;
   /**
    * Set the loading status of the seismogram chart.
    */

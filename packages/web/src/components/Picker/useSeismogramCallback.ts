@@ -22,7 +22,7 @@ export const useSeismogramCallback = () => {
     getSeismogramScalingType,
     getSelectedStations,
     isPickEmpty,
-    isShowSpecrogram,
+    isSpectrogramVisible,
     resetEditing,
     seismogramToolbarSetCheckedValues,
     setEditedEvent,
@@ -296,7 +296,7 @@ export const useSeismogramCallback = () => {
       startTime,
       endTime,
       scaling,
-      showSpecrogram: isShowSpecrogram(),
+      showSpecrogram: isSpectrogramVisible(),
       useOffscrrenRendering: true,
       markers: eventMarkers.map((event) => {
         const [start, end] = getPickExtent(event);
@@ -310,7 +310,7 @@ export const useSeismogramCallback = () => {
       }),
     };
     return initOptions;
-  }, [darkMode, useUTC, event, lastSeismogramExtent, eventMarkers, getChannelsConfig, getSeismogramScalingType, isShowSpecrogram]);
+  }, [darkMode, useUTC, event, lastSeismogramExtent, eventMarkers, getChannelsConfig, getSeismogramScalingType, isSpectrogramVisible]);
 
   const handleSeismogramScalingChange = useCallback(
     (scaling: ScalingType) => {

@@ -74,7 +74,7 @@ export const createSeismogramSlice: StateCreator<PickerStore, [], [], Seismogram
       return seismogramToolbarCheckedValues.options.includes('scaling') ? 'local' : 'global';
     },
 
-    isShowSpecrogram: () => {
+    isSpectrogramVisible: () => {
       const { seismogramToolbarCheckedValues } = get();
       return seismogramToolbarCheckedValues.options.includes('spectrogram');
     },
