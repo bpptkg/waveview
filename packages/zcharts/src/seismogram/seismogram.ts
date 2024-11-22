@@ -59,6 +59,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   private channelDataStore: DataStore<SeriesData> = new DataStore();
   private spectrogramDataStore: DataStore<SpectrogramData> = new DataStore();
   private focused = false;
+  private signalShown = true;
   private spectrogramShown = false;
   private inExpandMode = false;
   private expandIndex = -1;
@@ -121,11 +122,6 @@ export class Seismogram extends ChartView<SeismogramOptions> {
       this.addChannelInternal(channel);
     }
 
-    const { showSpecrogram } = opts;
-    if (showSpecrogram) {
-      this.showSpectrograms();
-    }
-
     const { useOffscrrenRendering } = opts;
     if (useOffscrrenRendering && typeof Worker !== "undefined") {
       this.worker = new Worker(
@@ -140,6 +136,16 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     const { markers } = opts;
     if (markers) {
       this.addEventMarkers(markers);
+    }
+
+    const { showSpecrogram, showSignal } = opts;
+    if (showSpecrogram) {
+      this.showSpectrograms();
+    }
+    if (showSignal) {
+      this.showSignals();
+    } else {
+      this.hideSignals();
     }
   }
 
@@ -357,6 +363,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
         track.showSignal();
       }
     }
+    this.signalShown = true;
   }
 
   hideSignals(): void {
@@ -368,6 +375,11 @@ export class Seismogram extends ChartView<SeismogramOptions> {
         track.hideSignal();
       }
     }
+    this.signalShown = false;
+  }
+
+  isSignalVisible(): boolean {
+    return this.signalShown;
   }
 
   showSpectrograms(): void {
@@ -384,7 +396,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     this.spectrogramShown = false;
   }
 
-  isSpectrogramShown(): boolean {
+  isSpectrogramVisible(): boolean {
     return this.spectrogramShown;
   }
 
