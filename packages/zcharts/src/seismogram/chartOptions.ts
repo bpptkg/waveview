@@ -55,6 +55,10 @@ export interface SeismogramOptions extends ChartOptions {
    * Whether to show the spectrogram.
    */
   showSpecrogram?: boolean;
+  /**
+   * Whether to show the signal.
+   */
+  showSignal?: boolean;
 }
 
 export function getDefaultOptions(): SeismogramOptions {
@@ -80,5 +84,7 @@ export function getDefaultOptions(): SeismogramOptions {
     enableTooltip: true,
     scaling: "global",
     useOffscrrenRendering: false,
+    showSignal: true,
+    showSpecrogram: false,
   };
 }
