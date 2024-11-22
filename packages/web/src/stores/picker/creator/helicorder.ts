@@ -17,6 +17,7 @@ export const createHelicorderSlice: StateCreator<PickerStore, [], [], Helicorder
       options: [], // scaling
     },
     helicorderFilter: null,
+    helicorderLoading: false,
 
     setWindowSize: (windowSize) => set({ windowSize }),
 
@@ -56,5 +57,7 @@ export const createHelicorderSlice: StateCreator<PickerStore, [], [], Helicorder
       const { helicorderToolbarCheckedValues } = get();
       return helicorderToolbarCheckedValues.options.includes('scaling') ? 'local' : 'global';
     },
+
+    setHelicorderLoading: (loading) => set({ helicorderLoading: loading }),
   };
 };

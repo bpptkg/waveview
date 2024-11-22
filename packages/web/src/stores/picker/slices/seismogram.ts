@@ -28,6 +28,10 @@ export interface SeismogramSlice {
    * List of default channels configured.
    */
   selectedChannels: ChannelConfig[];
+  /**
+   * The loading status of the seismogram chart.
+   */
+  seismogramLoading: boolean;
   setSelectedChannels: (channels: ChannelConfig[]) => void;
   setLastSeismogramExtent: (extent: [number, number]) => void;
   seismogramToolbarSetCheckedValues: (name: string, checkedValues: string[]) => void;
@@ -46,4 +50,8 @@ export interface SeismogramSlice {
    * True if the spectrogram is shown.
    */
   isShowSpecrogram: () => boolean;
+  /**
+   * Set the loading status of the seismogram chart.
+   */
+  setSeismogramLoading: (loading: boolean) => void;
 }

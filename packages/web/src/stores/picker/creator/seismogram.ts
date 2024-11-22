@@ -14,6 +14,7 @@ export const createSeismogramSlice: StateCreator<PickerStore, [], [], Seismogram
     isExpandMode: false,
     expandedChannelIndex: -1,
     selectedChannels: [],
+    seismogramLoading: false,
 
     getChannelsConfig: () => {
       const { selectedChannels } = get();
@@ -77,5 +78,7 @@ export const createSeismogramSlice: StateCreator<PickerStore, [], [], Seismogram
       const { seismogramToolbarCheckedValues } = get();
       return seismogramToolbarCheckedValues.options.includes('spectrogram');
     },
+
+    setSeismogramLoading: (loading) => set({ seismogramLoading: loading }),
   };
 };

@@ -47,6 +47,10 @@ export interface HelicorderSlice {
    * The applied filter to the helicorder chart.
    */
   helicorderFilter: FilterOperationOptions | null;
+  /**
+   * The loading status of the helicorder chart.
+   */
+  helicorderLoading: boolean;
   setWindowSize: (size: number) => void;
   setHelicorderChannelId: (channelId: string) => void;
   setHelicorderDuration: (duration: number) => void;
@@ -59,4 +63,5 @@ export interface HelicorderSlice {
   setAutoUpdateInterval: (interval: number) => void;
   helicorderToolbarSetCheckedValues: (name: string, checkedValues: string[]) => void;
   getHelicorderScalingType: () => ScalingType;
+  setHelicorderLoading: (loading: boolean) => void;
 }
