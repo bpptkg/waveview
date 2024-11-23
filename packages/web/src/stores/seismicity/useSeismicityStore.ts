@@ -10,6 +10,7 @@ import { ONE_DAY, ONE_HOUR } from '../../shared/time';
 import { circle } from '../../shared/tooltip';
 import { CustomError } from '../../types/response';
 import { SeismicityData } from '../../types/seismicity';
+import { useAppStore } from '../app';
 import { useCatalogStore } from '../catalog';
 import { useOrganizationStore } from '../organization';
 import { useVolcanoStore } from '../volcano/useVolcanoStore';
@@ -97,7 +98,7 @@ const seismicityStore = create<SeismicityStore>((set, get) => {
       if (!currentCatalog) {
         throw new CustomError('Catalog is not set');
       }
-
+      const { timeZone, useUTC } = useAppStore.getState();
       const { startDate, endDate, sampling, periodIndex } = get();
 
       // Add one more day to the end date to include the last day.
@@ -111,6 +112,7 @@ const seismicityStore = create<SeismicityStore>((set, get) => {
           end: new Date(end).toISOString(),
           group_by: sampling,
           fill_gaps: true,
+          timezone: useUTC ? 'UTC' : timeZone,
         },
       });
       if (!response.ok) {

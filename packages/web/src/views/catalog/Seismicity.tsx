@@ -107,6 +107,10 @@ const Seismicity = () => {
     }
   }, [seismicity, chartRef, getEChartsOption, updatePlot]);
 
+  useEffect(() => {
+    updatePlot();
+  }, [useUTC, updatePlot]);
+
   const chartStyle = useMemo(() => {
     const length = seismicity?.length || 1;
     let height = length * 100;
