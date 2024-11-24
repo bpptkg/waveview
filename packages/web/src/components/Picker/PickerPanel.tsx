@@ -87,11 +87,11 @@ const PickerPanel = () => {
   } = usePickerCallback();
 
   const helicorderClassName = useMemo(() => {
-    return selectedChart === 'helicorder' ? 'border border-brand-hosts-80' : 'border border-transparent';
+    return selectedChart === 'helicorder' ? 'border border-gray-300 dark:border-gray-700' : 'border border-transparent';
   }, [selectedChart]);
 
   const seismogramClassName = useMemo(() => {
-    return selectedChart === 'seismogram' ? 'border border-brand-hosts-80' : 'border border-transparent';
+    return selectedChart === 'seismogram' ? 'border border-gray-300 dark:border-gray-700' : 'border border-transparent';
   }, [selectedChart]);
 
   useEffect(() => {
