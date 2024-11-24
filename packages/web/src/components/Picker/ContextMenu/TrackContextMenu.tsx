@@ -1,10 +1,11 @@
-import { FluentProvider, MenuItem, MenuList, makeStyles, tokens, webDarkTheme, webLightTheme } from '@fluentui/react-components';
+import { FluentProvider, MenuItem, MenuList, makeStyles, tokens } from '@fluentui/react-components';
 import { ArrowMaximizeRegular, ArrowMinimizeRegular } from '@fluentui/react-icons';
 import { ElementEvent } from '@waveview/zcharts';
 import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useAppStore } from '../../../stores/app';
 import { usePickerStore } from '../../../stores/picker';
+import { themes } from '../../../theme';
 import { usePickerContext } from '../PickerContext';
 
 const useStyles = makeStyles({
@@ -124,7 +125,7 @@ const TrackContextMenu: React.ForwardRefExoticComponent<React.RefAttributes<Trac
   }, [channelIndex, getChannelsConfig]);
 
   return createPortal(
-    <FluentProvider theme={darkMode ? webDarkTheme : webLightTheme}>
+    <FluentProvider theme={darkMode ? themes.defaultDark : themes.defaultLight}>
       <div
         className={styles.root}
         ref={menuRef}

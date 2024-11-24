@@ -10,8 +10,6 @@ import {
   tokens,
   useId,
   useToastController,
-  webDarkTheme,
-  webLightTheme,
 } from '@fluentui/react-components';
 import { ArrowMaximizeRegular, ArrowMinimizeRegular, EditRegular } from '@fluentui/react-icons';
 import { ElementEvent, Seismogram } from '@waveview/zcharts';
@@ -21,6 +19,7 @@ import { ONE_SECOND } from '../../shared/time';
 import { useAppStore } from '../../stores/app';
 import { usePickerStore } from '../../stores/picker';
 import { useSidebarStore } from '../../stores/sidebar';
+import { themes } from '../../theme';
 import { SeismicEvent } from '../../types/event';
 import { CustomError } from '../../types/response';
 import { usePickerContext } from './PickerContext';
@@ -237,7 +236,7 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<React.RefAttributes
   }, [channelIndex, seisChartRef]);
 
   return createPortal(
-    <FluentProvider theme={darkMode ? webDarkTheme : webLightTheme}>
+    <FluentProvider theme={darkMode ? themes.defaultDark : themes.defaultLight}>
       <div
         className={styles.root}
         ref={menuRef}

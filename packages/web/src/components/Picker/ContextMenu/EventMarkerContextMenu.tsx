@@ -17,8 +17,6 @@ import {
   tokens,
   useId,
   useToastController,
-  webDarkTheme,
-  webLightTheme,
 } from '@fluentui/react-components';
 import { CircleFilled, DeleteRegular, EditRegular } from '@fluentui/react-icons';
 import { ElementEvent, SeismogramEventMarkerOptions } from '@waveview/zcharts';
@@ -27,6 +25,7 @@ import { createPortal } from 'react-dom';
 import { getEventTypeColor } from '../../../shared/theme';
 import { useAppStore } from '../../../stores/app';
 import { usePickerStore } from '../../../stores/picker';
+import { themes } from '../../../theme';
 import { SeismicEvent } from '../../../types/event';
 import { CustomError } from '../../../types/response';
 import { usePickerCallback } from '../usePickerCallback';
@@ -186,7 +185,7 @@ const EventMarkerContextMenu: React.ForwardRefExoticComponent<React.RefAttribute
   }, [selectedEvent, deleteEvent, removeEventMarker, handleUpdateEventMarkers, showErrorToast]);
 
   return createPortal(
-    <FluentProvider theme={darkMode ? webDarkTheme : webLightTheme}>
+    <FluentProvider theme={darkMode ? themes.defaultDark : themes.defaultLight}>
       <div
         className={styles.root}
         ref={menuRef}
