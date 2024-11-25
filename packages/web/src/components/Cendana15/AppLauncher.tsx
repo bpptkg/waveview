@@ -5,6 +5,7 @@ import AssignmentIcon from '../../assets/cendana15-apps/assignment.svg';
 import BroadcastIcon from '../../assets/cendana15-apps/broadcast.jpg';
 import ChartStudioIcon from '../../assets/cendana15-apps/chart-studio.svg';
 import DataEntryIcon from '../../assets/cendana15-apps/data-entry.svg';
+import DataVisualizationIcon from '../../assets/cendana15-apps/data-visualization.svg';
 import FileManagerIcon from '../../assets/cendana15-apps/file-manager.svg';
 import GalleryIcon from '../../assets/cendana15-apps/gallery.jpg';
 import GeneralServiceIcon from '../../assets/cendana15-apps/general-service.png';
@@ -36,6 +37,7 @@ const AppLauncher: React.FC = () => {
               <AppLauncherItem href="https://cendana15.com/file-manager" src={FileManagerIcon} title="File Manager" />
               <AppLauncherItem href="https://cendana15.com/data-entry" src={DataEntryIcon} title="Data Entry" />
               <AppLauncherItem href="https://cendana15.com/assignment" src={AssignmentIcon} title="Assignment" />
+              <AppLauncherItem href="https://cendana15.com/display-device" src={DataVisualizationIcon} title="Data Visualization" />
               <AppLauncherItem href="https://cendana15.com/chart-studio" src={ChartStudioIcon} title="Chart Studio" />
               <AppLauncherItem href="https://cendana15.com/maintenance" src={MonitoringNetworkIcon} title="Monitoring Network" />
               <AppLauncherItem href="https://cendana15.com/lims" src={LimsIcon} title="LIMS" />
