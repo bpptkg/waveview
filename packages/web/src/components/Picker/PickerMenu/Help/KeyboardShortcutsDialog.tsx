@@ -1,5 +1,5 @@
 import { Button, Dialog, DialogActions, DialogBody, DialogContent, DialogSurface, DialogTitle } from '@fluentui/react-components';
-import React from 'react';
+import React, { useCallback } from 'react';
 
 export interface KeyboardShortcutsDialogProps {
   open?: boolean;
@@ -18,8 +18,15 @@ interface ShortcutItemProps {
 const ShortcutItem: React.FC<ShortcutItemProps> = ({ children }) => <div className="flex gap-1 items-center">{children}</div>;
 
 const KeyboardShortcutsDialog: React.FC<KeyboardShortcutsDialogProps> = ({ open, onOpenChange }) => {
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      onOpenChange?.(open);
+    },
+    [onOpenChange]
+  );
+
   return (
-    <Dialog open={open} onOpenChange={(_, data) => onOpenChange?.(data.open)}>
+    <Dialog open={open} onOpenChange={(_, data) => handleOpenChange(data.open)}>
       <DialogSurface>
         <DialogBody>
           <DialogTitle>Keyboard Shortcuts</DialogTitle>
