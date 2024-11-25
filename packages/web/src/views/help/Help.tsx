@@ -1,3 +1,4 @@
+import { Link } from '@fluentui/react-components';
 import { ArrowUpRightRegular, FaxRegular, GlobeRegular, LocationRegular, MailRegular, PhoneRegular } from '@fluentui/react-icons';
 import { baseUrl } from '../../services/api';
 import { useOrganizationStore } from '../../stores/organization';
@@ -25,32 +26,22 @@ const Help = () => {
             <p className="mb-4">Here are some resources that might help you:</p>
             <ul className="mb-4">
               <li>
-                <a href={baseUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline inline-flex items-center gap-1">
+                <Link href={baseUrl} target="_blank" rel="noopener noreferrer">
                   API Documentation
                   <ArrowUpRightRegular fontSize={12} />
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="https://github.com/bpptkg/waveview"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline inline-flex items-center gap-1"
-                >
+                <Link href="https://github.com/bpptkg/waveview" target="_blank" rel="noopener noreferrer">
                   GitHub
                   <ArrowUpRightRegular fontSize={12} />
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="https://github.com/bpptkg/waveview/issues"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline inline-flex items-center gap-1"
-                >
+                <Link href="https://github.com/bpptkg/waveview/issues" target="_blank" rel="noopener noreferrer">
                   Report an Issue
                   <ArrowUpRightRegular fontSize={12} />
-                </a>
+                </Link>
               </li>
             </ul>
 
@@ -77,9 +68,7 @@ const Help = () => {
                 <li>
                   <div className="inline-flex items-center gap-2">
                     <MailRegular fontSize={16} />
-                    <a href={`mailto:${currentOrganization.email}`} className="text-blue-500 hover:underline">
-                      {currentOrganization.email}
-                    </a>
+                    <Link href={`mailto:${currentOrganization.email}`}>{currentOrganization.email}</Link>
                   </div>
                 </li>
               )}
@@ -87,9 +76,7 @@ const Help = () => {
                 <li>
                   <div className="inline-flex items-center gap-2">
                     <PhoneRegular fontSize={16} />
-                    <a href={`tel:${currentOrganization.phone_number}`} className="text-blue-500 hover:underline">
-                      {currentOrganization.phone_number}
-                    </a>
+                    <Link href={`tel:${currentOrganization.phone_number}`}>{currentOrganization.phone_number}</Link>
                   </div>
                 </li>
               )}
@@ -97,9 +84,7 @@ const Help = () => {
                 <li>
                   <div className="inline-flex items-center gap-2">
                     <PhoneRegular fontSize={16} />
-                    <a href={`tel:${currentOrganization.mobile_number}`} className="text-blue-500 hover:underline">
-                      {currentOrganization.mobile_number}
-                    </a>
+                    <Link href={`tel:${currentOrganization.mobile_number}`}>{currentOrganization.mobile_number}</Link>
                   </div>
                 </li>
               )}
@@ -107,9 +92,7 @@ const Help = () => {
                 <li>
                   <div className="inline-flex items-center gap-2">
                     <FaxRegular fontSize={16} />
-                    <a href={`tel:${currentOrganization.fax_number}`} className="text-blue-500 hover:underline">
-                      {currentOrganization.fax_number}
-                    </a>
+                    <Link href={`tel:${currentOrganization.fax_number}`}>{currentOrganization.fax_number}</Link>
                   </div>
                 </li>
               )}
@@ -117,9 +100,9 @@ const Help = () => {
                 <li>
                   <div className="inline-flex items-center gap-2">
                     <GlobeRegular fontSize={16} />
-                    <a href={currentOrganization.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                    <Link href={currentOrganization.url} target="_blank" rel="noopener noreferrer">
                       {currentOrganization.url}
-                    </a>
+                    </Link>
                   </div>
                 </li>
               )}
