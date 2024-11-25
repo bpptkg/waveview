@@ -122,11 +122,12 @@ const PickerPanel = () => {
   }, [heliChartRef, seisChartRef]);
 
   useHelicorderThemeEffect(heliChartRef);
-  useSeismogramThemeEffect(seisChartRef);
   useHelicorderTimeZoneEffect(heliChartRef);
+  useHelicorderKeyboardShortcuts(heliChartRef);
+
+  useSeismogramThemeEffect(seisChartRef);
   useSeismogramTimeZoneEffect(seisChartRef);
   useSeismogramKeyboardShortcuts(seisChartRef);
-  useHelicorderKeyboardShortcuts(heliChartRef);
 
   const { showHelicorder, showSidebar } = useSidebarStore();
 
