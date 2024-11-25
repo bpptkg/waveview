@@ -1,3 +1,4 @@
+import { ProgressBar } from '@fluentui/react-components';
 import { useEffect, useRef } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { useFilterStore } from '../../stores/filter';
@@ -24,7 +25,7 @@ const PickerEventEditorPanel = () => {
     };
   }, [setSeisChartRef]);
 
-  const { showEvent, seismogramToolbarCheckedValues, getSeismogramFilterOptions } = usePickerStore();
+  const { showEvent, seismogramToolbarCheckedValues, getSeismogramFilterOptions, seismogramLoading } = usePickerStore();
   const { appliedFilter, setAppliedFilter } = useFilterStore();
   const {
     getSeismogramInitOptions,
@@ -36,6 +37,7 @@ const PickerEventEditorPanel = () => {
     handleSeismogramIncreaseAmplitude,
     handleSeismogramMouseWheel,
     handleSeismogramOnDestroy,
+    handleSeismogramOnLoading,
     handleSeismogramOnReady,
     handleSeismogramPickChange,
     handleSeismogramResetAmplitude,
@@ -87,6 +89,7 @@ const PickerEventEditorPanel = () => {
             onFilterChange={handleSeismogramFilterChange}
           />
           <div className="flex-grow relative">
+            <div className="h-1 absolute top-0 left-0 right-0 z-10">{seismogramLoading && <ProgressBar />}</div>
             <SeismogramChart
               ref={seisChartRef}
               initOptions={getSeismogramInitOptions()}
@@ -97,6 +100,7 @@ const PickerEventEditorPanel = () => {
               onPick={handleSeismogramPickChange}
               onReady={handleSeismogramOnReady}
               onTrackDoubleClick={handleSeismogramTrackDoubleClick}
+              onLoading={handleSeismogramOnLoading}
             />
             <RestoreViewButton />
           </div>
