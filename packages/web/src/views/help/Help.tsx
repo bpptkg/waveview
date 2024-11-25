@@ -27,20 +27,17 @@ const Help = () => {
             <ul className="mb-4">
               <li>
                 <Link href={baseUrl} target="_blank" rel="noopener noreferrer">
-                  API Documentation
-                  <ArrowUpRightRegular fontSize={12} />
+                  API Documentation <ArrowUpRightRegular fontSize={12} />
                 </Link>
               </li>
               <li>
                 <Link href="https://github.com/bpptkg/waveview" target="_blank" rel="noopener noreferrer">
-                  GitHub
-                  <ArrowUpRightRegular fontSize={12} />
+                  GitHub <ArrowUpRightRegular fontSize={12} />
                 </Link>
               </li>
               <li>
                 <Link href="https://github.com/bpptkg/waveview/issues" target="_blank" rel="noopener noreferrer">
-                  Report an Issue
-                  <ArrowUpRightRegular fontSize={12} />
+                  Report an Issue <ArrowUpRightRegular fontSize={12} />
                 </Link>
               </li>
             </ul>
