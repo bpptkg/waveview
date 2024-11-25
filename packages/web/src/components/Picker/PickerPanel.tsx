@@ -173,8 +173,8 @@ const PickerPanel = () => {
                   onCheckedValueChange={handleHelicorderCheckValueChange}
                   onScalingChange={handleHelicorderScalingChange}
                 />
-                <div className="h-1">{helicorderLoading && <ProgressBar />}</div>
                 <div ref={helicorderContainerRef} className="flex-grow relative">
+                  <div className="h-1 absolute top-0 left-0 right-0 z-10">{helicorderLoading && <ProgressBar />}</div>
                   <HelicorderChart
                     ref={heliChartRef}
                     className={helicorderClassName}
@@ -216,8 +216,8 @@ const PickerPanel = () => {
               onScalingChange={handleSeismogramScalingChange}
               onFilterChange={handleSeismogramFilterChange}
             />
-            <div className="h-1">{seismogramLoading && <ProgressBar />}</div>
             <div ref={seismogramContainerRef} className="flex-grow relative">
+              <div className="h-1 absolute top-0 left-0 right-0 z-10">{seismogramLoading && <ProgressBar />}</div>
               <SeismogramChart
                 ref={seisChartRef}
                 className={seismogramClassName}
