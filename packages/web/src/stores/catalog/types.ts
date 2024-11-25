@@ -1,11 +1,14 @@
 import { Catalog } from '../../types/catalog';
 import { SeismicEvent } from '../../types/event';
 
+export type OrderingType = 'asc' | 'desc';
+
 export interface FilterData {
   eventTypes?: string[];
   startDate?: number;
   endDate?: number;
   isBookmarked?: boolean;
+  ordering?: OrderingType;
 }
 
 export interface CatalogStore {

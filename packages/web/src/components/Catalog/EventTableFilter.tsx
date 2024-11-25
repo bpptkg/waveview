@@ -1,6 +1,7 @@
-import { Button, Checkbox, Field, makeStyles, Popover, PopoverSurface, PopoverTrigger, Tooltip } from '@fluentui/react-components';
+import { Button, Checkbox, Field, makeStyles, Popover, PopoverSurface, PopoverTrigger, Select, Tooltip } from '@fluentui/react-components';
 import { DismissRegular, FilterRegular } from '@fluentui/react-icons';
 import { useCallback, useState } from 'react';
+import { OrderingType } from '../../stores/catalog';
 import { EventType } from '../../types/event';
 import DatePicker from '../DatePicker/DatePicker';
 
@@ -9,6 +10,7 @@ interface EventTableFilterData {
   startDate?: number;
   endDate?: number;
   isBookmarked?: boolean;
+  ordering?: OrderingType;
 }
 
 export interface EventTableFilterProps {
@@ -31,6 +33,8 @@ const EventTableFilter: React.FC<EventTableFilterProps> = ({ eventTypes = [], in
   const [startDate, setStartDate] = useState<number | undefined>();
   const [endDate, setEndDate] = useState<number | undefined>();
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
+  const [ordering, setOrdering] = useState<OrderingType>('desc');
+
   const styles = useEventTableFilterStyles();
 
   const handleSelect = useCallback(
@@ -56,16 +60,19 @@ const EventTableFilter: React.FC<EventTableFilterProps> = ({ eventTypes = [], in
 
   const handleEndDateChange = useCallback((date: number) => setEndDate(date), []);
 
+  const handleOrderingChange = useCallback((value: string) => setOrdering(value as OrderingType), []);
+
   const handleApply = useCallback(() => {
     const data: EventTableFilterData = {
       eventTypes: selectedTypes,
       startDate,
       endDate,
       isBookmarked,
+      ordering,
     };
     onFilter?.(data);
     setOpen(false);
-  }, [onFilter, selectedTypes, startDate, endDate, isBookmarked]);
+  }, [onFilter, selectedTypes, startDate, endDate, isBookmarked, ordering]);
 
   const handleReset = useCallback(() => {
     setSelectedTypes([]);
@@ -92,6 +99,12 @@ const EventTableFilter: React.FC<EventTableFilterProps> = ({ eventTypes = [], in
           </Field>
           <Field label={'End date'}>
             <DatePicker selected={endDate} onChange={handleEndDateChange} />
+          </Field>
+          <Field label={'Sort By'}>
+            <Select appearance="outline" defaultValue={ordering} onChange={(_, data) => handleOrderingChange(data.value)}>
+              <option value="asc">Oldest First</option>
+              <option value="desc">Newest First</option>
+            </Select>
           </Field>
         </div>
         <div className="mt-1">

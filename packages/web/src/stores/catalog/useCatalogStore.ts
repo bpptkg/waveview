@@ -22,6 +22,7 @@ const catalogStore = create<CatalogStore>((set, get) => {
       startDate: undefined,
       endDate: undefined,
       isBookmarked: undefined,
+      ordering: 'desc',
     },
     initialFetch: false,
     setInitialFetch: (initialFetch) => set({ initialFetch }),
@@ -71,10 +72,10 @@ const catalogStore = create<CatalogStore>((set, get) => {
       const { filterData } = get();
 
       const url = apiVersion.listEvent.v1(currentOrganization.id, currentVolcano.id, currentCatalog.id);
-      const { startDate, endDate, eventTypes, isBookmarked } = filterData;
+      const { startDate, endDate, eventTypes, isBookmarked, ordering } = filterData;
       const params: EventQueryParams = {
         page: 1,
-        ordering: 'desc',
+        ordering,
       };
       if (startDate) {
         params.start = new Date(startDate).toISOString();
