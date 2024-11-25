@@ -244,10 +244,6 @@ const Seismicity = () => {
               </TableBody>
             </Table>
           </div>
-
-          <div className="p-2 mt-2 border border-gray-300 dark:border-gray-700 rounded-lg">
-            <strong>Note:</strong> Events that occur at the same time, down to the second, will be considered duplicates and removed from the data set.
-          </div>
         </div>
       </div>
       <Toaster toasterId={toasterId} />
