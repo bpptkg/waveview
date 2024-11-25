@@ -18,4 +18,7 @@ export default defineConfig({
     'import.meta.env.__PACKAGE__VERSION__': JSON.stringify(packageVersion),
     'import.meta.env.__BUILD__DATE__': JSON.stringify(buildDate.toISOString()),
   },
+  optimizeDeps: {
+    force: true,
+  }
 });
