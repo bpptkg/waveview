@@ -79,7 +79,7 @@ const Dashboard: React.FC = () => {
   if (error) {
     return (
       <>
-        <title>Error &middot; VEPS</title>
+        <title>Error - VEPS</title>
         <div className="bg-neutral-grey-94 dark:bg-neutral-grey-4 flex flex-col min-h-screen justify-center items-center gap-2">
           <div className="text-red-600 dark:text-red-400">{error}</div>
           <Button appearance="transparent" onClick={() => window.location.reload()} icon={<ArrowClockwise20Regular />}>
@@ -104,7 +104,7 @@ const Dashboard: React.FC = () => {
   return (
     <>
       <WebSocketProvider>
-        <title>{currentOrganization?.name}</title>
+        <title>{currentOrganization?.name} - VEPS</title>
         <div className="bg-neutral-grey-94 dark:bg-neutral-grey-4 flex flex-col min-h-screen">
           <Header />
           <div className="flex flex-grow">

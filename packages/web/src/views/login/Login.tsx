@@ -112,7 +112,7 @@ const Login = () => {
 
   return (
     <>
-      <title>Login &middot; VEPS</title>
+      <title>Login - VEPS</title>
       <div className="w-screen h-screen bg-cover bg-center flex items-center justify-center bg-gradient-matcha dark:bg-gradient-matcha-dark">
         <div className="flex flex-col w-3/5 max-w-5xl min-h-[350px]">
           <div className="flex flex-grow p-4 gap-4 flex-col rounded-2xl bg-white dark:bg-neutral-grey-14">
