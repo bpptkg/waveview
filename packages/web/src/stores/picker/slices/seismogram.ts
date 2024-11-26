@@ -58,4 +58,8 @@ export interface SeismogramSlice {
    * Set the loading status of the seismogram chart.
    */
   setSeismogramLoading: (loading: boolean) => void;
+  /**
+   * Check if the seismogram toolbar item is checked.
+   */
+  isSeismogramToolbarChecked: (name: string, item: string) => boolean;
 }

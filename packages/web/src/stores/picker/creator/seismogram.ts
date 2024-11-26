@@ -85,5 +85,10 @@ export const createSeismogramSlice: StateCreator<PickerStore, [], [], Seismogram
     },
 
     setSeismogramLoading: (loading) => set({ seismogramLoading: loading }),
+
+    isSeismogramToolbarChecked: (name, item) => {
+      const { seismogramToolbarCheckedValues } = get();
+      return seismogramToolbarCheckedValues[name]?.includes(item) || false;
+    },
   };
 };
