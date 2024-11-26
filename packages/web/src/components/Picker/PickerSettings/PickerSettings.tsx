@@ -440,7 +440,7 @@ const PickerSettings: React.FC = () => {
   ]);
 
   return (
-    <Dialog open={pickerSettingsOpen} onOpenChange={(_, data) => handleOpenChange(data.open)}>
+    <Dialog surfaceMotion={null} open={pickerSettingsOpen} onOpenChange={(_, data) => handleOpenChange(data.open)}>
       <DialogSurface className={styles.dialogSurface}>
         {loading && <ProgressBar shape="square" />}
         {view !== ViewType.HOME && (
