@@ -26,7 +26,7 @@ const KeyboardShortcutsDialog: React.FC<KeyboardShortcutsDialogProps> = ({ open,
   );
 
   return (
-    <Dialog open={open} onOpenChange={(_, data) => handleOpenChange(data.open)}>
+    <Dialog surfaceMotion={null} open={open} onOpenChange={(_, data) => handleOpenChange(data.open)}>
       <DialogSurface>
         <DialogBody>
           <DialogTitle>Keyboard Shortcuts</DialogTitle>
@@ -92,6 +92,18 @@ const KeyboardShortcutsDialog: React.FC<KeyboardShortcutsDialogProps> = ({ open,
                 <ShortcutItem>
                   <Key>S</Key>
                   <span>Toggle Spectrogram</span>
+                </ShortcutItem>
+                <ShortcutItem>
+                  <Key>E</Key>
+                  <span>Zoom First Minute</span>
+                </ShortcutItem>
+                <ShortcutItem>
+                  <Key>F</Key>
+                  <span>Fit to Window</span>
+                </ShortcutItem>
+                <ShortcutItem>
+                  <Key>R</Key>
+                  <span>Reset Amplitude</span>
                 </ShortcutItem>
               </div>
             </div>

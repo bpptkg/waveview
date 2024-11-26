@@ -50,6 +50,18 @@ export function useSeismogramKeyboardShortcuts(chartRef: React.MutableRefObject<
     }
   }, [chartRef, isSignalVisible, seismogramToolbarAddCheckedValue, seismogramToolbarRemoveCheckedValue]);
 
+  const onEKey = useCallback(() => {
+    chartRef.current?.zoomFirstMinute();
+  }, [chartRef]);
+
+  const onFKey = useCallback(() => {
+    chartRef.current?.fitToWindow();
+  }, [chartRef]);
+
+  const onRKey = useCallback(() => {
+    chartRef.current?.resetAmplitude();
+  }, [chartRef]);
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!chartRef.current || !chartRef.current.isFocused()) {
@@ -80,10 +92,24 @@ export function useSeismogramKeyboardShortcuts(chartRef: React.MutableRefObject<
           break;
         }
         case 's':
+        case 'S':
           onSKey();
           break;
         case 't':
+        case 'T':
           onTKey();
+          break;
+        case 'e':
+        case 'E':
+          onEKey();
+          break;
+        case 'f':
+        case 'F':
+          onFKey();
+          break;
+        case 'r':
+        case 'R':
+          onRKey();
           break;
         default:
           break;
@@ -94,7 +120,7 @@ export function useSeismogramKeyboardShortcuts(chartRef: React.MutableRefObject<
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [chartRef, onArrowLeft, onArrowRight, onArrowUp, onArrowDown, onArrowUpShift, onArrowDownShift, onSKey, onTKey]);
+  }, [chartRef, onArrowLeft, onArrowRight, onArrowUp, onArrowDown, onArrowUpShift, onArrowDownShift, onSKey, onTKey, onEKey, onFKey, onRKey]);
 }
 
 export function useHelicorderKeyboardShortcuts(chartRef: React.MutableRefObject<HelicorderChartRef | null>) {
