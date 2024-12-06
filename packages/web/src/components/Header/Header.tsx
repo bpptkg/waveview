@@ -1,5 +1,6 @@
 import { BUILD_VENDOR } from '../../config/envs';
 import AppLauncher from '../Cendana15/AppLauncher';
+import IndonesiaIndependenceDay from '../Doodles/IndonesiaIndependenceDay';
 import OrganizationPicker from '../Organization/OrganizationPicker';
 import VolcanoPicker from '../Volcano/VolcanoPicker';
 import Account from './Account';
@@ -29,6 +30,7 @@ const Header = () => {
 
       <div className="flex items-center gap-3">
         <OfflineIndicator />
+        <IndonesiaIndependenceDay />
         {BUILD_VENDOR === 'cendana15' && <AppLauncher />}
         <NotificationPanel />
         <Account />
