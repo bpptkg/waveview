@@ -153,7 +153,7 @@ const Account = () => {
                 setOpen(false);
               }}
             >
-              Term of Services
+              Term of services
             </MenuItem>
             <MenuItem
               icon={<Info20Regular />}
