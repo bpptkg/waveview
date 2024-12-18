@@ -31,6 +31,10 @@ To build and minify for production:
 
     pnpm run build
 
+To run the test:
+
+    pnpm run test
+
 ## License
 
 MIT
