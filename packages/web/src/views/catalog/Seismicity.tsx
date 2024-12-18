@@ -29,7 +29,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import EventTypeLabel from '../../components/Catalog/EventTypeLabel';
 import DateRangePicker from '../../components/DatePicker/DateRangePicker';
 import { formatNumber } from '../../shared/formatting';
-import { max, mean, median, minNonZero, standardDeviation, sum } from '../../shared/statistics';
+import { max, mean, median, minNonZero, standardDeviation, sum, variance } from '../../shared/statistics';
 import { formatTimezonedDate } from '../../shared/time';
 import { useAppStore } from '../../stores/app';
 import { useSeismicityStore } from '../../stores/seismicity';
@@ -217,6 +217,7 @@ const Seismicity = () => {
                   <TableHeaderCell>Average</TableHeaderCell>
                   <TableHeaderCell>Median</TableHeaderCell>
                   <TableHeaderCell>Std Dev</TableHeaderCell>
+                  <TableHeaderCell>Variance</TableHeaderCell>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -232,6 +233,7 @@ const Seismicity = () => {
                       <TableCell>{formatNumber(mean(item.data.map((v) => v.count)), { precision: 1 })}</TableCell>
                       <TableCell>{formatNumber(median(item.data.map((v) => v.count)), { precision: 1 })}</TableCell>
                       <TableCell>{formatNumber(standardDeviation(item.data.map((v) => v.count)), { precision: 1 })}</TableCell>
+                      <TableCell>{formatNumber(variance(item.data.map((v) => v.count)), { precision: 1 })}</TableCell>
                     </TableRow>
                   ))
                 ) : (
