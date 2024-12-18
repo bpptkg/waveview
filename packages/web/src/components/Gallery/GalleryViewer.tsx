@@ -79,7 +79,9 @@ const GalleryViewer: React.FC<GalleryViewerProps> = (props) => {
         </div>
         <div className="flex-1 flex flex-row relative bg-neutral-grey-16">
           <div className="flex flex-col justify-center items-center w-12">
-            <Button icon={<ChevronLeftRegular fontSize={32} />} appearance="outline" onClick={handleSelectPrevious} />
+            <Tooltip content="Previous" relationship="label" showDelay={1500}>
+              <Button icon={<ChevronLeftRegular fontSize={32} />} appearance="outline" onClick={handleSelectPrevious} />
+            </Tooltip>
           </div>
           <div className="flex-1">
             <div className="flex justify-center items-center h-[80vh]">
@@ -93,7 +95,9 @@ const GalleryViewer: React.FC<GalleryViewerProps> = (props) => {
             </div>
           </div>
           <div className="flex flex-col justify-center items-center w-12">
-            <Button icon={<ChevronRightRegular fontSize={32} />} appearance="outline" onClick={handleSelectNext} />
+            <Tooltip content="Next" relationship="label" showDelay={1500}>
+              <Button icon={<ChevronRightRegular fontSize={32} />} appearance="outline" onClick={handleSelectNext} />
+            </Tooltip>
           </div>
         </div>
         <div className="w-full overflow-hidden relative h-[96px]">
