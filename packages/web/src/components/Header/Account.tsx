@@ -15,6 +15,7 @@ import {
 } from '@fluentui/react-components';
 import {
   ChevronRight20Regular,
+  Code20Regular,
   Globe20Regular,
   Info20Regular,
   Person20Regular,
@@ -129,14 +130,14 @@ const Account = () => {
               Timezone: {useUTC ? 'UTC' : timeZone}
             </MenuItem>
             <Divider />
+
             <MenuItem
-              icon={<QuestionCircle20Regular />}
+              icon={<Code20Regular />}
               onClick={() => {
-                navigate(`/${currentOrganization?.slug}/help`);
-                setOpen(false);
+                window.open('https://github.com/bpptkg/waveview', '_blank');
               }}
             >
-              Help
+              GitHub
             </MenuItem>
             <MenuItem
               icon={<Target20Regular />}
@@ -145,6 +146,16 @@ const Account = () => {
               }}
             >
               Report an issue
+            </MenuItem>
+            <Divider />
+            <MenuItem
+              icon={<QuestionCircle20Regular />}
+              onClick={() => {
+                navigate(`/${currentOrganization?.slug}/help`);
+                setOpen(false);
+              }}
+            >
+              Help
             </MenuItem>
             <MenuItem
               icon={<Scales20Regular />}
