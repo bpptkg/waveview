@@ -141,6 +141,7 @@ export interface EventPayload {
   evaluation_status: EvaluationStatus;
   attachment_ids: string[];
   observation: ObservationPayload | null;
+  use_outlier_filter: boolean;
 }
 
 export interface EventQueryParams {

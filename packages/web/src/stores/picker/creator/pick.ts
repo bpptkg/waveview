@@ -187,7 +187,7 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
         throw new CustomError('Catalog is not set');
       }
 
-      const { eventId, time, duration, eventTypeId, stationOfFirstArrivalId, note, attachments } = get();
+      const { eventId, time, duration, eventTypeId, stationOfFirstArrivalId, note, attachments, useOutlierFilter } = get();
 
       const explosionEventStore = useExplosionEventStore.getState();
       const pyroclasticFlowEventStore = usePyroclasticFlowEventStore.getState();
@@ -229,6 +229,7 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
         evaluation_status: 'confirmed',
         attachment_ids: attachments.map((attachment) => attachment.id),
         observation: observation,
+        use_outlier_filter: useOutlierFilter,
       };
 
       const makeApiRequest = async (url: string, method: 'PUT' | 'POST', payload: any) => {
