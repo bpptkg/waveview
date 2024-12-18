@@ -20,7 +20,7 @@ const AttachmentGallery: React.FC<AttachmentGalleryProps> = (props) => {
   return (
     <div className="flex flex-row flex-wrap gap-1">
       {items.map((attachment) => (
-        <a key={attachment.id} href={attachment.file} target="_blank">
+        <a key={attachment.id} href={media(attachment.file)} target="_blank">
           <img src={media(attachment.thumbnail)} alt={attachment.name} className="w-[80px] h-[80px] object-cover" />
         </a>
       ))}
