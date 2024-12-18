@@ -28,7 +28,7 @@ const EventDetailSummary = () => {
     if (!event) {
       return [];
     }
-    return event?.attachments.filter((attachment) => attachment.media_type === 'photo');
+    return event?.attachments;
   }, [event]);
 
   if (loading) {
