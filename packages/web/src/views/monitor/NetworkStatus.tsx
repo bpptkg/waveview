@@ -44,11 +44,14 @@ const NetworkStateList: React.FC<{ networkStatus: SeismicNetworkStatus[] }> = ({
 };
 
 const NetworkStatus: React.FC = () => {
-  const { loading, networkStatus, fetchNetworkStatus } = useSeismicNetworkStatusStore();
+  const { loading, networkStatus, initialFetch, setInitialFetch, fetchNetworkStatus } = useSeismicNetworkStatusStore();
 
   useEffect(() => {
-    fetchNetworkStatus();
-  }, [fetchNetworkStatus]);
+    if (!initialFetch) {
+      fetchNetworkStatus();
+      setInitialFetch(true);
+    }
+  }, [initialFetch, setInitialFetch, fetchNetworkStatus]);
 
   const handleRefresh = useCallback(() => {
     fetchNetworkStatus();
