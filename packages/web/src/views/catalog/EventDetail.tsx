@@ -237,10 +237,10 @@ const EventDetail: React.FC<EventDetailProps> = () => {
       <div className="flex items-center justify-between">
         <h2 className="text-md font-semibold p-4">Event Detail</h2>
         <div className="flex items-center">
-          <Tooltip content={'Bookmark Event'} relationship="label" showDelay={1500}>
+          <Tooltip content={'Bookmark'} relationship="label" showDelay={1500}>
             <Button icon={event?.is_bookmarked ? <Star20Filled color="orange" /> : <Star20Regular />} appearance="transparent" onClick={handleToggleBookmark} />
           </Tooltip>
-          <Tooltip content={'Edit Event'} relationship="label" showDelay={1500}>
+          <Tooltip content={'Edit'} relationship="label" showDelay={1500}>
             <Button icon={<Edit20Regular />} appearance="transparent" onClick={() => setShowEditor(true)} />
           </Tooltip>
           <Tooltip content={'Refresh'} relationship="label" showDelay={1500}>
