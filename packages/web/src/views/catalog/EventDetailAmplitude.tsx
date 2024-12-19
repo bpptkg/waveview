@@ -1,7 +1,20 @@
-import { Button, makeStyles, Table, TableBody, TableHeader, TableHeaderCell, TableRow, Tooltip } from '@fluentui/react-components';
+import {
+  Button,
+  InputOnChangeData,
+  makeStyles,
+  SearchBox,
+  SearchBoxChangeEvent,
+  Table,
+  TableBody,
+  TableHeader,
+  TableHeaderCell,
+  TableRow,
+  Tooltip,
+} from '@fluentui/react-components';
 import { ArrowLeft20Regular, Checkmark16Regular } from '@fluentui/react-icons';
 import { formatDistanceToNow } from 'date-fns';
-import { useEffect, useState } from 'react';
+import Fuse from 'fuse.js';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import KeyValuePair from '../../components/Common/KeyValuePair';
 import EventDetailErrorMessage from '../../components/Loading/EventDetailErrorMessage';
@@ -56,6 +69,10 @@ const AmplitudeDetail: React.FC<{ currentAmplitude: Amplitude; useUTC: boolean }
   );
 };
 
+interface SearchableAmplitude extends Amplitude {
+  stream_id: string;
+}
+
 const EventDetailAmplitude = () => {
   const { eventId } = useParams();
   const { useUTC } = useAppStore();
@@ -63,12 +80,57 @@ const EventDetailAmplitude = () => {
   const { getChannelById } = useInventoryStore();
   const styles = useEventDetailAmplitudeStyles();
   const [currentAmplitude, setCurrentAmplitude] = useState<Amplitude | null>(null);
+  const fuseRef = useRef<Fuse<Amplitude> | null>(null);
+  const searchBoxRef = useRef<HTMLInputElement>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const searchableAmplitudes = useMemo(() => {
+    return event?.amplitudes
+      ? event?.amplitudes.map((amplitude) => {
+          return {
+            ...amplitude,
+            stream_id: amplitude.label ?? getChannelById(amplitude.waveform_id)?.stream_id,
+          } as SearchableAmplitude;
+        })
+      : [];
+  }, [event, getChannelById]);
+
+  const amplitudes = useMemo(() => {
+    if (!fuseRef.current || !searchQuery) {
+      return searchableAmplitudes;
+    }
+
+    return fuseRef.current
+      .search(searchQuery)
+      .map((item) => item.item)
+      .slice(0, 10);
+  }, [searchQuery, searchableAmplitudes]);
+
+  const handleSearchChange = useCallback((_: SearchBoxChangeEvent, data: InputOnChangeData) => {
+    setSearchQuery(data.value);
+  }, []);
 
   useEffect(() => {
     if (eventId && !hasEventId(eventId)) {
       fetchEvent(eventId);
     }
   }, [eventId, fetchEvent, hasEventId]);
+
+  useEffect(() => {
+    fuseRef.current = new Fuse(searchableAmplitudes, {
+      keys: ['stream_id', 'type', 'category', 'unit', 'method'],
+      threshold: 0.3,
+    });
+
+    return () => {
+      fuseRef.current = null;
+    };
+  }, [searchableAmplitudes]);
+
+  const { darkMode } = useAppStore();
+  const appearance = useMemo(() => {
+    return darkMode ? 'filled-lighter' : 'filled-darker';
+  }, [darkMode]);
 
   if (loading) {
     return <EventDetailLoadingIndicator message="Loading event details..." />;
@@ -99,43 +161,50 @@ const EventDetailAmplitude = () => {
           <AmplitudeDetail currentAmplitude={currentAmplitude} useUTC={useUTC} />
         </div>
       ) : (
-        <Table className={styles.table}>
-          <TableHeader>
-            <TableRow>
-              <TableHeaderCell></TableHeaderCell>
-              <TableHeaderCell>Type</TableHeaderCell>
-              <TableHeaderCell>Amplitude</TableHeaderCell>
-              <TableHeaderCell>Unit</TableHeaderCell>
-              <TableHeaderCell>Category</TableHeaderCell>
-              <TableHeaderCell>Stream ID</TableHeaderCell>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {event?.amplitudes.length ? (
-              event?.amplitudes.map((amplitude) => (
-                <TableRow
-                  key={amplitude.id}
-                  onClick={() => {
-                    setCurrentAmplitude(amplitude);
-                  }}
-                >
-                  <TableHeaderCell>{amplitude.is_preferred ? <Checkmark16Regular /> : null}</TableHeaderCell>
-                  <TableHeaderCell>{amplitude.type}</TableHeaderCell>
-                  <TableHeaderCell>{formatNumber(amplitude.amplitude, { precision: 2 })}</TableHeaderCell>
-                  <TableHeaderCell>{amplitude.unit}</TableHeaderCell>
-                  <TableHeaderCell>{amplitude.category}</TableHeaderCell>
-                  <TableHeaderCell>{amplitude.label ?? getChannelById(amplitude.waveform_id)?.stream_id}</TableHeaderCell>
-                </TableRow>
-              ))
-            ) : (
+        <div>
+          <div>
+            <SearchBox ref={searchBoxRef} value={searchQuery} onChange={handleSearchChange} appearance={appearance} placeholder="Search" />
+          </div>
+          <Table className={styles.table}>
+            <TableHeader>
               <TableRow>
-                <TableHeaderCell colSpan={6}>
-                  <span className="text-center w-full">No amplitudes available</span>
-                </TableHeaderCell>
+                <TableHeaderCell></TableHeaderCell>
+                <TableHeaderCell>Type</TableHeaderCell>
+                <TableHeaderCell>Amplitude</TableHeaderCell>
+                <TableHeaderCell>Unit</TableHeaderCell>
+                <TableHeaderCell>Category</TableHeaderCell>
+                <TableHeaderCell>Method</TableHeaderCell>
+                <TableHeaderCell>Stream ID</TableHeaderCell>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {amplitudes.length > 0 ? (
+                amplitudes.map((amplitude) => (
+                  <TableRow
+                    key={amplitude.id}
+                    onClick={() => {
+                      setCurrentAmplitude(amplitude);
+                    }}
+                  >
+                    <TableHeaderCell>{amplitude.is_preferred ? <Checkmark16Regular /> : null}</TableHeaderCell>
+                    <TableHeaderCell>{amplitude.type}</TableHeaderCell>
+                    <TableHeaderCell>{formatNumber(amplitude.amplitude, { precision: 2 })}</TableHeaderCell>
+                    <TableHeaderCell>{amplitude.unit}</TableHeaderCell>
+                    <TableHeaderCell>{amplitude.category}</TableHeaderCell>
+                    <TableHeaderCell>{amplitude.method}</TableHeaderCell>
+                    <TableHeaderCell>{amplitude.label ?? getChannelById(amplitude.waveform_id)?.stream_id}</TableHeaderCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableHeaderCell colSpan={6}>
+                    <span className="text-center w-full">No amplitudes available</span>
+                  </TableHeaderCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       )}
     </div>
   );
