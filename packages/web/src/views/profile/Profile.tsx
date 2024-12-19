@@ -1,5 +1,5 @@
 import { Avatar, Button, Field, Input, Label, Textarea, Toast, Toaster, ToastTitle, Tooltip, useId, useToastController } from '@fluentui/react-components';
-import { EditRegular } from '@fluentui/react-icons';
+import { EditRegular, LockClosedRegular } from '@fluentui/react-icons';
 import { format } from 'date-fns';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -246,7 +246,10 @@ const Profile = () => {
                     <div>Date joined</div>
                     <div>{format(new Date(user.date_joined), 'MMMM dd, yyyy')}</div>
                   </div>
-                  <div className="text-sm text-gray-500 mt-2">Only you can see this information.</div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <LockClosedRegular fontSize={20} />
+                    <span className="text-sm text-gray-500 dark:text-gray-300">Only you can see this information.</span>
+                  </div>
                 </div>
               </>
             )}
