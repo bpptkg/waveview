@@ -79,6 +79,7 @@ const EventDetailMagnitude = () => {
       .map((result) => result.item)
       .slice(0, 10);
   }, [searchQuery, searchableMagnitude]);
+
   const handleSearchChange = useCallback((_: SearchBoxChangeEvent, data: InputOnChangeData) => {
     setSearchQuery(data.value);
   }, []);
