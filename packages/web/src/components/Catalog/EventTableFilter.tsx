@@ -21,7 +21,7 @@ export interface EventTableFilterProps {
 
 const useEventTableFilterStyles = makeStyles({
   popoverSurface: {
-    maxHeight: '500px',
+    maxHeight: 'calc(100vh - 100px)',
     overflowY: 'auto',
     borderRadius: '16px',
   },
