@@ -1,4 +1,5 @@
-import { Divider, Tooltip } from '@fluentui/react-components';
+import { Button, Divider, Tooltip } from '@fluentui/react-components';
+import { CopyRegular } from '@fluentui/react-icons';
 import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
@@ -44,7 +45,12 @@ const EventDetailSummary = () => {
       <div>
         <div className="flex items-center justify-between">
           <div>Event ID</div>
-          <div>{eventId}</div>
+          <div>
+            <span>{eventId}</span>
+            <Tooltip content="Copy event ID" relationship="label" showDelay={1500}>
+              <Button icon={<CopyRegular />} onClick={() => eventId && navigator.clipboard.writeText(eventId)} appearance="transparent" />
+            </Tooltip>
+          </div>
         </div>
       </div>
       <Divider />
