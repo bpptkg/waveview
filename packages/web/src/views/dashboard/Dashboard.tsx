@@ -122,7 +122,7 @@ const Dashboard: React.FC = () => {
                 Help
               </AppBarTab>
             </AppBar>
-            <div className="bg-neutral-grey-98 dark:bg-neutral-grey-12 flex flex-col flex-grow relative rounded-t-lg">
+            <div className="bg-neutral-grey-98 dark:bg-neutral-grey-12 flex flex-col flex-grow relative rounded-l-lg border border-neutral-grey-90 dark:border-neutral-grey-20">
               <Outlet />
             </div>
           </div>
