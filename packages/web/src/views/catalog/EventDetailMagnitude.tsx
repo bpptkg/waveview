@@ -1,12 +1,26 @@
-import { Button, makeStyles, Table, TableBody, TableHeader, TableHeaderCell, TableRow, Tooltip } from '@fluentui/react-components';
+import {
+  Button,
+  InputOnChangeData,
+  makeStyles,
+  SearchBox,
+  SearchBoxChangeEvent,
+  Table,
+  TableBody,
+  TableHeader,
+  TableHeaderCell,
+  TableRow,
+  Tooltip,
+} from '@fluentui/react-components';
 import { ArrowLeft20Regular, Checkmark16Regular } from '@fluentui/react-icons';
 import { formatDistanceToNow } from 'date-fns';
-import { useEffect, useState } from 'react';
+import Fuse from 'fuse.js';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import KeyValuePair from '../../components/Common/KeyValuePair';
 import EventDetailErrorMessage from '../../components/Loading/EventDetailErrorMessage';
 import EventDetailLoadingIndicator from '../../components/Loading/EventDetailLoadingIndicator';
 import { formatNumber } from '../../shared/formatting';
+import { useAppStore } from '../../stores/app';
 import { useEventDetailStore } from '../../stores/eventDetail';
 import { Magnitude } from '../../types/event';
 
@@ -50,12 +64,46 @@ const EventDetailMagnitude = () => {
   const { loading, event, error, fetchEvent, hasEventId } = useEventDetailStore();
   const styles = useEventDetailMagnitudeStyles();
   const [currentMagnitude, setCurrentMagnitude] = useState<Magnitude | null>(null);
+  const fuseRef = useRef<Fuse<Magnitude> | null>(null);
+  const searchBoxRef = useRef<HTMLInputElement>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const searchableMagnitude = useMemo(() => event?.magnitudes ?? [], [event]);
+  const magnitudes = useMemo(() => {
+    if (!fuseRef.current || !searchQuery) {
+      return searchableMagnitude;
+    }
+
+    return fuseRef.current
+      .search(searchQuery)
+      .map((result) => result.item)
+      .slice(0, 10);
+  }, [searchQuery, searchableMagnitude]);
+  const handleSearchChange = useCallback((_: SearchBoxChangeEvent, data: InputOnChangeData) => {
+    setSearchQuery(data.value);
+  }, []);
+
+  useEffect(() => {
+    fuseRef.current = new Fuse(searchableMagnitude, {
+      keys: ['type', 'magnitude', 'method', 'station_count', 'evaluation_status'],
+      threshold: 0.3,
+    });
+
+    return () => {
+      fuseRef.current = null;
+    };
+  }, [searchableMagnitude]);
 
   useEffect(() => {
     if (eventId && !hasEventId(eventId)) {
       fetchEvent(eventId);
     }
   }, [eventId, fetchEvent, hasEventId]);
+
+  const { darkMode } = useAppStore();
+  const appearance = useMemo(() => {
+    return darkMode ? 'filled-lighter' : 'filled-darker';
+  }, [darkMode]);
 
   if (loading) {
     return <EventDetailLoadingIndicator message="Loading event details..." />;
@@ -86,43 +134,48 @@ const EventDetailMagnitude = () => {
           <MagnitudeDetail currentMagnitude={currentMagnitude} />
         </div>
       ) : (
-        <Table className={styles.table}>
-          <TableHeader>
-            <TableRow>
-              <TableHeaderCell></TableHeaderCell>
-              <TableHeaderCell>Type</TableHeaderCell>
-              <TableHeaderCell>Magnitude</TableHeaderCell>
-              <TableHeaderCell>Method</TableHeaderCell>
-              <TableHeaderCell>Station Count</TableHeaderCell>
-              <TableHeaderCell>Evaluation Status</TableHeaderCell>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {event?.magnitudes.length ? (
-              event?.magnitudes.map((magnitude) => (
-                <TableRow
-                  key={magnitude.id}
-                  onClick={() => {
-                    setCurrentMagnitude(magnitude);
-                  }}
-                >
-                  <TableHeaderCell>{magnitude.is_preferred ? <Checkmark16Regular /> : null}</TableHeaderCell>
-                  <TableHeaderCell>{magnitude.type}</TableHeaderCell>
-                  <TableHeaderCell>{formatNumber(magnitude.magnitude, { precision: 2 })}</TableHeaderCell>
-                  <TableHeaderCell>{magnitude.method}</TableHeaderCell>
-                  <TableHeaderCell>{magnitude.station_count}</TableHeaderCell>
-                  <TableHeaderCell>{magnitude.evaluation_status}</TableHeaderCell>
-                </TableRow>
-              ))
-            ) : (
+        <div>
+          <div>
+            <SearchBox ref={searchBoxRef} value={searchQuery} onChange={handleSearchChange} appearance={appearance} placeholder="Search" />
+          </div>
+          <Table className={styles.table}>
+            <TableHeader>
               <TableRow>
-                <TableHeaderCell colSpan={6}>
-                  <span className="text-center w-full">No magnitudes available</span>
-                </TableHeaderCell>
+                <TableHeaderCell></TableHeaderCell>
+                <TableHeaderCell>Type</TableHeaderCell>
+                <TableHeaderCell>Magnitude</TableHeaderCell>
+                <TableHeaderCell>Method</TableHeaderCell>
+                <TableHeaderCell>Station Count</TableHeaderCell>
+                <TableHeaderCell>Evaluation Status</TableHeaderCell>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {magnitudes.length > 0 ? (
+                magnitudes.map((magnitude) => (
+                  <TableRow
+                    key={magnitude.id}
+                    onClick={() => {
+                      setCurrentMagnitude(magnitude);
+                    }}
+                  >
+                    <TableHeaderCell>{magnitude.is_preferred ? <Checkmark16Regular /> : null}</TableHeaderCell>
+                    <TableHeaderCell>{magnitude.type}</TableHeaderCell>
+                    <TableHeaderCell>{formatNumber(magnitude.magnitude, { precision: 2 })}</TableHeaderCell>
+                    <TableHeaderCell>{magnitude.method}</TableHeaderCell>
+                    <TableHeaderCell>{magnitude.station_count}</TableHeaderCell>
+                    <TableHeaderCell>{magnitude.evaluation_status}</TableHeaderCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableHeaderCell colSpan={6}>
+                    <span className="text-center w-full">No magnitudes available</span>
+                  </TableHeaderCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       )}
     </div>
   );
