@@ -5,6 +5,7 @@ import OrganizationPicker from '../Organization/OrganizationPicker';
 import VolcanoPicker from '../Volcano/VolcanoPicker';
 import Account from './Account';
 import ArrowNavigation from './ArrowNavigation';
+import JoinedUsers from './JoinedUsers';
 import LogoImage from './LogoImage';
 import NotificationPanel from './NotificationPanel';
 import OfflineIndicator from './OfflineIndicator';
@@ -31,6 +32,7 @@ const Header = () => {
       <div className="flex items-center gap-3">
         <OfflineIndicator />
         <IndonesiaIndependenceDay />
+        <JoinedUsers />
         {BUILD_VENDOR === 'cendana15' && <AppLauncher />}
         <NotificationPanel />
         <Account />
