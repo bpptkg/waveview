@@ -47,7 +47,7 @@ const EventDetailSummary = () => {
           <div>Event ID</div>
           <div>
             <span>{eventId}</span>
-            <Tooltip content="Copy event ID" relationship="label" showDelay={1500}>
+            <Tooltip content="Copy Event ID" relationship="label" showDelay={1500}>
               <Button icon={<CopyRegular />} onClick={() => eventId && navigator.clipboard.writeText(eventId)} appearance="transparent" />
             </Tooltip>
           </div>
