@@ -1,7 +1,20 @@
-import { Button, makeStyles, Table, TableBody, TableHeader, TableHeaderCell, TableRow, Tooltip } from '@fluentui/react-components';
+import {
+  Button,
+  InputOnChangeData,
+  makeStyles,
+  SearchBox,
+  SearchBoxChangeEvent,
+  Table,
+  TableBody,
+  TableHeader,
+  TableHeaderCell,
+  TableRow,
+  Tooltip,
+} from '@fluentui/react-components';
 import { ArrowLeft20Regular, Checkmark16Regular } from '@fluentui/react-icons';
 import { formatDistanceToNow } from 'date-fns';
-import { useEffect, useState } from 'react';
+import Fuse from 'fuse.js';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import KeyValuePair from '../../components/Common/KeyValuePair';
 import EventDetailErrorMessage from '../../components/Loading/EventDetailErrorMessage';
@@ -53,12 +66,53 @@ const EventDetailLocation = () => {
   const { loading, event, error, fetchEvent, hasEventId } = useEventDetailStore();
   const styles = useEventDetailLocationStyles();
   const [currentOrigin, setCurrentOrigin] = useState<Origin | null>(null);
+  const fuseRef = useRef<Fuse<Origin> | null>(null);
+  const searchBoxRef = useRef<HTMLInputElement>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const searchableOrigins = useMemo(() => {
+    if (!event) {
+      return [];
+    }
+    return event?.origins;
+  }, [event]);
+
+  const origins = useMemo(() => {
+    if (!fuseRef.current || !searchQuery) {
+      return searchableOrigins;
+    }
+
+    return fuseRef.current
+      .search(searchQuery)
+      .map((result) => result.item)
+      .slice(0, 10);
+  }, [searchQuery, searchableOrigins]);
+
+  const handleSearchChange = useCallback((_: SearchBoxChangeEvent, data: InputOnChangeData) => {
+    setSearchQuery(data.value);
+  }, []);
+
+  useEffect(() => {
+    fuseRef.current = new Fuse(searchableOrigins, {
+      keys: ['latitude', 'longitude', 'depth', 'method'],
+      threshold: 0.3,
+    });
+
+    return () => {
+      fuseRef.current = null;
+    };
+  }, [searchableOrigins]);
 
   useEffect(() => {
     if (eventId && !hasEventId(eventId)) {
       fetchEvent(eventId);
     }
   }, [eventId, fetchEvent, hasEventId]);
+
+  const { darkMode } = useAppStore();
+  const appearance = useMemo(() => {
+    return darkMode ? 'filled-lighter' : 'filled-darker';
+  }, [darkMode]);
 
   if (loading) {
     return <EventDetailLoadingIndicator message="Loading event details..." />;
@@ -89,43 +143,48 @@ const EventDetailLocation = () => {
           <LocationDetail currentOrigin={currentOrigin} useUTC={useUTC} />
         </div>
       ) : (
-        <Table className={styles.table}>
-          <TableHeader>
-            <TableRow>
-              <TableHeaderCell></TableHeaderCell>
-              <TableHeaderCell>Time</TableHeaderCell>
-              <TableHeaderCell>Latitude</TableHeaderCell>
-              <TableHeaderCell>Longitude</TableHeaderCell>
-              <TableHeaderCell>Depth</TableHeaderCell>
-              <TableHeaderCell>Method</TableHeaderCell>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {event?.origins.length ? (
-              event?.origins.map((origin) => (
-                <TableRow
-                  key={origin.id}
-                  onClick={() => {
-                    setCurrentOrigin(origin);
-                  }}
-                >
-                  <TableHeaderCell>{origin.is_preferred ? <Checkmark16Regular /> : null}</TableHeaderCell>
-                  <TableHeaderCell>{formatTime(origin.time, { useUTC })}</TableHeaderCell>
-                  <TableHeaderCell>{formatNumber(origin.latitude, { unit: '°', precision: 5 })}</TableHeaderCell>
-                  <TableHeaderCell>{formatNumber(origin.longitude, { unit: '°', precision: 5 })}</TableHeaderCell>
-                  <TableHeaderCell>{formatNumber(origin.depth, { unit: ' km', precision: 2 })}</TableHeaderCell>
-                  <TableHeaderCell>{origin.method}</TableHeaderCell>
-                </TableRow>
-              ))
-            ) : (
+        <div>
+          <div>
+            <SearchBox ref={searchBoxRef} value={searchQuery} onChange={handleSearchChange} appearance={appearance} placeholder="Search" />
+          </div>
+          <Table className={styles.table}>
+            <TableHeader>
               <TableRow>
-                <TableHeaderCell colSpan={6}>
-                  <span className="text-center w-full">No origins available</span>
-                </TableHeaderCell>
+                <TableHeaderCell></TableHeaderCell>
+                <TableHeaderCell>Time</TableHeaderCell>
+                <TableHeaderCell>Latitude</TableHeaderCell>
+                <TableHeaderCell>Longitude</TableHeaderCell>
+                <TableHeaderCell>Depth</TableHeaderCell>
+                <TableHeaderCell>Method</TableHeaderCell>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {origins.length > 0 ? (
+                origins.map((origin) => (
+                  <TableRow
+                    key={origin.id}
+                    onClick={() => {
+                      setCurrentOrigin(origin);
+                    }}
+                  >
+                    <TableHeaderCell>{origin.is_preferred ? <Checkmark16Regular /> : null}</TableHeaderCell>
+                    <TableHeaderCell>{formatTime(origin.time, { useUTC })}</TableHeaderCell>
+                    <TableHeaderCell>{formatNumber(origin.latitude, { unit: '°', precision: 5 })}</TableHeaderCell>
+                    <TableHeaderCell>{formatNumber(origin.longitude, { unit: '°', precision: 5 })}</TableHeaderCell>
+                    <TableHeaderCell>{formatNumber(origin.depth, { unit: ' km', precision: 2 })}</TableHeaderCell>
+                    <TableHeaderCell>{origin.method}</TableHeaderCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableHeaderCell colSpan={6}>
+                    <span className="text-center w-full">No origins available</span>
+                  </TableHeaderCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       )}
     </div>
   );
