@@ -105,7 +105,7 @@ const Dashboard: React.FC = () => {
     <>
       <WebSocketProvider>
         <title>{currentOrganization?.name} - VEPS</title>
-        <div className="bg-neutral-grey-94 dark:bg-neutral-grey-4 flex flex-col min-h-screen">
+        <div className="bg-neutral-grey-94 dark:bg-neutral-grey-4 flex flex-col w-screen h-screen">
           <Header />
           <div className="flex flex-grow">
             <AppBar selectedValue={location.pathname}>
@@ -122,7 +122,7 @@ const Dashboard: React.FC = () => {
                 Help
               </AppBarTab>
             </AppBar>
-            <div className="bg-neutral-grey-98 dark:bg-neutral-grey-12 flex flex-col flex-grow relative rounded-l-lg border border-neutral-grey-90 dark:border-neutral-grey-20">
+            <div className="bg-neutral-grey-98 dark:bg-neutral-grey-12 flex flex-col flex-grow relative rounded-tl-lg border border-neutral-grey-90 dark:border-neutral-grey-20">
               <Outlet />
             </div>
           </div>
