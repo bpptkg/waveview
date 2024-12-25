@@ -57,6 +57,9 @@ const useEventTableStyles = makeStyles({
   searchBox: {
     width: '250px',
   },
+  tableRow: {
+    cursor: 'pointer',
+  },
 });
 
 type Item = SeismicEvent;
@@ -324,7 +327,7 @@ const EventTable = () => {
           <TableBody>
             {rows.length ? (
               rows.map(({ item, onClick, onKeyDown, selected, appearance }) => (
-                <TableRow key={item.id} onClick={onClick} onKeyDown={onKeyDown} aria-selected={selected} appearance={appearance}>
+                <TableRow key={item.id} onClick={onClick} onKeyDown={onKeyDown} aria-selected={selected} appearance={appearance} className={styles.tableRow}>
                   <TableCell>{formatTime(item.time, { useUTC })}</TableCell>
                   <TableCell>{formatNumber(item.duration, { unit: ' sec', precision: 2 })}</TableCell>
                   <TableCell>
