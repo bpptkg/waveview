@@ -13,7 +13,7 @@ const App = () => {
   }, [theme, toggleTheme]);
 
   return (
-    <FluentProvider theme={darkMode ? themes.defaultDark : themes.defaultLight} applyStylesToPortals>
+    <FluentProvider theme={darkMode ? themes.defaultDark : themes.defaultLight} applyStylesToPortals className="fixed">
       <RequireDesktop>
         <Outlet />
       </RequireDesktop>
