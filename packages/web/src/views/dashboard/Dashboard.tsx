@@ -80,7 +80,7 @@ const Dashboard: React.FC = () => {
     return (
       <>
         <title>Error - VEPS</title>
-        <div className="bg-neutral-grey-94 dark:bg-neutral-grey-4 flex flex-col min-h-screen justify-center items-center gap-2">
+        <div className="bg-neutral-grey-94 dark:bg-neutral-grey-4 flex flex-col w-screen h-screen justify-center items-center gap-2">
           <div className="text-red-600 dark:text-red-400">{error}</div>
           <Button appearance="transparent" onClick={() => window.location.reload()} icon={<ArrowClockwise20Regular />}>
             Retry
@@ -94,7 +94,7 @@ const Dashboard: React.FC = () => {
     return (
       <>
         <title>Initializing...</title>
-        <div className="bg-neutral-grey-94 dark:bg-neutral-grey-4 flex flex-col min-h-screen justify-center items-center">
+        <div className="bg-neutral-grey-94 dark:bg-neutral-grey-4 flex flex-col w-screen h-screen justify-center items-center">
           <Spinner label="Initializing app, please wait..." />
         </div>
       </>
