@@ -187,7 +187,7 @@ const rfapDirectionStore = create<RfApDirectionStore>((set, get) => ({
         })
       : [];
     const distanceSeries: SeriesOption = {
-      data: data ? data.daily_results.map((item) => [item.time, item.distance]) : [],
+      data: data ? data.daily_results.map((item) => [item.time, item.distance] as [string, number]).filter((item) => item[1] > 0) : [],
       name: 'Max. Distance',
       type: 'scatter',
       symbol: 'circle',
