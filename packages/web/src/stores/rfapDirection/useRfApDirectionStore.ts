@@ -176,7 +176,7 @@ const rfapDirectionStore = create<RfApDirectionStore>((set, get) => ({
       ? data?.directional_results.map((directionalResult, index) => {
           return {
             areaStyle: {},
-            data: directionalResult.data.map((item) => [new Date(item.time).getTime(), item.count]),
+            data: directionalResult.data.map((item) => [item.time, item.count]),
             type: 'bar',
             stack: 'count',
             itemStyle: {
