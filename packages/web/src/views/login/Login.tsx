@@ -145,7 +145,7 @@ const Login = () => {
                     />
                   </Field>
                   <Button className="w-full" appearance="primary" onClick={handleLogin} disabled={loading || !credentialsFilled}>
-                    Login
+                    {loading ? 'Please wait...' : 'Login'}
                   </Button>
                   <a href="/forgot-password" className="underline underline-offset-1 text-center text-gray-800 dark:text-neutral-grey-84">
                     Forgot your password?
