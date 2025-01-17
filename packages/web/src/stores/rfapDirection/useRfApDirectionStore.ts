@@ -237,7 +237,9 @@ const rfapDirectionStore = create<RfApDirectionStore>((set, get) => ({
             template += `${circle(color as string)} ${seriesName}: ${distance} m<br />`;
           } else {
             const [, count] = value as [string, number];
-            template += `${circle(color as string)} ${seriesName}: ${count}<br />`;
+            if (count > 0) {
+              template += `${circle(color as string)} ${seriesName}: ${count}<br />`;
+            }
           }
         });
 
