@@ -83,16 +83,14 @@ const GalleryViewer: React.FC<GalleryViewerProps> = (props) => {
               <Button icon={<ChevronLeftRegular fontSize={32} />} appearance="outline" onClick={handleSelectPrevious} />
             </Tooltip>
           </div>
-          <div className="flex-1">
-            <div className="flex justify-center items-center h-[80vh]">
-              {selected.media_type === 'photo' ? (
-                <img src={media(selected.file)} alt={selected.name} className="w-full h-full object-contain" />
-              ) : selected.media_type === 'video' ? (
-                <video src={media(selected.file)} controls className="w-full h-full object-contain" />
-              ) : (
-                <div>Unsupported media type</div>
-              )}
-            </div>
+          <div className="flex-1 flex items-center justify-center">
+            {selected.media_type === 'photo' ? (
+              <img src={media(selected.file)} alt={selected.name} className="max-w-full max-h-[80vh] object-contain" />
+            ) : selected.media_type === 'video' ? (
+              <video src={media(selected.file)} controls className="w-full max-h-[80vh] object-contain" />
+            ) : (
+              <div>Unsupported media type</div>
+            )}
           </div>
           <div className="flex flex-col justify-center items-center w-12">
             <Tooltip content="Next" relationship="label" showDelay={1500}>
@@ -100,7 +98,7 @@ const GalleryViewer: React.FC<GalleryViewerProps> = (props) => {
             </Tooltip>
           </div>
         </div>
-        <div className="w-full overflow-hidden relative h-[96px]">
+        <div className="w-full overflow-hidden relative h-[96px] mx-2">
           <div className="absolute top-0 right-0 bottom-[-16px] left-0 overflow-x-scroll">
             <div className="flex flex-row gap-2">
               {supportedAttachments.map((attachment, index) => (
