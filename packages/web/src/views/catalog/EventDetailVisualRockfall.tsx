@@ -20,7 +20,19 @@ const EventDetailVisualRockfall: React.FC<EventDetailVisualRockfallProps> = ({ e
     { label: 'Observation form', value: getObservationFormLabel(observation.observation_form) },
     { label: 'Event size', value: getEventSizeLabel(observation.event_size) },
     { label: 'Runout distance', value: formatNumber(observation.runout_distance, { unit: ' m' }) },
-    { label: 'Fall direction', value: observation.fall_direction?.name },
+    {
+      label: 'Fall directions',
+      value: (
+        <div>
+          {observation.fall_directions.map((direction, index) => (
+            <div key={index} className="hover:bg-gray-200 dark:hover:bg-gray-700 hover:rounded-sm">
+              {direction.name}
+            </div>
+          ))}
+        </div>
+      ),
+      column: true,
+    },
     { label: 'Amplitude', value: formatNumber(observation.amplitude, { unit: ' mm' }) },
     { label: 'Duration', value: formatNumber(observation.duration, { unit: ' s' }) },
     { label: 'Note', value: observation.note, column: true },

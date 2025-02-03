@@ -115,7 +115,7 @@ export interface PyroclasticFlowEvent {
   observation_form: ObservationForm | null;
   event_size: EventSize;
   runout_distance: number;
-  fall_direction: FallDirection | null;
+  fall_directions: FallDirection[];
   amplitude: number;
   duration: number;
   note: string;
@@ -128,7 +128,7 @@ export interface PyroclasticFlowEventPayload {
   observation_form: ObservationForm | null;
   event_size: EventSize | null;
   runout_distance: number;
-  fall_direction_id: string | null;
+  fall_direction_ids: string[];
   amplitude: number;
   duration: number;
   note: string;
@@ -141,7 +141,7 @@ export interface RockfallEvent {
   observation_form: ObservationForm | null;
   event_size: EventSize;
   runout_distance: number;
-  fall_direction: FallDirection | null;
+  fall_directions: FallDirection[];
   amplitude: number;
   duration: number;
   note: string;
@@ -154,7 +154,7 @@ export interface RockfallEventPayload {
   observation_form: ObservationForm | null;
   event_size: EventSize | null;
   runout_distance: number;
-  fall_direction_id: string | null;
+  fall_direction_ids: string[];
   amplitude: number;
   duration: number;
   note: string;

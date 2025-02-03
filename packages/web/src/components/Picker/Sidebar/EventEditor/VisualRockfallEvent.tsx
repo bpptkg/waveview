@@ -1,8 +1,10 @@
-import { Checkbox, Field, Input, makeStyles, Select, Textarea } from '@fluentui/react-components';
+import { Button, Checkbox, Field, Input, makeStyles, Select, Textarea, Tooltip } from '@fluentui/react-components';
+import { DeleteRegular } from '@fluentui/react-icons';
 import { useCallback, useMemo } from 'react';
 import { useAppStore } from '../../../../stores/app';
 import { useFallDirectionStore, useRockfallEventStore } from '../../../../stores/visual';
-import { EventSize, EventSizeOptions, ObservationForm, ObservationFormOptions } from '../../../../types/observation';
+import { EventSize, EventSizeOptions, FallDirection, ObservationForm, ObservationFormOptions } from '../../../../types/observation';
+import FallDirectionPicker from './FallDirectionPicker';
 
 const useStyles = makeStyles({
   textArea: {
@@ -19,7 +21,7 @@ const VisualRockfallEvent = () => {
     isLavaFlow,
     eventSize,
     runoutDistance,
-    fallDirection,
+    fallDirections,
     amplitude,
     duration,
     note,
@@ -27,7 +29,8 @@ const VisualRockfallEvent = () => {
     setObservationForm,
     setEventSize,
     setRunoutDistance,
-    setFallDirection,
+    addFallDirection,
+    removeFallDirection,
     setAmplitude,
     setDuration,
     setNote,
@@ -63,13 +66,6 @@ const VisualRockfallEvent = () => {
     [setRunoutDistance]
   );
 
-  const handleFallDirectionChange = useCallback(
-    (value: string) => {
-      setFallDirection(value);
-    },
-    [setFallDirection]
-  );
-
   const handleAmplitudeChange = useCallback(
     (value: string) => {
       if (!value.length) {
@@ -95,6 +91,20 @@ const VisualRockfallEvent = () => {
       setNote(value);
     },
     [setNote]
+  );
+
+  const handleAddFallDirection = useCallback(
+    (direction: FallDirection) => {
+      addFallDirection(direction);
+    },
+    [addFallDirection]
+  );
+
+  const handleRemoveFallDirection = useCallback(
+    (index: number) => {
+      removeFallDirection(fallDirections[index].id);
+    },
+    [fallDirections, removeFallDirection]
   );
 
   return (
@@ -127,18 +137,30 @@ const VisualRockfallEvent = () => {
       <Field label={'Runout Distance (m)'}>
         <Input appearance={appearance} min={0} type="number" value={runoutDistance.toString()} onChange={(_, data) => handleRunoutDistanceChange(data.value)} />
       </Field>
-      <Field label={'Fall Direction'}>
-        <Select appearance={appearance} defaultValue={fallDirection} onChange={(_, data) => handleFallDirectionChange(data.value)}>
-          <option value={''}>Select fall direction</option>
-          {allFallDirections.map((option) => {
-            return (
-              <option key={option.id} value={option.id}>
-                {option.name}
-              </option>
-            );
-          })}
-        </Select>
-      </Field>
+      <div>
+        <FallDirectionPicker directions={allFallDirections} excludes={fallDirections} onSelected={handleAddFallDirection} />
+        <div>
+          {fallDirections.length > 0 ? (
+            fallDirections.map((direction, index) => {
+              return (
+                <div
+                  key={direction.id}
+                  className="flex items-center justify-between cursor-pointer p-1 group hover:bg-gray-200 dark:hover:bg-gray-700 hover:rounded-sm"
+                >
+                  <div>{direction.name}</div>
+                  <div>
+                    <Tooltip content={`Remove ${direction.name}`} relationship="label">
+                      <Button size="small" appearance="transparent" icon={<DeleteRegular />} onClick={() => handleRemoveFallDirection(index)} />
+                    </Tooltip>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div>No items</div>
+          )}
+        </div>
+      </div>
       <Field label={'Amplitude (mm)'}>
         <Input appearance={appearance} min={0} type="number" value={amplitude.toString()} onChange={(_, data) => handleAmplitudeChange(data.value)} />
       </Field>
