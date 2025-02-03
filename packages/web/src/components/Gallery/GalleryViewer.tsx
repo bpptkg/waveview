@@ -98,9 +98,9 @@ const GalleryViewer: React.FC<GalleryViewerProps> = (props) => {
             </Tooltip>
           </div>
         </div>
-        <div className="w-full overflow-hidden relative h-[96px] mx-2">
-          <div className="absolute top-0 right-0 bottom-[-16px] left-0 overflow-x-scroll">
-            <div className="flex flex-row gap-2">
+        <div className="w-full overflow-hidden relative h-[96px]">
+          <div className="absolute top-0 right-2 bottom-[-16px] left-2 overflow-x-scroll">
+            <div className="flex flex-row gap-2 items-center">
               {supportedAttachments.map((attachment, index) => (
                 <button
                   className={classNames(
