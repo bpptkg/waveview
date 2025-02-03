@@ -30,6 +30,13 @@ import {
 import { AttachRegular, CalendarAgendaRegular, MoreHorizontalRegular, MoreVerticalRegular, SearchVisualRegular } from '@fluentui/react-icons';
 import React, { useCallback, useMemo, useState } from 'react';
 import { usePickerStore } from '../../../../stores/picker';
+import {
+  useExplosionEventStore,
+  usePyroclasticFlowEventStore,
+  useRockfallEventStore,
+  useTectonicEventStore,
+  useVolcanicEmissionEventStore,
+} from '../../../../stores/visual';
 import { SeismicEventDetail } from '../../../../types/event';
 import { CustomError } from '../../../../types/response';
 import { usePickerContext } from '../../PickerContext';
@@ -120,13 +127,34 @@ const PickEdit = () => {
   const { seisChartRef, props } = usePickerContext();
   const { onCancel, onSave } = props;
   const { handleUpdateEventMarkers } = usePickerCallback();
+  const { reset: resetExplosionEventStore } = useExplosionEventStore();
+  const { reset: resetPyroclasticFlowEventStore } = usePyroclasticFlowEventStore();
+  const { reset: resetRockfallEventStore } = useRockfallEventStore();
+  const { reset: resetTectonicEventStore } = useTectonicEventStore();
+  const { reset: resetVolcanicEmissionEventStore } = useVolcanicEmissionEventStore();
   const handleResetPick = useCallback(() => {
     resetEditing();
     setCancelDialogOpen(false);
     seisChartRef.current?.clearPickRange();
     handleUpdateEventMarkers();
     onCancel?.();
-  }, [seisChartRef, resetEditing, onCancel, handleUpdateEventMarkers]);
+
+    resetExplosionEventStore();
+    resetPyroclasticFlowEventStore();
+    resetRockfallEventStore();
+    resetTectonicEventStore();
+    resetVolcanicEmissionEventStore();
+  }, [
+    seisChartRef,
+    resetEditing,
+    onCancel,
+    handleUpdateEventMarkers,
+    resetExplosionEventStore,
+    resetPyroclasticFlowEventStore,
+    resetRockfallEventStore,
+    resetTectonicEventStore,
+    resetVolcanicEmissionEventStore,
+  ]);
 
   const toasterId = useId('pick-editor');
   const { dispatchToast } = useToastController(toasterId);
