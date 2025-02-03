@@ -51,7 +51,7 @@ const FallDirectionPicker: React.FC<FallDirectionPickerProps> = ({ directions, e
   const fuseRef = useRef<Fuse<FallDirection> | null>(null);
 
   const candidateDirections = useMemo(() => {
-    return directions?.filter((direction) => !excludes?.some((exclude) => exclude.id === direction.id)) ?? [];
+    return directions?.filter((direction) => !excludes?.some((exclude) => exclude.id === direction.id)).sort((a, b) => a.name.localeCompare(b.name)) ?? [];
   }, [directions, excludes]);
 
   const filterableDirections = useMemo(() => {
