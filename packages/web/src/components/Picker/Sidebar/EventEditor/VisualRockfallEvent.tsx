@@ -1,10 +1,9 @@
-import { Button, Checkbox, Field, Input, makeStyles, Select, Textarea, Tooltip } from '@fluentui/react-components';
-import { DeleteRegular } from '@fluentui/react-icons';
+import { Checkbox, Field, Input, Label, makeStyles, Select, Textarea } from '@fluentui/react-components';
 import { useCallback, useMemo } from 'react';
 import { useAppStore } from '../../../../stores/app';
 import { useFallDirectionStore, useRockfallEventStore } from '../../../../stores/visual';
 import { EventSize, EventSizeOptions, FallDirection, ObservationForm, ObservationFormOptions } from '../../../../types/observation';
-import FallDirectionPicker from './FallDirectionPicker';
+import FallDirectionCheckbox from './FallDirectionCheckbox';
 
 const useStyles = makeStyles({
   textArea: {
@@ -29,8 +28,7 @@ const VisualRockfallEvent = () => {
     setObservationForm,
     setEventSize,
     setRunoutDistance,
-    addFallDirection,
-    removeFallDirection,
+    setFallDirections,
     setAmplitude,
     setDuration,
     setNote,
@@ -93,18 +91,11 @@ const VisualRockfallEvent = () => {
     [setNote]
   );
 
-  const handleAddFallDirection = useCallback(
-    (direction: FallDirection) => {
-      addFallDirection(direction);
+  const handleFallDirectionChange = useCallback(
+    (checked: FallDirection[]) => {
+      setFallDirections(checked);
     },
-    [addFallDirection]
-  );
-
-  const handleRemoveFallDirection = useCallback(
-    (index: number) => {
-      removeFallDirection(fallDirections[index].id);
-    },
-    [fallDirections, removeFallDirection]
+    [setFallDirections]
   );
 
   return (
@@ -137,29 +128,9 @@ const VisualRockfallEvent = () => {
       <Field label={'Runout Distance (m)'}>
         <Input appearance={appearance} min={0} type="number" value={runoutDistance.toString()} onChange={(_, data) => handleRunoutDistanceChange(data.value)} />
       </Field>
-      <div>
-        <FallDirectionPicker directions={allFallDirections} excludes={fallDirections} onSelected={handleAddFallDirection} />
-        <div>
-          {fallDirections.length > 0 ? (
-            fallDirections.map((direction, index) => {
-              return (
-                <div
-                  key={direction.id}
-                  className="flex items-center justify-between cursor-pointer p-1 group hover:bg-gray-200 dark:hover:bg-gray-700 hover:rounded-sm"
-                >
-                  <div>{direction.name}</div>
-                  <div>
-                    <Tooltip content={`Remove ${direction.name}`} relationship="label">
-                      <Button size="small" appearance="transparent" icon={<DeleteRegular />} onClick={() => handleRemoveFallDirection(index)} />
-                    </Tooltip>
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            <div>No items</div>
-          )}
-        </div>
+      <div className='my-2'>
+        <Label>Fall directions</Label>
+        <FallDirectionCheckbox options={allFallDirections} checked={fallDirections} onChange={handleFallDirectionChange} />
       </div>
       <Field label={'Amplitude (mm)'}>
         <Input appearance={appearance} min={0} type="number" value={amplitude.toString()} onChange={(_, data) => handleAmplitudeChange(data.value)} />
