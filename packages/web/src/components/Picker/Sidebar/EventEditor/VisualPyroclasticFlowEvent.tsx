@@ -129,7 +129,7 @@ const VisualPyroclasticFlowEvent = () => {
         <Input appearance={appearance} min={0} type="number" value={runoutDistance.toString()} onChange={(_, data) => handleRunoutDistanceChange(data.value)} />
       </Field>
       <div className="my-2">
-        <Label>Fall directions</Label>
+        <Label>Fall Directions</Label>
         <FallDirectionCheckbox options={allFallDirections} checked={fallDirections} onChange={handleFallDirectionChange} />
       </div>
       <Field label={'Amplitude (mm)'}>
