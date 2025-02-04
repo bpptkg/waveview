@@ -30,7 +30,7 @@ const fallDirectionStore = create<FallDirectionStore>((set) => ({
       throw new CustomError('Failed to fetch fall directions');
     }
     const allFallDirections: FallDirection[] = await response.json();
-    set({ allFallDirections });
+    set({ allFallDirections: allFallDirections.sort((a, b) => a.name.localeCompare(b.name)) });
   },
 }));
 
