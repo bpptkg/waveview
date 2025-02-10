@@ -14,6 +14,7 @@ export interface BaseFilterOptions {
   zerophase: boolean;
   taper: string;
   taper_width: number;
+  is_default?: boolean;
 }
 
 export interface BandpassFilterOptions extends BaseFilterOptions {

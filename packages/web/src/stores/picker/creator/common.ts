@@ -1,15 +1,16 @@
 import { StateCreator } from 'zustand';
 import { api } from '../../../services/api';
 import apiVersion from '../../../services/apiVersion';
+import { getDefaultSeismogramExtent } from '../../../shared/common';
 import { BandpassFilterOptions, FilterOperationOptions, HighpassFilterOptions, LowpassFilterOptions } from '../../../types/filter';
 import { FilterOptions, PickerConfig } from '../../../types/picker';
 import { CustomError, ErrorData } from '../../../types/response';
 import { useCatalogStore } from '../../catalog';
+import { useFilterStore } from '../../filter';
 import { useInventoryStore } from '../../inventory';
 import { useOrganizationStore } from '../../organization';
 import { useVolcanoStore } from '../../volcano/useVolcanoStore';
 import { ChannelConfig, CommonSlice, PickerStore } from '../slices';
-import { getDefaultSeismogramExtent } from '../../../shared/common';
 
 export const extractFilterOptions = (item: FilterOptions): FilterOperationOptions => {
   if (item.type === 'bandpass') {
@@ -110,6 +111,13 @@ export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> =
       }
       const pickerConfig: PickerConfig = await response.json();
       get().setPickerConfig(pickerConfig);
+
+      const data = pickerConfig.data.seismogram_filters ?? [];
+      const seismogramFilter = data.find((item) => item.is_default);
+      if (seismogramFilter) {
+        const { setAppliedFilter } = useFilterStore.getState();
+        setAppliedFilter(extractFilterOptions(seismogramFilter));
+      }
     },
 
     savePickerConfig: async (payload) => {
