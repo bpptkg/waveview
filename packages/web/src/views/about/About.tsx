@@ -6,7 +6,7 @@ import LogoText from '../../components/Header/LogoText';
 
 const VersionInfo = () => {
   const thisYear = new Date().getFullYear();
-  const commitHash = import.meta.env.__COMMIT__HASH__;
+  const commitHash = import.meta.env.VITE_COMMIT_HASH;
   const buildDate = import.meta.env.__BUILD__DATE__;
   const packageVersion = import.meta.env.__PACKAGE__VERSION__;
   const timeDiff = formatDistanceToNow(new Date(buildDate), { addSuffix: true });
