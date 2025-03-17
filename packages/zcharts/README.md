@@ -27,7 +27,7 @@ const chart = new Helicorder(dom, {
 const trackManager = chart.getTrackManager();
 for (const segment of trackManager.segments()) {
   const [start, end] = segment;
-  const data = generateData(start, end, 25 * 60 * 30);
+  const data = generateSampleData(start, end, 25 * 60 * 30);
   trackManager.setTrackData(segment, data);
 }
 
@@ -61,7 +61,7 @@ const seismogram = new Seismogram(dom, {
 channels.forEach((channel) => {
   seismogram.setChannelData(
     channel.id,
-    generateData(startTime, endTime, 50 * 60 * 5)
+    generateSampleData(startTime, endTime, 50 * 60 * 5)
   );
 });
 
