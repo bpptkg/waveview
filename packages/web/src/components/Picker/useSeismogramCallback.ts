@@ -299,7 +299,7 @@ export const useSeismogramCallback = () => {
       scaling,
       showSpecrogram: isSpectrogramVisible(),
       showSignal: isSignalVisible(),
-      useOffscrrenRendering: true,
+      useOffscreenRendering: true,
       markers: eventMarkers.map((event) => {
         const [start, end] = getPickExtent(event);
         return {

@@ -89,8 +89,8 @@ export class LineSeriesView extends View<LineSeriesModel> {
 
   render() {
     const chart = this.track.getChart();
-    const { useOffscrrenRendering } = chart.getModel().getOptions();
-    if (!this.visible || this.model.isEmpty() || useOffscrrenRendering) {
+    const { useOffscreenRendering } = chart.getModel().getOptions();
+    if (!this.visible || this.model.isEmpty() || useOffscreenRendering) {
       this.group.hide();
       return;
     }

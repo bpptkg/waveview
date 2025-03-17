@@ -21,7 +21,7 @@ const chart = new Helicorder(dom, {
   duration: 12,
   offsetDate: Date.now(),
   forceCenter: true,
-  useOffscrrenRendering: true,
+  useOffscreenRendering: true,
 });
 
 const trackManager = chart.getTrackManager();
@@ -55,7 +55,7 @@ const seismogram = new Seismogram(dom, {
   startTime,
   endTime,
   forceCenter: true,
-  useOffscrrenRendering: true,
+  useOffscreenRendering: true,
 });
 
 channels.forEach((channel) => {

@@ -104,8 +104,8 @@ export class Helicorder extends ChartView<HelicorderOptions> {
       this.setTheme("light");
     }
 
-    const { useOffscrrenRendering } = opts;
-    if (useOffscrrenRendering && typeof Worker !== "undefined") {
+    const { useOffscreenRendering } = opts;
+    if (useOffscreenRendering && typeof Worker !== "undefined") {
       this.worker = new Worker(
         new URL("../workers/helicorder.worker.ts", import.meta.url),
         { type: "module" }
@@ -378,14 +378,14 @@ export class Helicorder extends ChartView<HelicorderOptions> {
     this.rendering = true;
     this.emit("loading", true);
 
-    const { useOffscrrenRendering } = this.model.getOptions();
-    if (useOffscrrenRendering && refreshSignal) {
+    const { useOffscreenRendering } = this.model.getOptions();
+    if (useOffscreenRendering && refreshSignal) {
       this.refreshOffscreen();
     }
 
     super.render();
 
-    if (useOffscrrenRendering) {
+    if (useOffscreenRendering) {
       this.rendering = refreshSignal;
     } else {
       this.rendering = false;

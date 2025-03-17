@@ -122,8 +122,8 @@ export class Seismogram extends ChartView<SeismogramOptions> {
       this.addChannelInternal(channel);
     }
 
-    const { useOffscrrenRendering } = opts;
-    if (useOffscrrenRendering && typeof Worker !== "undefined") {
+    const { useOffscreenRendering } = opts;
+    if (useOffscreenRendering && typeof Worker !== "undefined") {
       this.worker = new Worker(
         new URL("../workers/seismogram.worker.ts", import.meta.url),
         { type: "module" }
@@ -355,8 +355,8 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   }
 
   showSignals(): void {
-    const { useOffscrrenRendering } = this.getModel().getOptions();
-    if (useOffscrrenRendering) {
+    const { useOffscreenRendering } = this.getModel().getOptions();
+    if (useOffscreenRendering) {
       this.offscreenSignal.show();
     } else {
       for (const track of this.trackManager.tracks()) {
@@ -367,8 +367,8 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   }
 
   hideSignals(): void {
-    const { useOffscrrenRendering } = this.getModel().getOptions();
-    if (useOffscrrenRendering) {
+    const { useOffscreenRendering } = this.getModel().getOptions();
+    if (useOffscreenRendering) {
       this.offscreenSignal.hide();
     } else {
       for (const track of this.trackManager.tracks()) {
@@ -572,14 +572,14 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     const { refreshSignal = true } = options || {};
     this.rendering = true;
 
-    const { useOffscrrenRendering } = this.model.getOptions();
-    if (useOffscrrenRendering && refreshSignal) {
+    const { useOffscreenRendering } = this.model.getOptions();
+    if (useOffscreenRendering && refreshSignal) {
       this.refreshOffscreen();
     }
 
     super.render();
 
-    if (useOffscrrenRendering) {
+    if (useOffscreenRendering) {
       this.rendering = refreshSignal;
     } else {
       this.rendering = false;

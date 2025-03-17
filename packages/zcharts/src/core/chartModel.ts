@@ -17,7 +17,7 @@ export interface ChartOptions extends ModelOptions {
    * is only supported in modern browsers and requires a web worker to be
    * enabled.
    */
-  useOffscrrenRendering: boolean;
+  useOffscreenRendering: boolean;
 }
 
 export class ChartModel<T extends ChartOptions> extends Model<T> {
