@@ -16,6 +16,10 @@ WORKDIR /app/packages/web
 
 RUN . ~/.shrc && pnpm build
 
-EXPOSE 5333
+FROM nginx:alpine
 
-CMD ["npx", "serve", "-s", "dist", "-l", "5333"]
+COPY --from=0 /app/packages/web/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
