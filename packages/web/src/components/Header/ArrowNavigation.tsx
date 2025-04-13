@@ -15,10 +15,10 @@ const ArrowNavigation = () => {
 
   return (
     <div>
-      <Tooltip content={'Click to go back'} relationship="label" showDelay={1500}>
+      <Tooltip content={'Go Back'} relationship="label" showDelay={1500}>
         <Button size="small" appearance="transparent" icon={<ChevronLeftRegular fontSize={20} />} onClick={handleBack} />
       </Tooltip>
-      <Tooltip content={'Click to go forward'} relationship="label" showDelay={1500}>
+      <Tooltip content={'Go Forward'} relationship="label" showDelay={1500}>
         <Button size="small" appearance="transparent" icon={<ChevronRightRegular fontSize={20} />} onClick={handleForward} />
       </Tooltip>
     </div>
