@@ -99,17 +99,18 @@ const Seismicity = () => {
     return formatTimezonedDate(endDate, template, useUTC);
   }, [endDate, sampling, useUTC]);
 
-  const previousValuesRef = useRef({ useUTC });
+  const previousUseUTCRef = useRef({ useUTC });
   useEffect(() => {
-    if (previousValuesRef.current.useUTC !== useUTC) {
+    if (previousUseUTCRef.current.useUTC !== useUTC) {
       updatePlot();
-      previousValuesRef.current = { useUTC };
+      previousUseUTCRef.current = { useUTC };
     }
   }, [useUTC, updatePlot]);
 
   useEffect(() => {
     updatePlot();
-  }, [updatePlot]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const chartStyle = useMemo(() => {
     const length = seismicity?.length || 1;

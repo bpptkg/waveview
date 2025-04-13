@@ -91,7 +91,8 @@ const RfApDirection: React.FC = () => {
 
   useEffect(() => {
     updatePlot();
-  }, [updatePlot]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleDateRangeChange = useCallback(
     (index: number, start: number, end: number) => {
