@@ -34,7 +34,6 @@ const RfApDirection: React.FC = () => {
   const distChartRef = useRef<ReactEChartsType>(null);
 
   const {
-    data,
     startDate,
     endDate,
     periods,
@@ -91,14 +90,8 @@ const RfApDirection: React.FC = () => {
   }, [fetchRfApDirection, getDirectionBarChartOption, getDirectionRoseChartOption, getDistributionChartOption, showErrorToast]);
 
   useEffect(() => {
-    if (!data) {
-      updatePlot();
-    } else {
-      roseChartRef.current?.setOption(getDirectionRoseChartOption(), true, true);
-      barChartRef.current?.setOption(getDirectionBarChartOption(), true, true);
-      distChartRef.current?.setOption(getDistributionChartOption(), true, true);
-    }
-  }, [data, getDirectionBarChartOption, getDirectionRoseChartOption, getDistributionChartOption, updatePlot]);
+    updatePlot();
+  }, [updatePlot]);
 
   const handleDateRangeChange = useCallback(
     (index: number, start: number, end: number) => {

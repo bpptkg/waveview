@@ -129,24 +129,17 @@ const Hypocenter = () => {
     [demxyz, fetchHypocenter, fetchDemXyz, getEChartsOption, showErrorToast]
   );
 
+  const previousValuesRef = useRef({ useUTC, darkMode });
   useEffect(() => {
-    updatePlot({ refreshHypo: false });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (previousValuesRef.current.useUTC !== useUTC || previousValuesRef.current.darkMode !== darkMode) {
+      updatePlot();
+      previousValuesRef.current = { useUTC, darkMode };
+    }
   }, [useUTC, darkMode, updatePlot]);
 
   useEffect(() => {
-    if (workspace === '3d') {
-      updatePlot({ refreshHypo: false });
-    }
-  }, [workspace, updatePlot]);
-
-  useEffect(() => {
-    if (!hypocenter) {
-      updatePlot();
-    } else {
-      updatePlot({ refreshHypo: false });
-    }
-  }, [hypocenter, updatePlot, getEChartsOption]);
+    updatePlot();
+  }, [updatePlot]);
 
   const handleDateRangeChange = useCallback(
     (index: number, start: number, end: number) => {

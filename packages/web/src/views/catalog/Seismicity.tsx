@@ -99,9 +99,17 @@ const Seismicity = () => {
     return formatTimezonedDate(endDate, template, useUTC);
   }, [endDate, sampling, useUTC]);
 
+  const previousValuesRef = useRef({ useUTC });
+  useEffect(() => {
+    if (previousValuesRef.current.useUTC !== useUTC) {
+      updatePlot();
+      previousValuesRef.current = { useUTC };
+    }
+  }, [useUTC, updatePlot]);
+
   useEffect(() => {
     updatePlot();
-  }, [useUTC, updatePlot]);
+  }, [updatePlot]);
 
   const chartStyle = useMemo(() => {
     const length = seismicity?.length || 1;
