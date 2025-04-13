@@ -33,6 +33,7 @@ import HypocenterWorkspaceSwitcher from '../../components/Hypocenter/HypocenterW
 import MethodFilter from '../../components/Hypocenter/MethodFilter';
 import { formatNumber, formatTime, shortUUID } from '../../shared/formatting';
 import { useAppStore } from '../../stores/app';
+import { useCatalogStore } from '../../stores/catalog';
 import { useDemXyzStore } from '../../stores/demxyz';
 import { useEventTypeStore } from '../../stores/eventType';
 import { HypocenterWorkspace } from '../../types/hypocenter';
@@ -198,6 +199,24 @@ const Hypocenter = () => {
     },
     [setWorkspace]
   );
+
+  const previousCatalogIdRef = useRef<string>('');
+  const { currentCatalog } = useCatalogStore();
+
+  useEffect(() => {
+    if (currentCatalog && !previousCatalogIdRef.current) {
+      previousCatalogIdRef.current = currentCatalog.id;
+    }
+  }, [currentCatalog]);
+
+  useEffect(() => {
+    if (currentCatalog && previousCatalogIdRef.current) {
+      if (previousCatalogIdRef.current !== currentCatalog.id) {
+        updatePlot();
+      }
+      previousCatalogIdRef.current = currentCatalog.id;
+    }
+  }, [currentCatalog, updatePlot]);
 
   return (
     <div className="relative h-full w-full flex flex-col">
