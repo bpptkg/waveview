@@ -91,21 +91,8 @@ const EventTable = () => {
   const navigate = useNavigate();
   const { eventId } = useParams();
   const { useUTC } = useAppStore();
-  const {
-    events,
-    loading,
-    filterData,
-    initialFetch,
-    hasNext,
-    hasPrevious,
-    itemsPerPage,
-    currentPage,
-    totalEvents,
-    setItemsPerPage,
-    fetchEvents,
-    setFilterData,
-    setInitialFetch,
-  } = useCatalogStore();
+  const { events, loading, filterData, hasNext, hasPrevious, itemsPerPage, currentPage, totalEvents, setItemsPerPage, fetchEvents, setFilterData } =
+    useCatalogStore();
   const { clearCache } = useEventDetailStore();
   const { eventTypes } = useEventTypeStore();
   const { hasPermission } = useUserStore();
@@ -128,17 +115,13 @@ const EventTable = () => {
   );
 
   useEffect(() => {
-    if (!initialFetch) {
-      fetchEvents().catch((error: CustomError) => {
-        showErrorToast(error);
-      });
-      setInitialFetch(true);
-    }
-
+    fetchEvents().catch((error: CustomError) => {
+      showErrorToast(error);
+    });
     return () => {
       clearCache();
     };
-  }, [initialFetch, setInitialFetch, fetchEvents, clearCache, showErrorToast]);
+  }, [fetchEvents, clearCache, showErrorToast]);
 
   const styles = useEventTableStyles();
 
