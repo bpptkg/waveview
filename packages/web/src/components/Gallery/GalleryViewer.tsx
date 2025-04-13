@@ -103,6 +103,7 @@ const GalleryViewer: React.FC<GalleryViewerProps> = (props) => {
             <div className="flex flex-row gap-2 items-center">
               {supportedAttachments.map((attachment, index) => (
                 <button
+                  key={attachment.id}
                   className={classNames(
                     'min-w-[78px] max-w-[78px] items-center justify-center bg-lightgray border-2 hover:opacity-80',
                     selectedIndex === index ? 'border-primary' : 'border-transparent'
