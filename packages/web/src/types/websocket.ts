@@ -30,11 +30,13 @@ export interface WebSocketSetupData {
 export interface NewEventNotificationData {
   event: SeismicEvent;
   actor: User;
+  catalog_name: string;
 }
 
 export interface EventUpdateNotificationData {
   event: SeismicEvent;
   actor: User;
+  catalog_name: string;
 }
 
 export interface DeletedEvent {
@@ -48,6 +50,7 @@ export interface DeletedEvent {
 export interface EventDeleteNotificationData {
   event: DeletedEvent;
   actor: User;
+  catalog_name: string;
 }
 
 export interface NotificationMessage<T = any> {

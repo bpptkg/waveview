@@ -16,6 +16,7 @@ import {
   useToastController,
 } from '@fluentui/react-components';
 import { AlertRegular } from '@fluentui/react-icons';
+import classNames from 'classnames';
 import { formatDistanceToNow } from 'date-fns';
 import { useCallback, useEffect, useState } from 'react';
 import { formatTimezonedDate } from '../../shared/time';
@@ -117,7 +118,7 @@ const NotificationPanel = () => {
   }, []);
 
   const renderNewEventNotification = (data: NewEventNotificationData) => {
-    const { event, actor } = data;
+    const { event, actor, catalog_name } = data;
     return (
       <div className="flex flex-col gap-1">
         <div className="flex items-center justify-between">
@@ -128,6 +129,7 @@ const NotificationPanel = () => {
           <div>
             <EventTypeLabel eventType={event.type} />
             <div className="text-xs">{formatTimezonedDate(event.time, 'yyyy-MM-dd HH:mm:ss', useUTC)}</div>
+            <div className="text-xs">{catalog_name}</div>
           </div>
           <Author author={actor} />
         </div>
@@ -136,7 +138,7 @@ const NotificationPanel = () => {
   };
 
   const renderEventUpdateNotification = (data: EventUpdateNotificationData) => {
-    const { event, actor } = data;
+    const { event, actor, catalog_name } = data;
     return (
       <div className="flex flex-col gap-1">
         <div className="flex items-center justify-between">
@@ -147,6 +149,7 @@ const NotificationPanel = () => {
           <div>
             <EventTypeLabel eventType={event.type} />
             <div className="text-xs">{formatTimezonedDate(event.time, 'yyyy-MM-dd HH:mm:ss', useUTC)}</div>
+            <div className="text-xs">{catalog_name}</div>
           </div>
           <Author author={actor} />
         </div>
@@ -155,7 +158,7 @@ const NotificationPanel = () => {
   };
 
   const renderEventDeleteNotification = (data: EventDeleteNotificationData) => {
-    const { event, actor } = data;
+    const { event, actor, catalog_name } = data;
     return (
       <div className="flex flex-col gap-1">
         <div className="flex items-center justify-between">
@@ -166,6 +169,7 @@ const NotificationPanel = () => {
           <div>
             <EventTypeLabel eventType={event.type} />
             <div className="text-xs">{formatTimezonedDate(event.time, 'yyyy-MM-dd HH:mm:ss', useUTC)}</div>
+            <div className="text-xs">{catalog_name}</div>
           </div>
           <Author author={actor} />
         </div>
@@ -213,11 +217,11 @@ const NotificationPanel = () => {
 
             <Divider />
 
-            <div className="p-2 max-h-[476px] overflow-y-auto overflow-x-hidden">
+            <div className="max-h-[476px] overflow-y-auto overflow-x-hidden">
               {notifications.length ? (
                 <div className="flex flex-col">
                   {notifications.map((notification, index) => (
-                    <div key={index} className="p-2 border-b border-gray-200">
+                    <div key={index} className={classNames('p-2', { 'border-b border-gray-200 dark:border-gray-700': index !== notifications.length - 1 })}>
                       {renderNotification(notification)}
                     </div>
                   ))}
