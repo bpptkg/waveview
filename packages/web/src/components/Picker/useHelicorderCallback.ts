@@ -314,5 +314,6 @@ export function useHelicorderCallback() {
     handleHelicorderShiftViewToNow,
     handleHelicorderShiftViewUp,
     handleUpdateEventMarkers,
+    handleFetchEvents,
   };
 }
