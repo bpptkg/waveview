@@ -32,6 +32,7 @@ import { formatNumber } from '../../shared/formatting';
 import { max, mean, median, minNonZero, standardDeviation, sum, variance } from '../../shared/statistics';
 import { formatTimezonedDate } from '../../shared/time';
 import { useAppStore } from '../../stores/app';
+import { useCatalogStore } from '../../stores/catalog';
 import { useSeismicityStore } from '../../stores/seismicity';
 import { CustomError } from '../../types/response';
 import { Sampling } from '../../types/seismicity';
@@ -167,6 +168,24 @@ const Seismicity = () => {
       a.remove();
     }
   }, []);
+
+  const previousCatalogIdRef = useRef<string>('');
+  const { currentCatalog } = useCatalogStore();
+
+  useEffect(() => {
+    if (currentCatalog && !previousCatalogIdRef.current) {
+      previousCatalogIdRef.current = currentCatalog.id;
+    }
+  }, [currentCatalog]);
+
+  useEffect(() => {
+    if (currentCatalog && previousCatalogIdRef.current) {
+      if (previousCatalogIdRef.current !== currentCatalog.id) {
+        updatePlot();
+      }
+      previousCatalogIdRef.current = currentCatalog.id;
+    }
+  }, [currentCatalog, updatePlot]);
 
   return (
     <div className="relative h-full w-full">
