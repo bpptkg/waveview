@@ -100,15 +100,6 @@ const Seismicity = () => {
   }, [endDate, sampling, useUTC]);
 
   useEffect(() => {
-    if (!seismicity) {
-      updatePlot();
-    } else {
-      const option = getEChartsOption();
-      chartRef.current?.setOption(option, true, true);
-    }
-  }, [seismicity, chartRef, getEChartsOption, updatePlot]);
-
-  useEffect(() => {
     updatePlot();
   }, [useUTC, updatePlot]);
 
