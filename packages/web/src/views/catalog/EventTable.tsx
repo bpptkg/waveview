@@ -423,10 +423,18 @@ const EventTable = () => {
             Page {currentPage} of {Math.ceil(totalEvents / itemsPerPage)}
           </span>
           <div className="flex items-center gap-2">
-            <Button size="medium" icon={<ChevronDoubleLeftRegular fontSize={16} />} onClick={handleFetchFirstEvents}></Button>
-            <Button size="medium" icon={<ChevronLeftRegular fontSize={16} />} onClick={handleFetchPreviousEvents} disabled={!hasPrevious}></Button>
-            <Button size="medium" icon={<ChevronRightRegular fontSize={16} />} onClick={handleFetchNextEvents} disabled={!hasNext}></Button>
-            <Button size="medium" icon={<ChevronDoubleRightRegular fontSize={16} />} onClick={handleFetchLastEvents}></Button>
+            <Tooltip content={'Go to first page'} relationship="label" showDelay={1500}>
+              <Button size="medium" icon={<ChevronDoubleLeftRegular fontSize={16} />} onClick={handleFetchFirstEvents} />
+            </Tooltip>
+            <Tooltip content={'Go to previous page'} relationship="label" showDelay={1500}>
+              <Button size="medium" icon={<ChevronLeftRegular fontSize={16} />} onClick={handleFetchPreviousEvents} disabled={!hasPrevious} />
+            </Tooltip>
+            <Tooltip content={'Go to next page'} relationship="label" showDelay={1500}>
+              <Button size="medium" icon={<ChevronRightRegular fontSize={16} />} onClick={handleFetchNextEvents} disabled={!hasNext} />
+            </Tooltip>
+            <Tooltip content={'Go to last page'} relationship="label" showDelay={1500}>
+              <Button size="medium" icon={<ChevronDoubleRightRegular fontSize={16} />} onClick={handleFetchLastEvents} />
+            </Tooltip>
           </div>
         </div>
         <EventDetailDrawer isVisible={!!eventId}>
