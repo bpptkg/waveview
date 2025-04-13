@@ -5,6 +5,7 @@ import {
   makeStyles,
   SearchBox,
   SearchBoxChangeEvent,
+  Select,
   Spinner,
   Table,
   TableBody,
@@ -25,7 +26,14 @@ import {
   useTableSort,
   useToastController,
 } from '@fluentui/react-components';
-import { ArrowCounterclockwiseRegular, ArrowDownloadRegular } from '@fluentui/react-icons';
+import {
+  ArrowCounterclockwiseRegular,
+  ArrowDownloadRegular,
+  ChevronDoubleLeftRegular,
+  ChevronDoubleRightRegular,
+  ChevronLeftRegular,
+  ChevronRightRegular,
+} from '@fluentui/react-icons';
 import Fuse from 'fuse.js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -83,7 +91,21 @@ const EventTable = () => {
   const navigate = useNavigate();
   const { eventId } = useParams();
   const { useUTC } = useAppStore();
-  const { events, loading, filterData, initialFetch, fetchEvents, fetchNextEvents, hasNextEvents, setFilterData, setInitialFetch } = useCatalogStore();
+  const {
+    events,
+    loading,
+    filterData,
+    initialFetch,
+    hasNext,
+    hasPrevious,
+    itemsPerPage,
+    currentPage,
+    totalEvents,
+    setItemsPerPage,
+    fetchEvents,
+    setFilterData,
+    setInitialFetch,
+  } = useCatalogStore();
   const { clearCache } = useEventDetailStore();
   const { eventTypes } = useEventTypeStore();
   const { hasPermission } = useUserStore();
@@ -207,11 +229,40 @@ const EventTable = () => {
     })
   );
 
-  const handleFetchNextEvents = useCallback(() => {
-    fetchNextEvents().catch((error: CustomError) => {
+  const handleFetchPreviousEvents = useCallback(() => {
+    fetchEvents({ mode: 'previous' }).catch((error: CustomError) => {
       showErrorToast(error);
     });
-  }, [fetchNextEvents, showErrorToast]);
+  }, [fetchEvents, showErrorToast]);
+
+  const handleFetchNextEvents = useCallback(() => {
+    fetchEvents({ mode: 'next' }).catch((error: CustomError) => {
+      showErrorToast(error);
+    });
+  }, [fetchEvents, showErrorToast]);
+
+  const handleFetchFirstEvents = useCallback(() => {
+    fetchEvents({ mode: 'first' }).catch((error: CustomError) => {
+      showErrorToast(error);
+    });
+  }, [fetchEvents, showErrorToast]);
+
+  const handleFetchLastEvents = useCallback(() => {
+    fetchEvents({ mode: 'last' }).catch((error: CustomError) => {
+      showErrorToast(error);
+    });
+  }, [fetchEvents, showErrorToast]);
+
+  const handleItemPerPageChange = useCallback(
+    (value: string) => {
+      const pageSize = parseInt(value, 10);
+      setItemsPerPage(pageSize);
+      fetchEvents({ mode: 'first' }).catch((error: CustomError) => {
+        showErrorToast(error);
+      });
+    },
+    [setItemsPerPage, fetchEvents, showErrorToast]
+  );
 
   const handleRefresh = useCallback(() => {
     fetchEvents().catch((error: CustomError) => {
@@ -355,13 +406,26 @@ const EventTable = () => {
             )}
           </TableBody>
         </Table>
-        {hasNextEvents() && (
-          <div className="flex justify-center mt-2">
-            <Button appearance="transparent" onClick={handleFetchNextEvents}>
-              {loading ? 'Loading...' : 'Load more'}
-            </Button>
+        <div className="flex items-center justify-end gap-2 mt-2">
+          <div className="flex items-center gap-2">
+            <span>Items per page:</span>
+            <Select appearance="outline" defaultValue={itemsPerPage} onChange={(_, data) => handleItemPerPageChange(data.value)}>
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </Select>
           </div>
-        )}
+          <span className="mx-4">
+            Page {currentPage} of {Math.ceil(totalEvents / itemsPerPage)}
+          </span>
+          <div className="flex items-center gap-2">
+            <Button size="medium" icon={<ChevronDoubleLeftRegular fontSize={16} />} onClick={handleFetchFirstEvents}></Button>
+            <Button size="medium" icon={<ChevronLeftRegular fontSize={16} />} onClick={handleFetchPreviousEvents} disabled={!hasPrevious}></Button>
+            <Button size="medium" icon={<ChevronRightRegular fontSize={16} />} onClick={handleFetchNextEvents} disabled={!hasNext}></Button>
+            <Button size="medium" icon={<ChevronDoubleRightRegular fontSize={16} />} onClick={handleFetchLastEvents}></Button>
+          </div>
+        </div>
         <EventDetailDrawer isVisible={!!eventId}>
           <EventDetail />
         </EventDetailDrawer>

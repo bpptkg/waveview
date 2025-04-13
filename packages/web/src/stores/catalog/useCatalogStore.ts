@@ -15,7 +15,11 @@ const catalogStore = create<CatalogStore>((set, get) => {
     currentCatalog: null,
     allCatalogs: [],
     events: [],
-    nextEventsUrl: null,
+    itemsPerPage: 20,
+    currentPage: 1,
+    hasNext: false,
+    hasPrevious: false,
+    totalEvents: 0,
     loading: false,
     filterData: {
       eventTypes: undefined,
@@ -26,11 +30,8 @@ const catalogStore = create<CatalogStore>((set, get) => {
     },
     initialFetch: false,
     setInitialFetch: (initialFetch) => set({ initialFetch }),
-
     setCurrentCatalog: (catalog) => set({ currentCatalog: catalog }),
-
     setLoading: (loading) => set({ loading }),
-
     fetchAllCatalogs: async () => {
       const { currentOrganization } = useOrganizationStore.getState();
       if (!currentOrganization) {
@@ -53,9 +54,8 @@ const catalogStore = create<CatalogStore>((set, get) => {
         throw new CustomError(`No default catalog found for volcano ${currentVolcano.name}`);
       }
     },
-    setNextEventsUrl: (url) => set({ nextEventsUrl: url }),
-
-    fetchEvents: async () => {
+    setItemsPerPage: (itemsPerPage) => set({ itemsPerPage }),
+    fetchEvents: async (options) => {
       const { currentOrganization } = useOrganizationStore.getState();
       if (!currentOrganization) {
         throw new CustomError('Organization is not set');
@@ -69,12 +69,33 @@ const catalogStore = create<CatalogStore>((set, get) => {
         throw new CustomError('Catalog is not set');
       }
 
-      const { filterData } = get();
+      const { filterData, itemsPerPage, currentPage, totalEvents } = get();
 
       const url = apiVersion.listEvent.v1(currentOrganization.id, currentVolcano.id, currentCatalog.id);
       const { startDate, endDate, eventTypes, isBookmarked, ordering } = filterData;
+
+      const { mode } = options || { mode: 'current' };
+
+      let page = 1;
+      if (mode === 'first') {
+        page = 1;
+      } else if (mode === 'previous') {
+        page = Math.max(currentPage - 1, 1);
+      } else if (mode === 'next') {
+        page = Math.min(currentPage + 1, Math.ceil(totalEvents / itemsPerPage));
+      } else if (mode === 'last') {
+        page = Math.ceil(totalEvents / itemsPerPage);
+      } else if (mode === 'current') {
+        page = currentPage;
+      }
+
+      if (page === 0) {
+        return;
+      }
+
       const params: EventQueryParams = {
-        page: 1,
+        page,
+        page_size: itemsPerPage,
         ordering,
       };
       if (startDate) {
@@ -96,43 +117,19 @@ const catalogStore = create<CatalogStore>((set, get) => {
           params,
         });
         const data: Pagination<SeismicEvent[]> = await response.json();
-        set({ events: data.results, nextEventsUrl: data.next });
+        set({ events: data.results, hasPrevious: data.previous !== null, hasNext: data.next !== null, totalEvents: data.count, currentPage: page });
       } finally {
         set({ loading: false });
       }
     },
-
-    fetchNextEvents: async () => {
-      const { nextEventsUrl } = get();
-      if (!nextEventsUrl) {
-        return;
-      }
-
-      set({ loading: true });
-      try {
-        const response = await api(nextEventsUrl);
-        const data: Pagination<SeismicEvent[]> = await response.json();
-        set((state) => ({ events: [...state.events, ...data.results], nextEventsUrl: data.next }));
-      } finally {
-        set({ loading: false });
-      }
-    },
-
-    hasNextEvents: () => {
-      const { nextEventsUrl } = get();
-      return !!nextEventsUrl;
-    },
-
     removeEvent: (eventId) => {
       set((state) => ({ events: state.events.filter((event) => event.id !== eventId) }));
     },
-
     updateEvent: (event) => {
       set((state) => ({
         events: state.events.map((e) => (e.id === event.id ? event : e)),
       }));
     },
-
     setFilterData: (data) => {
       set({ filterData: data });
     },

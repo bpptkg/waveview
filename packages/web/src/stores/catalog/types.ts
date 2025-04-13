@@ -11,11 +11,19 @@ export interface FilterData {
   ordering?: OrderingType;
 }
 
+export interface FetchPaginatedEventsOptions {
+  mode: 'first' | 'previous' | 'next' | 'last' | 'current';
+}
+
 export interface CatalogStore {
   currentCatalog: Catalog | null;
   allCatalogs: Catalog[];
   events: SeismicEvent[];
-  nextEventsUrl: string | null;
+  itemsPerPage: number;
+  currentPage: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+  totalEvents: number;
   loading: boolean;
   filterData: FilterData;
   initialFetch: boolean;
@@ -37,21 +45,13 @@ export interface CatalogStore {
    */
   fetchAllCatalogs: () => Promise<void>;
   /**
-   * Sets the next events URL to fetch the next page of events.
+   * Sets the number of items per page.
    */
-  setNextEventsUrl: (url: string | null) => void;
+  setItemsPerPage: (itemsPerPage: number) => void;
   /**
    * Fetches the events from the current catalog at page 1.
    */
-  fetchEvents: () => Promise<void>;
-  /**
-   * Fetches the next page of events from the current catalog.
-   */
-  fetchNextEvents: () => Promise<void>;
-  /**
-   * True if there are more events to fetch.
-   */
-  hasNextEvents: () => boolean;
+  fetchEvents: (options?: FetchPaginatedEventsOptions) => Promise<void>;
   /**
    * Removes an event from the list of events.
    */
