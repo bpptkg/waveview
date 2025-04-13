@@ -334,6 +334,26 @@ const EventTable = () => {
     [fetchEvents, setFilterData, showErrorToast]
   );
 
+  const previousCatalogIdRef = useRef<string>('');
+  const { currentCatalog } = useCatalogStore();
+
+  useEffect(() => {
+    if (currentCatalog && !previousCatalogIdRef.current) {
+      previousCatalogIdRef.current = currentCatalog.id;
+    }
+  }, [currentCatalog]);
+
+  useEffect(() => {
+    if (currentCatalog && previousCatalogIdRef.current) {
+      if (previousCatalogIdRef.current !== currentCatalog.id) {
+        fetchEvents({ mode: 'first' }).catch((error: CustomError) => {
+          showErrorToast(error);
+        });
+      }
+      previousCatalogIdRef.current = currentCatalog.id;
+    }
+  }, [currentCatalog, fetchEvents, showErrorToast]);
+
   return (
     <div className="relative h-full w-full">
       <div className="absolute top-0 right-0 bottom-0 left-0 overflow-auto p-2">
