@@ -22,6 +22,7 @@ import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import DateRangePicker from '../../components/DatePicker/DateRangePicker';
 import { formatTimezonedDate } from '../../shared/time';
 import { useAppStore } from '../../stores/app';
+import { useCatalogStore } from '../../stores/catalog';
 import { useRfApDirectionStore } from '../../stores/rfapDirection';
 import { CustomError } from '../../types/response';
 
@@ -154,6 +155,24 @@ const RfApDirection: React.FC = () => {
       a.remove();
     }
   }, [distChartRef]);
+
+  const previousCatalogIdRef = useRef<string>('');
+  const { currentCatalog } = useCatalogStore();
+
+  useEffect(() => {
+    if (currentCatalog && !previousCatalogIdRef.current) {
+      previousCatalogIdRef.current = currentCatalog.id;
+    }
+  }, [currentCatalog]);
+
+  useEffect(() => {
+    if (currentCatalog && previousCatalogIdRef.current) {
+      if (previousCatalogIdRef.current !== currentCatalog.id) {
+        updatePlot();
+      }
+      previousCatalogIdRef.current = currentCatalog.id;
+    }
+  }, [currentCatalog, updatePlot]);
 
   return (
     <div className="relative h-full w-full">
