@@ -12,7 +12,7 @@ export function formatNumber(number: unknown, options: FormatNumberOptions = {})
     const isNumberFinite = Number.isFinite(number);
     const isNumberNaN = Number.isNaN(number);
     if (!isNumberFinite || isNumberNaN) {
-      return '';
+      return '-';
     }
 
     let numberFormatted = '';
@@ -26,7 +26,7 @@ export function formatNumber(number: unknown, options: FormatNumberOptions = {})
     }
     return numberFormatted;
   }
-  return '';
+  return '-';
 }
 
 export interface FormatTimeOptions {
