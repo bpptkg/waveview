@@ -227,7 +227,7 @@ const NotificationPanel = () => {
                   ))}
                 </div>
               ) : (
-                <span>No notification</span>
+                <span className='p-2'>No notification</span>
               )}
             </div>
           </div>
