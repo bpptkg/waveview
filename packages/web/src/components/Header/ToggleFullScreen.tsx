@@ -27,7 +27,7 @@ const ToggleFullScreen: React.FC = () => {
   }, []);
 
   const buttonLabel = isFullScreen ? 'Exit Full Screen' : 'Enter Full Screen';
-  const buttonIcon = isFullScreen ? <FullScreenMinimizeRegular /> : <FullScreenMaximizeRegular />;
+  const buttonIcon = isFullScreen ? <FullScreenMinimizeRegular fontSize={20} /> : <FullScreenMaximizeRegular fontSize={20}/>;
 
   return (
     <Tooltip content={buttonLabel} relationship="label" showDelay={1500}>

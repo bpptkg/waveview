@@ -3,7 +3,6 @@ import FileMenu from './FileMenu';
 import HelpMenu from './HelpMenu';
 import LayoutSelector from './LayoutSelector';
 import SignalMenu from './SignalMenu';
-import ToggleFullScreen from './ToggleFullScreen';
 import ViewMenu from './ViewMenu';
 
 export interface PickerMenuProps {
@@ -20,7 +19,6 @@ const PickerMenu = () => {
         <HelpMenu />
       </div>
       <div className="flex items-center gap-2 mr-1">
-        <ToggleFullScreen />
         <LayoutSelector />
         <CatalogPicker />
       </div>

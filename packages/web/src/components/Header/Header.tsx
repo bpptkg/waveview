@@ -10,6 +10,7 @@ import LogoImage from './LogoImage';
 import NotificationPanel from './NotificationPanel';
 import OfflineIndicator from './OfflineIndicator';
 import SearchBox from './SearchBox';
+import ToggleFullScreen from './ToggleFullScreen';
 
 const Header = () => {
   return (
@@ -34,6 +35,7 @@ const Header = () => {
         <IndonesiaIndependenceDay />
         <JoinedUsers />
         {BUILD_VENDOR === 'cendana15' && <AppLauncher />}
+        <ToggleFullScreen />
         <NotificationPanel />
         <Account />
       </div>
