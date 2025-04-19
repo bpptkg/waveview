@@ -11,6 +11,7 @@ const SelectionWindow: React.FC<SelectionWindowProps> = ({ value, onChange }) =>
     <div>
       <p>Choose helicorder selection window.</p>
       <RadioGroup layout="vertical" value={value} onChange={(_, data) => onChange?.(data.value)}>
+        <Radio value="1" label="1 minute" />
         <Radio value="3" label="3 minutes" />
         <Radio value="5" label="5 minutes" />
         <Radio value="10" label="10 minutes" />
