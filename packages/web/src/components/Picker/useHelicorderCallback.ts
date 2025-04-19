@@ -154,13 +154,20 @@ export function useHelicorderCallback() {
     handleHelicorderUpdateEventMarkers();
   }, [handleSeismogramUpdateEventMarkers, handleHelicorderUpdateEventMarkers]);
 
-  const handleFetchEvents = useCallback(() => {
-    const helicorderExtent = heliChartRef.current?.getChartExtent();
-    if (helicorderExtent && currentOrganization && currentVolcano && currentCatalog && token) {
-      const [start, end] = helicorderExtent;
-      fetchEventMarkers(start, end);
-    }
-  }, [heliChartRef, currentOrganization, currentVolcano, currentCatalog, token, fetchEventMarkers]);
+  const handleFetchEvents = useCallback(
+    (before?: () => void, after?: () => void) => {
+      const helicorderExtent = heliChartRef.current?.getChartExtent();
+      if (helicorderExtent && currentOrganization && currentVolcano && currentCatalog && token) {
+        const [start, end] = helicorderExtent;
+        if (before) before();
+
+        fetchEventMarkers(start, end).then(() => {
+          if (after) after();
+        });
+      }
+    },
+    [heliChartRef, currentOrganization, currentVolcano, currentCatalog, token, fetchEventMarkers]
+  );
 
   const handleHelicorderEventMarkerClick = useCallback(
     (marker: HelicorderEventMarkerOptions) => {

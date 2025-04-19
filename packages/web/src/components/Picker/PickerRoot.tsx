@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
+import { useCatalogStore } from '../../stores/catalog';
+import { useStatusBarStore } from '../../stores/statusbar/useStatusBarStore';
 import { usePickerContext } from './PickerContext';
 import { usePickerCallback } from './usePickerCallback';
-import { useCatalogStore } from '../../stores/catalog';
 
 export interface PickerRootProps {
   children?: React.ReactNode;
@@ -32,15 +33,24 @@ const PickerRoot: React.FC<PickerRootProps> = ({ children }) => {
     };
   }, [handleSeismogramOnDestroy]);
 
+  const { setMessage, clearMessage } = useStatusBarStore();
+
   // Update event markers when catalog changes.
   useEffect(() => {
     if (currentCatalog && previousCatalogIdRef.current) {
       if (previousCatalogIdRef.current !== currentCatalog.id) {
-        handleFetchEvents()
+        handleFetchEvents(
+          () => {
+            setMessage(<span className="text-xs">{`Changing catalog to ${currentCatalog.name}...`}</span>);
+          },
+          () => {
+            clearMessage();
+          }
+        );
       }
       previousCatalogIdRef.current = currentCatalog.id;
     }
-  }, [currentCatalog, heliChartReadyRef, seisChartReadyRef, handleFetchEvents]);
+  }, [currentCatalog, heliChartReadyRef, seisChartReadyRef, handleFetchEvents, setMessage, clearMessage]);
 
   return <div className="flex flex-col flex-grow relative overflow-hidden">{children}</div>;
 };
