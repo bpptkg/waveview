@@ -14,14 +14,15 @@ import {
 } from '@fluentui/react-components';
 import { ArrowLeftRegular, ChevronRightRegular } from '@fluentui/react-icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { extractFilterOperationOptions } from '../../../shared/filter';
 import { formatFilterText, formatNumber } from '../../../shared/formatting';
 import { useInventoryStore } from '../../../stores/inventory';
 import { usePickerStore } from '../../../stores/picker';
 import { extractFilterOptions } from '../../../stores/picker/creator';
 import { ChannelConfig } from '../../../stores/picker/slices';
 import { Channel } from '../../../types/channel';
-import { BandpassFilterOptions, FilterOperationOptions, LowpassFilterOptions } from '../../../types/filter';
-import { FilterOptions, PickerConfig, PickerConfigPayload } from '../../../types/picker';
+import { FilterOperationOptions } from '../../../types/filter';
+import { PickerConfig, PickerConfigPayload } from '../../../types/picker';
 import { CustomError } from '../../../types/response';
 import { usePickerContext } from '../PickerContext';
 import HelicorderDefaultChannel from './HelicorderDefaultChannel';
@@ -68,52 +69,6 @@ enum ViewType {
   SEISMOGRAM_CHANNELS,
   SELECTION_WINDOW,
 }
-
-const extractFilterOperationOptions = (appliedFilter: FilterOperationOptions | null): FilterOptions | null => {
-  if (!appliedFilter) {
-    return null;
-  }
-  const taper = appliedFilter.taperType;
-  const taper_width = appliedFilter.taperWidth;
-  const id = appliedFilter.id;
-  if (appliedFilter.filterType === 'bandpass') {
-    const { freqmin, freqmax, zerophase, order } = appliedFilter.filterOptions as BandpassFilterOptions;
-    return {
-      type: 'bandpass',
-      id,
-      freqmin,
-      freqmax,
-      zerophase,
-      order,
-      taper,
-      taper_width,
-    };
-  } else if (appliedFilter.filterType === 'lowpass') {
-    const { freq, zerophase, order } = appliedFilter.filterOptions as LowpassFilterOptions;
-    return {
-      type: 'lowpass',
-      id,
-      freq,
-      zerophase,
-      order,
-      taper,
-      taper_width,
-    };
-  } else if (appliedFilter.filterType === 'highpass') {
-    const { freq, zerophase, order } = appliedFilter.filterOptions as LowpassFilterOptions;
-    return {
-      type: 'highpass',
-      id,
-      freq,
-      zerophase,
-      order,
-      taper,
-      taper_width,
-    };
-  } else {
-    throw new Error('Invalid filter type');
-  }
-};
 
 const PickerSettings: React.FC = () => {
   const styles = useStyles();

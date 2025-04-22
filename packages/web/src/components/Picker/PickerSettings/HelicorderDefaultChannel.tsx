@@ -7,6 +7,7 @@ import { Channel } from '../../../types/channel';
 export interface HelicorderDefaultChannelProps {
   channelId: string;
   onChange?: (channel: Channel) => void;
+  showInstructions?: boolean;
 }
 
 const useStyles = makeStyles({
@@ -26,7 +27,7 @@ const useStyles = makeStyles({
   },
 });
 
-const HelicorderDefaultChannel: React.FC<HelicorderDefaultChannelProps> = ({ channelId, onChange }) => {
+const HelicorderDefaultChannel: React.FC<HelicorderDefaultChannelProps> = ({ channelId, onChange, showInstructions = true }) => {
   const { channels } = useInventoryStore();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const fuseRef = useRef<Fuse<Channel> | null>(null);
@@ -58,7 +59,7 @@ const HelicorderDefaultChannel: React.FC<HelicorderDefaultChannelProps> = ({ cha
   }, [searchQuery, candidateChannels]);
   return (
     <div>
-      <p className="mb-2">Select helicorder default channel.</p>
+      {showInstructions && <p className="mb-2">Select helicorder default channel.</p>}
       <Field>
         <SearchBox className={styles.searchBox} placeholder="Search channel" size="medium" value={searchQuery} onChange={handleSearchChange} />
       </Field>
