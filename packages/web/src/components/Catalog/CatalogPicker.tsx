@@ -43,7 +43,7 @@ const CatalogPicker = () => {
               >
                 <div className="flex items-center gap-1">
                   <span className="font-normal">{catalog.name}</span>
-                  {catalog.is_default && <span className="text-xs bg-blue-500 text-white px-2 rounded-full">Default</span>}
+                  {catalog.is_default && <span className="text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full">Default</span>}
                 </div>
               </MenuItem>
             ))}
