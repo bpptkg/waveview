@@ -25,7 +25,7 @@ const TimeZoneSelector = () => {
     <Menu hasIcons>
       <MenuTrigger disableButtonEnhancement>
         <MenuButton appearance="transparent" size="small" className={styles.btn}>
-          {useUTC ? UTC : timeZone}
+          <span className="text-xs dark:text-neutral-grey-84">{useUTC ? UTC : timeZone}</span>
         </MenuButton>
       </MenuTrigger>
 
