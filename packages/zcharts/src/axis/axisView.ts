@@ -143,7 +143,7 @@ export class AxisView extends View<AxisModel> {
     const { scale } = this.model;
     const { x, y, width, height } = this.getRect();
     const range = this.isHorizontal() ? width : height;
-    const ticks = scale.getTicks({ maxTicks, reverse });
+    const ticks = scale.getTicks({ maxTicks, reverse, width });
 
     const ticksPixels = [];
     for (const tick of ticks) {
@@ -174,7 +174,7 @@ export class AxisView extends View<AxisModel> {
     const { x, y, width, height } = this.getRect();
     const { splitNumber } = this.model.options.minorTick;
     const range = this.isHorizontal() ? width : height;
-    const ticks = scale.getMinorTicks(splitNumber, { maxTicks, reverse });
+    const ticks = scale.getMinorTicks(splitNumber, { maxTicks, reverse, width });
 
     const ticksPixels = [];
     for (const tick of ticks) {

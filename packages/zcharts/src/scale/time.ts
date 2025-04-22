@@ -1,82 +1,10 @@
 import { DateAdapter, DefaultDateAdapter, ONE_MINUTE } from "../util/time";
 import { ScaleTick, TimeUnit } from "../util/types";
-import { Scale, ScaleOptions } from "./scale";
+import { GetTicksOptions, Scale, ScaleOptions } from "./scale";
 
 export interface TimeScaleTick extends ScaleTick {
   unit: TimeUnit;
   major?: boolean;
-}
-
-export interface Interval {
-  common: boolean;
-  size: number;
-  steps: number;
-}
-
-export const INTERVALS: Record<TimeUnit, Interval> = {
-  millisecond: { common: true, size: 1, steps: 1000 },
-  second: { common: true, size: 1000, steps: 60 },
-  minute: { common: true, size: 60000, steps: 60 },
-  hour: { common: true, size: 3600000, steps: 24 },
-  day: { common: true, size: 86400000, steps: 30 },
-  week: { common: false, size: 604800000, steps: 4 },
-  month: { common: true, size: 2.628e9, steps: 12 },
-  quarter: { common: false, size: 7.884e9, steps: 4 },
-  year: { common: true, size: 3.154e10, steps: 1 },
-};
-
-export const UNITS: TimeUnit[] = Object.keys(INTERVALS) as TimeUnit[];
-
-export function determineUnit(
-  scale: TimeScale,
-  numTicks: number,
-  minUnit: TimeUnit,
-  min: number,
-  max: number
-): TimeUnit {
-  for (let i = UNITS.length - 1; i >= UNITS.indexOf(minUnit); i--) {
-    const unit = UNITS[i];
-    if (
-      INTERVALS[unit].common &&
-      scale.adapter.diff(max, min, unit) >= numTicks - 1
-    ) {
-      return unit;
-    }
-  }
-  return UNITS[minUnit ? UNITS.indexOf(minUnit) : 0];
-}
-
-export function determineMajorUnit(unit: TimeUnit): TimeUnit | undefined {
-  for (let i = UNITS.indexOf(unit) + 1, ilen = UNITS.length; i < ilen; ++i) {
-    if (INTERVALS[UNITS[i]].common) {
-      return UNITS[i];
-    }
-  }
-}
-
-export function setMajorTicks(
-  scale: TimeScale,
-  ticks: TimeScaleTick[],
-  map: Record<number, number>,
-  majorUnit: TimeUnit
-): TimeScaleTick[] {
-  const adapter = scale.adapter;
-  const first = +adapter.startOf(ticks[0].value, majorUnit);
-  const last = ticks[ticks.length - 1].value;
-  let major, index;
-
-  for (
-    major = first;
-    major <= last;
-    major = +adapter.add(major, 1, majorUnit)
-  ) {
-    index = map[major];
-    if (index >= 0 && ticks[index]) {
-      ticks[index].major = true;
-      ticks[index].unit = majorUnit;
-    }
-  }
-  return ticks;
 }
 
 export interface TimeScaleOptions extends ScaleOptions {
@@ -117,60 +45,44 @@ export class TimeScale extends Scale<TimeScaleOptions> {
     ];
   }
 
-  override getTicks(): TimeScaleTick[] {
+  override getTicks(options?: GetTicksOptions): ScaleTick[] {
+    const { width = 100 } = options || {};
+
     const [min, max] = this.getExtent();
-    const numTicks = 11;
-    const minUnit: TimeUnit = "millisecond";
-    const unit = determineUnit(this, numTicks, minUnit, min, max);
-    let ticks: TimeScaleTick[] = [];
-    const first = this.adapter.startOf(min, unit);
-    const last = this.adapter.endOf(max, unit);
-    const count = +this.adapter.diff(last, first, unit);
-    const rawInterval = Math.ceil(count / (numTicks - 1));
-    const interval = rawInterval % 2 === 0 ? rawInterval : rawInterval + 1;
-    if (count < 1) {
-      return ticks;
-    }
-
-    let tick = first;
-    do {
-      ticks.push({ value: tick, unit, major: false });
-      tick = this.adapter.add(tick, interval, unit);
-    } while (tick <= last);
-
-    ticks = ticks.filter((tick) => tick.value >= min && tick.value <= max);
-
+    const axisWidth = width;
+    const { majorTicks, minorTicks, majorUnit, minorUnit } = calculateTimeTicks(
+      min,
+      max,
+      axisWidth
+    );
+    const ticks: TimeScaleTick[] = majorTicks.map((tick) => ({
+      value: tick,
+      unit: majorUnit,
+      major: true,
+    }));
+    const minorTickMap: Record<number, boolean> = {};
+    minorTicks.forEach((tick) => {
+      minorTickMap[tick] = true;
+    });
+    ticks.forEach((tick) => {
+      if (minorTickMap[tick.value]) {
+        tick.major = false;
+        tick.unit = minorUnit;
+      }
+    });
     return ticks;
   }
 
-  override getMinorTicks(splitNumber: number): ScaleTick[] {
-    let minorTicks: ScaleTick[] = [];
-
+  override getMinorTicks(_: number, options?: GetTicksOptions): ScaleTick[] {
+    const { width = 100 } = options || {};
     const [min, max] = this.getExtent();
-    const numTicks = 11;
-    const minUnit: TimeUnit = "millisecond";
-    const unit = determineUnit(this, numTicks, minUnit, min, max);
-    const first = this.adapter.startOf(min, unit);
-    const last = this.adapter.endOf(max, unit);
-    const count = +this.adapter.diff(last, first, unit);
-    const rawInterval = Math.ceil(count / (numTicks - 1));
-    const interval = rawInterval % 2 === 0 ? rawInterval : rawInterval + 1;
-    const minorInterval = interval / splitNumber;
-    if (count < 1) {
-      return minorTicks;
-    }
-
-    let tick = first;
-    do {
-      minorTicks.push({ value: tick });
-      tick = this.adapter.add(tick, minorInterval, unit);
-    } while (tick <= last);
-
-    minorTicks = minorTicks.filter(
-      (tick) => tick.value >= min && tick.value <= max
-    );
-
-    return minorTicks;
+    const axisWidth = width;
+    const { minorTicks, minorUnit } = calculateTimeTicks(min, max, axisWidth);
+    return minorTicks.map((tick) => ({
+      value: tick,
+      unit: minorUnit,
+      major: false,
+    }));
   }
 
   override toJSON(): TimeScaleOptions {
@@ -183,4 +95,101 @@ export class TimeScale extends Scale<TimeScaleOptions> {
       locale,
     };
   }
+}
+
+interface TimeInterval {
+  unit: TimeUnit;
+  duration: number; // in milliseconds
+}
+
+interface TimeTicksResult {
+  majorTicks: number[];
+  minorTicks: number[];
+  majorInterval: number;
+  minorInterval: number;
+  majorUnit: TimeUnit;
+  minorUnit: TimeUnit;
+}
+
+function calculateTimeTicks(
+  min: number,
+  max: number,
+  axisWidth: number
+): TimeTicksResult {
+  const targetMajorTickCount = Math.max(Math.floor(axisWidth / 100), 2);
+  const range = max - min;
+  const roughMajorInterval = range / targetMajorTickCount;
+
+  const intervals: TimeInterval[] = [
+    { unit: "millisecond", duration: 1 },
+    { unit: "millisecond", duration: 2 },
+    { unit: "millisecond", duration: 5 },
+    { unit: "millisecond", duration: 10 },
+    { unit: "millisecond", duration: 20 },
+    { unit: "millisecond", duration: 50 },
+    { unit: "millisecond", duration: 100 },
+    { unit: "second", duration: 1000 },
+    { unit: "second", duration: 5000 },
+    { unit: "second", duration: 15000 },
+    { unit: "second", duration: 30000 },
+    { unit: "minute", duration: 60000 },
+    { unit: "minute", duration: 300000 },
+    { unit: "minute", duration: 900000 },
+    { unit: "minute", duration: 1800000 },
+    { unit: "hour", duration: 3600000 },
+    { unit: "hour", duration: 10800000 },
+    { unit: "hour", duration: 21600000 },
+    { unit: "hour", duration: 43200000 },
+    { unit: "day", duration: 86400000 },
+    { unit: "week", duration: 604800000 },
+    { unit: "month", duration: 2592000000 },
+    { unit: "quarter", duration: 7776000000 },
+    { unit: "year", duration: 31536000000 },
+  ];
+
+  // Choose major interval
+  let major = intervals[0];
+  for (const interval of intervals) {
+    if (interval.duration >= roughMajorInterval) {
+      major = interval;
+      break;
+    }
+  }
+
+  // Target minor ticks: at least 5x major, but cap to avoid too many ticks and
+  // to avoid too small intervals
+  let maxMinorTickCount = 100;
+  let targetMinorInterval = (max - min) / maxMinorTickCount;
+
+  let minor = intervals[0];
+  for (const interval of intervals) {
+    if (interval.duration >= targetMinorInterval) {
+      minor = interval;
+      break;
+    }
+  }
+
+  // Align ticks
+  const majorTicks: number[] = [];
+  const minorTicks: number[] = [];
+
+  const alignedMajorStart = Math.ceil(min / major.duration) * major.duration;
+  const alignedMinorStart = Math.ceil(min / minor.duration) * minor.duration;
+
+  for (let t = alignedMinorStart; t <= max; t += minor.duration) {
+    minorTicks.push(t);
+  }
+
+  for (let t = alignedMajorStart; t <= max; t += major.duration) {
+    majorTicks.push(t);
+  }
+
+  return {
+    majorTicks,
+    minorTicks,
+    majorInterval: major.duration,
+    minorInterval: minor.duration,
+    majorUnit: major.unit,
+    minorUnit: minor.unit,
+  };
 }

@@ -8,6 +8,8 @@ export interface ScaleOptions {
 export interface GetTicksOptions {
   maxTicks?: number;
   reverse?: boolean;
+  includeBounds?: boolean;
+  width?: number;
 }
 
 export abstract class Scale<T extends ScaleOptions = ScaleOptions> {
