@@ -1,3 +1,4 @@
+import { Spinner } from '@fluentui/react-components';
 import React, { useEffect, useRef } from 'react';
 import { useCatalogStore } from '../../stores/catalog';
 import { useStatusBarStore } from '../../stores/statusbar/useStatusBarStore';
@@ -41,7 +42,9 @@ const PickerRoot: React.FC<PickerRootProps> = ({ children }) => {
       if (previousCatalogIdRef.current !== currentCatalog.id) {
         handleFetchEvents(
           () => {
-            setMessage(<span className="text-xs">{`Changing catalog to ${currentCatalog.name}...`}</span>);
+            setMessage(
+              <Spinner size="extra-tiny" label={<span className="text-xs dark:text-neutral-grey-84">{`Changing catalog to ${currentCatalog.name}...`}</span>} />
+            );
           },
           () => {
             clearMessage();
