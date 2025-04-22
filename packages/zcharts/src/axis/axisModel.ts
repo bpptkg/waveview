@@ -1,4 +1,4 @@
-import { clone, merge } from "zrender/lib/core/util";
+import { merge } from "zrender/lib/core/util";
 import { Model } from "../core/model";
 import { LinearScale } from "../scale/linear";
 import { Scale } from "../scale/scale";
@@ -70,58 +70,60 @@ export interface AxisOptions {
 }
 
 export class AxisModel extends Model<AxisOptions> {
-  static readonly defaultOptions: AxisOptions = {
-    show: true,
-    position: "top",
-    type: "linear",
-    name: "",
-    nameGap: 15,
-    nameStyle: {
-      color: "#000",
-      fontSize: 11,
-      fontFamily: "Arial",
-    },
-    axisTick: {
+  static defaultOptions(): AxisOptions {
+    return {
       show: true,
-      length: 10,
-      inside: true,
-      color: "#000",
-      width: 1,
-    },
-    minorTick: {
-      show: true,
-      length: 5,
-      splitNumber: 5,
-      color: "#000",
-      width: 1,
-    },
-    axisLine: {
-      show: true,
-      color: "#000",
-      width: 1,
-    },
-    axisLabel: {
-      show: true,
-      inside: false,
-      margin: 8,
-      color: "#000",
-      fontSize: 11,
-      fontFamily: "Arial",
-      reverse: false,
-    },
-    splitLine: {
-      show: false,
-      color: "#ccc",
-      width: 1,
-    },
-    useUTC: false,
-  };
+      position: "top",
+      type: "linear",
+      name: "",
+      nameGap: 15,
+      nameStyle: {
+        color: "#000",
+        fontSize: 11,
+        fontFamily: "Arial",
+      },
+      axisTick: {
+        show: true,
+        length: 10,
+        inside: true,
+        color: "#000",
+        width: 1,
+      },
+      minorTick: {
+        show: true,
+        length: 5,
+        splitNumber: 5,
+        color: "#000",
+        width: 1,
+      },
+      axisLine: {
+        show: true,
+        color: "#000",
+        width: 1,
+      },
+      axisLabel: {
+        show: true,
+        inside: false,
+        margin: 8,
+        color: "#000",
+        fontSize: 11,
+        fontFamily: "Arial",
+        reverse: false,
+      },
+      splitLine: {
+        show: false,
+        color: "#ccc",
+        width: 1,
+      },
+      useUTC: false,
+    };
+  }
 
   readonly scale: Scale;
 
   constructor(options?: DeepPartial<AxisOptions>) {
     const opts = merge(
-      clone(AxisModel.defaultOptions),
+      AxisModel.defaultOptions(),
       options || {},
       true
     ) as AxisOptions;

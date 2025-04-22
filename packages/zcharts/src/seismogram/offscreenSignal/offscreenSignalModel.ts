@@ -1,3 +1,4 @@
+import { merge } from "zrender/lib/core/util";
 import { Model } from "../../core/model";
 import { ModelOptions } from "../../util/types";
 
@@ -8,14 +9,20 @@ export interface OffscreenSignalOptions extends ModelOptions {
 }
 
 export class OffscreenSignalModel extends Model<OffscreenSignalOptions> {
-  static readonly defaultOptions: OffscreenSignalOptions = {
-    image: "",
-    start: 0,
-    end: 0,
-  };
+  static defaultOptions(): OffscreenSignalOptions {
+    return {
+      image: "",
+      start: 0,
+      end: 0,
+    };
+  }
 
   constructor(options: Partial<OffscreenSignalOptions>) {
-    const opts = { ...OffscreenSignalModel.defaultOptions, ...options };
+    const opts = merge(
+      OffscreenSignalModel.defaultOptions(),
+      options || {},
+      true
+    );
     super(opts);
   }
 

@@ -1,3 +1,4 @@
+import { merge } from "zrender/lib/core/util";
 import { Model } from "../core/model";
 
 export interface SpectrogramOptions {
@@ -70,13 +71,17 @@ export class SpectrogramData {
 }
 
 export class SpectrogramModel extends Model<SpectrogramOptions> {
-  static readonly defaultOptions: SpectrogramOptions = {
-    show: false,
-  };
+  static defaultOptions(): SpectrogramOptions {
+    return {
+      show: false,
+    };
+  }
+
   private data: SpectrogramData = new SpectrogramData();
 
   constructor(options?: Partial<SpectrogramOptions>) {
-    super({ ...SpectrogramModel.defaultOptions, ...options });
+    const opts = merge(SpectrogramModel.defaultOptions(), options || {}, true);
+    super(opts);
   }
 
   getData(): SpectrogramData {

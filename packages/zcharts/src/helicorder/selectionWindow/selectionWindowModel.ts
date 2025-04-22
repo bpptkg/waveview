@@ -1,3 +1,4 @@
+import { merge } from "zrender/lib/core/util";
 import { Model } from "../../core/model";
 import { ONE_MINUTE } from "../../util/time";
 
@@ -33,21 +34,24 @@ export interface SelectionWindowOptions {
 }
 
 export class SelectionWindowModel extends Model<SelectionWindowOptions> {
-  static readonly defaultOptions: SelectionWindowOptions = {
-    size: 5,
-    startTime: 0,
-    color: "#FFFF00",
-    opacity: 0.75,
-    borderWidth: 1,
-    enabled: true,
-    offset: 10,
-  };
+  static defaultOptions(): SelectionWindowOptions {
+    return {
+      size: 5,
+      startTime: 0,
+      color: "#FFFF00",
+      opacity: 0.75,
+      borderWidth: 1,
+      enabled: true,
+      offset: 10,
+    };
+  }
 
   constructor(options?: Partial<SelectionWindowOptions>) {
-    const opts = {
-      ...SelectionWindowModel.defaultOptions,
-      ...options,
-    } as SelectionWindowOptions;
+    const opts = merge(
+      SelectionWindowModel.defaultOptions(),
+      options || {},
+      true
+    );
     super(opts);
   }
 

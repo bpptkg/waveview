@@ -1,3 +1,4 @@
+import { merge } from "zrender/lib/core/util";
 import { Model } from "../../core/model";
 
 export interface AxisPointerOptions {
@@ -10,16 +11,19 @@ export interface AxisPointerOptions {
 }
 
 export class AxisPointerModel extends Model<AxisPointerOptions> {
-  static readonly defaultOptions: AxisPointerOptions = {
-    enable: true,
-    lineColor: "#ff0000",
-    lineWidth: 1,
-    textColor: "#fff",
-    fontSize: 11,
-    backgroundColor: "#ff0000",
-  };
+  static defaultOptions(): AxisPointerOptions {
+    return {
+      enable: true,
+      lineColor: "#ff0000",
+      lineWidth: 1,
+      textColor: "#fff",
+      fontSize: 11,
+      backgroundColor: "#ff0000",
+    };
+  }
 
   constructor(options?: Partial<AxisPointerOptions>) {
-    super({ ...AxisPointerModel.defaultOptions, ...options });
+    const opts = merge(AxisPointerModel.defaultOptions(), options || {}, true);
+    super(opts);
   }
 }

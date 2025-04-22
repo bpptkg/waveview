@@ -1,3 +1,4 @@
+import { merge } from "zrender/lib/core/util";
 import { Model } from "../../core/model";
 
 export interface EventMarkerOptions {
@@ -11,17 +12,20 @@ export interface EventMarkerOptions {
 }
 
 export class EventMarkerModel extends Model<EventMarkerOptions> {
-  static readonly defaultOptions: EventMarkerOptions = {
-    show: true,
-    start: 0,
-    end: 0,
-    color: "red",
-    opacity: 0.65,
-    eventType: "",
-    data: undefined,
-  };
+  static defaultOptions(): EventMarkerOptions {
+    return {
+      show: true,
+      start: 0,
+      end: 0,
+      color: "red",
+      opacity: 0.65,
+      eventType: "",
+      data: undefined,
+    };
+  }
+
   constructor(options: EventMarkerOptions) {
-    const opts = { ...EventMarkerModel.defaultOptions, ...options };
+    const opts = merge(EventMarkerModel.defaultOptions(), options || {}, true);
     super(opts);
   }
 

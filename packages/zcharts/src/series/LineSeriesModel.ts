@@ -1,4 +1,5 @@
 import { Series } from "@waveview/ndarray";
+import { merge } from "zrender/lib/core/util";
 import { Model } from "../core/model";
 
 export type LineSeriesData = Series;
@@ -12,14 +13,16 @@ export interface LineSeriesOptions {
 export class LineSeriesModel extends Model<LineSeriesOptions> {
   private data: LineSeriesData;
 
-  static readonly defaultOptions: LineSeriesOptions = {
-    name: "",
-    color: "#000",
-    width: 1,
-  };
+  static defaultOptions(): LineSeriesOptions {
+    return {
+      name: "",
+      color: "#000",
+      width: 1,
+    };
+  }
 
   constructor(options?: LineSeriesOptions) {
-    const opts = { ...LineSeriesModel.defaultOptions, ...options };
+    const opts = merge(LineSeriesModel.defaultOptions(), options || {}, true);
     super(opts);
 
     this.data = Series.empty();

@@ -1,3 +1,4 @@
+import { merge } from "zrender/lib/core/util";
 import { Model } from "../core/model";
 
 export interface PickerOptions {
@@ -20,19 +21,22 @@ export interface PickerOptions {
 }
 
 export class PickerModel extends Model<PickerOptions> {
-  static readonly defaultOptions: PickerOptions = {
-    enabled: false,
-    start: 0,
-    end: 0,
-    precision: 2,
-  };
+  static defaultOptions(): PickerOptions {
+    return {
+      enabled: false,
+      start: 0,
+      end: 0,
+      precision: 2,
+    };
+  }
 
   constructor(options?: Partial<PickerOptions>) {
-    super({ ...PickerModel.defaultOptions, ...options });
+    const opts = merge(PickerModel.defaultOptions(), options || {}, true);
+    super(opts);
   }
 
   reset(): void {
-    this.mergeOptions({ ...PickerModel.defaultOptions });
+    this.mergeOptions(PickerModel.defaultOptions());
   }
 
   isEmpty(): boolean {
