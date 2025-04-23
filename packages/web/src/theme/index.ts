@@ -1,4 +1,6 @@
-import { Theme, webDarkTheme, webLightTheme } from '@fluentui/react-components';
+import { Theme } from '@fluentui/react-components';
+import vepsDarkTheme from './veps/dark.json';
+import vepsLightTheme from './veps/light.json';
 
 export interface CustomTheme {
   defaultDark: Theme;
@@ -6,6 +8,6 @@ export interface CustomTheme {
 }
 
 export const themes: CustomTheme = {
-  defaultDark: webDarkTheme,
-  defaultLight: webLightTheme,
+  defaultDark: vepsDarkTheme,
+  defaultLight: vepsLightTheme,
 };
