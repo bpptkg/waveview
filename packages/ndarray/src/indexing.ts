@@ -174,7 +174,7 @@ export class Index<T extends NDFrameArray = NDFrameArray> {
     const data = this.values.map((value, index) =>
       fn(value, index, this.values)
     ) as U;
-    return new Index(data) as Index<U>;
+    return new Index(data, this.mask) as Index<U>;
   }
 
   /**
@@ -184,7 +184,7 @@ export class Index<T extends NDFrameArray = NDFrameArray> {
     const data = this.values.filter((value, index) =>
       fn(value, index, this.values)
     ) as T;
-    return new Index(data) as Index<T>;
+    return new Index(data, this.mask) as Index<T>;
   }
 
   /**
@@ -200,7 +200,10 @@ export class Index<T extends NDFrameArray = NDFrameArray> {
   slice(start: number, end: number): Index<T> {
     const beginPos = this.getPositionByValue(start);
     const endPos = this.getPositionByValue(end);
-    return new Index(this._values.slice(beginPos, endPos)) as Index<T>;
+    return new Index(
+      this._values.slice(beginPos, endPos),
+      this.mask
+    ) as Index<T>;
   }
 
   /**
