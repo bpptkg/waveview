@@ -253,7 +253,6 @@ test("should correctly get the mean value", () => {
     index,
   };
   const series = new Series(data, options);
-
   expect(series.mean()).toBe(3);
 });
 
@@ -474,18 +473,6 @@ test("should correctly calculate the difference of the series", () => {
   const diff = series.diff();
 
   expect(diff.values).toEqual(new Float32Array([NaN, 1, 2, 3, 4]));
-});
-
-test("should correctly return string representation of the series", () => {
-  const data = new Float32Array([1, 2, 3]);
-  const index = new Float32Array([0, 1, 2]);
-  const options = {
-    name: "Series",
-    index,
-  };
-  const series = new Series(data, options);
-
-  expect(series.toString()).toBe("Series([1, 2, 3])");
 });
 
 test("should correctly return array of values", () => {

@@ -162,3 +162,19 @@ test("should correctly return array of values", () => {
 
   expect(index.toArray()).toEqual([1, 2, 3]);
 });
+
+test("should iter position value mask correctly", () => {
+  const mask = [true, false, false];
+  const index = new Index(new Float32Array([0, 1, 2]), mask);
+
+  const values: [number, number, boolean][] = [];
+  for (const [pos, value, m] of index.iterPositionValueMask()) {
+    values.push([pos, value, m]);
+  }
+
+  expect(values).toEqual([
+    [0, 0, true],
+    [1, 1, false],
+    [2, 2, false],
+  ]);
+});

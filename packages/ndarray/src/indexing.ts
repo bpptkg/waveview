@@ -9,16 +9,18 @@ import { NDFrameArray } from "./generic";
  */
 export class Index<T extends NDFrameArray = NDFrameArray> {
   readonly _values: T;
+  readonly _mask: boolean[];
 
-  constructor(data: T) {
+  constructor(data: T, mask: boolean[] = []) {
     this._values = data;
+    this._mask = mask;
   }
 
   /**
    * Create an Index from an array of values.
    */
-  static from<T extends NDFrameArray>(data: T): Index<T> {
-    return new Index(data) as Index<T>;
+  static from<T extends NDFrameArray>(data: T, mask?: boolean[]): Index<T> {
+    return new Index(data, mask) as Index<T>;
   }
 
   /**
@@ -51,6 +53,13 @@ export class Index<T extends NDFrameArray = NDFrameArray> {
    */
   get values(): T {
     return this._values;
+  }
+
+  /**
+   * Get the mask of the index.
+   */
+  get mask(): boolean[] {
+    return this._mask;
   }
 
   /**
@@ -104,6 +113,14 @@ export class Index<T extends NDFrameArray = NDFrameArray> {
    */
   getValueByPosition(pos: number): number {
     return Number(this.values[pos]);
+  }
+
+  /**
+   * Get the mask value at the specified position.
+   */
+  getMaskByPosition(pos: number): boolean {
+    const mask = this.mask[pos];
+    return mask ?? false;
   }
 
   /**
@@ -207,6 +224,16 @@ export class Index<T extends NDFrameArray = NDFrameArray> {
   }
 
   /**
+   * Iterate over the index and return an iterator of [position, value, mask]
+   * pairs in the index.
+   */
+  *iterPositionValueMask(): Iterable<[number, number, boolean]> {
+    for (let i = 0; i < this.length; i++) {
+      yield [i, this.getValueByPosition(i), this.mask[i]];
+    }
+  }
+
+  /**
    * Return a string representation of the index.
    */
   toString(): string {
@@ -227,7 +254,11 @@ export class Index<T extends NDFrameArray = NDFrameArray> {
 export function parseIndex<
   D extends NDFrameArray = NDFrameArray,
   I extends NDFrameArray = NDFrameArray
->(index: I | Index<I> | undefined, values: D): Index<I> {
+>(
+  index: I | Index<I> | undefined,
+  values: D,
+  mask: boolean[] | undefined
+): Index<I> {
   if (index === undefined) {
     return Index.defaults(values.length);
   }
@@ -235,7 +266,7 @@ export function parseIndex<
   if (index instanceof Index) {
     instance = index;
   } else {
-    instance = new Index(index);
+    instance = new Index(index, mask);
   }
   if (instance.length !== values.length) {
     throw new Error("Invalid index length");

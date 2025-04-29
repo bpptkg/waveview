@@ -4,12 +4,14 @@ import { Index, parseIndex } from "./indexing";
 export interface SeriesOptions<I extends NDFrameArray> {
   name: string;
   index: I | Index<I>;
+  mask: boolean[];
 }
 
 export interface SeriesJSON {
   name: string;
   index: number[];
   values: number[];
+  mask: boolean[];
 }
 
 export class Series<
@@ -22,7 +24,11 @@ export class Series<
     super(data);
 
     this._name = options.name || "";
-    const index = parseIndex(options.index, this._values) as Index<I>;
+    const index = parseIndex(
+      options.index,
+      this._values,
+      options.mask
+    ) as Index<I>;
     this.setAxis(0, index);
   }
 
@@ -134,6 +140,7 @@ export class Series<
     return new Series(this.values.slice() as D, {
       name: this.name,
       index: this.index,
+      mask: this.index.mask,
     });
   }
 
@@ -142,6 +149,13 @@ export class Series<
    */
   isEmpty(): boolean {
     return this.length === 0;
+  }
+
+  /**
+   * Check if the Series is masked.
+   */
+  isMasked(): boolean {
+    return this.index.mask.length > 0 && this.index.mask.includes(true);
   }
 
   /**
@@ -205,6 +219,17 @@ export class Series<
   *iterValues(): Iterable<number> {
     for (let i = 0; i < this.length; i++) {
       yield this.getValueByPosition(i);
+    }
+  }
+
+  /**
+   * Iterate over the Series and return an iterator of [index, value, mask]
+   * pairs.
+   */
+  *iterIndexValueMask(): Iterable<[number, number, boolean]> {
+    for (const [pos, value, mask] of this.index.iterPositionValueMask()) {
+      const index = Number(value);
+      yield [index, this.getValueByPosition(pos), mask];
     }
   }
 
@@ -303,12 +328,15 @@ export class Series<
   min(): number {
     let min = Infinity;
     for (let i = 0; i < this.length; i++) {
+      if (this.index.mask[i]) {
+        continue;
+      }
       const value = Number(this.values[i]);
       if (!isNaN(value)) {
         min = Math.min(min, value);
       }
     }
-    return min;
+    return min === Infinity ? NaN : min;
   }
 
   /**
@@ -317,12 +345,15 @@ export class Series<
   max(): number {
     let max = -Infinity;
     for (let i = 0; i < this.length; i++) {
+      if (this.index.mask[i]) {
+        continue;
+      }
       const value = Number(this.values[i]);
       if (!isNaN(value)) {
         max = Math.max(max, value);
       }
     }
-    return max;
+    return max === -Infinity ? NaN : max;
   }
 
   /**
@@ -330,13 +361,18 @@ export class Series<
    */
   mean(): number {
     let sum = 0;
+    let count = 0;
     for (let i = 0; i < this.length; i++) {
+      if (this.index.mask[i]) {
+        continue;
+      }
       const value = Number(this.values[i]);
       if (!isNaN(value)) {
         sum += value;
+        count++;
       }
     }
-    return sum / this.length;
+    return count === 0 ? NaN : sum / count;
   }
 
   /**
@@ -345,6 +381,9 @@ export class Series<
   sum(): number {
     let sum = 0;
     for (let i = 0; i < this.length; i++) {
+      if (this.index.mask[i]) {
+        continue;
+      }
       const value = Number(this.values[i]);
       if (!isNaN(value)) {
         sum += value;
@@ -359,13 +398,18 @@ export class Series<
   std(): number {
     const mean = this.mean();
     let sum = 0;
+    let count = 0;
     for (let i = 0; i < this.length; i++) {
+      if (this.index.mask[i]) {
+        continue;
+      }
       const value = Number(this.values[i]);
       if (!isNaN(value)) {
         sum += Math.pow(value - mean, 2);
+        count++;
       }
     }
-    return Math.sqrt(sum / this.length);
+    return count === 0 ? NaN : Math.sqrt(sum / count);
   }
 
   /**
@@ -373,62 +417,105 @@ export class Series<
    */
   cumsum(): Series<D, I> {
     let sum = 0;
-    const data = this.values.map((value) => {
-      sum += value;
+    const data = this.values.map((v, i) => {
+      if (this.index.mask[i]) {
+        return v;
+      }
+      sum += v;
       return sum;
     }) as D;
-    return new Series(data, { name: this.name, index: this.index });
+    return new Series(data, {
+      name: this.name,
+      index: this.index,
+      mask: this.index.mask,
+    });
   }
 
   /**
    * Get the difference of the Series.
    */
   diff(): Series<D, I> {
-    const data = this.values.map((value, index) => {
-      const prevValue = this.getValueByPosition(index - 1);
-      return value - prevValue;
+    const data = this.values.map((v, i) => {
+      if (this.index.mask[i]) {
+        return v;
+      }
+      const prevValue = this.getValueByPosition(i - 1);
+      return v - prevValue;
     }) as D;
-    return new Series(data, { name: this.name, index: this.index });
+    return new Series(data, {
+      name: this.name,
+      index: this.index,
+      mask: this.index.mask,
+    });
   }
 
   /**
    * Add two Series together and return a new Series.
    */
   add(other: Series<D, I>): Series<D, I> {
-    const data = this.values.map(
-      (value, index) => value + other.getValueByPosition(index)
-    ) as D;
-    return new Series(data, { name: this.name, index: this.index });
+    const data = this.values.map((v, i) => {
+      if (this.index.mask[i] || other.index.mask[i]) {
+        return v;
+      }
+      return v + other.getValueByPosition(i);
+    }) as D;
+    return new Series(data, {
+      name: this.name,
+      index: this.index,
+      mask: this.index.mask.map((m, i) => m || other.index.mask[i]),
+    });
   }
 
   /**
    * Subtract two Series and return a new Series.
    */
   subtract(other: Series<D, I>): Series<D, I> {
-    const data = this.values.map(
-      (value, index) => value - other.getValueByPosition(index)
-    ) as D;
-    return new Series(data, { name: this.name, index: this.index });
+    const data = this.values.map((v, i) => {
+      if (this.index.mask[i] || other.index.mask[i]) {
+        return v;
+      }
+
+      return v - other.getValueByPosition(i);
+    }) as D;
+    return new Series(data, {
+      name: this.name,
+      index: this.index,
+      mask: this.index.mask.map((m, i) => m || other.index.mask[i]),
+    });
   }
 
   /**
    * Multiply two Series and return a new Series.
    */
   multiply(other: Series<D, I>): Series<D, I> {
-    const data = this.values.map(
-      (value, index) => value * other.getValueByPosition(index)
-    ) as D;
-    return new Series(data, { name: this.name, index: this.index });
+    const data = this.values.map((v, i) => {
+      if (this.index.mask[i] || other.index.mask[i]) {
+        return v;
+      }
+      return v * other.getValueByPosition(i);
+    }) as D;
+    return new Series(data, {
+      name: this.name,
+      index: this.index,
+      mask: this.index.mask.map((m, i) => m || other.index.mask[i]),
+    });
   }
 
   /**
    * Divide two Series and return a new Series.
    */
   divide(other: Series<D, I>): Series<D, I> {
-    const data = this.values.map(
-      (value, index) => value / other.getValueByPosition(index)
-    ) as D;
-    return new Series(data, { name: this.name, index: this.index });
+    const data = this.values.map((v, i) => {
+      if (this.index.mask[i] || other.index.mask[i]) {
+        return v;
+      }
+      return v / other.getValueByPosition(i);
+    }) as D;
+    return new Series(data, {
+      name: this.name,
+      index: this.index,
+      mask: this.index.mask.map((m, i) => m || other.index.mask[i]),
+    });
   }
 
   /**
@@ -436,7 +523,10 @@ export class Series<
    */
   scalarAdd(value: number): Series<D, I> {
     const data = (this.values as any).map(
-      (v: number | bigint): number | bigint => {
+      (v: number | bigint, i: number): number | bigint => {
+        if (this.index.mask[i]) {
+          return v;
+        }
         if (typeof v === "bigint") {
           return BigInt(v) + BigInt(value);
         } else {
@@ -444,7 +534,11 @@ export class Series<
         }
       }
     ) as D;
-    return new Series(data, { name: this.name, index: this.index });
+    return new Series(data, {
+      name: this.name,
+      index: this.index,
+      mask: this.index.mask,
+    });
   }
 
   /**
@@ -452,7 +546,10 @@ export class Series<
    */
   scalarSubtract(value: number): Series<D, I> {
     const data = (this.values as any).map(
-      (v: number | bigint): number | bigint => {
+      (v: number | bigint, i: number): number | bigint => {
+        if (this.index.mask[i]) {
+          return v;
+        }
         if (typeof v === "bigint") {
           return BigInt(v) - BigInt(value);
         } else {
@@ -460,7 +557,11 @@ export class Series<
         }
       }
     ) as D;
-    return new Series(data, { name: this.name, index: this.index });
+    return new Series(data, {
+      name: this.name,
+      index: this.index,
+      mask: this.index.mask,
+    });
   }
 
   /**
@@ -468,7 +569,10 @@ export class Series<
    */
   scalarMultiply(value: number): Series<D, I> {
     const data = (this.values as any).map(
-      (v: number | bigint): number | bigint => {
+      (v: number | bigint, i: number): number | bigint => {
+        if (this.index.mask[i]) {
+          return v;
+        }
         if (typeof v === "bigint") {
           return BigInt(v) * BigInt(value);
         } else {
@@ -476,7 +580,11 @@ export class Series<
         }
       }
     ) as D;
-    return new Series(data, { name: this.name, index: this.index });
+    return new Series(data, {
+      name: this.name,
+      index: this.index,
+      mask: this.index.mask,
+    });
   }
 
   /**
@@ -484,7 +592,10 @@ export class Series<
    */
   scalarDivide(value: number): Series<D, I> {
     const data = (this.values as any).map(
-      (v: number | bigint): number | bigint => {
+      (v: number | bigint, i: number): number | bigint => {
+        if (this.index.mask[i]) {
+          return v;
+        }
         if (typeof v === "bigint") {
           return BigInt(v) / BigInt(value);
         } else {
@@ -492,7 +603,11 @@ export class Series<
         }
       }
     ) as D;
-    return new Series(data, { name: this.name, index: this.index });
+    return new Series(data, {
+      name: this.name,
+      index: this.index,
+      mask: this.index.mask,
+    });
   }
 
   /**
@@ -500,9 +615,11 @@ export class Series<
    */
   toString(): string {
     if (this.length > 10) {
-      return `Series([${this.values.slice(0, 10).join(", ")}, ...])`;
+      return `Series([${this.values
+        .slice(0, 10)
+        .join(", ")}, ...], masked=${this.isMasked()})`;
     }
-    return `Series([${this.values.join(", ")}])`;
+    return `Series([${this.values.join(", ")}], masked=${this.isMasked()})`;
   }
 
   /**
@@ -520,6 +637,7 @@ export class Series<
       name: this.name,
       index: this.index.toArray(),
       values: this.toArray(),
+      mask: this.index.mask,
     };
   }
 }
