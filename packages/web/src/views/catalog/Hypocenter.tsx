@@ -204,6 +204,13 @@ const Hypocenter = () => {
     [setWorkspace]
   );
 
+  useEffect(() => {
+    if (workspace === '3d') {
+      const option = getEChartsOption();
+      chartRef.current?.setOption(option, true);
+    }
+  }, [workspace, getEChartsOption]);
+
   const previousCatalogIdRef = useRef<string>('');
   const { currentCatalog } = useCatalogStore();
 
