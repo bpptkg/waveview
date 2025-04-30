@@ -25,7 +25,7 @@ class SeismogramEventTooltip {
     const color = marker.color;
 
     const theme = this.chart.getThemeStyle();
-    const { textColor, backgroundColor } = theme;
+    const { textColor, backgroundColor, fontFamily } = theme;
 
     this.group.removeAll();
     this.group.add(
@@ -39,6 +39,7 @@ class SeismogramEventTooltip {
           borderRadius: 5,
           borderColor: color,
           borderWidth: 1,
+          fontFamily,
         },
         z: 999,
       })
