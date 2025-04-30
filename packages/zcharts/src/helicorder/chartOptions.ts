@@ -56,6 +56,14 @@ export interface HelicorderOptions extends ChartOptions {
    * relative to its own min/max values.
    */
   scaling: "global" | "local";
+  /**
+   * Clip the overscaled signal or not.
+   */
+  clip: boolean;
+  /**
+   * Show the clip indicator or not.
+   */
+  showClip: boolean;
 }
 
 export function getDefaultOptions(): HelicorderOptions {
@@ -82,5 +90,7 @@ export function getDefaultOptions(): HelicorderOptions {
     windowSize: undefined,
     scaling: "global",
     useOffscreenRendering: false,
+    clip: false,
+    showClip: false,
   };
 }

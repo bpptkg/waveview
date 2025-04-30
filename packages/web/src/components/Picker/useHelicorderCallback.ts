@@ -288,6 +288,8 @@ export function useHelicorderCallback() {
           data: event,
         };
       }),
+      clip: true,
+      showClip: false,
     };
     return initOptions;
   }, [helicorderDuration, helicorderInterval, channelId, darkMode, offsetDate, useUTC, windowSize, selectionWindow, eventMarkers, getHelicorderScalingType]);

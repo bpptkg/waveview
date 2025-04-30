@@ -16,7 +16,6 @@ export interface OffscreenRenderTrackContext {
    * Scale options for the y-axis.
    */
   yScaleOptions: ScaleOptions;
-
   /**
    * Helicorder segment.
    */
