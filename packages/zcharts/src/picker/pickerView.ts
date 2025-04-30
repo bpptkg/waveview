@@ -71,6 +71,10 @@ export class PickerView extends View<PickerModel> {
   }
 
   private onMouseDown(e: zrender.ElementEvent): void {
+    const event = e.event as unknown as MouseEvent;
+    if (event.button !== 0) {
+      return;
+    }
     if (!this.model.isEnabled()) {
       return;
     }
