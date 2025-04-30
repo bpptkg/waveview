@@ -270,7 +270,6 @@ export class TrackManager {
         series: Series.empty(),
         min: 0,
         max: 0,
-        mean: 0,
         count: 0,
       };
     }
@@ -295,7 +294,6 @@ export class TrackManager {
       series: sliced,
       min: sliced.min(),
       max: sliced.max(),
-      mean: sliced.mean(),
       count: sliced.length,
     };
   }
