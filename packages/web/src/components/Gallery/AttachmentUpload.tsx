@@ -240,7 +240,7 @@ const AttachmentUpload: React.FC<AttachmentUploadProps> = ({ initialAttachments 
         <AttachmentPicker onFilesSelected={handleFilesUpload} />
       </div>
 
-      {attachments.length === 0 && uploadingFiles.length === 0 && <div>No attachments</div>}
+      {attachments.length === 0 && uploadingFiles.length === 0 && <div>No files</div>}
 
       <div className="flex flex-col gap-1">
         {uploadingFiles.map((queue) => (
@@ -295,7 +295,7 @@ const AttachmentUpload: React.FC<AttachmentUploadProps> = ({ initialAttachments 
             </div>
 
             <div>
-              <Tooltip content={'Remove Attachment'} relationship="label" showDelay={1500}>
+              <Tooltip content={'Remove'} relationship="label" showDelay={1500}>
                 <Button
                   size="small"
                   appearance="transparent"
@@ -316,8 +316,8 @@ const AttachmentUpload: React.FC<AttachmentUploadProps> = ({ initialAttachments 
       <Dialog open={deleteDialogOpen} onOpenChange={(_, data) => setDeleteDialogOpen(data.open)}>
         <DialogSurface>
           <DialogBody>
-            <DialogTitle>Delete Attachment</DialogTitle>
-            <DialogContent>Are you sure you want this attachment?</DialogContent>
+            <DialogTitle>Delete File</DialogTitle>
+            <DialogContent>Are you sure you want this file?</DialogContent>
             <DialogActions>
               <DialogTrigger disableButtonEnhancement>
                 <Button appearance="secondary" onClick={() => setDeleteDialogOpen(false)}>
