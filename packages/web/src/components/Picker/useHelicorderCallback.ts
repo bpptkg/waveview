@@ -1,7 +1,7 @@
 import { Helicorder, HelicorderEventMarkerOptions, HelicorderOptions, SeismogramEventMarkerOptions } from '@waveview/zcharts';
 import { useCallback } from 'react';
 import { getEventTypeColor } from '../../shared/theme';
-import { getPickExtent, ONE_MINUTE, ONE_SECOND } from '../../shared/time';
+import { getPickExtent, ONE_MINUTE } from '../../shared/time';
 import { useAppStore } from '../../stores/app';
 import { useAuthStore } from '../../stores/auth';
 import { useCatalogStore } from '../../stores/catalog';
@@ -172,18 +172,12 @@ export function useHelicorderCallback() {
   const handleHelicorderEventMarkerClick = useCallback(
     (marker: HelicorderEventMarkerOptions) => {
       const event = marker.data as SeismicEvent;
-      const { start, end, eventType } = marker;
+      const { start, end } = marker;
       seisChartRef.current?.removeEventMarker(start, end);
 
-      const buffer = 15 * ONE_SECOND;
-      let range: [number, number];
-      let autoZoom = false;
-      if (eventType === 'AUTO') {
-        range = [start - buffer, end + 5 * ONE_MINUTE];
-        autoZoom = true;
-      } else {
-        range = [start - buffer, end + buffer];
-      }
+      const buffer = ONE_MINUTE;
+      const autoZoom = false;
+      const range: [number, number] = [start - buffer, end + buffer];
       seisChartRef.current?.setExtent(range, { autoZoom: autoZoom });
       seisChartRef.current?.clearPickRange();
       setSelectionWindow(range);
