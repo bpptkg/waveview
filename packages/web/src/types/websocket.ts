@@ -53,11 +53,18 @@ export interface EventDeleteNotificationData {
   catalog_name: string;
 }
 
+export interface NewAppVersionNotificationData {
+  version: string;
+  reload: boolean;
+  reload_timeout: number;
+  timestamp: string;
+}
+
 export interface NotificationMessage<T = any> {
   type: string;
   title: string;
   body: string;
+  dirty: boolean;
+  timeout: number;
   data: T;
 }
-
-export type NewEventNotificationMessage = NotificationMessage<NewEventNotificationData>;

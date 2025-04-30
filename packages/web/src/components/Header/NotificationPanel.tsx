@@ -11,20 +11,22 @@ import {
   ToastBody,
   Toaster,
   ToastTitle,
+  ToastTrigger,
   Tooltip,
   useId,
   useToastController,
 } from '@fluentui/react-components';
-import { AlertRegular } from '@fluentui/react-icons';
+import { AlertRegular, DismissRegular } from '@fluentui/react-icons';
 import classNames from 'classnames';
 import { formatDistanceToNow } from 'date-fns';
-import { useCallback, useEffect, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { formatTimezonedDate } from '../../shared/time';
 import { useAppStore } from '../../stores/app';
 import { usePickerStore } from '../../stores/picker';
 import {
   EventDeleteNotificationData,
   EventUpdateNotificationData,
+  NewAppVersionNotificationData,
   NewEventNotificationData,
   NotificationMessage,
   WebSocketResponse,
@@ -42,8 +44,9 @@ const useNotificationPanelStyles = makeStyles({
 });
 
 interface NotificationToast {
-  title: string;
-  body?: string;
+  title: ReactNode;
+  body?: ReactNode;
+  timeout?: number;
 }
 
 const NotificationPanel = () => {
@@ -58,13 +61,21 @@ const NotificationPanel = () => {
   const { dispatchToast } = useToastController(toasterId);
 
   const showNotificationToast = useCallback(
-    ({ title, body }: NotificationToast) => {
+    ({ title, body, timeout = 5000 }: NotificationToast) => {
       dispatchToast(
         <Toast>
-          <ToastTitle>{title}</ToastTitle>
+          <ToastTitle
+            action={
+              <ToastTrigger>
+                <Button icon={<DismissRegular fontSize={16} />} appearance="transparent" aria-label="Close" />
+              </ToastTrigger>
+            }
+          >
+            {title}
+          </ToastTitle>
           <ToastBody>{body}</ToastBody>
         </Toast>,
-        { intent: 'info', timeout: 5000 }
+        { intent: 'info', timeout }
       );
     },
     [dispatchToast]
@@ -83,10 +94,33 @@ const NotificationPanel = () => {
       const { type, data } = response as WebSocketResponse;
       if (type === 'notify') {
         const notification = data as NotificationMessage;
+        if (notification.type === 'new_app_version') {
+          const { version, reload, reload_timeout } = notification.data as NewAppVersionNotificationData;
+          showNotificationToast({
+            title: 'New App Version Available',
+            body: (
+              <div>
+                <div>A new version of the app is available: {version}.</div>
+                {reload ? <div>The app will be reloaded in {reload_timeout} seconds.</div> : <div>Please reload the app to get the latest version.</div>}
+              </div>
+            ),
+            timeout: notification.timeout,
+          });
+          if (reload) {
+            setTimeout(() => {
+              window.location.reload();
+            }, reload_timeout * 1000);
+          }
+        } else {
+          showNotificationToast({ title: notification.title, body: notification.body, timeout: notification.timeout });
+        }
+
         setNotifications((prev) => [notification, ...prev]);
         setUnreadCount((prev) => prev + 1);
-        showNotificationToast({ title: notification.title, body: notification.body });
-        handleUpdateEventMarkers();
+
+        if (notification.dirty) {
+          handleUpdateEventMarkers();
+        }
       }
     },
     [showNotificationToast, handleUpdateEventMarkers]
@@ -177,6 +211,16 @@ const NotificationPanel = () => {
     );
   };
 
+  const renderNewAppVersionNotification = (data: NewAppVersionNotificationData) => {
+    const { version } = data;
+    return (
+      <div className="flex flex-col gap-1">
+        <div className="text-sm font-semibold">New App Version Available</div>
+        <div className="text-xs">Version: {version}</div>
+      </div>
+    );
+  };
+
   const renderNotification = (notification: NotificationMessage) => {
     switch (notification.type) {
       case 'new_event':
@@ -185,6 +229,8 @@ const NotificationPanel = () => {
         return renderEventUpdateNotification(notification.data as EventUpdateNotificationData);
       case 'event_delete':
         return renderEventDeleteNotification(notification.data as EventDeleteNotificationData);
+      case 'new_app_version':
+        return renderNewAppVersionNotification(notification.data as NewAppVersionNotificationData);
       default:
         return null;
     }
@@ -227,7 +273,7 @@ const NotificationPanel = () => {
                   ))}
                 </div>
               ) : (
-                <span className='p-2'>No notification</span>
+                <span className="p-2">No notification</span>
               )}
             </div>
           </div>
