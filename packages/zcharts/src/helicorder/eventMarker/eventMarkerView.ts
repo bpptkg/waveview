@@ -1,6 +1,6 @@
 import * as zrender from "zrender";
 import { View } from "../../core/view";
-import { ONE_MINUTE } from "../../util/time";
+import { formatDate, ONE_MINUTE } from "../../util/time";
 import { LayoutRect, ThemeStyle } from "../../util/types";
 import { Helicorder } from "../helicorder";
 import { EventMarkerModel, EventMarkerOptions } from "./eventMarkerModel";
@@ -10,16 +10,67 @@ interface MarkerWindowInfo {
   range: [number, number];
 }
 
+class HelicorderEventTooltip {
+  group: zrender.Group;
+  private chart: Helicorder;
+
+  constructor(chart: Helicorder) {
+    this.group = new zrender.Group();
+    this.chart = chart;
+  }
+
+  show(x: number, y: number, marker: EventMarkerOptions): void {
+    const duration = (marker.end - marker.start) / 1000;
+    const eventType = marker.eventType;
+    const time = formatDate(
+      marker.start,
+      "{yyyy}-{MM}-{dd} {HH}:{mm}:{ss}.{SSS}",
+      this.chart.getModel().getOptions().useUTC
+    );
+    const color = marker.color;
+
+    const theme = this.chart.getThemeStyle();
+    const { textColor, backgroundColor } = theme;
+
+    this.group.removeAll();
+    this.group.add(
+      new zrender.Text({
+        style: {
+          text: `Time: ${time}\nType: ${eventType}\nDuration: ${duration}s`,
+          fill: textColor,
+          fontSize: 11,
+          backgroundColor: backgroundColor,
+          padding: [5, 5],
+          borderRadius: 5,
+          borderColor: color,
+          borderWidth: 1,
+        },
+        z: 999,
+      })
+    );
+    this.group.attr({
+      x: x,
+      y: y,
+    });
+  }
+
+  hide(): void {
+    this.group.removeAll();
+  }
+}
+
 export class EventMarkerView extends View<EventMarkerModel> {
   override readonly type: string = "eventMarker";
   private rect: LayoutRect;
   private chart: Helicorder;
+  private tooltip: HelicorderEventTooltip;
 
   constructor(chart: Helicorder, options: EventMarkerOptions) {
     const model = new EventMarkerModel(options);
     super(model);
     this.rect = new zrender.BoundingRect(0, 0, 0, 0);
     this.chart = chart;
+    this.tooltip = new HelicorderEventTooltip(chart);
   }
 
   getRect(): LayoutRect {
@@ -121,6 +172,7 @@ export class EventMarkerView extends View<EventMarkerModel> {
       return;
     }
     const { color, opacity } = this.getModel().getOptions();
+    this.group.add(this.tooltip.group);
 
     for (const boundingRect of this.getMarkerWindowRects()) {
       const { x, y, width, height } = boundingRect;
@@ -141,6 +193,12 @@ export class EventMarkerView extends View<EventMarkerModel> {
         const selectionWindow = this.chart.getSelectionWindow();
         selectionWindow.getModel().reset();
         this.chart.emit("eventMarkerClicked", this.model.getOptions());
+      });
+      rect.on("mouseover", () => {
+        this.tooltip.show(5, 5, this.model.getOptions());
+      });
+      rect.on("mouseout", () => {
+        this.tooltip.hide();
       });
       this.group.add(rect);
     }

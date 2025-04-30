@@ -1,8 +1,58 @@
 import * as zrender from "zrender";
 import { View } from "../../core/view";
+import { formatDate } from "../../util/time";
 import { LayoutRect, ThemeStyle } from "../../util/types";
 import { Seismogram } from "../seismogram";
 import { EventMarkerModel, EventMarkerOptions } from "./eventMarkerModel";
+
+class SeismogramEventTooltip {
+  group: zrender.Group;
+  private chart: Seismogram;
+
+  constructor(chart: Seismogram) {
+    this.group = new zrender.Group();
+    this.chart = chart;
+  }
+
+  show(x: number, y: number, marker: EventMarkerOptions): void {
+    const duration = (marker.end - marker.start) / 1000;
+    const eventType = marker.eventType;
+    const time = formatDate(
+      marker.start,
+      "{yyyy}-{MM}-{dd} {HH}:{mm}:{ss}.{SSS}",
+      this.chart.getModel().getOptions().useUTC
+    );
+    const color = marker.color;
+
+    const theme = this.chart.getThemeStyle();
+    const { textColor, backgroundColor } = theme;
+
+    this.group.removeAll();
+    this.group.add(
+      new zrender.Text({
+        style: {
+          text: `Time: ${time}\nType: ${eventType}\nDuration: ${duration}s`,
+          fill: textColor,
+          fontSize: 11,
+          backgroundColor: backgroundColor,
+          padding: [5, 5],
+          borderRadius: 5,
+          borderColor: color,
+          borderWidth: 1,
+        },
+        z: 999,
+      })
+    );
+    this.group.attr({
+      x: x,
+      y: y,
+    });
+  }
+
+  hide(): void {
+    this.group.removeAll();
+  }
+}
 
 export class EventMarkerView extends View<EventMarkerModel> {
   override readonly type: string = "eventMarker";
@@ -10,16 +60,19 @@ export class EventMarkerView extends View<EventMarkerModel> {
   private chart: Seismogram;
   private markerRect: zrender.Rect;
   private markerPillRect: zrender.Rect;
+  private tooltip: SeismogramEventTooltip;
 
   constructor(chart: Seismogram, options: EventMarkerOptions) {
     const model = new EventMarkerModel(options);
     super(model);
     this.rect = new zrender.BoundingRect(0, 0, 0, 0);
     this.chart = chart;
+    this.tooltip = new SeismogramEventTooltip(chart);
     this.markerRect = new zrender.Rect();
     this.markerPillRect = new zrender.Rect();
     this.group.add(this.markerRect);
     this.group.add(this.markerPillRect);
+    this.group.add(this.tooltip.group);
     this.markerRect.on("contextmenu", (e) => {
       this.chart.emit("eventMarkerContextMenu", e, this.model.getOptions());
     });
@@ -28,20 +81,15 @@ export class EventMarkerView extends View<EventMarkerModel> {
     });
     this.markerRect.on(
       "mouseover",
-      (e) => {
-        const event = e.event as MouseEvent;
-        this.chart.eventTooltip.show(
-          event.clientX,
-          event.clientY,
-          this.model.getOptions()
-        );
+      () => {
+        this.tooltip.show(5, 5, this.model.getOptions());
       },
       this
     );
     this.markerRect.on(
       "mouseout",
       () => {
-        this.chart.eventTooltip.hide();
+        this.tooltip.hide();
       },
       this
     );

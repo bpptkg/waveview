@@ -30,7 +30,6 @@ import {
   OffscreenRenderTrackContext,
 } from "./offscreen";
 import { OffscreenSignalView } from "./offscreenSignal/offscreenSignalView";
-import { EventTooltip } from "./tooltip";
 import { TrackManager } from "./trackManager";
 
 export interface SeismogramRenderOptions {
@@ -63,7 +62,6 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   private spectrogramShown = false;
   private inExpandMode = false;
   private expandIndex = -1;
-  readonly eventTooltip: EventTooltip;
   private worker: Worker | null = null;
   private offscreenSignal: OffscreenSignalView;
   private rendering = false;
@@ -78,7 +76,6 @@ export class Seismogram extends ChartView<SeismogramOptions> {
 
     this.eventEmitter = new EventEmitter<SeismogramEventMap>();
     this.trackManager = new TrackManager(this);
-    this.eventTooltip = new EventTooltip(this);
 
     this.grid = new GridView(this, opts.grid);
     this.grid.hide();
