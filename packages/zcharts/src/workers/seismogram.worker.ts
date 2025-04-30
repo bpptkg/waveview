@@ -1,4 +1,4 @@
-import { Index, Series } from "@waveview/ndarray";
+import { Series } from "@waveview/ndarray";
 import { LinearScale } from "../scale/linear";
 import {
   OffscreenRenderContext,
