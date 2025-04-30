@@ -213,10 +213,6 @@ export interface SeriesData {
    */
   max: number;
   /**
-   * Mean value of the series.
-   */
-  mean: number;
-  /**
    * Count of the series.
    */
   count: number;

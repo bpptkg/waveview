@@ -343,12 +343,13 @@ export class SeismogramWebWorker {
 
   private onStreamFetchMessage(payload: StreamResponseData): void {
     this.busy();
-    const { data, index, channelId, requestId, min, max, mean, count } = payload;
+    const { data, index, channelId, requestId, min, max, count, mask } = payload;
     const series = new Series(data, {
       index: index,
       name: channelId,
+      mask,
     });
-    const seriesData: SeriesData = { series, min, max, mean, count };
+    const seriesData: SeriesData = { series, min, max, count };
     this.chart.setChannelData(channelId, seriesData);
 
     const [start, end] = this.options.selectionWindow;
@@ -393,12 +394,13 @@ export class SeismogramWebWorker {
 
   private onStreamFilterMessage(payload: StreamResponseData): void {
     this.busy();
-    const { data, index, channelId, requestId, min, max, mean, count } = payload;
+    const { data, index, channelId, requestId, min, max, count, mask } = payload;
     const series = new Series(data, {
       index: index,
       name: channelId,
+      mask,
     });
-    const seriesData: SeriesData = { series, min, max, mean, count };
+    const seriesData: SeriesData = { series, min, max, count };
     this.chart.setChannelData(channelId, seriesData);
 
     this.signalRequests.delete(requestId);

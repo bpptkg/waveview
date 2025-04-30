@@ -417,7 +417,7 @@ export class Helicorder extends ChartView<HelicorderOptions> {
     const { interval, duration, scaling } = this.getModel().getOptions();
     const color = this.getThemeStyle().foregroundColor;
     const clip = true;
-    const showClip = true;
+    const showClip = false;
     const offscreenRenderContext: OffscreenRenderContext = {
       rect: this.getRect(),
       gridRect: this.getGrid().getRect(),

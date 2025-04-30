@@ -47,10 +47,11 @@ const render = debounce((event: MessageEvent) => {
     } = track;
     const xScale = new LinearScale(xScaleOptions);
     const yScale = new LinearScale(yScaleOptions);
-    const { name, index, values } = series;
-    const data = Series.from(new Float64Array(values), {
-      index: new Index(new Float64Array(index)),
+    const { name, index, mask, values } = series;
+    const data = Series.from(new Float32Array(values), {
+      index: new Float64Array(index),
       name,
+      mask,
     });
     let norm: Series;
     let localNormFactor: number = 1;
@@ -85,19 +86,46 @@ const render = debounce((event: MessageEvent) => {
       return y + height * (1 - percent) - gridRect.y;
     };
 
-    for (const [x, y] of norm.iterIndexValuePairs()) {
+    let wasMasked = false; // Track the previous mask state
+    let lastCx: number | null = null; // Store the last x-coordinate
+    let lastCy: number | null = null; // Store the last y-coordinate
+
+    for (const [x, y, m] of norm.iterIndexValueMask()) {
       if (!xScale.contains(x)) {
         continue;
       }
 
       const cx = invertX(x);
       const cy = invertY(y);
+
+      if (m) {
+        if (!wasMasked && lastCx !== null && lastCy !== null) {
+          // Close the current path when transitioning to a masked state
+          ctx.lineTo(lastCx, lastCy);
+          ctx.stroke();
+        }
+        wasMasked = true;
+        continue;
+      }
+
+      if (wasMasked) {
+        // Start a new path when transitioning from masked to unmasked
+        ctx.beginPath();
+        ctx.moveTo(lastCx ?? cx, lastCy ?? cy); // Connect to the last point if it exists
+        first = false;
+      }
+
+      wasMasked = false; // Reset mask state when not masked
+
       if (first) {
         ctx.moveTo(cx, cy);
         first = false;
       } else {
         ctx.lineTo(cx, cy);
       }
+
+      lastCx = cx; // Update the last x-coordinate
+      lastCy = cy; // Update the last y-coordinate
     }
 
     ctx.stroke();

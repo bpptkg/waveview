@@ -1,4 +1,4 @@
-import { Index, Series } from "@waveview/ndarray";
+import { Series } from "@waveview/ndarray";
 import { Segment } from "../helicorder/dataStore";
 import {
   OffscreenRenderContext,
@@ -87,10 +87,11 @@ const render = debounce((event: MessageEvent) => {
     } = track;
     const xScale = new LinearScale(xScaleOptions);
     const yScale = new LinearScale(yScaleOptions);
-    const { name, index, values } = series;
-    const data = Series.from(new Float64Array(values), {
-      index: new Index(new Float64Array(index)),
+    const { name, index, mask, values } = series;
+    const data = Series.from(new Float32Array(values), {
+      index: new Float64Array(index),
       name,
+      mask,
     });
     data.setIndex(
       data.index.map((value: number) => timeToOffset(segment, interval, value))
@@ -122,7 +123,11 @@ const render = debounce((event: MessageEvent) => {
       return y + height * (1 - percent) - gridRect.y;
     };
 
-    for (const [x, y] of data.iterIndexValuePairs()) {
+    let wasMasked = false; // Track the previous mask state
+    let lastCx: number | null = null; // Store the last x-coordinate
+    let lastCy: number | null = null; // Store the last y-coordinate
+
+    for (const [x, y, m] of data.iterIndexValueMask()) {
       if (!xScale.contains(x)) {
         continue;
       }
@@ -130,22 +135,44 @@ const render = debounce((event: MessageEvent) => {
       const cx = invertX(x);
       const cy = invertY(y);
 
+      if (m) {
+        if (!wasMasked && lastCx !== null && lastCy !== null) {
+          // Close the current path when transitioning to a masked state
+          ctx.lineTo(lastCx, lastCy);
+          ctx.stroke();
+        }
+        wasMasked = true;
+        continue;
+      }
+
+      if (wasMasked) {
+        // Start a new path when transitioning from masked to unmasked
+        ctx.beginPath();
+        ctx.moveTo(lastCx ?? cx, lastCy ?? cy); // Connect to the last point if it exists
+        first = false;
+      }
+
+      wasMasked = false; // Reset mask state when not masked
+
       if (useGlobalScaling && isOverscale(y)) {
+        // Clip the value if the clip option is enabled
+        const clippedCy = clip ? invertY(clipValue(y)) : cy;
+
         // Draw the segment up to this point in the default color
         ctx.strokeStyle = color;
         if (!first) {
-          ctx.lineTo(cx, cy);
+          ctx.lineTo(cx, clippedCy);
           ctx.stroke();
         }
 
         if (showClip) {
           // Draw the overscale segment as a red rectangle
           const rectWidth = 2;
-          const rectHeight = Math.abs(trackRect.y - cy);
+          const rectHeight = Math.abs(trackRect.y - clippedCy);
           ctx.fillStyle = "red";
           ctx.fillRect(
             cx - rectWidth / 2,
-            Math.min(trackRect.y, cy),
+            Math.min(trackRect.y, clippedCy),
             rectWidth,
             rectHeight
           );
@@ -153,7 +180,7 @@ const render = debounce((event: MessageEvent) => {
 
         // Move to the next point
         ctx.beginPath();
-        ctx.moveTo(cx, cy);
+        ctx.moveTo(cx, clippedCy);
       } else {
         // Draw the segment in the default color
         ctx.strokeStyle = color;
@@ -164,6 +191,9 @@ const render = debounce((event: MessageEvent) => {
           ctx.lineTo(cx, cy);
         }
       }
+
+      lastCx = cx; // Update the last x-coordinate
+      lastCy = cy; // Update the last y-coordinate
     }
 
     ctx.stroke();

@@ -341,12 +341,13 @@ export class HelicorderWebWorker {
 
   private onStreamFetchMessage(payload: StreamResponseData): void {
     this.busy();
-    const { requestId, data, index, start, end, channelId, min, max, mean, count } = payload;
+    const { requestId, data, index, start, end, channelId, min, max, count, mask } = payload;
     const series = new Series(data, {
       index: index,
       name: channelId,
+      mask,
     });
-    const seriesData: SeriesData = { series, min, max, mean, count };
+    const seriesData: SeriesData = { series, min, max, count };
     const segment: [number, number] = [start, end];
     const key = JSON.stringify([channelId, ...segment]);
     this.chart.setTrackData(segment, seriesData);
@@ -361,12 +362,13 @@ export class HelicorderWebWorker {
 
   private onStreamFilterMessage(payload: StreamResponseData): void {
     this.busy();
-    const { requestId, data, index, start, end, channelId, min, max, mean, count } = payload;
+    const { requestId, data, index, start, end, channelId, min, max, count, mask } = payload;
     const series = new Series(data, {
       index: index,
       name: channelId,
+      mask,
     });
-    const seriesData: SeriesData = { series, min, max, mean, count };
+    const seriesData: SeriesData = { series, min, max, count };
     const segment: [number, number] = [start, end];
     const key = JSON.stringify([channelId, ...segment]);
     this.chart.setTrackData(segment, seriesData);

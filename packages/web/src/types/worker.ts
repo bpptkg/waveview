@@ -52,7 +52,11 @@ export interface StreamResponseData {
   /**
    * The data array.
    */
-  data: Float64Array;
+  data: Float32Array;
+  /**
+   * Mask values.
+   */
+  mask: boolean[];
   /**
    * The minimum value of the data array.
    */
@@ -61,10 +65,6 @@ export interface StreamResponseData {
    * The maximum value of the data array.
    */
   max: number;
-  /**
-   * The mean value of the data array.
-   */
-  mean: number;
   /**
    * The number of samples.
    */

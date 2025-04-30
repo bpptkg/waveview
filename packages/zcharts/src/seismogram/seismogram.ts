@@ -269,7 +269,6 @@ export class Seismogram extends ChartView<SeismogramOptions> {
         series: Series.empty(),
         min: 0,
         max: 0,
-        mean: 0,
         count: 0,
       };
     }
