@@ -112,7 +112,7 @@ const LogoImage: React.FC<LogoProps> = (props) => {
   } else if (size === 128) {
     return <LogoImage128 />;
   } else {
-    return <LogoImage24 />;
+    return <LogoImage32 />;
   }
 };
 
