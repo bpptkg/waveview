@@ -90,7 +90,7 @@ const OverflowMenu: React.FC<{ tabs: EditTabItem[]; onTabSelect?: (tab: string) 
 const EditItemTabList: React.FC<{ selectedValue?: string; onTabSelect?: (tab: string) => void }> = ({ selectedValue, onTabSelect }) => {
   const tabs: EditTabItem[] = [
     { value: 'event', label: 'Event', icon: <CalendarAgendaRegular /> },
-    { value: 'attachment', label: 'Attachments', icon: <AttachRegular /> },
+    { value: 'media', label: 'Media', icon: <AttachRegular /> },
     { value: 'visual', label: 'Visual', icon: <SearchVisualRegular /> },
   ];
 
@@ -101,7 +101,9 @@ const EditItemTabList: React.FC<{ selectedValue?: string; onTabSelect?: (tab: st
           {tabs.map((tab) => (
             <OverflowItem key={tab.value} id={tab.value}>
               <Tooltip content={tab.label} relationship="label" showDelay={1500}>
-                <Tab key={tab.value} value={tab.value} icon={tab.icon}></Tab>
+                <Tab key={tab.value} value={tab.value} icon={tab.icon}>
+                  {selectedValue === tab.value ? tab.label : ''}
+                </Tab>
               </Tooltip>
             </OverflowItem>
           ))}
@@ -224,7 +226,7 @@ const PickEdit = () => {
 
   return (
     <div className="h-full w-full overflow-hidden relative">
-      <div className="absolute top-0 right-0 left-0 bottom-0 overflow-y-auto">
+      <div className="absolute top-0 right-0 left-0 bottom-0 overflow-y-auto overflow-x-hidden">
         {loading && <ProgressBar shape="square" />}
         <div className="flex items-center justify-between px-2 h-[40px] border-b dark:border-b-gray-800">
           <div className="font-semibold">Editor</div>
@@ -260,7 +262,7 @@ const PickEdit = () => {
 
         <EditItemTabList selectedValue={tab} onTabSelect={handleTabSelect} />
         {tab === 'event' && <PickEditEvent />}
-        {tab === 'attachment' && <PickEditAttachments />}
+        {tab === 'media' && <PickEditAttachments />}
         {tab === 'visual' && <PickEditVisual />}
         {tab === 'amplitude' && <PickEditAmplitude />}
 

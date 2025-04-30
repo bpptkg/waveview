@@ -93,7 +93,7 @@ const router = createBrowserRouter([
                             element: <EventDetailWaveform />,
                           },
                           {
-                            path: ':eventId/attachments',
+                            path: ':eventId/media',
                             element: <EventDetailAttachments />,
                           },
                           {

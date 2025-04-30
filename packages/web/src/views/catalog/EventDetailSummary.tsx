@@ -121,8 +121,8 @@ const EventDetailSummary = () => {
       </div>
       <Divider />
       <div className="flex flex-col gap-2">
-        <div className="font-semibold">Attachments</div>
-        {attachments && attachments.length ? <AttachmentGallery attachments={attachments} maxShown={5} /> : <div>No attachments</div>}
+        <div className="font-semibold">Media</div>
+        {attachments && attachments.length ? <AttachmentGallery attachments={attachments} maxShown={5} /> : <div>No files</div>}
       </div>
       <Divider />
       <div className="flex flex-col gap-2">

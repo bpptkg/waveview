@@ -128,7 +128,7 @@ export const EventDetailTabs: React.FC<EventDetailTabsProps> = ({ eventId }) => 
     { value: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/events/${eventId}/magnitude`, label: 'Magnitude' },
     { value: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/events/${eventId}/location`, label: 'Location' },
     { value: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/events/${eventId}/waveform`, label: 'Waveform' },
-    { value: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/events/${eventId}/attachments`, label: 'Attachments' },
+    { value: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/events/${eventId}/media`, label: 'Media' },
     { value: `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog/events/${eventId}/visual`, label: 'Visual' },
   ];
 

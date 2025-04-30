@@ -21,7 +21,7 @@ const PickEditAttachments = () => {
 
   return (
     <div className="px-2">
-      <AttachmentUpload label="Attachments" initialAttachments={attachments} onAdd={handleAttachmentAdd} onRemove={handleAttachmentRemove} />
+      <AttachmentUpload label="Media" initialAttachments={attachments} onAdd={handleAttachmentAdd} onRemove={handleAttachmentRemove} />
     </div>
   );
 };
