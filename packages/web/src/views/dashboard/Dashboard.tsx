@@ -4,6 +4,7 @@ import React, { useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { AppBar, AppBarTab } from '../../components/AppBar';
 import Header from '../../components/Header/Header';
+import LogoImage from '../../components/Header/LogoImage';
 import WebSocketProvider from '../../components/WebSocket/WebSocketProvider';
 import { useMount } from '../../hooks/useMount';
 import { useCatalogStore } from '../../stores/catalog';
@@ -94,8 +95,9 @@ const Dashboard: React.FC = () => {
     return (
       <>
         <title>Initializing...</title>
-        <div className="bg-neutral-grey-94 dark:bg-neutral-grey-4 flex flex-col w-screen h-screen justify-center items-center">
-          <Spinner label="Initializing app, please wait..." />
+        <div className="bg-neutral-grey-94 dark:bg-neutral-grey-4 flex flex-col gap-4 w-screen h-screen justify-center items-center">
+          <LogoImage size={64} />
+          <Spinner label="Initializing app, please wait..." size="medium" />
         </div>
       </>
     );
