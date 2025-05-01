@@ -7,6 +7,7 @@ import Header from '../../components/Header/Header';
 import LogoImage from '../../components/Header/LogoImage';
 import WebSocketProvider from '../../components/WebSocket/WebSocketProvider';
 import { useMount } from '../../hooks/useMount';
+import { useAppStore } from '../../stores/app';
 import { useCatalogStore } from '../../stores/catalog';
 import { useEventTypeStore } from '../../stores/eventType';
 import { useInventoryStore } from '../../stores/inventory';
@@ -38,6 +39,8 @@ const Dashboard: React.FC = () => {
   const { fetchAllVolcanoes } = useVolcanoStore();
   const { fetchAllCatalogs } = useCatalogStore();
   const { fetchAllFallDirections } = useFallDirectionStore();
+
+  const { isActivityBarVisible } = useAppStore();
 
   useMount(() => {
     const initializeApp = async () => {
@@ -110,21 +113,23 @@ const Dashboard: React.FC = () => {
         <div className="bg-neutral-grey-94 dark:bg-neutral-grey-4 flex flex-col w-screen h-screen">
           <Header />
           <div className="flex flex-grow">
-            <AppBar selectedValue={location.pathname}>
-              <AppBarTab value={pickerUrl} icon={PickerIcon} onClick={() => navigate(pickerUrl)}>
-                Picker
-              </AppBarTab>
-              <AppBarTab value={catalogUrl} icon={CatalogIcon} onClick={() => navigate(catalogUrl)}>
-                Catalog
-              </AppBarTab>
-              <AppBarTab value={statusUrl} icon={StatusIcon} onClick={() => navigate(statusUrl)}>
-                Status
-              </AppBarTab>
-              <AppBarTab value={helpUrl} icon={HelpIcon} onClick={() => navigate(helpUrl)}>
-                Help
-              </AppBarTab>
-            </AppBar>
-            <div className="bg-neutral-grey-98 dark:bg-neutral-grey-12 flex flex-col flex-grow relative rounded-tl-lg border border-neutral-grey-90 dark:border-neutral-grey-20">
+            {isActivityBarVisible && (
+              <AppBar selectedValue={location.pathname}>
+                <AppBarTab value={pickerUrl} icon={PickerIcon} onClick={() => navigate(pickerUrl)}>
+                  Picker
+                </AppBarTab>
+                <AppBarTab value={catalogUrl} icon={CatalogIcon} onClick={() => navigate(catalogUrl)}>
+                  Catalog
+                </AppBarTab>
+                <AppBarTab value={statusUrl} icon={StatusIcon} onClick={() => navigate(statusUrl)}>
+                  Status
+                </AppBarTab>
+                <AppBarTab value={helpUrl} icon={HelpIcon} onClick={() => navigate(helpUrl)}>
+                  Help
+                </AppBarTab>
+              </AppBar>
+            )}
+            <div className="bg-neutral-grey-98 dark:bg-neutral-grey-12 flex flex-col flex-grow relative rounded-t-lg border border-neutral-grey-90 dark:border-neutral-grey-20">
               <Outlet />
             </div>
           </div>

@@ -5,6 +5,7 @@ import OrganizationPicker from '../Organization/OrganizationPicker';
 import VolcanoPicker from '../Volcano/VolcanoPicker';
 import Account from './Account';
 import ArrowNavigation from './ArrowNavigation';
+import CustomizeLayout from './CustomizeLayout';
 import JoinedUsers from './JoinedUsers';
 import LogoImage from './LogoImage';
 import NotificationPanel from './NotificationPanel';
@@ -36,6 +37,7 @@ const Header = () => {
         <JoinedUsers />
         {BUILD_VENDOR === 'cendana15' && <AppLauncher />}
         <ToggleFullScreen />
+        <CustomizeLayout />
         <NotificationPanel />
         <Account />
       </div>

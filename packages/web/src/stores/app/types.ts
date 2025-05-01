@@ -12,7 +12,12 @@ export type AppStore = {
   supportedLanguages: LanguageItem[];
   useUTC: boolean;
   timeZone: string;
+  isActivityBarVisible: boolean;
+  isFullScreen: boolean;
   toggleTheme: (theme: Theme) => void;
   setLanguage: (language: LanguageItem) => void;
   setUseUTC: (useUTC: boolean) => void;
+  setIsActivityBarVisible: (isVisible: boolean) => void;
+  toggleActivityBar: () => void;
+  toggleFullScreen: () => void;
 };

@@ -32,6 +32,8 @@ const appStore = create<AppStore, [['zustand/devtools', never]]>(
     supportedLanguages: [{ value: 'en', label: 'English' }],
     useUTC: false,
     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    isActivityBarVisible: true,
+    isFullScreen: document.fullscreenElement !== null,
     toggleTheme: (theme?: Theme) => {
       if (!theme) {
         theme = theme ?? get().theme;
@@ -60,6 +62,18 @@ const appStore = create<AppStore, [['zustand/devtools', never]]>(
     },
     setLanguage: (language) => set({ currentLanguage: language }),
     setUseUTC: (useUTC) => set({ useUTC }),
+    setIsActivityBarVisible: (isVisible) => set({ isActivityBarVisible: isVisible }),
+    toggleActivityBar: () => set((state) => ({ isActivityBarVisible: !state.isActivityBarVisible })),
+    toggleFullScreen: () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+      set((state) => ({ isFullScreen: !state.isFullScreen }));
+    },
   }))
 );
 
