@@ -33,6 +33,7 @@ const PickerEventEditorPanel = () => {
     handleSeismogramDecreaseAmplitude,
     handleSeismogramExtentChange,
     handleSeismogramFilterChange,
+    handleSeismogramFitToWindow,
     handleSeismogramFocus,
     handleSeismogramIncreaseAmplitude,
     handleSeismogramMouseWheel,
@@ -48,6 +49,7 @@ const PickerEventEditorPanel = () => {
     handleSeismogramSignalChange,
     handleSeismogramSpectrogramChange,
     handleSeismogramTrackDoubleClick,
+    handleSeismogramZoomFirstMinute,
     handleSeismogramZoomIn,
     handleSeismogramZoomOut,
   } = useSeismogramCallback();
@@ -76,6 +78,8 @@ const PickerEventEditorPanel = () => {
             filterOptions={getSeismogramFilterOptions()}
             onZoomIn={handleSeismogramZoomIn}
             onZoomOut={handleSeismogramZoomOut}
+            onZoomFirstMinute={handleSeismogramZoomFirstMinute}
+            onZoomFit={handleSeismogramFitToWindow}
             onScrollLeft={handleSeismogramScrollLeft}
             onScrollRight={handleSeismogramScrollRight}
             onIncreaseAmplitude={handleSeismogramIncreaseAmplitude}
