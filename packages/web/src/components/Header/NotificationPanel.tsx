@@ -273,7 +273,10 @@ const NotificationPanel = () => {
                   ))}
                 </div>
               ) : (
-                <span className="p-2">No notification</span>
+                <div className="flex items-center justify-center gap-1 h-[150px]">
+                  <AlertRegular fontSize={24} className="text-gray-400" />
+                  <span className="text-gray-400 text-sm">No notifications</span>
+                </div>
               )}
             </div>
           </div>
