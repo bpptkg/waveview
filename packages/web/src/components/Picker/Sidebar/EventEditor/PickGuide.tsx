@@ -11,7 +11,7 @@ const PickGuide: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full w-full">
-      <div className="flex items-center justify-between h-[40px] border-b dark:border-b-gray-800 bg-white dark:bg-neutral-grey-4 px-2">
+      <div className="flex items-center justify-between h-[40px] border-b dark:border-b-gray-800 px-2">
         <h1 className="font-bold text-sm">Picking</h1>
         <Tooltip content={'Deactivate pick mode'} relationship="label" showDelay={1500}>
           <Button size="small" appearance="transparent" onClick={handleClose} icon={<DismissRegular fontSize={20} />} />
