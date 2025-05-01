@@ -9,7 +9,7 @@ const HelicorderFilterStatus = () => {
   }
   return (
     <Tooltip content={`Current helicorder filter: ${formatFilterText(helicorderFilter)}`} relationship="description" showDelay={1500}>
-      <span className="text-xs dark:text-neutral-grey-84 px-1">H: {formatFilterText(helicorderFilter)}</span>
+      <span className="text-xs dark:text-neutral-grey-84">H: {formatFilterText(helicorderFilter)}</span>
     </Tooltip>
   );
 };

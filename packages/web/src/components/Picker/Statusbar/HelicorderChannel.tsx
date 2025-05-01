@@ -97,7 +97,7 @@ const HelicorderChannel: React.FC = () => {
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger disableButtonEnhancement>
         <Tooltip content={`Current helicorder channel: ${streamId}`} relationship="description" showDelay={1500}>
-          <button className="flex items-center gap-1 hover:bg-neutral-grey-90 dark:hover:bg-neutral-grey-16 px-2 h-[20px]">
+          <button className="flex items-center gap-1 hover:bg-neutral-grey-90 dark:hover:bg-neutral-grey-16 px-1 h-[20px]">
             <span className="text-xs dark:text-neutral-grey-84">{channels().find((channel) => channel.id === channelId)?.stream_id}</span>
           </button>
         </Tooltip>
