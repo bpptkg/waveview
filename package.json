@@ -1,6 +1,6 @@
 {
   "name": "waveview",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "description": "WaveView is a web-based seismic signal analysis platform.",
   "scripts": {
     "test": "pnpm run test --recursive"
