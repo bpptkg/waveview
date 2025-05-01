@@ -169,10 +169,9 @@ export function useHelicorderCallback() {
     [heliChartRef, currentOrganization, currentVolcano, currentCatalog, token, fetchEventMarkers]
   );
 
-  const handleHelicorderEventMarkerClick = useCallback(
-    (marker: HelicorderEventMarkerOptions) => {
-      const event = marker.data as SeismicEvent;
-      const { start, end } = marker;
+  const handleEditEvent = useCallback(
+    (event: SeismicEvent) => {
+      const [start, end] = getPickExtent(event);
       seisChartRef.current?.removeEventMarker(start, end);
 
       const buffer = ONE_MINUTE;
@@ -194,6 +193,16 @@ export function useHelicorderCallback() {
       heliChartRef.current?.render();
     },
     [heliChartRef, seisChartRef, fetchEditedEvent, handleSetupEventEditing, setSelectedTab, setShowSidebar, setLastSeismogramExtent, setSelectionWindow]
+  );
+
+  const handleHelicorderEventMarkerClick = useCallback(
+    (marker: HelicorderEventMarkerOptions) => {
+      const event = marker.data as SeismicEvent;
+      if (event) {
+        handleEditEvent(event);
+      }
+    },
+    [handleEditEvent]
   );
 
   const handleHelicorderOnReady = useCallback(
@@ -296,6 +305,8 @@ export function useHelicorderCallback() {
 
   return {
     getHelicorderInitOptions,
+    handleEditEvent,
+    handleFetchEvents,
     handleHelicorderAutoUpdate,
     handleHelicorderChangeDuration,
     handleHelicorderChangeInterval,
@@ -317,6 +328,5 @@ export function useHelicorderCallback() {
     handleHelicorderShiftViewToNow,
     handleHelicorderShiftViewUp,
     handleUpdateEventMarkers,
-    handleFetchEvents,
   };
 }
