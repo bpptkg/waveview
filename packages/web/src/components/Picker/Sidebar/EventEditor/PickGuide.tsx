@@ -1,5 +1,5 @@
 import { Button, Tooltip } from '@fluentui/react-components';
-import { Dismiss20Regular } from '@fluentui/react-icons';
+import { CursorClickRegular, DismissRegular } from '@fluentui/react-icons';
 import React from 'react';
 import { usePickerCallback } from '../../usePickerCallback';
 
@@ -10,15 +10,16 @@ const PickGuide: React.FC = () => {
   };
 
   return (
-    <div className="p-2 h-full w-full flex flex-col">
-      <div className="flex px-1 items-center justify-between">
+    <div className="flex flex-col h-full w-full">
+      <div className="flex items-center justify-between h-[40px] border-b dark:border-b-gray-800 bg-white dark:bg-neutral-grey-4 px-2">
         <h1 className="font-bold text-sm">Picking</h1>
         <Tooltip content={'Deactivate pick mode'} relationship="label" showDelay={1500}>
-          <Button size="small" appearance="transparent" onClick={handleClose} icon={<Dismiss20Regular />} />
+          <Button size="small" appearance="transparent" onClick={handleClose} icon={<DismissRegular fontSize={20} />} />
         </Tooltip>
       </div>
 
-      <div className="flex-grow flex flex-col justify-center p-2">
+      <div className="flex-grow flex flex-col justify-center items-center p-2">
+        <CursorClickRegular fontSize={40} className="text-neutral-grey-60 dark:text-neutral-grey-84" />
         <h1 className="font-bold text-center text-base">Pick a new event</h1>
         <p className="text-center">Click and drag on the seismogram chart to pick a new event.</p>
       </div>
