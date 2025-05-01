@@ -168,6 +168,12 @@ const SeismogramChannelList: React.FC<SeismogramChannelListProps> = ({ channelLi
     setSearchQuery(data.value);
   }, []);
 
+  useEffect(() => {
+    if (open) {
+      setSearchQuery('');
+    }
+  }, [open]);
+
   return (
     <div>
       <div className="flex items-center justify-between">
