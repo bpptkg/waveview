@@ -94,13 +94,13 @@ const InstrumentResponseResult: React.FC = () => {
             }
           }}
         >
-          <img className="rounded-lg shadow-sm border border-gray-300" src={result.image} alt="Instrument Response" />
+          <img className="rounded-lg shadow-sm border border-gray-300 dark:border-gray-700" src={result.image} alt="Instrument Response" />
         </a>
       )}
 
       <div className="mt-2">
         <Label>Amplitude</Label>
-        <div className="flex flex-col gap-1 border rounded-lg p-2">
+        <div className="flex flex-col gap-1 border rounded-lg p-2 border-gray-300 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <Tooltip content="The minimum amplitude of the signal." relationship="description" showDelay={1500}>
               <span>Min</span>
