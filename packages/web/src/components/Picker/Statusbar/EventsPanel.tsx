@@ -104,7 +104,7 @@ const EventsPanel = () => {
     <div>
       <div
         className={classNames(
-          `absolute right-0 bottom-[20px] h-[300px] left-0 rounded-t-lg border-t border-gray-300 dark:border-gray-700 bg-white dark:bg-neutral-grey-4`,
+          `absolute right-0 bottom-[20px] h-[300px] left-0 rounded-t-lg border-t border-gray-300 dark:border-gray-700 bg-white dark:bg-neutral-grey-6`,
           open ? 'block' : 'hidden'
         )}
       >

@@ -16,7 +16,7 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <div className={'flex h-full bg-white dark:bg-neutral-grey-4'}>
+    <div className={'flex h-full bg-white dark:bg-neutral-grey-6'}>
       <div className="relative w-full border-l border-r dark:border-l-gray-800 dark:border-r-gray-800">
         <div className="absolute top-0 right-0 bottom-0 left-0 overflow-auto">
           {selectedTab === 'eventEditor' && <EventEditor />}

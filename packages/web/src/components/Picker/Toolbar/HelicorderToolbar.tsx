@@ -116,7 +116,7 @@ const HelicorderToolbar: React.FC<HelicorderToolbarProps> = (props) => {
   );
 
   return (
-    <div className="bg-white dark:bg-black border-b border-r dark:border-b-gray-800 dark:border-r-gray-800 flex justify-between items-center relative h-[40px]">
+    <div className="bg-white dark:bg-neutral-grey-4 border-b border-r dark:border-b-gray-800 dark:border-r-gray-800 flex justify-between items-center relative h-[40px]">
       <div className="absolute top-0 bottom-[-30px] right-0 left-0 overflow-x-scroll">
         <Toolbar
           aria-label="Helicorder Toolbar"

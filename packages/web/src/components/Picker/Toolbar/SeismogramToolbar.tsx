@@ -159,7 +159,7 @@ const SeismogramToolbar: React.FC<SeismogramToolbarProps> = (props) => {
   );
 
   return (
-    <div className="bg-white dark:bg-black border-b dark:border-b-gray-800 relative flex items-center h-[40px]">
+    <div className="bg-white dark:bg-neutral-grey-4 border-b dark:border-b-gray-800 relative flex items-center h-[40px]">
       <div className="absolute top-0 bottom-[-30px] right-0 left-0 overflow-x-scroll">
         <Toolbar
           aria-label="Seismogram Toolbar"
