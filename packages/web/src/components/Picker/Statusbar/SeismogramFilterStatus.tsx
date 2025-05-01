@@ -8,7 +8,11 @@ const SeismogramFilterStatus = () => {
     return null;
   }
   return (
-    <Tooltip content={`Current seismogram filter: ${formatFilterText(appliedFilter)}`} relationship="description" showDelay={1500}>
+    <Tooltip
+      content={<span className="text-nowrap">{`Seismogram Filter: ${formatFilterText(appliedFilter)}`}</span>}
+      relationship="description"
+      showDelay={1500}
+    >
       <span className="text-xs dark:text-neutral-grey-84">S: {formatFilterText(appliedFilter)}</span>
     </Tooltip>
   );

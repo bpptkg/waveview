@@ -8,12 +8,11 @@ import {
   Toast,
   Toaster,
   ToastTitle,
-  Tooltip,
   useId,
   useToastController,
 } from '@fluentui/react-components';
 import { DismissRegular } from '@fluentui/react-icons';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { extractFilterOperationOptions } from '../../../shared/filter';
 import { useInventoryStore } from '../../../stores/inventory';
 import { usePickerStore } from '../../../stores/picker';
@@ -34,7 +33,6 @@ const useStyles = makeStyles({
 const HelicorderChannel: React.FC = () => {
   const { channelId, windowSize, forceCenter, helicorderFilter, getChannelsConfig, savePickerConfig } = usePickerStore();
   const { channels } = useInventoryStore();
-  const streamId = useMemo(() => channels().find((channel) => channel.id === channelId)?.stream_id, [channels, channelId]);
   const styles = useStyles();
   const [open, setOpen] = useState(false);
   const handleOpenChange: PopoverProps['onOpenChange'] = (_, data) => setOpen(data.open || false);
@@ -96,11 +94,9 @@ const HelicorderChannel: React.FC = () => {
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger disableButtonEnhancement>
-        <Tooltip content={`Current helicorder channel: ${streamId}`} relationship="description" showDelay={1500}>
-          <button className="flex items-center gap-1 hover:bg-neutral-grey-90 dark:hover:bg-neutral-grey-16 px-1 h-[20px]">
-            <span className="text-xs dark:text-neutral-grey-84">{channels().find((channel) => channel.id === channelId)?.stream_id}</span>
-          </button>
-        </Tooltip>
+        <button className="flex items-center gap-1 hover:bg-neutral-grey-90 dark:hover:bg-neutral-grey-16 px-1 h-[20px]">
+          <span className="text-xs dark:text-neutral-grey-84">{channels().find((channel) => channel.id === channelId)?.stream_id}</span>
+        </button>
       </PopoverTrigger>
       <PopoverSurface tabIndex={-1} className={styles.popoverSurface}>
         <div>
