@@ -52,7 +52,7 @@ const columns: TableColumnDefinition<Item>[] = [
 ];
 
 const EventsPanel = () => {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const styles = useTableStyles();
 
   const { eventMarkers } = usePickerStore();
