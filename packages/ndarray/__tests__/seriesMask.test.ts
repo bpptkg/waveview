@@ -155,3 +155,14 @@ test("should iter index value mask correctly", () => {
     expect(m).toEqual(mask[i]);
   }
 });
+
+test("should calculate percentile correctly", () => {
+  const data = new Uint32Array([3, 1, 2]);
+  const mask = [true, false, false];
+  const index = new Index(new Uint32Array([0, 1, 2]), mask);
+  const series = new Series(data, {
+    index,
+    mask,
+  });
+  expect(series.percentile(5)).toEqual(1.05);
+});

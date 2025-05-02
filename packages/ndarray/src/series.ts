@@ -611,6 +611,37 @@ export class Series<
   }
 
   /**
+   * Get the percentile value of the Series.
+   */
+  percentile(percent: number): number {
+    if (percent < 0 || percent > 100) {
+      throw new Error("Percent must be between 0 and 100.");
+    }
+
+    const sorted = this.values
+      .filter((_, index) => !this.index.mask[index])
+      .sort((a, b) => a - b);
+
+    if (sorted.length === 0) {
+      return NaN;
+    }
+
+    const rank = (percent / 100) * (sorted.length - 1);
+    const lowerIndex = Math.floor(rank);
+    const upperIndex = Math.ceil(rank);
+
+    if (lowerIndex === upperIndex) {
+      return sorted[lowerIndex];
+    }
+
+    const lowerValue = sorted[lowerIndex];
+    const upperValue = sorted[upperIndex];
+    const weight = rank - lowerIndex;
+
+    return lowerValue + weight * (upperValue - lowerValue);
+  }
+
+  /**
    * Get a string representation of the Series.
    */
   toString(): string {
