@@ -92,12 +92,13 @@ const render = debounce((event: MessageEvent) => {
       if (useGlobalScaling) {
         const quietRange = pMax - pMin || 1;
         const quietScale = minScale / quietRange;
+        const midpoint = (pMax + pMin) / 2;
 
         const totalRange = max - min || 1;
         const maxAllowedScale = clipScale / (totalRange / 2);
 
         const finalScale = Math.min(quietScale, maxAllowedScale);
-        const scaled = (value - pMin) * finalScale;
+        const scaled = (value - midpoint) * finalScale;
 
         return clip
           ? Math.max(-clipScale, Math.min(clipScale, scaled))
