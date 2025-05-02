@@ -1,12 +1,17 @@
 import { Button, Spinner } from '@fluentui/react-components';
-import { ArrowClockwise20Regular, ChatHelp24Regular, CursorHover24Regular, Folder24Regular, Molecule24Regular } from '@fluentui/react-icons';
-import React, { useMemo, useState } from 'react';
+import { ArrowClockwise20Regular } from '@fluentui/react-icons';
+import React, { useState } from 'react';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { AppBar, AppBarTab } from '../../components/AppBar';
 import Header from '../../components/Header/Header';
 import LogoImage from '../../components/Header/LogoImage';
+import CatalogIcon from '../../components/Icons/CatalogIcon';
+import HelpIcon from '../../components/Icons/HelpIcon';
+import PickerIcon from '../../components/Icons/PickerIcon';
+import StatusIcon from '../../components/Icons/StatusIcon';
 import WebSocketProvider from '../../components/WebSocket/WebSocketProvider';
 import { useMount } from '../../hooks/useMount';
+import { useNavigationUrls } from '../../hooks/useNavigationUrls';
 import { useAppStore } from '../../stores/app';
 import { useCatalogStore } from '../../stores/catalog';
 import { useEventTypeStore } from '../../stores/eventType';
@@ -17,11 +22,6 @@ import { useUserStore } from '../../stores/user';
 import { useFallDirectionStore } from '../../stores/visual';
 import { useVolcanoStore } from '../../stores/volcano/useVolcanoStore';
 import { CustomError } from '../../types/response';
-
-const PickerIcon = CursorHover24Regular;
-const CatalogIcon = Folder24Regular;
-const HelpIcon = ChatHelp24Regular;
-const StatusIcon = Molecule24Regular;
 
 const Dashboard: React.FC = () => {
   const { org, volcano } = useParams();
@@ -62,23 +62,8 @@ const Dashboard: React.FC = () => {
   });
 
   const { currentOrganization } = useOrganizationStore();
-  const { currentVolcano } = useVolcanoStore();
 
-  const pickerUrl = useMemo(() => {
-    return `/${currentOrganization?.slug}/${currentVolcano?.slug}/picker`;
-  }, [currentOrganization, currentVolcano]);
-
-  const catalogUrl = useMemo(() => {
-    return `/${currentOrganization?.slug}/${currentVolcano?.slug}/catalog`;
-  }, [currentOrganization, currentVolcano]);
-
-  const statusUrl = useMemo(() => {
-    return `/${currentOrganization?.slug}/status`;
-  }, [currentOrganization]);
-
-  const helpUrl = useMemo(() => {
-    return `/${currentOrganization?.slug}/help`;
-  }, [currentOrganization]);
+  const { pickerUrl, catalogUrl, statusUrl, helpUrl } = useNavigationUrls();
 
   if (error) {
     return (

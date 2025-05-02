@@ -25,7 +25,7 @@ export const AppBarTab: React.ForwardRefExoticComponent<AppBarTabProps & React.R
 
     return (
       <state.root className={styles.root} onClick={handleTabClick}>
-        {selected ? <state.icon className={styles.iconSelected} /> : <state.icon className={styles.icon} />}
+        {selected ? <state.icon fontSize={24} className={styles.iconSelected} /> : <state.icon fontSize={24} className={styles.icon} />}
         {!state.iconOnly && <state.content className={selected ? styles.contentSelected : styles.content}>{state.children}</state.content>}
         {selected && <state.indicator className={styles.indicator} />}
       </state.root>
