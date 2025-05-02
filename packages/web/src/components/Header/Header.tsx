@@ -8,6 +8,7 @@ import ArrowNavigation from './ArrowNavigation';
 import CustomizeLayout from './CustomizeLayout';
 import JoinedUsers from './JoinedUsers';
 import LogoImage from './LogoImage';
+import NavigationMenu from './NavigationMenu';
 import NotificationPanel from './NotificationPanel';
 import OfflineIndicator from './OfflineIndicator';
 import SearchBox from './SearchBox';
@@ -20,6 +21,7 @@ const Header = () => {
         <div className="flex items-center justify-center w-[68px]">
           <LogoImage size={32} />
         </div>
+        <NavigationMenu />
         <OrganizationPicker />
         <VolcanoPicker />
       </div>
