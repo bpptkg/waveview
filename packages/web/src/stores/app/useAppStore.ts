@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { createSelectors } from '../../shared/createSelectors';
-import { THEME_KEY } from './constants';
+import { IS_ACTIVITY_BAR_VISIBLE_KEY, THEME_KEY } from './constants';
 import { AppStore, Theme } from './types';
 
 function getInitialTheme(): Theme {
@@ -24,6 +24,11 @@ function getInitialDarkMode(): boolean {
   return false;
 }
 
+function getInitialIsActivityBarVisible(): boolean {
+  const storedValue = localStorage.getItem(IS_ACTIVITY_BAR_VISIBLE_KEY);
+  return storedValue === null ? true : storedValue === 'true';
+}
+
 const appStore = create<AppStore, [['zustand/devtools', never]]>(
   devtools((set, get) => ({
     darkMode: getInitialDarkMode(),
@@ -32,7 +37,7 @@ const appStore = create<AppStore, [['zustand/devtools', never]]>(
     supportedLanguages: [{ value: 'en', label: 'English' }],
     useUTC: false,
     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    isActivityBarVisible: true,
+    isActivityBarVisible: getInitialIsActivityBarVisible(),
     isFullScreen: document.fullscreenElement !== null,
     toggleTheme: (theme?: Theme) => {
       if (!theme) {
@@ -62,8 +67,13 @@ const appStore = create<AppStore, [['zustand/devtools', never]]>(
     },
     setLanguage: (language) => set({ currentLanguage: language }),
     setUseUTC: (useUTC) => set({ useUTC }),
-    setIsActivityBarVisible: (isVisible) => set({ isActivityBarVisible: isVisible }),
-    toggleActivityBar: () => set((state) => ({ isActivityBarVisible: !state.isActivityBarVisible })),
+    toggleActivityBar: () => {
+      set((state) => {
+        const newValue = !state.isActivityBarVisible;
+        localStorage.setItem(IS_ACTIVITY_BAR_VISIBLE_KEY, String(newValue));
+        return { isActivityBarVisible: newValue };
+      });
+    },
     toggleFullScreen: () => {
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen();

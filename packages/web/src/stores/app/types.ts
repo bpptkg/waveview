@@ -17,7 +17,6 @@ export type AppStore = {
   toggleTheme: (theme: Theme) => void;
   setLanguage: (language: LanguageItem) => void;
   setUseUTC: (useUTC: boolean) => void;
-  setIsActivityBarVisible: (isVisible: boolean) => void;
   toggleActivityBar: () => void;
   toggleFullScreen: () => void;
 };
