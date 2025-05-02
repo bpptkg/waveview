@@ -268,7 +268,6 @@ export function useHelicorderCallback() {
   const getHelicorderInitOptions = useCallback(() => {
     const scaling = getHelicorderScalingType();
     const initOptions: Partial<HelicorderOptions> = {
-      useOffscreenRendering: true,
       interval: helicorderInterval,
       duration: helicorderDuration,
       channel: {

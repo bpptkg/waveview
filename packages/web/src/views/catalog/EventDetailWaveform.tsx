@@ -61,7 +61,6 @@ const EventDetailWaveform = () => {
       endTime,
       useUTC: true,
       enableTooltip: false,
-      useOffscreenRendering: true,
     };
   }, [event, selectedChannels, darkMode]);
 

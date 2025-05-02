@@ -1,7 +1,6 @@
 import { Series } from "@waveview/ndarray";
 import { BoundingRect } from "zrender";
 import { TrackView } from "../track/trackView";
-import { getGlobalNormFactor, getLocalNormFactor } from "../util/norm";
 import { formatDate, ONE_MINUTE } from "../util/time";
 import { LayoutRect, SeriesData } from "../util/types";
 import { DataStore, Segment } from "./dataStore";
@@ -242,16 +241,6 @@ export class TrackManager {
     }
   }
 
-  private getNormFactor(): number {
-    const minmax: [number, number][] = [];
-    for (const segment of this.segments()) {
-      const seriesData = this.getTrackData(segment);
-      const { min, max } = seriesData;
-      minmax.push([min, max]);
-    }
-    return getGlobalNormFactor(minmax, "min");
-  }
-
   /**
    * Set the data for the given segment.
    */
@@ -307,53 +296,6 @@ export class TrackManager {
     );
     const { min, max } = this.sliceData(segment, start, end);
     return [min, max];
-  }
-
-  /**
-   * Refresh the data for all the tracks. The data is refreshed based on the
-   * scaling option set in the helicorder model. If the scaling is set to
-   * "global", the data is scaled based on the global min and max values of all
-   * the tracks. If the scaling is set to "local", the data is scaled based on
-   * the min and max values of the individual tracks. If you use offscreen
-   * rendering, you don't need to call this method.
-   */
-  refreshData(): void {
-    const { scaling } = this.helicorder.getModel().getOptions();
-    if (scaling === "global") {
-      this.refreshGlobalScaling();
-    } else {
-      this.refreshLocalScaling();
-    }
-  }
-
-  private refreshGlobalScaling(): void {
-    const normFactor = this.getNormFactor();
-    for (const segment of this.segments()) {
-      const track = this.get(segment);
-      if (track) {
-        const { series } = this.getTrackData(segment);
-        const norm = series.scalarDivide(normFactor);
-        norm.setIndex(
-          norm.index.map((value: number) => this.timeToOffset(segment, value))
-        );
-        track.getSignal().setData(norm);
-      }
-    }
-  }
-
-  private refreshLocalScaling(): void {
-    for (const segment of this.segments()) {
-      const track = this.get(segment);
-      if (track) {
-        const { series, min, max } = this.getTrackData(segment);
-        const normFactor = getLocalNormFactor(min, max);
-        const norm = series.scalarDivide(normFactor);
-        norm.setIndex(
-          norm.index.map((value: number) => this.timeToOffset(segment, value))
-        );
-        track.getSignal().setData(norm);
-      }
-    }
   }
 
   /**
@@ -455,7 +397,6 @@ export class TrackManager {
     }
 
     this.updateTrackLabels();
-    this.refreshData();
   }
 
   /**

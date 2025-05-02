@@ -104,8 +104,7 @@ export class Helicorder extends ChartView<HelicorderOptions> {
       this.setTheme("light");
     }
 
-    const { useOffscreenRendering } = opts;
-    if (useOffscreenRendering && typeof Worker !== "undefined") {
+    if (typeof Worker !== "undefined") {
       this.worker = new Worker(
         new URL("../workers/helicorder.worker.ts", import.meta.url),
         { type: "module" }
@@ -176,10 +175,6 @@ export class Helicorder extends ChartView<HelicorderOptions> {
 
   clearData(): void {
     this.trackManager.clearData();
-  }
-
-  refreshData(): void {
-    this.trackManager.refreshData();
   }
 
   increaseAmplitude(by: number): void {
@@ -378,18 +373,14 @@ export class Helicorder extends ChartView<HelicorderOptions> {
     this.rendering = true;
     this.emit("loading", true);
 
-    const { useOffscreenRendering } = this.model.getOptions();
-    if (useOffscreenRendering && refreshSignal) {
+    if (refreshSignal) {
       this.refreshOffscreen();
     }
 
     super.render();
 
-    if (useOffscreenRendering) {
-      this.rendering = refreshSignal;
-    } else {
-      this.rendering = false;
-    }
+    this.rendering = refreshSignal;
+
     if (!this.rendering) {
       this.emit("loading", false);
     }

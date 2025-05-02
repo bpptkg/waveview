@@ -10,7 +10,6 @@ import { PickerView } from "../picker/pickerView";
 import { SpectrogramData } from "../spectrogram/spectrogramModel";
 import { TrackView } from "../track/trackView";
 import { almostEquals } from "../util/math";
-import { getGlobalNormFactor, getLocalNormFactor } from "../util/norm";
 import { ONE_MINUTE, ONE_SECOND } from "../util/time";
 import {
   AddMarkerOptions,
@@ -119,8 +118,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
       this.addChannelInternal(channel);
     }
 
-    const { useOffscreenRendering } = opts;
-    if (useOffscreenRendering && typeof Worker !== "undefined") {
+    if (typeof Worker !== "undefined") {
       this.worker = new Worker(
         new URL("../workers/seismogram.worker.ts", import.meta.url),
         { type: "module" }
@@ -280,47 +278,6 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     this.channelDataStore.clear();
   }
 
-  refreshChannelData(): void {
-    const { scaling } = this.getModel().getOptions();
-    if (scaling === "global") {
-      this.refreshGlobalScaling();
-    } else {
-      this.refreshLocalScaling();
-    }
-  }
-
-  private refreshGlobalScaling(): void {
-    const minmax: [number, number][] = [];
-    for (const channel of this.trackManager.channels()) {
-      const seriesData = this.getChannelData(channel.id);
-      const { min, max } = seriesData;
-      minmax.push([min, max]);
-    }
-    const normFactor = getGlobalNormFactor(minmax);
-
-    for (const [channel, track] of this.trackManager.items()) {
-      const { series, count } = this.getChannelData(channel.id);
-      if (count === 0) {
-        continue;
-      }
-      const norm = series.scalarDivide(normFactor);
-      track.getSignal().setData(norm);
-    }
-  }
-
-  private refreshLocalScaling(): void {
-    for (const [channel, track] of this.trackManager.items()) {
-      const seriesData = this.getChannelData(channel.id);
-      const { count, min, max, series } = seriesData;
-      if (count === 0) {
-        continue;
-      }
-      const normFactor = getLocalNormFactor(min, max);
-      const norm = series.scalarDivide(normFactor);
-      track.getSignal().setData(norm);
-    }
-  }
-
   setSpectrogramData(channelId: string, data: SpectrogramData): void {
     const track = this.trackManager.getTrackByChannelId(channelId);
     if (!track) {
@@ -351,26 +308,12 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   }
 
   showSignals(): void {
-    const { useOffscreenRendering } = this.getModel().getOptions();
-    if (useOffscreenRendering) {
-      this.offscreenSignal.show();
-    } else {
-      for (const track of this.trackManager.tracks()) {
-        track.showSignal();
-      }
-    }
+    this.offscreenSignal.show();
     this.signalShown = true;
   }
 
   hideSignals(): void {
-    const { useOffscreenRendering } = this.getModel().getOptions();
-    if (useOffscreenRendering) {
-      this.offscreenSignal.hide();
-    } else {
-      for (const track of this.trackManager.tracks()) {
-        track.hideSignal();
-      }
-    }
+    this.offscreenSignal.hide();
     this.signalShown = false;
   }
 
@@ -567,19 +510,11 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   override render(options?: SeismogramRenderOptions): void {
     const { refreshSignal = true } = options || {};
     this.rendering = true;
-
-    const { useOffscreenRendering } = this.model.getOptions();
-    if (useOffscreenRendering && refreshSignal) {
+    if (refreshSignal) {
       this.refreshOffscreen();
     }
-
     super.render();
-
-    if (useOffscreenRendering) {
-      this.rendering = refreshSignal;
-    } else {
-      this.rendering = false;
-    }
+    this.rendering = refreshSignal;
   }
 
   private refreshOffscreen(): void {
