@@ -85,7 +85,7 @@ export function getDefaultOptions(): SeismogramOptions {
     markers: [],
     enableTooltip: true,
     scaling: "global",
-    useOffscreenRendering: false,
+    useOffscreenRendering: true,
     showSignal: true,
     showSpecrogram: false,
   };

@@ -89,7 +89,7 @@ export function getDefaultOptions(): HelicorderOptions {
     selectionWindow: undefined,
     windowSize: undefined,
     scaling: "global",
-    useOffscreenRendering: false,
+    useOffscreenRendering: true,
     clip: true,
     clipScale: 5,
   };
