@@ -61,9 +61,9 @@ export interface HelicorderOptions extends ChartOptions {
    */
   clip: boolean;
   /**
-   * Show the clip indicator or not.
+   * Clip scale of the helicorder chart.
    */
-  showClip: boolean;
+  clipScale: number;
 }
 
 export function getDefaultOptions(): HelicorderOptions {
@@ -90,7 +90,7 @@ export function getDefaultOptions(): HelicorderOptions {
     windowSize: undefined,
     scaling: "global",
     useOffscreenRendering: false,
-    clip: false,
-    showClip: false,
+    clip: true,
+    clipScale: 5,
   };
 }

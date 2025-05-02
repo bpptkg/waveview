@@ -72,9 +72,9 @@ export interface OffscreenRenderContext {
    */
   clip: boolean;
   /**
-   * Show the clip indicator or not.
+   * Clip scale of the helicorder chart.
    */
-  showClip: boolean;
+  clipScale: number;
 }
 
 export interface OffscreenRenderResult {

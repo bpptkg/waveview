@@ -414,7 +414,7 @@ export class Helicorder extends ChartView<HelicorderOptions> {
       trackRenderContexts.push(offscreenRendertrack);
     }
 
-    const { interval, duration, scaling, clip, showClip } =
+    const { interval, duration, scaling, clip, clipScale } =
       this.getModel().getOptions();
     const color = this.getThemeStyle().foregroundColor;
     const offscreenRenderContext: OffscreenRenderContext = {
@@ -427,7 +427,7 @@ export class Helicorder extends ChartView<HelicorderOptions> {
       interval,
       duration,
       clip,
-      showClip,
+      clipScale,
     };
     this.worker?.postMessage(offscreenRenderContext);
   }
