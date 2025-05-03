@@ -1,4 +1,5 @@
 import { Helicorder, HelicorderEventMarkerOptions, HelicorderOptions, SeismogramEventMarkerOptions } from '@waveview/zcharts';
+import { debounce } from 'lodash';
 import { useCallback } from 'react';
 import { getEventTypeColor } from '../../shared/theme';
 import { getPickExtent, ONE_MINUTE } from '../../shared/time';
@@ -14,6 +15,12 @@ import { SeismicEvent } from '../../types/event';
 import { ScalingType } from '../../types/scaling';
 import { usePickerContext } from './PickerContext';
 import { useSeismogramCallback } from './useSeismogramCallback';
+
+interface HandleFetchEventsOptions {
+  before?: () => void;
+  after?: () => void;
+  debounce?: boolean;
+}
 
 export function useHelicorderCallback() {
   const {
@@ -32,22 +39,63 @@ export function useHelicorderCallback() {
     setSelectedChart,
     setSelectionWindow,
   } = usePickerStore();
-
   const { heliChartRef, seisChartRef } = usePickerContext();
+  const { currentOrganization } = useOrganizationStore();
+  const { currentCatalog } = useCatalogStore();
+  const { currentVolcano } = useVolcanoStore();
+  const { token } = useAuthStore();
+  const { darkMode, useUTC } = useAppStore();
+  const { eventId, helicorderDuration, helicorderInterval, channelId, offsetDate, eventMarkers, showEvent } = usePickerStore();
+  const { setHeliChartReady } = usePickerContext();
+  const { handleSetupEventEditing } = useSeismogramCallback();
+  const { setShowSidebar, setSelectedTab } = useSidebarStore();
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedFetchEventMarkers = useCallback(
+    debounce((start: number, end: number, after?: () => void) => {
+      fetchEventMarkers(start, end).then(() => {
+        if (after) after();
+      });
+    }, 500),
+    [fetchEventMarkers]
+  );
+
+  const handleFetchEvents = useCallback(
+    (options?: HandleFetchEventsOptions) => {
+      const { before, after, debounce } = options || {};
+      const helicorderExtent = heliChartRef.current?.getChartExtent();
+      if (helicorderExtent && currentOrganization && currentVolcano && currentCatalog && token) {
+        const [start, end] = helicorderExtent;
+        if (before) before();
+
+        if (debounce) {
+          debouncedFetchEventMarkers(start, end, after);
+        } else {
+          fetchEventMarkers(start, end).then(() => {
+            if (after) after();
+          });
+        }
+      }
+    },
+    [heliChartRef, currentOrganization, currentVolcano, currentCatalog, token, fetchEventMarkers, debouncedFetchEventMarkers]
+  );
 
   const handleHelicorderShiftViewUp = useCallback(() => {
     heliChartRef.current?.shiftViewUp();
-  }, [heliChartRef]);
+    handleFetchEvents({ debounce: true });
+  }, [heliChartRef, handleFetchEvents]);
 
   const handleHelicorderShiftViewDown = useCallback(() => {
     heliChartRef.current?.shiftViewDown();
-  }, [heliChartRef]);
+    handleFetchEvents({ debounce: true });
+  }, [heliChartRef, handleFetchEvents]);
 
   const handleHelicorderShiftViewToNow = useCallback(() => {
     const now = Date.now();
     heliChartRef.current?.setOffsetDate(now);
     setHelicorderOffsetDate(now);
-  }, [heliChartRef, setHelicorderOffsetDate]);
+    handleFetchEvents({ debounce: true });
+  }, [heliChartRef, setHelicorderOffsetDate, handleFetchEvents]);
 
   const handleHelicorderIncreaseAmplitude = useCallback(() => {
     heliChartRef.current?.increaseAmplitude(0.1);
@@ -100,16 +148,6 @@ export function useHelicorderCallback() {
     [seisChartRef, setSelectionWindow, setLastSeismogramExtent]
   );
 
-  const { currentOrganization } = useOrganizationStore();
-  const { currentCatalog } = useCatalogStore();
-  const { currentVolcano } = useVolcanoStore();
-  const { token } = useAuthStore();
-  const { darkMode, useUTC } = useAppStore();
-  const { eventId, helicorderDuration, helicorderInterval, channelId, offsetDate, eventMarkers, showEvent } = usePickerStore();
-  const { setHeliChartReady } = usePickerContext();
-  const { handleSetupEventEditing } = useSeismogramCallback();
-  const { setShowSidebar, setSelectedTab } = useSidebarStore();
-
   const handleSeismogramUpdateEventMarkers = useCallback(() => {
     seisChartRef.current?.clearEventMarkers();
 
@@ -153,21 +191,6 @@ export function useHelicorderCallback() {
     handleSeismogramUpdateEventMarkers();
     handleHelicorderUpdateEventMarkers();
   }, [handleSeismogramUpdateEventMarkers, handleHelicorderUpdateEventMarkers]);
-
-  const handleFetchEvents = useCallback(
-    (before?: () => void, after?: () => void) => {
-      const helicorderExtent = heliChartRef.current?.getChartExtent();
-      if (helicorderExtent && currentOrganization && currentVolcano && currentCatalog && token) {
-        const [start, end] = helicorderExtent;
-        if (before) before();
-
-        fetchEventMarkers(start, end).then(() => {
-          if (after) after();
-        });
-      }
-    },
-    [heliChartRef, currentOrganization, currentVolcano, currentCatalog, token, fetchEventMarkers]
-  );
 
   const handleEditEvent = useCallback(
     (event: SeismicEvent) => {

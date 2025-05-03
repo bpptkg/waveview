@@ -40,16 +40,16 @@ const PickerRoot: React.FC<PickerRootProps> = ({ children }) => {
   useEffect(() => {
     if (currentCatalog && previousCatalogIdRef.current) {
       if (previousCatalogIdRef.current !== currentCatalog.id) {
-        handleFetchEvents(
-          () => {
+        handleFetchEvents({
+          before: () => {
             setMessage(
               <Spinner size="extra-tiny" label={<span className="text-xs dark:text-neutral-grey-84">{`Changing catalog to ${currentCatalog.name}...`}</span>} />
             );
           },
-          () => {
+          after: () => {
             clearMessage();
-          }
-        );
+          },
+        });
       }
       previousCatalogIdRef.current = currentCatalog.id;
     }
