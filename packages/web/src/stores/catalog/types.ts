@@ -49,6 +49,10 @@ export interface CatalogStore {
    */
   setItemsPerPage: (itemsPerPage: number) => void;
   /**
+   * Sets the current page.
+   */
+  setCurrentPage: (currentPage: number) => void;
+  /**
    * Fetches the events from the current catalog at page 1.
    */
   fetchEvents: (options?: FetchPaginatedEventsOptions) => Promise<void>;

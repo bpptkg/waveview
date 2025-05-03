@@ -55,6 +55,7 @@ const catalogStore = create<CatalogStore>((set, get) => {
       }
     },
     setItemsPerPage: (itemsPerPage) => set({ itemsPerPage }),
+    setCurrentPage: (currentPage) => set({ currentPage }),
     fetchEvents: async (options) => {
       const { currentOrganization } = useOrganizationStore.getState();
       if (!currentOrganization) {

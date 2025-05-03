@@ -1,6 +1,7 @@
 import {
   Button,
   createTableColumn,
+  Input,
   InputOnChangeData,
   makeStyles,
   SearchBox,
@@ -91,8 +92,20 @@ const EventTable = () => {
   const navigate = useNavigate();
   const { eventId } = useParams();
   const { useUTC } = useAppStore();
-  const { events, loading, filterData, hasNext, hasPrevious, itemsPerPage, currentPage, totalEvents, setItemsPerPage, fetchEvents, setFilterData } =
-    useCatalogStore();
+  const {
+    events,
+    loading,
+    filterData,
+    hasNext,
+    hasPrevious,
+    itemsPerPage,
+    currentPage,
+    totalEvents,
+    setItemsPerPage,
+    fetchEvents,
+    setFilterData,
+    setCurrentPage,
+  } = useCatalogStore();
   const { clearCache } = useEventDetailStore();
   const { eventTypes } = useEventTypeStore();
   const { hasPermission } = useUserStore();
@@ -236,15 +249,33 @@ const EventTable = () => {
     });
   }, [fetchEvents, showErrorToast]);
 
+  const enterKeyPressedRef = useRef(false);
+  const [gotoPage, setGotoPage] = useState<number>(currentPage);
+
+  const handleCurrentPageChange = useCallback(
+    (value: number) => {
+      if (value < 1 || value > Math.ceil(totalEvents / itemsPerPage)) {
+        return;
+      }
+      setCurrentPage(value);
+      fetchEvents({ mode: 'current' }).catch((error: CustomError) => {
+        showErrorToast(error);
+      });
+    },
+    [totalEvents, itemsPerPage, setCurrentPage, fetchEvents, showErrorToast]
+  );
+
   const handleItemPerPageChange = useCallback(
     (value: string) => {
       const pageSize = parseInt(value, 10);
+      setCurrentPage(1);
+      setGotoPage(1);
       setItemsPerPage(pageSize);
       fetchEvents({ mode: 'first' }).catch((error: CustomError) => {
         showErrorToast(error);
       });
     },
-    [setItemsPerPage, fetchEvents, showErrorToast]
+    [setItemsPerPage, setCurrentPage, fetchEvents, showErrorToast]
   );
 
   const handleRefresh = useCallback(() => {
@@ -419,9 +450,38 @@ const EventTable = () => {
               <option value="100">100</option>
             </Select>
           </div>
-          <span className="mx-4">
-            Page {currentPage} of {Math.ceil(totalEvents / itemsPerPage)}
-          </span>
+          <div className="flex items-center gap-2">
+            <span>Page</span>
+            <Input
+              type="number"
+              value={gotoPage.toString()}
+              onChange={(_, data: InputOnChangeData) => {
+                const value = Number(data.value);
+                if (value > 0 && value <= Math.ceil(totalEvents / itemsPerPage)) {
+                  setGotoPage(value);
+                }
+              }}
+              style={{ width: `${Math.max(gotoPage.toString().length + 8, 8)}ch` }}
+              min={1}
+              max={Math.ceil(totalEvents / itemsPerPage)}
+              onBlur={(e) => {
+                if (enterKeyPressedRef.current) {
+                  enterKeyPressedRef.current = false;
+                  return;
+                }
+                handleCurrentPageChange(Number(e.target.value));
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  enterKeyPressedRef.current = true;
+                  handleCurrentPageChange(Number(e.currentTarget.value));
+                  e.currentTarget.blur();
+                }
+              }}
+            />
+            <span>of {Math.ceil(totalEvents / itemsPerPage)}</span>
+          </div>
           <div className="flex items-center gap-2">
             <Tooltip content={'Go to first page'} relationship="label" showDelay={1500}>
               <Button size="medium" icon={<ChevronDoubleLeftRegular fontSize={16} />} onClick={handleFetchFirstEvents} />
