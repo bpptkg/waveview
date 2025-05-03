@@ -11,11 +11,9 @@ const LayoutSelector: React.FC = () => {
   }, [showSidebar, setShowSidebar]);
 
   return (
-    <div className="flex items-center">
-      <Tooltip content="Toggle Side Bar" relationship="label" showDelay={1500}>
-        <Button size="small" appearance="transparent" icon={<LayoutColumnTwoFocusRightFilled />} onClick={handleToggleSidebar} />
-      </Tooltip>
-    </div>
+    <Tooltip content="Toggle Side Bar" relationship="label" showDelay={1500}>
+      <Button size="small" appearance="transparent" icon={<LayoutColumnTwoFocusRightFilled />} onClick={handleToggleSidebar} />
+    </Tooltip>
   );
 };
 

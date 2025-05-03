@@ -18,7 +18,7 @@ const PickerMenu = () => {
         <SignalMenu />
         <HelpMenu />
       </div>
-      <div className="flex items-center gap-2 mr-1">
+      <div className="flex items-center mr-1">
         <CatalogPicker />
         <LayoutSelector />
       </div>
