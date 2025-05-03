@@ -129,11 +129,11 @@ const PickerPanel = () => {
   useSeismogramTimeZoneEffect(seisChartRef);
   useSeismogramKeyboardShortcuts(seisChartRef);
 
-  const { showHelicorder, showSidebar } = useSidebarStore();
+  const { showSidebar } = useSidebarStore();
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (autoUpdate && showHelicorder && showEvent) {
+      if (autoUpdate && showEvent) {
         handleHelicorderAutoUpdate();
       }
     }, autoUpdateInterval * 1000);
@@ -141,7 +141,7 @@ const PickerPanel = () => {
     return () => {
       clearInterval(interval);
     };
-  }, [showHelicorder, autoUpdate, autoUpdateInterval, showEvent, handleHelicorderAutoUpdate]);
+  }, [autoUpdate, autoUpdateInterval, showEvent, handleHelicorderAutoUpdate]);
 
   const handleEventMarkerContextMenu = useCallback((e: ElementEvent, marker: SeismogramEventMarkerOptions) => {
     eventMarkerContextMenuRef.current?.open(e, marker);
@@ -156,44 +156,40 @@ const PickerPanel = () => {
   return (
     <div className="flex-grow relative flex mt-1 border-t dark:border-t-gray-800 dark:border-transparent">
       <PanelGroup direction="horizontal" className="relative">
-        {showHelicorder && (
-          <>
-            <Panel id="panel-helicorder" defaultSize={25} minSize={10} order={1} className="relative">
-              <div className="flex flex-col relative h-full">
-                <HelicorderToolbar
-                  offsetDate={new Date(offsetDate)}
-                  checkedValues={helicorderToolbarCheckedValues}
-                  onShiftViewUp={handleHelicorderShiftViewUp}
-                  onShiftViewDown={handleHelicorderShiftViewDown}
-                  onShiftViewToNow={handleHelicorderShiftViewToNow}
-                  onIncreaseAmplitude={handleHelicorderIncreaseAmplitude}
-                  onDecreaseAmplitude={handleHelicorderDecreaseAmplitude}
-                  onResetAmplitude={handleHelicorderResetAmplitude}
-                  onOffsetDateChange={handleHelicorderSelectOffsetDate}
-                  onRefreshData={handleHelicorderRefreshData}
-                  onCheckedValueChange={handleHelicorderCheckValueChange}
-                  onScalingChange={handleHelicorderScalingChange}
-                />
-                <div ref={helicorderContainerRef} className="flex-grow relative">
-                  <div className="h-1 absolute top-0 left-0 right-0 z-10">{helicorderLoading && <ProgressBar />}</div>
-                  <HelicorderChart
-                    ref={heliChartRef}
-                    className={helicorderClassName}
-                    appliedFilter={helicorderFilter}
-                    initOptions={getHelicorderInitOptions()}
-                    onOffsetDateChange={handleHelicorderOffsetDateChange}
-                    onFocus={handleHelicorderFocus}
-                    onSelectionChange={handleHelicorderSelectionChange}
-                    onEventMarkerClick={handleHelicorderEventMarkerClick}
-                    onLoading={handleHelicorderOnLoading}
-                    onReady={handleHelicorderOnReady}
-                  />
-                </div>
-              </div>
-            </Panel>
-            <PanelResizeHandle id="resize-handle-left" />
-          </>
-        )}
+        <Panel id="panel-helicorder" defaultSize={25} minSize={10} order={1} className="relative">
+          <div className="flex flex-col relative h-full">
+            <HelicorderToolbar
+              offsetDate={new Date(offsetDate)}
+              checkedValues={helicorderToolbarCheckedValues}
+              onShiftViewUp={handleHelicorderShiftViewUp}
+              onShiftViewDown={handleHelicorderShiftViewDown}
+              onShiftViewToNow={handleHelicorderShiftViewToNow}
+              onIncreaseAmplitude={handleHelicorderIncreaseAmplitude}
+              onDecreaseAmplitude={handleHelicorderDecreaseAmplitude}
+              onResetAmplitude={handleHelicorderResetAmplitude}
+              onOffsetDateChange={handleHelicorderSelectOffsetDate}
+              onRefreshData={handleHelicorderRefreshData}
+              onCheckedValueChange={handleHelicorderCheckValueChange}
+              onScalingChange={handleHelicorderScalingChange}
+            />
+            <div ref={helicorderContainerRef} className="flex-grow relative">
+              <div className="h-1 absolute top-0 left-0 right-0 z-10">{helicorderLoading && <ProgressBar />}</div>
+              <HelicorderChart
+                ref={heliChartRef}
+                className={helicorderClassName}
+                appliedFilter={helicorderFilter}
+                initOptions={getHelicorderInitOptions()}
+                onOffsetDateChange={handleHelicorderOffsetDateChange}
+                onFocus={handleHelicorderFocus}
+                onSelectionChange={handleHelicorderSelectionChange}
+                onEventMarkerClick={handleHelicorderEventMarkerClick}
+                onLoading={handleHelicorderOnLoading}
+                onReady={handleHelicorderOnReady}
+              />
+            </div>
+          </div>
+        </Panel>
+        <PanelResizeHandle id="resize-handle-left" />
         <Panel id="panel-seismogram" minSize={20} order={2} className="relative">
           <div className="flex flex-col relative h-full">
             <SeismogramToolbar
