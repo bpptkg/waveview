@@ -1,4 +1,4 @@
-import { Button, makeStyles, Popover, PopoverProps, PopoverSurface, PopoverTrigger, Tooltip } from '@fluentui/react-components';
+import { Button, Divider, makeStyles, Popover, PopoverProps, PopoverSurface, PopoverTrigger, Tooltip } from '@fluentui/react-components';
 import {
   CheckmarkRegular,
   DismissRegular,
@@ -38,12 +38,13 @@ const CustomizeLayout = () => {
 
       <PopoverSurface tabIndex={-1} className={styles.popoverSurface}>
         <div>
-          <div className="flex items-center justify-between p-1 bg-neutral-grey-96 dark:bg-neutral-grey-12 rounded-t-2xl">
+          <div className="flex items-center justify-between p-1 rounded-t-2xl">
             <span className="text-neutral-grey-10 dark:text-neutral-grey-90">Customize Layout</span>
             <Button appearance="transparent" icon={<DismissRegular fontSize={20} />} onClick={() => setOpen(false)} />
           </div>
+          <Divider />
           <a
-            className="flex items-center justify-between p-2 hover:bg-neutral-grey-90 dark:hover:bg-neutral-grey-20 cursor-pointer rounded-2xl"
+            className="flex items-center justify-between p-2 hover:bg-neutral-grey-90 dark:hover:bg-neutral-grey-24 cursor-pointer rounded-2xl"
             onClick={toggleActivityBar}
           >
             <div className="flex items-center gap-2">
@@ -53,7 +54,7 @@ const CustomizeLayout = () => {
             <div className="flex items-center">{isActivityBarVisible ? <EyeRegular fontSize={20} /> : <EyeOffRegular fontSize={20} />}</div>
           </a>
           <a
-            className="flex items-center justify-between p-2 hover:bg-neutral-grey-90 dark:hover:bg-neutral-grey-20 cursor-pointer rounded-2xl"
+            className="flex items-center justify-between p-2 hover:bg-neutral-grey-90 dark:hover:bg-neutral-grey-24 cursor-pointer rounded-2xl"
             onClick={toggleFullScreen}
           >
             <div className="flex items-center gap-2">
