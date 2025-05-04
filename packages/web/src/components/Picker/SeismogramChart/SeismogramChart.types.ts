@@ -1,7 +1,8 @@
 import { AddMarkerOptions, Channel, ElementEvent, Seismogram, SeismogramEventMarkerOptions, SeismogramOptions } from '@waveview/zcharts';
+import { SeismogramRenderOptions } from '../../../../../zcharts/src/seismogram/seismogram';
 import { FilterOperationOptions } from '../../../types/filter';
 import { ScalingType } from '../../../types/scaling';
-import { SeismogramWebWorkerOptions } from './SeismogramWebWorker';
+import { RefreshOptions, SeismogramWebWorkerOptions } from './SeismogramWebWorker';
 
 export interface SeismogramChartProps {
   /**
@@ -88,18 +89,20 @@ export interface SeismogramChartRef {
   addEventMarkers: (markersOptions: SeismogramEventMarkerOptions[], options?: AddMarkerOptions) => void;
   applyFilter: (options: FilterOperationOptions) => void;
   blur(): void;
+  clearChannelData: () => void;
   clearEventMarkers: () => void;
   clearPickRange(): void;
+  clearSpectrogramData: () => void;
   decreaseAmplitude: (by: number) => void;
   disablePickMode: () => void;
   dispose: () => void;
   enablePickMode: () => void;
   expandView: (index: number) => void;
-  fetchAllChannelsData: () => void;
+  fetchAllChannelsData: (options?: RefreshOptions) => void;
   fitToWindow: () => void;
   focus(): void;
   getChartExtent: () => [number, number];
-  getFirstArrialChannelId: () => string | undefined;
+  getFirstArrivalChannelId: () => string | undefined;
   getInstance: () => Seismogram;
   hideEventMarkers: () => void;
   hideSignal: () => void;
@@ -111,7 +114,7 @@ export interface SeismogramChartRef {
   moveChannelUp: (index: number) => void;
   removeChannel: (index: number) => void;
   removeEventMarker: (start: number, end: number) => void;
-  render: () => void;
+  render: (options?: SeismogramRenderOptions) => void;
   resetAmplitude: () => void;
   resetFilter: () => void;
   restoreView: () => void;

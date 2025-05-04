@@ -214,6 +214,7 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<React.RefAttributes
   const handleExpandView = useCallback(() => {
     if (channelIndex !== null) {
       seisChartRef.current?.expandView(channelIndex);
+      seisChartRef.current?.render();
       setExpandMode(true);
       handleClose();
     }
@@ -221,6 +222,7 @@ const SeismogramContextMenu: React.ForwardRefExoticComponent<React.RefAttributes
 
   const handleRestoreView = useCallback(() => {
     seisChartRef.current?.restoreView();
+    seisChartRef.current?.render();
     setExpandMode(false);
     handleClose();
   }, [seisChartRef, setExpandMode, handleClose]);

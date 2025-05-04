@@ -1,4 +1,5 @@
 import { AddMarkerOptions, Channel, Helicorder, HelicorderEventMarkerOptions, HelicorderOptions } from '@waveview/zcharts';
+import { HelicorderRenderOptions } from '../../../../../zcharts/src/helicorder/helicorder';
 import { FilterOperationOptions } from '../../../types/filter';
 import { ScalingType } from '../../../types/scaling';
 import { RefreshOptions } from './HelicorderWebWorker';
@@ -51,12 +52,13 @@ export interface HelicorderChartRef {
   addEventMarkers: (markersOptions: HelicorderEventMarkerOptions[], options?: AddMarkerOptions) => void;
   applyFilter: (options: FilterOperationOptions | null) => void;
   blur: () => void;
+  clearData: () => void;
   clearEventMarkers: () => void;
   decreaseAmplitude: (by: number) => void;
   dispose: () => void;
   fetchAllData: (options?: RefreshOptions) => void;
   focus: () => void;
-  getChannel: () => Channel;
+  getChannel: () => Channel | undefined;
   getChartExtent: () => [number, number];
   getInstance: () => Helicorder;
   hideEventMarkers: () => void;
@@ -65,7 +67,7 @@ export interface HelicorderChartRef {
   nextSelection: () => void;
   previousSelection: () => void;
   removeEventMarker: (start: number, end: number) => void;
-  render(): void;
+  render(options?: HelicorderRenderOptions): void;
   resetAmplitude: () => void;
   setChannel: (channel: Channel) => void;
   setDuration: (duration: number) => void;

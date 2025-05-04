@@ -89,8 +89,8 @@ export const createCommonSlice: StateCreator<PickerStore, [], [], CommonSlice> =
           });
         }
       });
-      const forceCenter = force_center || true;
-      const windowSize = window_size || 5; // 5 minutes
+      const forceCenter = force_center !== undefined ? force_center : true;
+      const windowSize = window_size !== undefined ? window_size : 5;
       const helicorderFilter = helicorder_filter ? extractFilterOptions(helicorder_filter) : null;
       set({ pickerConfig, channelId: helicorder_channel.channel_id, selectedChannels, forceCenter, windowSize, helicorderFilter });
     },

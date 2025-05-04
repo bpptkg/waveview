@@ -4,6 +4,7 @@ export type {
   HelicorderEventMarkerOptions,
   HelicorderOptions,
 } from "./helicorder/chartOptions";
+export type { Segment } from "./helicorder/dataStore";
 export { Helicorder } from "./helicorder/helicorder";
 export type {
   SeismogramEventMarkerOptions,

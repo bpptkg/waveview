@@ -42,38 +42,47 @@ export const useSeismogramCallback = () => {
 
   const handleSeismogramZoomIn = useCallback(() => {
     seisChartRef.current?.zoomIn(0.1);
+    seisChartRef.current?.render();
   }, [seisChartRef]);
 
   const handleSeismogramZoomOut = useCallback(() => {
     seisChartRef.current?.zoomOut(0.1);
+    seisChartRef.current?.render();
   }, [seisChartRef]);
 
   const handleSeismogramZoomFirstMinute = useCallback(() => {
     seisChartRef.current?.zoomFirstMinute();
+    seisChartRef.current?.render();
   }, [seisChartRef]);
 
   const handleSeismogramFitToWindow = useCallback(() => {
     seisChartRef.current?.fitToWindow();
+    seisChartRef.current?.render();
   }, [seisChartRef]);
 
   const handleSeismogramScrollLeft = useCallback(() => {
     seisChartRef.current?.scrollLeft(0.1);
+    seisChartRef.current?.render();
   }, [seisChartRef]);
 
   const handleSeismogramScrollRight = useCallback(() => {
     seisChartRef.current?.scrollRight(0.1);
+    seisChartRef.current?.render();
   }, [seisChartRef]);
 
   const handleSeismogramIncreaseAmplitude = useCallback(() => {
     seisChartRef.current?.increaseAmplitude(0.1);
+    seisChartRef.current?.render();
   }, [seisChartRef]);
 
   const handleSeismogramDecreaseAmplitude = useCallback(() => {
     seisChartRef.current?.decreaseAmplitude(0.1);
+    seisChartRef.current?.render();
   }, [seisChartRef]);
 
   const handleSeismogramResetAmplitude = useCallback(() => {
     seisChartRef.current?.resetAmplitude();
+    seisChartRef.current?.render();
   }, [seisChartRef]);
 
   const handleSeismogramShowEvent = useCallback(
@@ -88,6 +97,8 @@ export const useSeismogramCallback = () => {
           heliChartRef.current?.hideEventMarkers();
           setShowEvent(false);
         }
+        seisChartRef.current?.render();
+        heliChartRef.current?.render();
       }
 
       toggleShowEvent(showEvent);
@@ -106,6 +117,7 @@ export const useSeismogramCallback = () => {
         clearPick();
         setPickMode(false);
       }
+      seisChartRef.current?.render();
     },
     [seisChartRef, clearPick, setPickMode]
   );
@@ -117,6 +129,7 @@ export const useSeismogramCallback = () => {
       } else {
         seisChartRef.current?.hideSpectrogram();
       }
+      seisChartRef.current?.render();
     },
     [seisChartRef]
   );
@@ -128,6 +141,7 @@ export const useSeismogramCallback = () => {
       } else {
         seisChartRef.current?.hideSignal();
       }
+      seisChartRef.current?.render();
     },
     [seisChartRef]
   );
@@ -155,7 +169,7 @@ export const useSeismogramCallback = () => {
     (pick: [number, number]) => {
       if (isPickEmpty()) {
         // Try to automatically select the station of the first arrival.
-        const channelId = seisChartRef.current?.getFirstArrialChannelId();
+        const channelId = seisChartRef.current?.getFirstArrivalChannelId();
         const stationId = channelId
           ? getSelectedStations().find((station) => {
               const ids = station.channels.map((channel) => channel.id);
@@ -168,6 +182,7 @@ export const useSeismogramCallback = () => {
       }
       setPickRange(pick);
       calcSignalAmplitudes();
+      seisChartRef.current?.render();
     },
     [seisChartRef, isPickEmpty, setPickRange, setStationOfFirstArrivalId, getSelectedStations, calcSignalAmplitudes]
   );
@@ -182,16 +197,18 @@ export const useSeismogramCallback = () => {
   const handleSeismogramTrackDoubleClick = useCallback(
     (index: number) => {
       if (!isExpandMode) {
-        seisChartRef.current?.expandView(index);
         setExpandMode(true);
+        seisChartRef.current?.expandView(index);
+        seisChartRef.current?.render();
       }
     },
     [seisChartRef, isExpandMode, setExpandMode]
   );
 
   const handleSeismogramRestoreView = useCallback(() => {
-    seisChartRef.current?.restoreView();
     setExpandMode(false);
+    seisChartRef.current?.restoreView();
+    seisChartRef.current?.render();
   }, [seisChartRef, setExpandMode]);
 
   const handleSeismogramMouseWheel = useCallback(
@@ -208,22 +225,25 @@ export const useSeismogramCallback = () => {
       const { altKey, shiftKey } = event;
       if (shiftKey) {
         const center = chart.getXAxis().getValueForPixel(x);
+        const zoomPercent = Math.min(0.5, Math.max(0.05, (Math.abs(wheelDelta) / 120) * 0.1));
         if (wheelDelta > 0) {
-          chart.zoomOut(center, 0.1);
+          chart.zoomOut(center, zoomPercent);
         } else {
-          chart.zoomIn(center, 0.1);
+          chart.zoomIn(center, zoomPercent);
         }
       } else if (altKey) {
+        const ampPercent = Math.min(0.5, Math.max(0.05, (Math.abs(wheelDelta) / 120) * 0.1));
         if (wheelDelta > 0) {
-          chart.decreaseAmplitude(0.1);
+          chart.decreaseAmplitude(ampPercent);
         } else {
-          chart.increaseAmplitude(0.1);
+          chart.increaseAmplitude(ampPercent);
         }
       } else {
+        const percent = Math.min(0.5, Math.max(0.05, (Math.abs(wheelDelta) / 120) * 0.1));
         if (wheelDelta < 0) {
-          chart.scrollRight(0.1);
+          chart.scrollRight(percent);
         } else {
-          chart.scrollLeft(0.1);
+          chart.scrollLeft(percent);
         }
       }
       chart.render();
@@ -240,6 +260,8 @@ export const useSeismogramCallback = () => {
       const [start, end] = getPickExtent(event);
       seisChartRef.current?.removeEventMarker(start, end);
       seisChartRef.current?.setPickRange([start, end]);
+      seisChartRef.current?.render();
+
       setEditedEvent(event);
       setShowSidebar(true);
     },
@@ -316,6 +338,7 @@ export const useSeismogramCallback = () => {
   const handleSeismogramScalingChange = useCallback(
     (scaling: ScalingType) => {
       seisChartRef.current?.setScaling(scaling);
+      seisChartRef.current?.render();
     },
     [seisChartRef]
   );

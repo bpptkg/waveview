@@ -12,6 +12,7 @@ export function useHelicorderThemeEffect(heliChartRef: React.MutableRefObject<He
     } else {
       heliChartRef.current?.setTheme('light');
     }
+    heliChartRef.current?.render({ refreshSignal: true });
   }, [heliChartRef, darkMode]);
 }
 
@@ -24,5 +25,6 @@ export function useSeismogramThemeEffect(seisChartRef: React.MutableRefObject<Se
     } else {
       seisChartRef.current?.setTheme('light');
     }
+    seisChartRef.current?.render({ refreshSignal: true });
   }, [seisChartRef, darkMode]);
 }

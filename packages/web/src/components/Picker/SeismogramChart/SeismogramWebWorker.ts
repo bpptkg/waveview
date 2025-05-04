@@ -17,7 +17,8 @@ import {
 } from '../../../types/worker';
 
 export interface RefreshOptions {
-  mode: 'force' | 'cache';
+  mode?: 'force' | 'cache';
+  debounce?: boolean;
 }
 
 export class DataStore<T> {
@@ -150,7 +151,7 @@ export class SeismogramWebWorker {
   }
 
   fetchAllChannelsData(options?: RefreshOptions): void {
-    const { mode } = options || { mode: 'force' };
+    const { mode = 'force' } = options || {};
     switch (mode) {
       case 'force':
         this.fetchAllChannelsDataForce();
@@ -159,7 +160,7 @@ export class SeismogramWebWorker {
         this.fetchAllChannelsDataCache();
         break;
       default:
-        break;
+        throw new Error(`Unknown mode: ${mode}`);
     }
   }
 
@@ -216,7 +217,7 @@ export class SeismogramWebWorker {
         this.fetchAllSpectrogramDataCache();
         break;
       default:
-        break;
+        throw new Error(`Unknown mode: ${mode}`);
     }
   }
 
@@ -337,7 +338,7 @@ export class SeismogramWebWorker {
         this.refreshToken();
         break;
       default:
-        break;
+        throw new Error(`Unknown message type: ${type}`);
     }
   }
 

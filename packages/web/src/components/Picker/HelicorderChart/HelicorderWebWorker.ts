@@ -1,6 +1,5 @@
 import { Series } from '@waveview/ndarray';
-import { Helicorder, SeriesData } from '@waveview/zcharts';
-import { Segment } from '../../../../../zcharts/src/helicorder/dataStore';
+import { Helicorder, Segment, SeriesData } from '@waveview/zcharts';
 import { refreshToken } from '../../../services/api';
 import { debounce } from '../../../shared/debounce';
 import { ONE_MINUTE } from '../../../shared/time';
@@ -19,7 +18,12 @@ export interface RefreshOptions {
    * for all tracks. If the mode is `cache`, the worker will fetch data for the
    * tracks that are not in the cache.
    */
-  mode: 'force' | 'cache' | 'refresh';
+  mode?: 'force' | 'cache' | 'refresh';
+  /**
+   * Whether to debounce the fetch request. If true, the fetch request will be
+   * debounced for 300ms.
+   */
+  debounce?: boolean;
 }
 
 export interface HelicorderWebWorkerOptions {
@@ -108,7 +112,7 @@ export class HelicorderWebWorker {
   }
 
   fetchAllTracksData(options?: RefreshOptions): void {
-    const { mode } = options || { mode: 'cache' };
+    const { mode = 'cache' } = options || {};
     switch (mode) {
       case 'force':
         this.fetchAllTracksDataForce();
@@ -120,7 +124,7 @@ export class HelicorderWebWorker {
         this.fetchAllTracksDataRefresh();
         break;
       default:
-        break;
+        throw new Error(`Unknown mode: ${mode}`);
     }
   }
 
@@ -206,7 +210,7 @@ export class HelicorderWebWorker {
     if (!appliedFilter) {
       return;
     }
-    const { mode } = options || { mode: 'cache' };
+    const { mode = 'cache' } = options || {};
     switch (mode) {
       case 'force':
         this.fetchAllFiltersDataForce(appliedFilter);
@@ -218,7 +222,7 @@ export class HelicorderWebWorker {
         this.fetchAllFiltersDataRefresh(appliedFilter);
         break;
       default:
-        break;
+        throw new Error(`Unknown mode: ${mode}`);
     }
   }
 
@@ -335,7 +339,7 @@ export class HelicorderWebWorker {
         this.refreshToken();
         break;
       default:
-        break;
+        throw new Error(`Unknown message type: ${type}`);
     }
   }
 

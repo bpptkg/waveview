@@ -82,37 +82,48 @@ export function useHelicorderCallback() {
 
   const handleHelicorderShiftViewUp = useCallback(() => {
     heliChartRef.current?.shiftViewUp();
+    heliChartRef.current?.render();
+    heliChartRef.current?.fetchAllData({ debounce: true });
     handleFetchEvents({ debounce: true });
   }, [heliChartRef, handleFetchEvents]);
 
   const handleHelicorderShiftViewDown = useCallback(() => {
     heliChartRef.current?.shiftViewDown();
+    heliChartRef.current?.render();
+    heliChartRef.current?.fetchAllData({ debounce: true });
     handleFetchEvents({ debounce: true });
   }, [heliChartRef, handleFetchEvents]);
 
   const handleHelicorderShiftViewToNow = useCallback(() => {
     const now = Date.now();
-    heliChartRef.current?.setOffsetDate(now);
     setHelicorderOffsetDate(now);
+    heliChartRef.current?.setOffsetDate(now);
+    heliChartRef.current?.render();
+    heliChartRef.current?.fetchAllData({ debounce: true });
     handleFetchEvents({ debounce: true });
   }, [heliChartRef, setHelicorderOffsetDate, handleFetchEvents]);
 
   const handleHelicorderIncreaseAmplitude = useCallback(() => {
     heliChartRef.current?.increaseAmplitude(0.1);
+    heliChartRef.current?.render({ refreshSignal: true });
   }, [heliChartRef]);
 
   const handleHelicorderDecreaseAmplitude = useCallback(() => {
     heliChartRef.current?.decreaseAmplitude(0.1);
+    heliChartRef.current?.render({ refreshSignal: true });
   }, [heliChartRef]);
 
   const handleHelicorderResetAmplitude = useCallback(() => {
     heliChartRef.current?.resetAmplitude();
+    heliChartRef.current?.render({ refreshSignal: true });
   }, [heliChartRef]);
 
   const handleHelicorderChannelChange = useCallback(
     (channel: Channel) => {
       setHelicorderChannelId(channel.id);
+      heliChartRef.current?.clearData();
       heliChartRef.current?.setChannel({ id: channel.id, label: channel.stream_id });
+      heliChartRef.current?.fetchAllData({ mode: 'force' });
     },
     [heliChartRef, setHelicorderChannelId]
   );
@@ -121,16 +132,22 @@ export function useHelicorderCallback() {
     (interval: number) => {
       setHelicorderInterval(interval);
       heliChartRef.current?.setInterval(interval);
+      heliChartRef.current?.render({ refreshSignal: true });
+      heliChartRef.current?.fetchAllData();
+      handleFetchEvents();
     },
-    [heliChartRef, setHelicorderInterval]
+    [heliChartRef, setHelicorderInterval, handleFetchEvents]
   );
 
   const handleHelicorderChangeDuration = useCallback(
     (duration: number) => {
       setHelicorderDuration(duration);
       heliChartRef.current?.setDuration(duration);
+      heliChartRef.current?.render({ refreshSignal: true });
+      heliChartRef.current?.fetchAllData();
+      handleFetchEvents();
     },
-    [heliChartRef, setHelicorderDuration]
+    [heliChartRef, setHelicorderDuration, handleFetchEvents]
   );
 
   const handleHelicorderFocus = useCallback(() => {
@@ -140,10 +157,14 @@ export function useHelicorderCallback() {
 
   const handleHelicorderSelectionChange = useCallback(
     (range: [number, number]) => {
-      seisChartRef.current?.setExtent(range, { autoZoom: true });
-      seisChartRef.current?.clearPickRange();
       setSelectionWindow(range);
       setLastSeismogramExtent(range);
+      seisChartRef.current?.clearChannelData();
+      seisChartRef.current?.clearSpectrogramData();
+      seisChartRef.current?.setExtent(range, { autoZoom: true });
+      seisChartRef.current?.clearPickRange();
+      seisChartRef.current?.render();
+      seisChartRef.current?.fetchAllChannelsData();
     },
     [seisChartRef, setSelectionWindow, setLastSeismogramExtent]
   );
@@ -167,6 +188,7 @@ export function useHelicorderCallback() {
       });
     });
     seisChartRef.current?.addEventMarkers(markers, { show: showEvent });
+    seisChartRef.current?.render();
   }, [seisChartRef, eventMarkers, darkMode, eventId, showEvent]);
 
   const handleHelicorderUpdateEventMarkers = useCallback(async () => {
@@ -185,6 +207,7 @@ export function useHelicorderCallback() {
       });
     });
     heliChartRef.current?.addEventMarkers(markers, { show: showEvent });
+    heliChartRef.current?.render({ refreshSignal: false });
   }, [heliChartRef, eventMarkers, darkMode, showEvent]);
 
   const handleUpdateEventMarkers = useCallback(() => {
@@ -195,13 +218,18 @@ export function useHelicorderCallback() {
   const handleEditEvent = useCallback(
     (event: SeismicEvent) => {
       const [start, end] = getPickExtent(event);
-      seisChartRef.current?.removeEventMarker(start, end);
-
       const buffer = ONE_MINUTE;
       const autoZoom = false;
       const range: [number, number] = [start - buffer, end + buffer];
-      seisChartRef.current?.setExtent(range, { autoZoom: autoZoom });
+
+      seisChartRef.current?.clearChannelData();
+      seisChartRef.current?.clearSpectrogramData();
+      seisChartRef.current?.removeEventMarker(start, end);
+      seisChartRef.current?.setExtent(range, { autoZoom });
       seisChartRef.current?.clearPickRange();
+      seisChartRef.current?.render();
+      seisChartRef.current?.fetchAllChannelsData({ mode: 'force' });
+
       setSelectionWindow(range);
       setLastSeismogramExtent(range);
 
@@ -213,7 +241,7 @@ export function useHelicorderCallback() {
         });
       }
 
-      heliChartRef.current?.render();
+      heliChartRef.current?.render({ refreshSignal: false });
     },
     [heliChartRef, seisChartRef, fetchEditedEvent, handleSetupEventEditing, setSelectedTab, setShowSidebar, setLastSeismogramExtent, setSelectionWindow]
   );
@@ -243,8 +271,10 @@ export function useHelicorderCallback() {
   const handleHelicorderSelectOffsetDate = useCallback(
     (date: Date) => {
       const offsetDate = date.getTime();
-      heliChartRef.current?.setOffsetDate(offsetDate);
       setHelicorderOffsetDate(offsetDate);
+      heliChartRef.current?.setOffsetDate(offsetDate);
+      heliChartRef.current?.render({ refreshSignal: true });
+      heliChartRef.current?.fetchAllData();
       handleFetchEvents();
     },
     [heliChartRef, setHelicorderOffsetDate, handleFetchEvents]
@@ -277,6 +307,7 @@ export function useHelicorderCallback() {
   const handleHelicorderScalingChange = useCallback(
     (scaling: ScalingType) => {
       heliChartRef.current?.setScaling(scaling);
+      heliChartRef.current?.render({ refreshSignal: true });
     },
     [heliChartRef]
   );

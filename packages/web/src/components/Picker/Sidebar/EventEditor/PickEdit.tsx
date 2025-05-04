@@ -135,17 +135,20 @@ const PickEdit = () => {
   const { reset: resetTectonicEventStore } = useTectonicEventStore();
   const { reset: resetVolcanicEmissionEventStore } = useVolcanicEmissionEventStore();
   const handleResetPick = useCallback(() => {
+    seisChartRef.current?.clearPickRange();
+    seisChartRef.current?.render({ refreshSignal: false });
+
     resetEditing();
     setCancelDialogOpen(false);
-    seisChartRef.current?.clearPickRange();
     handleUpdateEventMarkers();
-    onCancel?.();
 
     resetExplosionEventStore();
     resetPyroclasticFlowEventStore();
     resetRockfallEventStore();
     resetTectonicEventStore();
     resetVolcanicEmissionEventStore();
+
+    onCancel?.();
   }, [
     seisChartRef,
     resetEditing,
@@ -185,9 +188,12 @@ const PickEdit = () => {
   const onSavedCallback = useCallback(
     (event: SeismicEventDetail) => {
       seisChartRef.current?.clearPickRange();
+      seisChartRef.current?.render({ refreshSignal: false });
+
       resetEditing();
       addEventMarker(event);
       handleUpdateEventMarkers();
+
       onSave?.(event);
     },
     [seisChartRef, resetEditing, addEventMarker, handleUpdateEventMarkers, onSave]
@@ -212,7 +218,10 @@ const PickEdit = () => {
     setLoading(true);
     try {
       await deleteEvent(eventId);
+
       seisChartRef.current?.clearPickRange();
+      seisChartRef.current?.render({ refreshSignal: false });
+
       resetEditing();
       removeEventMarker(eventId);
       handleUpdateEventMarkers();
@@ -227,7 +236,7 @@ const PickEdit = () => {
   return (
     <div className="h-full w-full overflow-hidden relative">
       <div className="absolute top-0 right-0 left-0 bottom-0 overflow-y-auto overflow-x-hidden">
-        {loading && <ProgressBar shape="square" />}
+        <div className="h-1 absolute top-0 left-0 right-0 z-10">{loading && <ProgressBar shape="square" />}</div>
         <div className="flex items-center justify-between px-2 h-[40px] border-b dark:border-b-gray-800">
           <div className="font-semibold">Editor</div>
           <div className="flex items-center gap-1">

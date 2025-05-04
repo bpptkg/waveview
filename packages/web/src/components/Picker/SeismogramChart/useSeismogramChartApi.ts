@@ -1,5 +1,5 @@
 import { Channel, Seismogram, SeismogramEventMarkerOptions } from '@waveview/zcharts';
-import { MutableRefObject, useCallback, useMemo } from 'react';
+import { MutableRefObject, useMemo } from 'react';
 import { ONE_MINUTE } from '../../../shared/time';
 import { SeismogramChartRef, SetExtentOptions } from './SeismogramChart.types';
 import { SeismogramWebWorker } from './SeismogramWebWorker';
@@ -12,52 +12,32 @@ export interface SeismogramChartInitOptions {
 export function useSeismogramChartApi(options: SeismogramChartInitOptions): SeismogramChartRef {
   const { chartRef, webWorkerRef } = options;
 
-  const fetchData = useCallback(() => {
-    if (chartRef.current && webWorkerRef.current) {
-      if (webWorkerRef.current.hasFilter()) {
-        webWorkerRef.current.fetchAllFiltersData();
-      } else {
-        webWorkerRef.current.fetchAllChannelsData();
-      }
-      if (chartRef.current.isSpectrogramVisible()) {
-        webWorkerRef.current.fetchAllSpectrogramData();
-      }
-    }
-  }, [chartRef, webWorkerRef]);
-
   return useMemo(() => {
     return {
       getInstance: () => chartRef.current!,
       setChannels: (channels: Channel[]) => {
         if (chartRef.current) {
           chartRef.current.setChannels(channels);
-          chartRef.current.render();
-          fetchData();
         }
       },
       addChannel: (channel: Channel) => {
         if (chartRef.current) {
           chartRef.current.addChannel(channel);
-          chartRef.current.render();
-          fetchData();
         }
       },
       removeChannel: (index: number) => {
         if (chartRef.current) {
           chartRef.current.removeChannel(index);
-          chartRef.current.render();
         }
       },
       moveChannelUp: (index: number) => {
         if (chartRef.current) {
           chartRef.current.moveChannelUp(index);
-          chartRef.current.render();
         }
       },
       moveChannelDown: (index: number) => {
         if (chartRef.current) {
           chartRef.current.moveChannelDown(index);
-          chartRef.current.render();
         }
       },
       zoomIn: (by: number) => {
@@ -65,7 +45,6 @@ export function useSeismogramChartApi(options: SeismogramChartInitOptions): Seis
           const [start, end] = chartRef.current.getChartExtent();
           const center = start + (end - start) / 2;
           chartRef.current.zoomIn(center, by);
-          chartRef.current.render();
         }
       },
       zoomOut: (by: number) => {
@@ -73,44 +52,35 @@ export function useSeismogramChartApi(options: SeismogramChartInitOptions): Seis
           const [start, end] = chartRef.current.getChartExtent();
           const center = start + (end - start) / 2;
           chartRef.current.zoomOut(center, by);
-          chartRef.current.render();
         }
       },
       scrollLeft: (by: number) => {
         if (chartRef.current) {
           chartRef.current.scrollLeft(by);
-          chartRef.current.render();
         }
       },
       scrollRight: (by: number) => {
         if (chartRef.current) {
           chartRef.current.scrollRight(by);
-          chartRef.current.render();
         }
       },
       increaseAmplitude: (by: number) => {
         if (chartRef.current) {
           chartRef.current.increaseAmplitude(by);
-          chartRef.current.render();
         }
       },
       decreaseAmplitude: (by: number) => {
         if (chartRef.current) {
           chartRef.current.decreaseAmplitude(by);
-          chartRef.current.render();
         }
       },
       resetAmplitude: () => {
         if (chartRef.current) {
           chartRef.current.resetAmplitude();
-          chartRef.current.render();
         }
       },
       setExtent: (extent: [number, number], options?: SetExtentOptions) => {
         if (chartRef.current && webWorkerRef.current) {
-          chartRef.current.clearChannelData();
-          chartRef.current.clearSpectrogramData();
-
           const { autoZoom = false } = options || {};
           if (autoZoom) {
             // Set the extent of the chart to the first minute of the selection
@@ -123,8 +93,6 @@ export function useSeismogramChartApi(options: SeismogramChartInitOptions): Seis
           }
 
           webWorkerRef.current.mergeOptions({ selectionWindow: extent });
-          chartRef.current.render();
-          fetchData();
         }
       },
       zoomFirstMinute: () => {
@@ -135,7 +103,6 @@ export function useSeismogramChartApi(options: SeismogramChartInitOptions): Seis
         const [start] = selectionWindow;
         const firstMinute = start + ONE_MINUTE;
         chartRef.current.getXAxis().setExtent([start, firstMinute]);
-        chartRef.current.render();
       },
       fitToWindow: () => {
         if (!chartRef.current || !webWorkerRef.current) {
@@ -144,12 +111,10 @@ export function useSeismogramChartApi(options: SeismogramChartInitOptions): Seis
         const { selectionWindow } = webWorkerRef.current.getOptions();
         const [start, end] = selectionWindow;
         chartRef.current.getXAxis().setExtent([start, end]);
-        chartRef.current.render();
       },
       setTheme: (theme: 'light' | 'dark') => {
         if (chartRef.current) {
           chartRef.current.setTheme(theme);
-          chartRef.current.render();
         }
       },
       focus: () => {
@@ -171,7 +136,6 @@ export function useSeismogramChartApi(options: SeismogramChartInitOptions): Seis
       setUseUTC: (useUTC: boolean) => {
         if (chartRef.current) {
           chartRef.current.setUseUTC(useUTC);
-          chartRef.current.render();
         }
       },
       isPickModeEnabled: () => {
@@ -197,50 +161,42 @@ export function useSeismogramChartApi(options: SeismogramChartInitOptions): Seis
         if (chartRef.current) {
           const picker = chartRef.current.getPicker();
           picker.setRange(range);
-          chartRef.current.render();
         }
       },
       clearPickRange: () => {
         if (chartRef.current) {
           const picker = chartRef.current.getPicker();
           picker.clearRange();
-          chartRef.current.render();
         }
       },
       showEventMarkers: () => {
         if (chartRef.current) {
           chartRef.current.showEventMarkers();
-          chartRef.current.render();
         }
       },
       hideEventMarkers: () => {
         if (chartRef.current) {
           chartRef.current.hideEventMarkers();
-          chartRef.current.render();
         }
       },
       addEventMarker: (markerOptions: SeismogramEventMarkerOptions, options) => {
         if (chartRef.current) {
           chartRef.current.addEventMarker(markerOptions, options);
-          chartRef.current.render();
         }
       },
       addEventMarkers: (markersOptions: SeismogramEventMarkerOptions[], options) => {
         if (chartRef.current) {
           chartRef.current.addEventMarkers(markersOptions, options);
-          chartRef.current.render();
         }
       },
       removeEventMarker: (start: number, end: number) => {
         if (chartRef.current) {
           chartRef.current.removeEventMarker(start, end);
-          chartRef.current.render();
         }
       },
       clearEventMarkers: () => {
         if (chartRef.current) {
           chartRef.current.clearEventMarkers();
-          chartRef.current.render();
         }
       },
       dispose: () => {
@@ -258,8 +214,17 @@ export function useSeismogramChartApi(options: SeismogramChartInitOptions): Seis
       render: () => {
         chartRef.current?.render();
       },
-      fetchAllChannelsData: () => {
-        webWorkerRef.current?.fetchAllChannelsData();
+      fetchAllChannelsData: (options) => {
+        if (chartRef.current && webWorkerRef.current) {
+          if (webWorkerRef.current.hasFilter()) {
+            webWorkerRef.current.fetchAllFiltersData();
+          } else {
+            webWorkerRef.current.fetchAllChannelsData(options);
+          }
+          if (chartRef.current.isSpectrogramVisible()) {
+            webWorkerRef.current.fetchAllSpectrogramData(options);
+          }
+        }
       },
       applyFilter: (options) => {
         webWorkerRef.current?.mergeOptions({ appliedFilter: options });
@@ -272,26 +237,22 @@ export function useSeismogramChartApi(options: SeismogramChartInitOptions): Seis
       showSpectrogram: () => {
         if (chartRef.current) {
           chartRef.current.showSpectrograms();
-          chartRef.current.render();
           webWorkerRef.current?.fetchAllSpectrogramData({ mode: 'cache' });
         }
       },
       hideSpectrogram: () => {
         if (chartRef.current) {
           chartRef.current.hideSpectrograms();
-          chartRef.current.render();
         }
       },
       showSignal: () => {
         if (chartRef.current) {
           chartRef.current.showSignals();
-          chartRef.current.render();
         }
       },
       hideSignal: () => {
         if (chartRef.current) {
           chartRef.current.hideSignals();
-          chartRef.current.render();
         }
       },
       toDataURL: (type?: string, quality?: number) => {
@@ -304,13 +265,11 @@ export function useSeismogramChartApi(options: SeismogramChartInitOptions): Seis
       expandView: (index: number) => {
         if (chartRef.current) {
           chartRef.current.expandView(index);
-          chartRef.current.render();
         }
       },
       restoreView: () => {
         if (chartRef.current) {
           chartRef.current.restoreView();
-          chartRef.current.render();
         }
       },
       setForceCenter: (forceCenter: boolean) => {
@@ -318,7 +277,7 @@ export function useSeismogramChartApi(options: SeismogramChartInitOptions): Seis
           webWorkerRef.current.mergeOptions({ forceCenter });
         }
       },
-      getFirstArrialChannelId: () => {
+      getFirstArrivalChannelId: () => {
         if (chartRef.current) {
           const picker = chartRef.current.getPicker();
           const { y } = picker.dragStart;
@@ -332,7 +291,6 @@ export function useSeismogramChartApi(options: SeismogramChartInitOptions): Seis
       setScaling: (scaling) => {
         if (chartRef.current) {
           chartRef.current.setScaling(scaling);
-          chartRef.current.render();
         }
       },
       setWorkerOptions: (options) => {
@@ -340,6 +298,16 @@ export function useSeismogramChartApi(options: SeismogramChartInitOptions): Seis
           webWorkerRef.current.mergeOptions(options);
         }
       },
+      clearChannelData: () => {
+        if (chartRef.current) {
+          chartRef.current.clearChannelData();
+        }
+      },
+      clearSpectrogramData: () => {
+        if (chartRef.current) {
+          chartRef.current.clearSpectrogramData();
+        }
+      },
     };
-  }, [chartRef, webWorkerRef, fetchData]);
+  }, [chartRef, webWorkerRef]);
 }

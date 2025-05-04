@@ -105,6 +105,7 @@ const TrackContextMenu: React.ForwardRefExoticComponent<React.RefAttributes<Trac
   const handleExpandView = useCallback(() => {
     if (channelIndex !== null) {
       seisChartRef.current?.expandView(channelIndex);
+      seisChartRef.current?.render();
       setExpandMode(true);
       handleClose();
     }
@@ -112,6 +113,7 @@ const TrackContextMenu: React.ForwardRefExoticComponent<React.RefAttributes<Trac
 
   const handleRestoreView = useCallback(() => {
     seisChartRef.current?.restoreView();
+    seisChartRef.current?.render();
     setExpandMode(false);
     handleClose();
   }, [seisChartRef, setExpandMode, handleClose]);

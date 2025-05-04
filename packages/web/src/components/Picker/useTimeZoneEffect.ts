@@ -8,6 +8,7 @@ export function useHelicorderTimeZoneEffect(heliChartRef: React.MutableRefObject
 
   useEffect(() => {
     heliChartRef.current?.setUseUTC(useUTC);
+    heliChartRef.current?.render({ refreshSignal: false });
   }, [heliChartRef, useUTC]);
 }
 
@@ -16,5 +17,6 @@ export function useSeismogramTimeZoneEffect(seisChartRef: React.MutableRefObject
 
   useEffect(() => {
     seisChartRef.current?.setUseUTC(useUTC);
+    seisChartRef.current?.render({ refreshSignal: false });
   }, [seisChartRef, useUTC]);
 }

@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useImperativeHandle, useRef, useState } 
 import { debounce } from '../../../shared/debounce';
 import { HelicorderChartProps, HelicorderChartRef } from './HelicorderChart.types';
 import { HelicorderWebWorker } from './HelicorderWebWorker';
-import { useHelicorderChartApi } from './useHelicorderApi';
+import { useHelicorderChartApi } from './useHelicorderChartApi';
 
 export type HelicorderChartType = React.ForwardRefExoticComponent<HelicorderChartProps & React.RefAttributes<HelicorderChartRef>>;
 

@@ -53,6 +53,7 @@ const PickEditEvent: React.FC = () => {
 
   useEffect(() => {
     seisChartRef?.current?.setPickRange(pickRange);
+    seisChartRef?.current?.render({ refreshSignal: false });
   }, [seisChartRef, pickRange]);
 
   const handleTimeChange = useCallback(

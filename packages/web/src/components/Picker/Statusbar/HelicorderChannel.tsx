@@ -26,7 +26,6 @@ const useStyles = makeStyles({
   popoverSurface: {
     padding: '8px',
     borderRadius: '16px',
-    width: '250px',
   },
 });
 
@@ -60,7 +59,9 @@ const HelicorderChannel: React.FC = () => {
       }
 
       const { helicorder_channel } = config.data;
+      heliChartRef.current.clearData();
       heliChartRef.current.setChannel({ id: helicorder_channel.channel_id });
+      heliChartRef.current.fetchAllData({ mode: 'force' });
     },
     [heliChartRef]
   );

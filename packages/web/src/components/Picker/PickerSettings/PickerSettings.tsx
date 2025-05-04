@@ -160,8 +160,8 @@ const PickerSettings: React.FC = () => {
           });
         }
       });
-      const forceCenter = force_center || true;
-      const windowSize = window_size || 5; // 5 minutes
+      const forceCenter = force_center;
+      const windowSize = window_size;
       const helicorderFilter = helicorder_filter ? extractFilterOptions(helicorder_filter) : null;
 
       const channelId = helicorder_channel.channel_id;
@@ -177,6 +177,12 @@ const PickerSettings: React.FC = () => {
       }));
       seisChartRef.current.setChannels(seismogramChannels);
       seisChartRef.current.setForceCenter(forceCenter);
+
+      heliChartRef.current.render({ refreshSignal: true });
+      seisChartRef.current.render({ refreshSignal: true });
+
+      heliChartRef.current.fetchAllData({ mode: 'force' });
+      seisChartRef.current.fetchAllChannelsData({ mode: 'force' });
     },
     [heliChartRef, seisChartRef, getChannelsConfig]
   );
