@@ -60,7 +60,7 @@ export class TrackManager {
   /**
    * Get the channel and track at the specified index.
    */
-  getChannelByIndex(index: number): Channel {
+  getChannelByIndex(index: number): Channel | undefined {
     return this.store[index][0];
   }
 
