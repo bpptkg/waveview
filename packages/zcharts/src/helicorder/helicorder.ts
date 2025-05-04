@@ -70,7 +70,7 @@ export class Helicorder extends ChartView<HelicorderOptions> {
     this.grid = new GridView(this, opts.grid);
     this.addComponent(this.grid);
 
-    this.topXAxis = new AxisView(this.grid, {
+    this.topXAxis = new AxisView(this.grid, this, {
       position: "top",
       type: "linear",
       useUTC: opts.useUTC,
@@ -78,7 +78,7 @@ export class Helicorder extends ChartView<HelicorderOptions> {
     this.topXAxis.setExtent([0, opts.interval]);
     this.addComponent(this.topXAxis);
 
-    this.bottomXAxis = new AxisView(this.grid, {
+    this.bottomXAxis = new AxisView(this.grid, this, {
       position: "bottom",
       type: "linear",
       useUTC: opts.useUTC,

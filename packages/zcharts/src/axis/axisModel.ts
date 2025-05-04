@@ -67,6 +67,7 @@ export interface AxisOptions {
   min?: number;
   max?: number;
   useUTC: boolean;
+  draggable?: boolean;
 }
 
 export class AxisModel extends Model<AxisOptions> {
@@ -116,6 +117,7 @@ export class AxisModel extends Model<AxisOptions> {
         width: 1,
       },
       useUTC: false,
+      draggable: false,
     };
   }
 

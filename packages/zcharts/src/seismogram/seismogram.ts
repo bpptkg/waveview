@@ -81,10 +81,11 @@ export class Seismogram extends ChartView<SeismogramOptions> {
     this.addComponent(this.grid);
 
     const { startTime, endTime, useUTC } = opts;
-    this.xAxis = new AxisView(this.grid, {
+    this.xAxis = new AxisView(this.grid, this, {
       position: "top",
       type: "time",
       useUTC,
+      draggable: true,
     });
     if (startTime && endTime) {
       this.xAxis.setExtent([startTime, endTime]);

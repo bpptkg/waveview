@@ -51,10 +51,10 @@ export class TrackView extends View<TrackModel> {
       this
     );
 
-    this.leftYAxis = new AxisView(this, { position: "left" });
+    this.leftYAxis = new AxisView(this, chart, { position: "left" });
     this.signal = new LineSeriesView(chart.getXAxis(), this.leftYAxis, this);
 
-    this.rightYAxis = new AxisView(this, {
+    this.rightYAxis = new AxisView(this, chart, {
       position: "right",
       minorTick: {
         show: false,

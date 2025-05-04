@@ -1,4 +1,5 @@
 import * as zrender from "zrender";
+import { ChartView } from "../core/chartView";
 import { EventEmitter } from "../core/eventEmitter";
 import { View } from "../core/view";
 import {
@@ -30,11 +31,30 @@ export class AxisView extends View<AxisModel> {
   private axisLabels: zrender.Group;
   private axisName: zrender.Text;
   private splitLines: zrender.Group;
+  private overlay: zrender.Rect;
+  private chart: ChartView;
 
-  constructor(parent: View, options?: DeepPartial<AxisOptions>) {
+  private dragMode: "pan" | "zoom" = "pan";
+  private isDragging: boolean = false;
+  private lastX: number = 0;
+
+  private onMouseDownBound: (e: zrender.ElementEvent) => void;
+  private onMouseMoveBound: (e: zrender.ElementEvent) => void;
+  private onMouseUpBound: (e: zrender.ElementEvent) => void;
+  private onGlobalMouseMoveBound: (e: MouseEvent) => void;
+  private onGlobalMouseUpBound: (e: MouseEvent) => void;
+  private onKeyDownBound: (e: KeyboardEvent) => void;
+  private onKeyUpBound: (e: KeyboardEvent) => void;
+
+  constructor(
+    parent: View,
+    chart: ChartView,
+    options?: DeepPartial<AxisOptions>
+  ) {
     const model = new AxisModel(options);
     super(model);
     this.parent = parent;
+    this.chart = chart;
     this.rect = parent.getRect();
     this.axisLine = new zrender.Line();
     this.axisTicks = new zrender.Group();
@@ -42,12 +62,29 @@ export class AxisView extends View<AxisModel> {
     this.axisLabels = new zrender.Group();
     this.axisName = new zrender.Text();
     this.splitLines = new zrender.Group();
+    this.overlay = new zrender.Rect();
+
     this.group.add(this.axisLine);
     this.group.add(this.axisTicks);
     this.group.add(this.axisMinorTicks);
     this.group.add(this.axisLabels);
     this.group.add(this.axisName);
     this.group.add(this.splitLines);
+    this.group.add(this.overlay);
+
+    this.onMouseDownBound = this.onMouseDown.bind(this);
+    this.onMouseMoveBound = this.onMouseMove.bind(this);
+    this.onMouseUpBound = this.onMouseUp.bind(this);
+    this.onKeyDownBound = this.onKeyDown.bind(this);
+    this.onKeyUpBound = this.onKeyUp.bind(this);
+    this.onGlobalMouseMoveBound = this.onGlobalMouseMove.bind(this);
+    this.onGlobalMouseUpBound = this.onGlobalMouseUp.bind(this);
+
+    document.addEventListener("keydown", this.onKeyDownBound, false);
+    document.addEventListener("keyup", this.onKeyUpBound, false);
+    this.overlay.on("mousedown", this.onMouseDownBound);
+    this.overlay.on("mousemove", this.onMouseMoveBound);
+    this.overlay.on("mouseup", this.onMouseUpBound);
   }
 
   applyThemeStyle(style: ThemeStyle): void {
@@ -174,7 +211,11 @@ export class AxisView extends View<AxisModel> {
     const { x, y, width, height } = this.getRect();
     const { splitNumber } = this.model.options.minorTick;
     const range = this.isHorizontal() ? width : height;
-    const ticks = scale.getMinorTicks(splitNumber, { maxTicks, reverse, width });
+    const ticks = scale.getMinorTicks(splitNumber, {
+      maxTicks,
+      reverse,
+      width,
+    });
 
     const ticksPixels = [];
     for (const tick of ticks) {
@@ -268,6 +309,8 @@ export class AxisView extends View<AxisModel> {
 
   dispose(): void {
     this.group.removeAll();
+    document.removeEventListener("keydown", this.onKeyDownBound, false);
+    document.removeEventListener("keyup", this.onKeyUpBound, false);
   }
 
   on<K extends keyof AxisEventMap>(event: K, listener: AxisEventMap[K]): void {
@@ -296,6 +339,7 @@ export class AxisView extends View<AxisModel> {
     this.renderAxisLabel();
     this.renderAxisName();
     this.renderSplitLine();
+    this.renderOverlay();
     this.group.show();
   }
 
@@ -585,5 +629,121 @@ export class AxisView extends View<AxisModel> {
     }
 
     this.axisName.show();
+  }
+
+  private renderOverlay(): void {
+    const { position, draggable } = this.model.getOptions();
+    const rect = this.getRect();
+    const [xo, yo] = this.getOrigin();
+    const length = 50;
+    const margin = 8;
+    let x, y, width, height;
+
+    if (this.isHorizontal()) {
+      x = xo;
+      y = position === "top" ? yo - length + margin : yo - margin;
+      width = rect.width;
+      height = length;
+    } else {
+      x = position === "left" ? xo - length + margin : xo - margin;
+      y = yo;
+      width = length;
+      height = rect.height;
+    }
+    this.overlay.attr({
+      shape: {
+        x,
+        y,
+        width,
+        height,
+      },
+      style: {
+        fill: "transparent",
+        opacity: 0.5,
+      },
+      zlevel: 11,
+      silent: !draggable,
+      cursor: draggable
+        ? this.dragMode === "pan"
+          ? "grab"
+          : "ew-resize"
+        : "default",
+    });
+  }
+
+  private onMouseDown(e: zrender.ElementEvent): void {
+    this.isDragging = true;
+    this.lastX = e.offsetX;
+    this.dragMode = e.event.shiftKey ? "zoom" : "pan";
+  }
+
+  private onMouseMove(_: zrender.ElementEvent): void {
+    document.addEventListener("mousemove", this.onGlobalMouseMoveBound, false);
+    document.addEventListener("mouseup", this.onGlobalMouseUpBound, false);
+  }
+
+  private onMouseUp(_: zrender.ElementEvent): void {
+    this.isDragging = false;
+    this.dragMode = "pan";
+    document.removeEventListener(
+      "mousemove",
+      this.onGlobalMouseMoveBound,
+      false
+    );
+    document.removeEventListener("mouseup", this.onGlobalMouseUpBound, false);
+  }
+
+  private onKeyDown(e: KeyboardEvent): void {
+    if (e.key === "Shift") {
+      this.dragMode = "zoom";
+      this.overlay.attr({
+        cursor: "ew-resize",
+      });
+    }
+  }
+
+  private onKeyUp(e: KeyboardEvent): void {
+    if (e.key === "Shift") {
+      this.dragMode = "pan";
+      this.overlay.attr({
+        cursor: "grab",
+      });
+    }
+  }
+
+  private onGlobalMouseMove(e: MouseEvent): void {
+    if (!this.isDragging) {
+      return;
+    }
+    const dx = e.offsetX - this.lastX;
+    if (this.dragMode === "pan") {
+      const [min, max] = this.getExtent();
+      const range = max - min;
+      const newMin = min - (range * dx) / this.getRect().width;
+      const newMax = max - (range * dx) / this.getRect().width;
+      this.setExtent([newMin, newMax]);
+      this.emit("extentChanged", [newMin, newMax]);
+    } else if (this.dragMode === "zoom") {
+      const [min, max] = this.getExtent();
+      const range = max - min;
+      const newMax = max - (range * dx) / this.getRect().width;
+      const newMin = min;
+      this.setExtent([newMin, newMax]);
+      this.emit("extentChanged", [newMin, newMax]);
+    }
+
+    this.chart.render();
+    this.lastX = e.offsetX;
+  }
+
+  private onGlobalMouseUp(_: MouseEvent): void {
+    this.isDragging = false;
+    this.dragMode = "pan";
+    document.removeEventListener(
+      "mousemove",
+      this.onGlobalMouseMoveBound,
+      false
+    );
+    document.removeEventListener("mouseup", this.onGlobalMouseUpBound, false);
   }
 }
