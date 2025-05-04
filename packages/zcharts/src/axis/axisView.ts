@@ -663,11 +663,11 @@ export class AxisView extends View<AxisModel> {
       },
       zlevel: 11,
       silent: !draggable,
-      cursor: draggable
-        ? this.dragMode === "pan"
-          ? "grab"
-          : "ew-resize"
-        : "default",
+      // cursor: draggable
+      //   ? this.dragMode === "pan"
+      //     ? "grab"
+      //     : "ew-resize"
+      //   : "default",
     });
   }
 
@@ -675,6 +675,16 @@ export class AxisView extends View<AxisModel> {
     this.isDragging = true;
     this.lastX = e.offsetX;
     this.dragMode = e.event.shiftKey ? "zoom" : "pan";
+    if (this.dragMode === "pan") {
+      this.overlay.attr({
+        cursor: "grabbing",
+      });
+    }
+    if (this.dragMode === "zoom") {
+      this.overlay.attr({
+        cursor: "ew-resize",
+      });
+    }
   }
 
   private onMouseMove(_: zrender.ElementEvent): void {
@@ -691,6 +701,9 @@ export class AxisView extends View<AxisModel> {
       false
     );
     document.removeEventListener("mouseup", this.onGlobalMouseUpBound, false);
+    this.overlay.attr({
+      cursor: "grab",
+    });
   }
 
   private onKeyDown(e: KeyboardEvent): void {
