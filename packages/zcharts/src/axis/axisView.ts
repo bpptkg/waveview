@@ -157,7 +157,7 @@ export class AxisView extends View<AxisModel> {
     return this.model.getOptions().position === "left";
   }
 
-  getOrigin(): [number, number] {
+  private getOrigin(): [number, number] {
     const { position } = this.model.getOptions();
     const { x, y, width, height } = this.getRect();
     if (position === "top") {
@@ -171,7 +171,7 @@ export class AxisView extends View<AxisModel> {
     }
   }
 
-  getTicksPixels(): TickPixel[] {
+  private getTicksPixels(): TickPixel[] {
     const { fontSize, reverse } = this.model.getOptions().axisLabel;
     const maxTicks = this.isHorizontal()
       ? Math.floor(this.getRect().width / fontSize)
@@ -201,7 +201,7 @@ export class AxisView extends View<AxisModel> {
     return ticksPixels;
   }
 
-  getMinorTicksPixels(): TickPixel[] {
+  private getMinorTicksPixels(): TickPixel[] {
     const { fontSize, reverse } = this.model.getOptions().axisLabel;
     const maxTicks = this.isHorizontal()
       ? Math.floor(this.getRect().width / fontSize)
