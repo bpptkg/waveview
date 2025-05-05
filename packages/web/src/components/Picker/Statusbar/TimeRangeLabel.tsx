@@ -26,7 +26,7 @@ const TimeRangeLabel = () => {
 
   return (
     <Tooltip content={`Current time range of seismogram chart: ${labelFormatted}`} relationship="description" showDelay={1500}>
-      <span className="text-xs dark:text-neutral-grey-84">{labelFormatted}</span>
+      <span className="text-xs dark:text-neutral-grey-84 px-1">{labelFormatted}</span>
     </Tooltip>
   );
 };

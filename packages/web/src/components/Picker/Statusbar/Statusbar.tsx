@@ -11,7 +11,7 @@ const Statusbar = () => {
   const { message } = useStatusBarStore();
   return (
     <div className="bg-white dark:bg-neutral-grey-4 relative flex items-center justify-between gap-2 h-[20px] border-t dark:border-t-gray-800">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <HelicorderChannel />
         <EventsPanel />
         <HelicorderFilterStatus />
@@ -19,7 +19,7 @@ const Statusbar = () => {
         <TimeRangeLabel />
         <>{message}</>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <RealtimeClock />
         <TimeZoneSelector />
       </div>

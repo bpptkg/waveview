@@ -14,7 +14,7 @@ const RealtimeClock = () => {
     return () => clearInterval(interval);
   }, []);
 
-  return <span className="text-xs dark:text-neutral-grey-84">{formatTimezonedDate(time, 'HH:mm:ss', useUTC)}</span>;
+  return <span className="text-xs dark:text-neutral-grey-84 px-1">{formatTimezonedDate(time, 'HH:mm:ss', useUTC)}</span>;
 };
 
 export default RealtimeClock;

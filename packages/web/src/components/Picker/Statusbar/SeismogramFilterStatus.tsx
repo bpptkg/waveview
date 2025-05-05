@@ -13,7 +13,7 @@ const SeismogramFilterStatus = () => {
       relationship="description"
       showDelay={1500}
     >
-      <span className="text-xs dark:text-neutral-grey-84">S: {formatFilterText(appliedFilter)}</span>
+      <span className="text-xs dark:text-neutral-grey-84 px-1">S: {formatFilterText(appliedFilter)}</span>
     </Tooltip>
   );
 };
