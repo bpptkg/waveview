@@ -101,9 +101,7 @@ const EditItemTabList: React.FC<{ selectedValue?: string; onTabSelect?: (tab: st
           {tabs.map((tab) => (
             <OverflowItem key={tab.value} id={tab.value}>
               <Tooltip content={tab.label} relationship="label" showDelay={1500}>
-                <Tab key={tab.value} value={tab.value} icon={tab.icon}>
-                  {selectedValue === tab.value ? tab.label : ''}
-                </Tab>
+                <Tab key={tab.value} value={tab.value} icon={tab.icon}></Tab>
               </Tooltip>
             </OverflowItem>
           ))}
