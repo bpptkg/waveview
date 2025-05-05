@@ -16,7 +16,6 @@ import {
   useToastController,
 } from '@fluentui/react-components';
 import { ReactECharts, ReactEChartsType } from '@waveview/react-echarts';
-import * as echarts from 'echarts/core';
 import { useCallback, useEffect, useRef } from 'react';
 import { useHypocenterStore } from '../../stores/hypocenter';
 import { CustomError } from '../../types/response';
@@ -37,17 +36,6 @@ import { useCatalogStore } from '../../stores/catalog';
 import { useDemXyzStore } from '../../stores/demxyz';
 import { useEventTypeStore } from '../../stores/eventType';
 import { HypocenterWorkspace } from '../../types/hypocenter';
-
-echarts.use([
-  TooltipComponent,
-  VisualMapComponent,
-  VisualMapPiecewiseComponent,
-  VisualMapCustomPiecewiseComponent,
-  CanvasRenderer,
-  Grid3DComponent,
-  Scatter3DChart,
-  SurfaceChart,
-]);
 
 interface UpdateOptions {
   refreshHypo?: boolean;
@@ -259,6 +247,16 @@ const Hypocenter = () => {
               width: '100%',
               height: '100%',
             }}
+            plugins={[
+              TooltipComponent,
+              VisualMapComponent,
+              VisualMapPiecewiseComponent,
+              VisualMapCustomPiecewiseComponent,
+              CanvasRenderer,
+              Grid3DComponent,
+              Scatter3DChart,
+              SurfaceChart,
+            ]}
           />
         </div>
       )}

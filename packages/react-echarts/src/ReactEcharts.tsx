@@ -1,4 +1,5 @@
 import { ECharts, EChartsOption, init } from "echarts";
+import * as echarts from "echarts/core";
 import React, {
   CSSProperties,
   useEffect,
@@ -15,6 +16,7 @@ export interface ReactEChartsProps {
   showLoading?: boolean;
   loadingOption?: any;
   autoResize?: boolean;
+  plugins?: any;
 }
 
 export interface ReactEChartsType {
@@ -49,10 +51,17 @@ export const ReactECharts: React.ForwardRefExoticComponent<
     showLoading,
     loadingOption,
     autoResize,
+    plugins,
   } = props;
   const containerRef = useRef<HTMLDivElement>(null);
   const echartInstanceRef = useRef<ECharts | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
+
+  useEffect(() => {
+    if (plugins) {
+      echarts.use(plugins);
+    }
+  }, []);
 
   useImperativeHandle(ref, () => ({
     getInstance: () => echartInstanceRef.current!,
