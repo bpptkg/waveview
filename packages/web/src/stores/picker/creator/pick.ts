@@ -3,7 +3,7 @@ import { api } from '../../../services/api';
 import apiVersion from '../../../services/apiVersion';
 import { getPickExtent, ONE_SECOND } from '../../../shared/time';
 import { SignalAmplitude, SignalAmplitudePayload } from '../../../types/amplitude';
-import { EventPayload, SeismicEventDetail } from '../../../types/event';
+import { EventPayload, ManualAmplitude, SeismicEventDetail } from '../../../types/event';
 import { ExplosionEvent, ObservationPayload, PyroclasticFlowEvent, RockfallEvent, TectonicEvent, VolcanicEmissionEvent } from '../../../types/observation';
 import { CustomError, ErrorData } from '../../../types/response';
 import { useCatalogStore } from '../../catalog';
@@ -35,6 +35,7 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
     editedEvent: null,
     isCalculatingAmplitudes: false,
     useOutlierFilter: false,
+    manualAmplitudes: [],
 
     setTime: (time) => {
       const pickStart = time;
@@ -89,6 +90,9 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
         amplitudes: [],
         pickRange: [0, 0],
         editedEvent: null,
+        manualAmplitudes: [],
+        useOutlierFilter: false,
+        isCalculatingAmplitudes: false,
       });
     },
 
@@ -121,8 +125,44 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
               label: amplitude.label,
             } as SignalAmplitude)
         );
+      const manual_inputs = pickerConfig?.data.amplitude_config.manual_inputs || [];
+      const manualAmplitudes: ManualAmplitude[] = [];
+      manual_inputs.forEach((manualInput) => {
+        const amplitude = editedEvent.amplitudes.find(
+          (amplitude) => amplitude.waveform_id === manualInput.channel_id && amplitude.method === manualInput.method
+        );
+        if (amplitude) {
+          manualAmplitudes.push({
+            channel_id: manualInput.channel_id,
+            amplitude: amplitude.amplitude,
+            type: amplitude.type,
+            label: manualInput.label,
+            method: amplitude.method,
+            category: amplitude.category,
+            unit: amplitude.unit,
+            is_preferred: manualInput.is_preferred,
+            time: amplitude.time,
+            begin: amplitude.begin,
+            end: amplitude.end,
+          });
+        } else {
+          manualAmplitudes.push({
+            channel_id: manualInput.channel_id,
+            amplitude: null,
+            type: manualInput.type,
+            label: manualInput.label,
+            method: manualInput.method,
+            category: manualInput.category,
+            unit: manualInput.unit,
+            is_preferred: manualInput.is_preferred,
+            time: new Date(pickStart).toISOString(),
+            begin: 0,
+            end: duration,
+          });
+        }
+      });
 
-      set({ pickRange, eventId, time, duration, eventTypeId, stationOfFirstArrivalId, note, attachments, amplitudes, editedEvent });
+      set({ pickRange, eventId, time, duration, eventTypeId, stationOfFirstArrivalId, note, attachments, amplitudes, editedEvent, manualAmplitudes });
 
       const { observation } = editedEvent;
       if (observation) {
@@ -170,7 +210,27 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
       const [pickStart, pickEnd] = range;
       let duration = (pickEnd - pickStart) / ONE_SECOND;
       duration = parseFloat(duration.toFixed(2));
-      set({ pickRange: [pickStart, pickEnd], time: pickStart, duration });
+
+      const { pickerConfig } = get();
+      const manual_inputs = pickerConfig?.data.amplitude_config.manual_inputs || [];
+      const manualAmplitudes: ManualAmplitude[] = [];
+      manual_inputs.forEach((manualInput) => {
+        manualAmplitudes.push({
+          channel_id: manualInput.channel_id,
+          amplitude: null,
+          type: manualInput.type,
+          label: manualInput.label,
+          method: manualInput.method,
+          category: manualInput.category,
+          unit: manualInput.unit,
+          is_preferred: manualInput.is_preferred,
+          time: new Date(pickStart).toISOString(),
+          begin: 0,
+          end: duration,
+        });
+      });
+
+      set({ pickRange: [pickStart, pickEnd], time: pickStart, duration, manualAmplitudes });
     },
 
     savePickedEvent: async () => {
@@ -187,7 +247,7 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
         throw new CustomError('Catalog is not set');
       }
 
-      const { eventId, time, duration, eventTypeId, stationOfFirstArrivalId, note, attachments, useOutlierFilter } = get();
+      const { eventId, time, duration, eventTypeId, stationOfFirstArrivalId, note, attachments, useOutlierFilter, manualAmplitudes } = get();
 
       const explosionEventStore = useExplosionEventStore.getState();
       const pyroclasticFlowEventStore = usePyroclasticFlowEventStore.getState();
@@ -230,6 +290,7 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
         attachment_ids: attachments.map((attachment) => attachment.id),
         observation: observation,
         use_outlier_filter: useOutlierFilter,
+        amplitude_manual_inputs: manualAmplitudes,
       };
 
       const makeApiRequest = async (url: string, method: 'PUT' | 'POST', payload: any) => {
@@ -342,6 +403,18 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
 
     setUseOutlierFilter: (useOutlierFilter) => {
       set({ useOutlierFilter });
+    },
+
+    setManualAmplitudes: (manualAmplitudes) => {
+      set({ manualAmplitudes });
+    },
+
+    updateManualAmplitude: (index, amplitude) => {
+      set((state) => {
+        const manualAmplitudes = [...state.manualAmplitudes];
+        manualAmplitudes[index] = amplitude;
+        return { manualAmplitudes };
+      });
     },
   };
 };

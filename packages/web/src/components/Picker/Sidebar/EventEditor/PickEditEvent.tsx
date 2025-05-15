@@ -34,6 +34,7 @@ const PickEditEvent: React.FC = () => {
     stationOfFirstArrivalId,
     time,
     useOutlierFilter,
+    manualAmplitudes,
     calcSignalAmplitudes,
     getSelectedStations,
     setDuration,
@@ -42,6 +43,7 @@ const PickEditEvent: React.FC = () => {
     setStationOfFirstArrivalId,
     setTime,
     setUseOutlierFilter,
+    setManualAmplitudes,
   } = usePickerStore();
   const { eventTypes } = useEventTypeStore();
   const { useUTC, darkMode } = useAppStore();
@@ -136,6 +138,26 @@ const PickEditEvent: React.FC = () => {
           <div>No amplitude data</div>
         )}
       </Field>
+
+      {manualAmplitudes.length > 0 && (
+        <>
+          {manualAmplitudes.map((item, index) => (
+            <Field key={index} label={`${item.label} (${item.unit})`}>
+              <Input
+                appearance={appearance}
+                value={`${item.amplitude ?? ''}`}
+                type="number"
+                onChange={(_, data) => {
+                  const updatedAmplitudes = [...manualAmplitudes];
+                  const parsedValue = parseFloat(data.value);
+                  updatedAmplitudes[index] = isNaN(parsedValue) ? { ...item, amplitude: null } : { ...item, amplitude: parsedValue };
+                  setManualAmplitudes(updatedAmplitudes);
+                }}
+              />
+            </Field>
+          ))}
+        </>
+      )}
 
       <Field label="Station of First Arrival">
         <Dropdown

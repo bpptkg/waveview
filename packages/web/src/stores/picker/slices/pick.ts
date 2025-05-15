@@ -1,5 +1,5 @@
 import { SignalAmplitude } from '../../../types/amplitude';
-import { Attachment, SeismicEventDetail } from '../../../types/event';
+import { Attachment, ManualAmplitude, SeismicEventDetail } from '../../../types/event';
 
 export interface PickSlice {
   pickRange: [number, number];
@@ -15,6 +15,7 @@ export interface PickSlice {
   editedEvent: SeismicEventDetail | null;
   isCalculatingAmplitudes: boolean;
   useOutlierFilter: boolean;
+  manualAmplitudes: ManualAmplitude[];
   setTime: (time: number) => void;
   setDuration: (duration: number) => void;
   setEventTypeId: (eventTypeId: string) => void;
@@ -33,4 +34,6 @@ export interface PickSlice {
   deleteEvent: (eventId: string) => Promise<void>;
   calcSignalAmplitudes(): Promise<void>;
   setUseOutlierFilter: (useOutlierFilter: boolean) => void;
+  setManualAmplitudes: (manualAmplitudes: ManualAmplitude[]) => void;
+  updateManualAmplitude: (index: number, amplitude: ManualAmplitude) => void;
 }

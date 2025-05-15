@@ -3,9 +3,20 @@ export interface ChannelConfig {
   color?: string;
 }
 
+export interface AmplitudeConfigManualInput {
+  channel_id: string;
+  label: string;
+  method: string;
+  category: string;
+  unit: string;
+  type: string;
+  is_preferred: boolean;
+}
+
 export interface AmplitudeConfig {
   amplitude_calculator: string;
   channels: ChannelConfig[];
+  manual_inputs: AmplitudeConfigManualInput[];
 }
 
 export interface BaseFilterOptions {

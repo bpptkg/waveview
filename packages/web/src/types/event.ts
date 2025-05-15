@@ -64,6 +64,20 @@ export interface Magnitude {
   author_id: string;
 }
 
+export interface ManualAmplitude {
+  channel_id: string;
+  amplitude: number | null;
+  type: string;
+  label: string;
+  method: string;
+  category: string;
+  time: string;
+  begin: number;
+  end: number;
+  unit: string;
+  is_preferred: boolean;
+}
+
 export interface Amplitude {
   id: string;
   amplitude: number;
@@ -71,8 +85,8 @@ export interface Amplitude {
   duration: number;
   category: string;
   time: string;
-  begin: string;
-  end: string;
+  begin: number;
+  end: number;
   snr: number;
   unit: string;
   waveform_id: string;
@@ -142,6 +156,7 @@ export interface EventPayload {
   attachment_ids: string[];
   observation: ObservationPayload | null;
   use_outlier_filter: boolean;
+  amplitude_manual_inputs: ManualAmplitude[];
 }
 
 export interface EventQueryParams {
