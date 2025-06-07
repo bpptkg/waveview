@@ -1,7 +1,6 @@
 import {
   Button,
   createTableColumn,
-  Input,
   InputOnChangeData,
   makeStyles,
   SearchBox,
@@ -13,7 +12,6 @@ import {
   TableCell,
   TableCellLayout,
   TableColumnDefinition,
-  TableColumnId,
   TableHeader,
   TableHeaderCell,
   TableRow,
@@ -25,7 +23,7 @@ import {
   useTableFeatures,
   useTableSelection,
   useTableSort,
-  useToastController,
+  useToastController
 } from '@fluentui/react-components';
 import {
   ArrowCounterclockwiseRegular,
@@ -182,7 +180,7 @@ const EventTable = () => {
 
   const {
     getRows,
-    sort: { getSortDirection, toggleColumnSort, sort },
+    sort: { sort },
     selection: { toggleRow, isRowSelected },
   } = useTableFeatures<Item>(
     {
@@ -198,11 +196,6 @@ const EventTable = () => {
       }),
     ]
   );
-
-  const headerSortProps = (columnId: TableColumnId) => ({
-    onClick: (e: React.MouseEvent) => toggleColumnSort(e, columnId),
-    sortDirection: getSortDirection(columnId),
-  });
 
   const rows = sort(
     getRows((row) => {
@@ -249,21 +242,7 @@ const EventTable = () => {
     });
   }, [fetchEvents, showErrorToast]);
 
-  const enterKeyPressedRef = useRef(false);
   const [gotoPage, setGotoPage] = useState<number>(currentPage);
-
-  const handleCurrentPageChange = useCallback(
-    (value: number) => {
-      if (value < 1 || value > Math.ceil(totalEvents / itemsPerPage)) {
-        return;
-      }
-      setCurrentPage(value);
-      fetchEvents({ mode: 'current' }).catch((error: CustomError) => {
-        showErrorToast(error);
-      });
-    },
-    [totalEvents, itemsPerPage, setCurrentPage, fetchEvents, showErrorToast]
-  );
 
   const handleItemPerPageChange = useCallback(
     (value: string) => {
@@ -395,7 +374,7 @@ const EventTable = () => {
         <Table aria-label="Event Table" className={styles.table} sortable>
           <TableHeader>
             <TableRow>
-              <TableHeaderCell {...headerSortProps('time')}>Time</TableHeaderCell>
+              <TableHeaderCell>Time</TableHeaderCell>
               <TableHeaderCell>Duration</TableHeaderCell>
               <TableHeaderCell>Type</TableHeaderCell>
               <TableHeaderCell>Amplitude</TableHeaderCell>
@@ -451,36 +430,9 @@ const EventTable = () => {
             </Select>
           </div>
           <div className="flex items-center gap-2">
-            <span>Page</span>
-            <Input
-              type="number"
-              value={gotoPage.toString()}
-              onChange={(_, data: InputOnChangeData) => {
-                const value = Number(data.value);
-                if (value > 0 && value <= Math.ceil(totalEvents / itemsPerPage)) {
-                  setGotoPage(value);
-                }
-              }}
-              style={{ width: `${Math.max(gotoPage.toString().length + 8, 8)}ch` }}
-              min={1}
-              max={Math.ceil(totalEvents / itemsPerPage)}
-              onBlur={(e) => {
-                if (enterKeyPressedRef.current) {
-                  enterKeyPressedRef.current = false;
-                  return;
-                }
-                handleCurrentPageChange(Number(e.target.value));
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  enterKeyPressedRef.current = true;
-                  handleCurrentPageChange(Number(e.currentTarget.value));
-                  e.currentTarget.blur();
-                }
-              }}
-            />
-            <span>of {Math.ceil(totalEvents / itemsPerPage)}</span>
+            <span>
+              Page {gotoPage.toString()} of {Math.ceil(totalEvents / itemsPerPage)}
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <Tooltip content={'Go to first page'} relationship="label" showDelay={1500}>
