@@ -84,6 +84,7 @@ const PickerPanel = () => {
     handleSeismogramZoomFirstMinute,
     handleSeismogramZoomIn,
     handleSeismogramZoomOut,
+    handleSeismogramStartPicked,
   } = usePickerCallback();
 
   const helicorderClassName = useMemo(() => {
@@ -228,6 +229,7 @@ const PickerPanel = () => {
                 onTrackContextMenu={handleTrackContextMenu}
                 onTrackDoubleClick={handleSeismogramTrackDoubleClick}
                 onLoading={handleSeismogramOnLoading}
+                onStartPicked={handleSeismogramStartPicked}
                 onReady={handleSeismogramOnReady}
               />
               <RestoreViewButton />

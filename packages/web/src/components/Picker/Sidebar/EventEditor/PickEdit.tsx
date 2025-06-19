@@ -134,6 +134,7 @@ const PickEdit = () => {
   const { reset: resetVolcanicEmissionEventStore } = useVolcanicEmissionEventStore();
   const handleResetPick = useCallback(() => {
     seisChartRef.current?.clearPickRange();
+    seisChartRef.current?.clearPickAssistantRange();
     seisChartRef.current?.render({ refreshSignal: false });
 
     resetEditing();

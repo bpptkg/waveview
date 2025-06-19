@@ -24,6 +24,7 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
     onEventMarkerContextMenu,
     onTrackContextMenu,
     onLoading,
+    onStartPicked,
   } = props;
 
   const parentRef = useRef<HTMLDivElement>(null);
@@ -105,6 +106,13 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
     [onLoading]
   );
 
+  const handleStartPicked = useCallback(
+    (start: number) => {
+      onStartPicked?.(start);
+    },
+    [onStartPicked]
+  );
+
   useEffect(() => {
     function init() {
       if (!parentRef.current) {
@@ -132,6 +140,7 @@ export const SeismogramChart: SeismogramChartType = React.forwardRef((props, ref
       chartRef.current.zr.on('click', handleFocus);
       chartRef.current.zr.on('contextmenu', handleContextMenuRequested);
       chartRef.current.zr.on('mousewheel', handleMouseWheel);
+      chartRef.current.getPicker().on('start', handleStartPicked);
       chartRef.current.render();
     }
 

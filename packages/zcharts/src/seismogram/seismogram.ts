@@ -29,6 +29,7 @@ import {
   OffscreenRenderTrackContext,
 } from "./offscreen";
 import { OffscreenSignalView } from "./offscreenSignal/offscreenSignalView";
+import { PickAssistantView } from "./pickAssistant/pickAssistantView";
 import { TrackManager } from "./trackManager";
 
 export interface SeismogramRenderOptions {
@@ -63,6 +64,7 @@ export class Seismogram extends ChartView<SeismogramOptions> {
   private expandIndex = -1;
   private worker: Worker | null = null;
   private offscreenSignal: OffscreenSignalView;
+  private pickAssistant: PickAssistantView;
   private rendering = false;
 
   constructor(dom: HTMLElement, options?: Partial<SeismogramOptions>) {
@@ -108,6 +110,9 @@ export class Seismogram extends ChartView<SeismogramOptions> {
       this.emit("pickChanged", extent);
     });
     this.addComponent(this.picker);
+
+    this.pickAssistant = new PickAssistantView(this);
+    this.addComponent(this.pickAssistant);
 
     if (opts.darkMode) {
       this.setTheme("dark");
@@ -446,6 +451,10 @@ export class Seismogram extends ChartView<SeismogramOptions> {
 
   getPicker(): PickerView {
     return this.picker;
+  }
+
+  getPickAssistant(): PickAssistantView {
+    return this.pickAssistant;
   }
 
   getAxisPointer(): AxisPointerView {

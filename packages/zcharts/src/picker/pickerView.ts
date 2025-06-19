@@ -89,6 +89,7 @@ export class PickerView extends View<PickerModel> {
       this.isDragging = true;
       const start = xAxis.getValueForPixel(e.offsetX);
       this.model.setStart(start);
+      this.emit("start", start);
       this.render();
     }
   }
@@ -139,6 +140,7 @@ export class PickerView extends View<PickerModel> {
     // Emit change event if the range has changed (more than 1s)
     if (Math.abs(end - start) > 1e3) {
       this.eventEmitter.emit("change", this.model.getRange());
+      this.emit("end", end);
     }
   }
 

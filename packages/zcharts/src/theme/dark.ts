@@ -36,4 +36,13 @@ export const darkTheme: ThemeStyle = {
     opacity: 0.4,
     borderWidth: 1,
   },
+  pickAssistantStyle: {
+    color: "#FF0000",
+    opacity: 1,
+    lineWidth: 1,
+    lineType: "dashed",
+    lineDash: [5, 5],
+    lineCap: "round",
+    lineJoin: "round",
+  }
 };

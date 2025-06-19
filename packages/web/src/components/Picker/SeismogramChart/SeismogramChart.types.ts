@@ -73,6 +73,10 @@ export interface SeismogramChartProps {
    * Callback fired when the chart is loading or fetching data.
    */
   onLoading?: (loading: boolean) => void;
+  /**
+   * Callback fired when the start time is picked.
+   */
+  onStartPicked?: (start: number) => void;
 }
 
 export interface SetExtentOptions {
@@ -91,6 +95,7 @@ export interface SeismogramChartRef {
   blur(): void;
   clearChannelData: () => void;
   clearEventMarkers: () => void;
+  clearPickAssistantRange: () => void;
   clearPickRange(): void;
   clearSpectrogramData: () => void;
   decreaseAmplitude: (by: number) => void;
@@ -123,6 +128,7 @@ export interface SeismogramChartRef {
   setChannels: (channels: Channel[]) => void;
   setExtent: (extent: [number, number], options?: SetExtentOptions) => void;
   setForceCenter: (forceCenter: boolean) => void;
+  setPickAssistantRange: (start: number, end: number) => void;
   setPickRange: (range: [number, number]) => void;
   setScaling: (scaling: ScalingType) => void;
   setTheme: (theme: 'light' | 'dark') => void;

@@ -308,6 +308,18 @@ export function useSeismogramChartApi(options: SeismogramChartInitOptions): Seis
           chartRef.current.clearSpectrogramData();
         }
       },
+      setPickAssistantRange: (start: number, end: number) => {
+        if (chartRef.current) {
+          const pickAssistant = chartRef.current.getPickAssistant();
+          pickAssistant.setRange(start, end);
+        }
+      },
+      clearPickAssistantRange: () => {
+        if (chartRef.current) {
+          const pickAssistant = chartRef.current.getPickAssistant();
+          pickAssistant.clearRange();
+        }
+      },
     };
   }, [chartRef, webWorkerRef]);
 }

@@ -1,5 +1,6 @@
 import { SignalAmplitude } from '../../../types/amplitude';
 import { Attachment, ManualAmplitude, SeismicEventDetail } from '../../../types/event';
+import { PickAssistant } from '../../../types/pickAssistant';
 
 export interface PickSlice {
   pickRange: [number, number];
@@ -36,4 +37,6 @@ export interface PickSlice {
   setUseOutlierFilter: (useOutlierFilter: boolean) => void;
   setManualAmplitudes: (manualAmplitudes: ManualAmplitude[]) => void;
   updateManualAmplitude: (index: number, amplitude: ManualAmplitude) => void;
+  getPickRange: () => [number, number];
+  fetchPickAssistant: (start: number) => Promise<PickAssistant>;
 }

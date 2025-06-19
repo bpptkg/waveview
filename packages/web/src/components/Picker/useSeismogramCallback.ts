@@ -1,5 +1,6 @@
 import { ElementEvent, SeismogramOptions } from '@waveview/zcharts';
 import { useCallback } from 'react';
+import { isNumberEqual } from '../../shared/common';
 import { getEventTypeColor } from '../../shared/theme';
 import { getPickExtent, ONE_SECOND } from '../../shared/time';
 import { useAppStore } from '../../stores/app';
@@ -35,6 +36,8 @@ export const useSeismogramCallback = () => {
     setSelectedChart,
     setShowEvent,
     setStationOfFirstArrivalId,
+    getPickRange,
+    fetchPickAssistant,
   } = usePickerStore();
 
   const { heliChartRef, seisChartRef, contextMenuRef, props, setSeisChartReady } = usePickerContext();
@@ -165,6 +168,17 @@ export const useSeismogramCallback = () => {
     }
   }, [setLastSeismogramExtent, seisChartRef]);
 
+  const fetchPickAsssitantCompletion = useCallback(
+    async (start: number) => {
+      const pick = await fetchPickAssistant(start);
+      if (pick.duration > 0) {
+        seisChartRef.current?.getInstance().getPickAssistant().setRange(new Date(pick.start).getTime(), new Date(pick.end).getTime());
+        seisChartRef.current?.render();
+      }
+    },
+    [seisChartRef, fetchPickAssistant]
+  );
+
   const handleSeismogramPickChange = useCallback(
     (pick: [number, number]) => {
       if (isPickEmpty()) {
@@ -180,11 +194,26 @@ export const useSeismogramCallback = () => {
           setStationOfFirstArrivalId(stationId);
         }
       }
+
+      // Get pick assistant range and fetch completion if necessary.
+      const [oldPickStart] = getPickRange();
+      const [pickStart] = pick;
+      if (!isNumberEqual(oldPickStart, pickStart) && !isPickEmpty()) {
+        fetchPickAsssitantCompletion(pickStart);
+      }
+
       setPickRange(pick);
       calcSignalAmplitudes();
       seisChartRef.current?.render();
     },
-    [seisChartRef, isPickEmpty, setPickRange, setStationOfFirstArrivalId, getSelectedStations, calcSignalAmplitudes]
+    [seisChartRef, getPickRange, isPickEmpty, setPickRange, setStationOfFirstArrivalId, getSelectedStations, calcSignalAmplitudes, fetchPickAsssitantCompletion]
+  );
+
+  const handleSeismogramStartPicked = useCallback(
+    (start: number) => {
+      fetchPickAsssitantCompletion(start);
+    },
+    [fetchPickAsssitantCompletion]
   );
 
   const handleContextMenuRequested = useCallback(
@@ -395,5 +424,6 @@ export const useSeismogramCallback = () => {
     handleSeismogramZoomIn,
     handleSeismogramZoomOut,
     handleSetupEventEditing,
+    handleSeismogramStartPicked,
   };
 };
