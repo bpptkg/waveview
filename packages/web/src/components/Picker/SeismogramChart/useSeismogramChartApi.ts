@@ -167,6 +167,8 @@ export function useSeismogramChartApi(options: SeismogramChartInitOptions): Seis
         if (chartRef.current) {
           const picker = chartRef.current.getPicker();
           picker.clearRange();
+          const pickAssistant = chartRef.current.getPickAssistant();
+          pickAssistant.clearRange();
         }
       },
       showEventMarkers: () => {
