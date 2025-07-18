@@ -130,7 +130,8 @@ export interface PickerStyle {
 }
 
 export interface PickAssistantStyle {
-  color: string;
+  startLineColor: string;
+  endLineColor: string;
   opacity: number;
   lineWidth: number;
   lineType: "solid" | "dashed" | "dotted";

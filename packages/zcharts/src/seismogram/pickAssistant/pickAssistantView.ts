@@ -66,6 +66,8 @@ export class PickAssistantView extends View<PickAssistantModel> {
       start,
       end,
       color,
+      startLineColor,
+      endLineColor,
       lineWidth,
       lineDash,
       lineCap,
@@ -88,7 +90,7 @@ export class PickAssistantView extends View<PickAssistantModel> {
           y2: y + height,
         },
         style: {
-          stroke: color,
+          stroke: startLineColor || color,
           lineWidth,
           lineDash,
           lineCap,
@@ -110,7 +112,7 @@ export class PickAssistantView extends View<PickAssistantModel> {
           y2: y + height,
         },
         style: {
-          stroke: color,
+          stroke: endLineColor || color,
           lineWidth,
           lineDash,
           lineCap,
@@ -127,7 +129,8 @@ export class PickAssistantView extends View<PickAssistantModel> {
   applyThemeStyle(theme: ThemeStyle): void {
     const { pickAssistantStyle } = theme;
     this.model.mergeOptions({
-      color: pickAssistantStyle.color,
+      startLineColor: pickAssistantStyle.startLineColor,
+      endLineColor: pickAssistantStyle.endLineColor,
       lineWidth: pickAssistantStyle.lineWidth,
       lineDash: pickAssistantStyle.lineDash,
       lineCap: pickAssistantStyle.lineCap,

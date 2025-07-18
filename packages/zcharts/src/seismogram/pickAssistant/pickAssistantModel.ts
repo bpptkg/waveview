@@ -5,6 +5,8 @@ export interface PickAssistantOptions extends ModelOptions {
   start: number;
   end: number;
   color?: string;
+  startLineColor?: string;
+  endLineColor?: string;
   opacity?: number;
   lineWidth?: number;
   lineType?: "solid" | "dashed" | "dotted";
@@ -19,9 +21,11 @@ export class PickAssistantModel extends Model<PickAssistantOptions> {
       start: 0,
       end: 0,
       color: "#FF0000",
-      lineWidth: 2,
+      startLineColor: "#FF3a30",
+      endLineColor: "#FF9500",
+      lineWidth: 3,
       lineType: "solid",
-      lineDash: [],
+      lineDash: [3, 3],
       opacity: 1,
       lineCap: "round",
       lineJoin: "round",
