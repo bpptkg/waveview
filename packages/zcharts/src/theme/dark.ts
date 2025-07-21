@@ -37,10 +37,10 @@ export const darkTheme: ThemeStyle = {
     borderWidth: 1,
   },
   pickAssistantStyle: {
-    startLineColor: "#FF3a30",
-    endLineColor: "#FFCC00",
+    startLineColor: "#FF3A30",
+    endLineColor: "#0040DD",
     opacity: 1,
-    lineWidth: 1,
+    lineWidth: 2,
     lineType: "dashed",
     lineDash: [5, 5],
     lineCap: "round",
