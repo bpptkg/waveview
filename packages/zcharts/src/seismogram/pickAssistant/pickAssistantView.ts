@@ -18,6 +18,12 @@ export class PickAssistantView extends View<PickAssistantModel> {
     this.chart = chart;
     this.startLine = new zrender.Line();
     this.endLine = new zrender.Line();
+    this.startLine.setClipPath(
+      new zrender.Rect({ shape: this.chart.getGrid().getRect() })
+    );
+    this.endLine.setClipPath(
+      new zrender.Rect({ shape: this.chart.getGrid().getRect() })
+    );
   }
 
   setRange(start: number, end: number): void {
@@ -46,6 +52,8 @@ export class PickAssistantView extends View<PickAssistantModel> {
 
   resize(): void {
     this.rect = this.chart.getGrid().getRect();
+    this.startLine.setClipPath(new zrender.Rect({ shape: this.rect }));
+    this.endLine.setClipPath(new zrender.Rect({ shape: this.rect }));
   }
 
   clear(): void {
@@ -76,54 +84,49 @@ export class PickAssistantView extends View<PickAssistantModel> {
     } = this.model.getOptions();
     const xAxis = this.chart.getXAxis();
     const { y, height } = xAxis.getRect();
-    const [left, right] = xAxis.getExtent();
 
     const x1 = xAxis.getPixelForValue(start);
     const x2 = xAxis.getPixelForValue(end);
 
-    if (start > left && start < right) {
-      this.startLine.attr({
-        shape: {
-          x1: x1,
-          y1: y,
-          x2: x1,
-          y2: y + height,
-        },
-        style: {
-          stroke: startLineColor || color,
-          lineWidth,
-          lineDash,
-          lineCap,
-          lineJoin,
-          opacity,
-        },
-        silent: true,
-      });
-      this.group.add(this.startLine);
-      this.startLine.show();
-    }
+    this.startLine.attr({
+      shape: {
+        x1: x1,
+        y1: y,
+        x2: x1,
+        y2: y + height,
+      },
+      style: {
+        stroke: startLineColor || color,
+        lineWidth,
+        lineDash,
+        lineCap,
+        lineJoin,
+        opacity,
+      },
+      silent: true,
+    });
+    this.group.add(this.startLine);
+    this.startLine.show();
 
-    if (end > left && end < right) {
-      this.endLine.attr({
-        shape: {
-          x1: x2,
-          y1: y,
-          x2: x2,
-          y2: y + height,
-        },
-        style: {
-          stroke: endLineColor || color,
-          lineWidth,
-          lineDash,
-          lineCap,
-          lineJoin,
-          opacity,
-        },
-        silent: true,
-      });
-      this.group.add(this.endLine);
-      this.endLine.show();
-    }
+    this.endLine.attr({
+      shape: {
+        x1: x2,
+        y1: y,
+        x2: x2,
+        y2: y + height,
+      },
+      style: {
+        stroke: endLineColor || color,
+        lineWidth,
+        lineDash,
+        lineCap,
+        lineJoin,
+        opacity,
+      },
+      silent: true,
+    });
+    this.group.add(this.endLine);
+    this.endLine.show();
   }
 
   applyThemeStyle(theme: ThemeStyle): void {
