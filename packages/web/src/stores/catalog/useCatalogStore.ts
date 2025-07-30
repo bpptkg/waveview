@@ -8,7 +8,7 @@ import { Pagination } from '../../types/pagination';
 import { CustomError } from '../../types/response';
 import { useOrganizationStore } from '../organization';
 import { useVolcanoStore } from '../volcano/useVolcanoStore';
-import { CatalogStore } from './types';
+import { CatalogStore, DownloadEventsPayload } from './types';
 
 const catalogStore = create<CatalogStore>((set, get) => {
   return {
@@ -133,6 +133,39 @@ const catalogStore = create<CatalogStore>((set, get) => {
     },
     setFilterData: (data) => {
       set({ filterData: data });
+    },
+    downloadEvents: async (selectedDate, eventTypes) => {
+      const { currentOrganization } = useOrganizationStore.getState();
+      if (!currentOrganization) {
+        throw new CustomError('Organization is not set');
+      }
+      const { currentVolcano } = useVolcanoStore.getState();
+      if (!currentVolcano) {
+        throw new CustomError('Volcano is not set');
+      }
+      const { currentCatalog } = catalogStore.getState();
+      if (!currentCatalog) {
+        throw new CustomError('Catalog is not set');
+      }
+
+      const url = apiVersion.downloadEvents.v1(currentOrganization.id, currentVolcano.id, currentCatalog.id);
+      const payload: DownloadEventsPayload = {
+        date: new Date(selectedDate).toISOString(),
+        event_types: eventTypes,
+      };
+
+      const response = await api(url, { method: 'POST', body: payload });
+      if (!response.ok) {
+        throw CustomError.fromErrorData(await response.json());
+      }
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = `events-${new Date().toISOString()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
     },
   };
 });
