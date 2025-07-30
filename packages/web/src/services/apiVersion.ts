@@ -98,6 +98,9 @@ export default {
   deleteCatalog: {
     v1: (organizationId: string, volcanoId: string, id: string) => `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/${id}/`,
   },
+  downloadEvents: {
+    v1: (organizationId: string, volcanoId: string, id: string) => `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/${id}/download-events/`,
+  },
   listEvent: {
     v1: (organizationId: string, volcanoId: string, catalogId: string) =>
       `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/${catalogId}/events/`,

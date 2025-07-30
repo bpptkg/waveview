@@ -23,11 +23,10 @@ import {
   useTableFeatures,
   useTableSelection,
   useTableSort,
-  useToastController
+  useToastController,
 } from '@fluentui/react-components';
 import {
   ArrowCounterclockwiseRegular,
-  ArrowDownloadRegular,
   ChevronDoubleLeftRegular,
   ChevronDoubleRightRegular,
   ChevronLeftRegular,
@@ -36,6 +35,7 @@ import {
 import Fuse from 'fuse.js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import CatalogDownload from '../../components/Catalog/CatalogDownload';
 import EventTableFilter from '../../components/Catalog/EventTableFilter';
 import EventTypeLabel from '../../components/Catalog/EventTypeLabel';
 import Collaborators from '../../components/Common/Collaborators';
@@ -45,7 +45,6 @@ import { FilterData, useCatalogStore } from '../../stores/catalog';
 import { useEventDetailStore } from '../../stores/eventDetail';
 import { useEventTypeStore } from '../../stores/eventType';
 import { useOrganizationStore } from '../../stores/organization';
-import { useUserStore } from '../../stores/user';
 import { useVolcanoStore } from '../../stores/volcano/useVolcanoStore';
 import { SeismicEvent } from '../../types/event';
 import { CustomError } from '../../types/response';
@@ -106,7 +105,6 @@ const EventTable = () => {
   } = useCatalogStore();
   const { clearCache } = useEventDetailStore();
   const { eventTypes } = useEventTypeStore();
-  const { hasPermission } = useUserStore();
   const { currentOrganization } = useOrganizationStore();
   const { currentVolcano } = useVolcanoStore();
 
@@ -263,59 +261,6 @@ const EventTable = () => {
     });
   }, [fetchEvents, showErrorToast]);
 
-  const handleDownload = useCallback(() => {
-    if (!hasPermission('event:download')) {
-      showErrorToast(new CustomError('You do not have permission to download events.'));
-      return;
-    }
-
-    const header =
-      [
-        'Time (UTC)',
-        'Duration (s)',
-        'Type',
-        'Amplitude (mm)',
-        'Magnitude',
-        'Latitude (°)',
-        'Longitude (°)',
-        'Depth (km)',
-        'Method',
-        'Evaluation Mode',
-        'Evaluation Status',
-        'Author',
-      ].join(',') + '\n';
-
-    const content =
-      'data:text/csv;charset=utf-8,' +
-      header +
-      rows
-        .map((row) =>
-          [
-            row.item.time,
-            row.item.duration,
-            row.item.type.code,
-            row.item.preferred_amplitude?.amplitude,
-            row.item.preferred_magnitude?.magnitude,
-            row.item.preferred_origin?.latitude,
-            row.item.preferred_origin?.longitude,
-            row.item.preferred_origin?.depth,
-            row.item.method,
-            row.item.evaluation_mode,
-            row.item.evaluation_status,
-            row.item.author.name || row.item.author.username,
-          ].join(',')
-        )
-        .join('\n');
-
-    const encodedUri = encodeURI(content);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', 'events.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }, [rows, showErrorToast, hasPermission]);
-
   const handleFilter = useCallback(
     (data: FilterData) => {
       setFilterData(data);
@@ -357,9 +302,8 @@ const EventTable = () => {
           <div className="flex items-center">
             <EventTableFilter eventTypes={eventTypes} initialEventTypes={filterData.eventTypes} onFilter={handleFilter} />
 
-            <Tooltip content={'Download'} relationship="label" showDelay={1500}>
-              <Button appearance="transparent" icon={<ArrowDownloadRegular fontSize={20} />} onClick={handleDownload} />
-            </Tooltip>
+            <CatalogDownload />
+
             <Tooltip content={'Refresh'} relationship="label" showDelay={1500}>
               <Button
                 appearance="transparent"
