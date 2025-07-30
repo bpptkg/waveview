@@ -69,7 +69,7 @@ export interface CatalogStore {
    */
   setFilterData: (data: FilterData) => void;
   /**
-   * Downloads events based on the selected event types and date range.
+   * Downloads events based on the selected event types and date.
    */
   downloadEvents: (selectedDate: number, eventTypes: string[]) => Promise<void>;
 }
