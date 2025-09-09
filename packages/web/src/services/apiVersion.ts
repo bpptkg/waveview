@@ -152,4 +152,7 @@ export default {
   plotRemoveResponse: {
     v1: (organizationId: string, volcanoId: string) => `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/plot-remove-response/`,
   },
+  getPickAssistant: {
+    v1: (organizationId: string) => `/api/v1/organizations/${organizationId}/pick-assistant/`,
+  },
 };

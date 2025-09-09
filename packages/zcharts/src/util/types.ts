@@ -129,6 +129,17 @@ export interface PickerStyle {
   borderWidth: number;
 }
 
+export interface PickAssistantStyle {
+  startLineColor: string;
+  endLineColor: string;
+  opacity: number;
+  lineWidth: number;
+  lineType: "solid" | "dashed" | "dotted";
+  lineDash: number[];
+  lineCap: "butt" | "round" | "square";
+  lineJoin: "bevel" | "round" | "miter";
+}
+
 export interface ThemeStyle {
   /**
    * The background color of the chart.
@@ -174,6 +185,10 @@ export interface ThemeStyle {
    * The picker style of the chart.
    */
   pickerStyle: PickerStyle;
+  /**
+   * The pick assistant style of the chart.
+   */
+  pickAssistantStyle: PickAssistantStyle;
 }
 
 export interface Channel {

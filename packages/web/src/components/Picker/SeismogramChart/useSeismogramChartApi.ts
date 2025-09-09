@@ -167,6 +167,8 @@ export function useSeismogramChartApi(options: SeismogramChartInitOptions): Seis
         if (chartRef.current) {
           const picker = chartRef.current.getPicker();
           picker.clearRange();
+          const pickAssistant = chartRef.current.getPickAssistant();
+          pickAssistant.clearRange();
         }
       },
       showEventMarkers: () => {
@@ -306,6 +308,18 @@ export function useSeismogramChartApi(options: SeismogramChartInitOptions): Seis
       clearSpectrogramData: () => {
         if (chartRef.current) {
           chartRef.current.clearSpectrogramData();
+        }
+      },
+      setPickAssistantRange: (start: number, end: number) => {
+        if (chartRef.current) {
+          const pickAssistant = chartRef.current.getPickAssistant();
+          pickAssistant.setRange(start, end);
+        }
+      },
+      clearPickAssistantRange: () => {
+        if (chartRef.current) {
+          const pickAssistant = chartRef.current.getPickAssistant();
+          pickAssistant.clearRange();
         }
       },
     };

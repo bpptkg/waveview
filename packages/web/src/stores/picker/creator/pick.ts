@@ -19,6 +19,7 @@ import {
 } from '../../visual';
 import { useVolcanoStore } from '../../volcano/useVolcanoStore';
 import { PickerStore, PickSlice } from '../slices';
+import { PickAssistantPayload } from '../../../types/pickAssistant';
 
 export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (set, get) => {
   return {
@@ -415,6 +416,30 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
         manualAmplitudes[index] = amplitude;
         return { manualAmplitudes };
       });
+    },
+
+    getPickRange: () => {
+      const { pickRange } = get();
+      return pickRange;
+    },
+
+    fetchPickAssistant: async (start) => {
+      const { currentOrganization } = useOrganizationStore.getState();
+      if (!currentOrganization) {
+        throw new CustomError('Organization is not set');
+      }
+
+      const url = apiVersion.getPickAssistant.v1(currentOrganization.id);
+      const payload: PickAssistantPayload = { t_onset: new Date(start).toISOString() };
+      const response = await api(url, {
+        method: 'POST',
+        body: payload,
+      });
+      if (!response.ok) {
+        const err: ErrorData = await response.json();
+        throw CustomError.fromErrorData(err);
+      }
+      return await response.json();
     },
   };
 };

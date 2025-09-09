@@ -36,4 +36,14 @@ export const lightTheme: ThemeStyle = {
     opacity: 0.4,
     borderWidth: 1,
   },
+  pickAssistantStyle: {
+    startLineColor: "#FF3A30",
+    endLineColor: "#0040DD",
+    opacity: 1,
+    lineWidth: 2,
+    lineType: "dashed",
+    lineDash: [5, 5],
+    lineCap: "round",
+    lineJoin: "round",
+  }
 };

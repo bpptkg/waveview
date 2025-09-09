@@ -15,6 +15,10 @@ export class PickerView extends View<PickerModel> {
   private graphics: zrender.Rect;
   private leftHandle: zrender.Rect;
   private rightHandle: zrender.Rect;
+  private leftArrow: zrender.Polygon;
+  private rightArrow: zrender.Polygon;
+  private arrowLine: zrender.Line;
+  private durationText: zrender.Text;
   private pos: zrender.Point = new zrender.Point();
   private eventEmitter = new EventEmitter<PickerEventMap>();
 
@@ -54,9 +58,28 @@ export class PickerView extends View<PickerModel> {
       this.isDragging = true;
     });
 
+    this.leftArrow = new zrender.Polygon();
+    this.rightArrow = new zrender.Polygon();
+    this.arrowLine = new zrender.Line();
+    this.durationText = new zrender.Text();
+
+    this.leftArrow.setClipPath(
+      new zrender.Rect({ shape: this.chart.getGrid().getRect() })
+    );
+    this.rightArrow.setClipPath(
+      new zrender.Rect({ shape: this.chart.getGrid().getRect() })
+    );
+    this.arrowLine.setClipPath(
+      new zrender.Rect({ shape: this.chart.getGrid().getRect() })
+    );
+
     this.group.add(this.graphics);
     this.group.add(this.leftHandle);
     this.group.add(this.rightHandle);
+    this.group.add(this.leftArrow);
+    this.group.add(this.rightArrow);
+    this.group.add(this.arrowLine);
+    this.group.add(this.durationText);
 
     this.chart.zr.on("mousedown", this.onMouseDown, this);
     this.chart.zr.on("mousemove", this.onMouseMove, this);
@@ -89,6 +112,7 @@ export class PickerView extends View<PickerModel> {
       this.isDragging = true;
       const start = xAxis.getValueForPixel(e.offsetX);
       this.model.setStart(start);
+      this.emit("start", start);
       this.render();
     }
   }
@@ -139,6 +163,7 @@ export class PickerView extends View<PickerModel> {
     // Emit change event if the range has changed (more than 1s)
     if (Math.abs(end - start) > 1e3) {
       this.eventEmitter.emit("change", this.model.getRange());
+      this.emit("end", end);
     }
   }
 
@@ -174,6 +199,15 @@ export class PickerView extends View<PickerModel> {
     this.setRect(this.chart.getXAxis().getRect());
     const clipRect = this.chart.getXAxis().getRect();
     this.graphics.setClipPath(new zrender.Rect({ shape: clipRect }));
+    this.leftArrow.setClipPath(
+      new zrender.Rect({ shape: this.chart.getGrid().getRect() })
+    );
+    this.rightArrow.setClipPath(
+      new zrender.Rect({ shape: this.chart.getGrid().getRect() })
+    );
+    this.arrowLine.setClipPath(
+      new zrender.Rect({ shape: this.chart.getGrid().getRect() })
+    );
   }
 
   applyThemeStyle(theme: ThemeStyle): void {
@@ -249,6 +283,7 @@ export class PickerView extends View<PickerModel> {
     });
 
     this.updateHandles();
+    this.updateArrows();
     this.group.show();
   }
 
@@ -277,6 +312,10 @@ export class PickerView extends View<PickerModel> {
         height: 0,
       },
     });
+    this.leftArrow.hide();
+    this.rightArrow.hide();
+    this.arrowLine.hide();
+    this.durationText.hide();
   }
 
   private updateHandles(): void {
@@ -310,6 +349,88 @@ export class PickerView extends View<PickerModel> {
       cursor: "ew-resize",
       silent: false,
     });
+  }
+
+  private updateArrows(): void {
+    const {
+      foregroundColor,
+      textColor,
+      fontSize,
+      backgroundColor,
+      fontFamily,
+    } = this.chart.getThemeStyle();
+    const arrowY = this.graphics.shape.y + this.graphics.shape.height - 10;
+    const availableWidth = 60; // Minimum width for arrows to be visible
+    if (this.graphics.shape.width > availableWidth) {
+      this.leftArrow.attr({
+        shape: {
+          points: [
+            [this.graphics.shape.x, arrowY],
+            [this.graphics.shape.x + 5, arrowY - 5],
+            [this.graphics.shape.x + 5, arrowY + 5],
+          ],
+        },
+        style: {
+          fill: foregroundColor,
+        },
+        silent: true,
+      });
+
+      this.rightArrow.attr({
+        shape: {
+          points: [
+            [this.graphics.shape.x + this.graphics.shape.width, arrowY],
+            [this.graphics.shape.x + this.graphics.shape.width - 5, arrowY - 5],
+            [this.graphics.shape.x + this.graphics.shape.width - 5, arrowY + 5],
+          ],
+        },
+        style: {
+          fill: foregroundColor,
+        },
+        silent: true,
+      });
+
+      this.arrowLine.attr({
+        shape: {
+          x1: this.graphics.shape.x,
+          y1: arrowY,
+          x2: this.graphics.shape.x + this.graphics.shape.width,
+          y2: arrowY,
+        },
+        style: {
+          stroke: foregroundColor,
+          lineWidth: 1,
+        },
+        silent: true,
+      });
+
+      this.durationText.attr({
+        style: {
+          text: `${(this.model.getDuration() / 1000).toFixed(2)}s`,
+          fill: textColor,
+          fontSize,
+          fontFamily,
+          backgroundColor,
+          padding: [2, 4],
+          align: "center",
+          verticalAlign: "middle",
+        },
+        x: this.graphics.shape.x + this.graphics.shape.width / 2,
+        y: arrowY,
+        silent: true,
+        z: 10,
+      });
+
+      this.leftArrow.show();
+      this.rightArrow.show();
+      this.arrowLine.show();
+      this.durationText.show();
+    } else {
+      this.leftArrow.hide();
+      this.rightArrow.hide();
+      this.arrowLine.hide();
+      this.durationText.hide();
+    }
   }
 
   on<K extends keyof PickerEventMap>(

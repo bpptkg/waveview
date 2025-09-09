@@ -81,4 +81,12 @@ export class PickerModel extends Model<PickerOptions> {
   isEnabled(): boolean {
     return this.options.enabled;
   }
+
+  getDuration(): number {
+    const { start, end } = this.options;
+    if (this.isEmpty()) {
+      return 0;
+    }
+    return Math.abs(end - start);
+  }
 }
