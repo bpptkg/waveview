@@ -27,7 +27,6 @@ export class Track extends View<TrackModel> {
   constructor(
     rect: LayoutRect,
     xAxis: Axis,
-    // yAxis: Axis,
     chart: ChartContainer,
     options?: Partial<TrackOptions>
   ) {

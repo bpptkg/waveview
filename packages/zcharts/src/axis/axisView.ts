@@ -663,11 +663,6 @@ export class AxisView extends View<AxisModel> {
       },
       zlevel: 11,
       silent: !draggable,
-      // cursor: draggable
-      //   ? this.dragMode === "pan"
-      //     ? "grab"
-      //     : "ew-resize"
-      //   : "default",
     });
   }
 

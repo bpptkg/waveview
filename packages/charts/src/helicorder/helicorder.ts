@@ -419,8 +419,6 @@ export class Helicorder extends ChartView<
   private _createTrack(index: number, options?: Partial<TrackOptions>): Track {
     const trackCount = this.getTrackCount();
     const rect = this._getRectForTrack(index, trackCount);
-    // const yAxis = new Axis(rect, { position: "left" });
-    // yAxis.setExtent(this.getYExtent());
     const track = new Track(rect, this._xAxis, this, options);
     return track;
   }
