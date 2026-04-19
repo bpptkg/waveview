@@ -155,4 +155,7 @@ export default {
   getPickAssistant: {
     v1: (organizationId: string) => `/api/v1/organizations/${organizationId}/pick-assistant/`,
   },
+  sendToWA: {
+    v1: "/api/v1/send-to-wa/",
+  }
 };

@@ -13,22 +13,26 @@ import {
   MenuList,
   Toast,
   ToastTitle,
+  Toaster,
   makeStyles,
   tokens,
   useId,
   useToastController,
 } from '@fluentui/react-components';
-import { CircleFilled, DeleteRegular, EditRegular } from '@fluentui/react-icons';
+import { CircleFilled, DeleteRegular, EditRegular, SendRegular } from '@fluentui/react-icons';
 import { ElementEvent, SeismogramEventMarkerOptions } from '@waveview/zcharts';
-import React, { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { getEventTypeColor } from '../../../shared/theme';
 import { useAppStore } from '../../../stores/app';
 import { usePickerStore } from '../../../stores/picker';
 import { themes } from '../../../theme';
-import { SeismicEvent } from '../../../types/event';
+import { SeismicEvent, SeismicEventDetail } from '../../../types/event';
 import { CustomError } from '../../../types/response';
 import { usePickerCallback } from '../usePickerCallback';
+import { PyroclasticFlowEvent } from '../../../types/observation';
+import { api } from '../../../services/api';
+import apiVersion from '../../../services/apiVersion';
 
 const useStyles = makeStyles({
   root: {
@@ -131,10 +135,10 @@ const EventMarkerContextMenu: React.ForwardRefExoticComponent<React.RefAttribute
         <Toast>
           <ToastTitle>{error.message}</ToastTitle>
         </Toast>,
-        { intent: 'error' }
+        { intent: 'error' },
       );
     },
-    [dispatchToast]
+    [dispatchToast],
   );
 
   const { fetchEditedEvent, deleteEvent, removeEventMarker } = usePickerStore();
@@ -184,6 +188,78 @@ const EventMarkerContextMenu: React.ForwardRefExoticComponent<React.RefAttribute
     }
   }, [selectedEvent, deleteEvent, removeEventMarker, handleUpdateEventMarkers, showErrorToast]);
 
+  const [dialogNotifyOpen, setDialogNotifyOpen] = useState(false);
+  const [eventDetails, setEventDetails] = useState<SeismicEventDetail | null>(null);
+
+  const isNotifyVisible = useMemo(() => {
+    if (!selectedEvent) {
+      return false;
+    }
+    return selectedEvent.type.code === 'AWANPANAS';
+  }, [selectedEvent]);
+
+  const handleOpenNotifyDialog = useCallback(() => {
+    setDialogNotifyOpen(true);
+    handleClose();
+  }, [handleClose]);
+
+  useEffect(() => {
+    if (!selectedEvent) {
+      return;
+    }
+    if (!isNotifyVisible) {
+      return;
+    }
+    setLoading(true);
+    fetchEditedEvent(selectedEvent.id)
+      .then((event) => {
+        setEventDetails(event);
+      })
+      .catch((error) => {
+        showErrorToast(error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [selectedEvent, isNotifyVisible, fetchEditedEvent, showErrorToast]);
+
+  const pfEvent = useMemo(() => {
+    if (!eventDetails) {
+      return null;
+    }
+    const obs = eventDetails.observation as PyroclasticFlowEvent;
+    if (!obs) {
+      return null;
+    }
+    return obs;
+  }, [eventDetails]);
+
+  const [sendLoading, setSendLoading] = useState(false);
+
+  const handleNotifyEvent = useCallback(async () => {
+    setSendLoading(true);
+    try {
+      const response = await api(apiVersion.sendToWA.v1, {
+        method: 'POST',
+        body: {
+          event_id: selectedEvent?.id,
+        },
+      });
+      await response.json();
+      dispatchToast(
+        <Toast>
+          <ToastTitle>Event sent to WhatsApp successfully</ToastTitle>
+        </Toast>,
+        { intent: 'success' },
+      );
+    } catch (e) {
+      showErrorToast(e as CustomError);
+    } finally {
+      setDialogNotifyOpen(false);
+      setSendLoading(false);
+    }
+  }, [selectedEvent, dispatchToast, showErrorToast]);
+
   return createPortal(
     <FluentProvider theme={darkMode ? themes.defaultDark : themes.defaultLight}>
       <div
@@ -206,6 +282,14 @@ const EventMarkerContextMenu: React.ForwardRefExoticComponent<React.RefAttribute
           <MenuItem onClick={handleOpenDeleteDialog} icon={<DeleteRegular />}>
             <span className="text-red-500">Delete...</span>
           </MenuItem>
+          {isNotifyVisible && (
+            <>
+              <Divider />
+              <MenuItem onClick={handleOpenNotifyDialog} icon={<SendRegular />}>
+                Send to WhatsApp...
+              </MenuItem>
+            </>
+          )}
         </MenuList>
 
         <Dialog open={dialogOpen} onOpenChange={(_, data) => setDialogOpen(data.open)}>
@@ -226,9 +310,39 @@ const EventMarkerContextMenu: React.ForwardRefExoticComponent<React.RefAttribute
             </DialogBody>
           </DialogSurface>
         </Dialog>
+
+        <Dialog open={dialogNotifyOpen} onOpenChange={(_, data) => setDialogNotifyOpen(data.open)}>
+          <DialogSurface>
+            <DialogBody>
+              <DialogTitle>Send to WhatsApp</DialogTitle>
+              <DialogContent>
+                <div>Are you sure you want to send this event information to WhatsApp?</div>
+                <div className="mt-4 p-2 bg-gray-100 dark:bg-gray-800 rounded">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Event ID: {eventDetails ? eventDetails.id : 'N/A'}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Event type: {eventDetails ? eventDetails.type.code : 'N/A'}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Runout distance: {pfEvent ? `${pfEvent.runout_distance} m` : 'N/A'}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Fall directions: {pfEvent ? pfEvent.fall_directions.map((d) => d.name).join(', ') : 'N/A'}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Amplitude: {pfEvent ? `${pfEvent.amplitude} mm` : 'N/A'}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Duration: {pfEvent ? `${eventDetails?.duration} seconds` : 'N/A'}</div>
+                </div>
+              </DialogContent>
+              <DialogActions>
+                <DialogTrigger disableButtonEnhancement>
+                  <Button appearance="secondary" onClick={() => setDialogNotifyOpen(false)}>
+                    No
+                  </Button>
+                </DialogTrigger>
+                <Button appearance="primary" onClick={handleNotifyEvent} disabled={sendLoading}>
+                  {sendLoading ? 'Sending...' : 'Yes'}
+                </Button>
+              </DialogActions>
+            </DialogBody>
+          </DialogSurface>
+        </Dialog>
+        <Toaster toasterId={toasterId} />
       </div>
     </FluentProvider>,
-    document.getElementById('root') as HTMLElement
+    document.getElementById('root') as HTMLElement,
   );
 });
 
