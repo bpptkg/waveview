@@ -234,6 +234,13 @@ const EventMarkerContextMenu: React.ForwardRefExoticComponent<React.RefAttribute
     return obs;
   }, [eventDetails]);
 
+  const amplitude = useMemo(() => {
+    if (!eventDetails) {
+      return null;
+    }
+    return eventDetails.amplitudes.find((a) => a.method === 'manual_analog') || eventDetails.amplitudes.find((a) => a.method === 'analog');
+  }, [eventDetails]);
+
   const [sendLoading, setSendLoading] = useState(false);
 
   const handleNotifyEvent = useCallback(async () => {
@@ -321,8 +328,12 @@ const EventMarkerContextMenu: React.ForwardRefExoticComponent<React.RefAttribute
                   <div className="text-sm text-gray-500 dark:text-gray-400">Event ID: {eventDetails ? eventDetails.id : 'N/A'}</div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">Event type: {eventDetails ? eventDetails.type.code : 'N/A'}</div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">Runout distance: {pfEvent ? `${pfEvent.runout_distance} m` : 'N/A'}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Fall directions: {pfEvent ? pfEvent.fall_directions.map((d) => d.name).join(', ') : 'N/A'}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Amplitude: {pfEvent ? `${pfEvent.amplitude} mm` : 'N/A'}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    Fall directions: {pfEvent && pfEvent.fall_directions.length > 0 ? pfEvent.fall_directions.map((d) => d.name).join(', ') : 'Unknown'}
+                  </div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    Amplitude: {pfEvent ? `${amplitude?.amplitude ? `${amplitude.amplitude} ${amplitude.unit}` : 'N/A'}` : 'N/A'}
+                  </div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">Duration: {pfEvent ? `${eventDetails?.duration} seconds` : 'N/A'}</div>
                 </div>
               </DialogContent>
