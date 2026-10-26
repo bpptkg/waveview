@@ -9,6 +9,6 @@ describe('Login', () => {
         <Login />
       </Router>
     );
-    expect(screen.getByText('Login to continue')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Login' })).toBeInTheDocument();
   });
 });

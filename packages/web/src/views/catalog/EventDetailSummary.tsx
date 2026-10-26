@@ -4,6 +4,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import EventTypeLabel from '../../components/Catalog/EventTypeLabel';
+import AutoclassResult from '../../components/Catalog/AutoclassResult';
 import Author from '../../components/Common/Author';
 import Collaborators from '../../components/Common/Collaborators';
 import AttachmentGallery from '../../components/Gallery/AttachmentGallery';
@@ -56,6 +57,8 @@ const EventDetailSummary = () => {
       <Divider />
       <div className="flex flex-col gap-2">
         <div className="font-semibold">Event</div>
+        {event?.evaluation_mode === 'automatic' && event.evaluation_status === 'preliminary' && <div>Awaiting operator validation</div>}
+        <AutoclassResult value={event?.autoclass} time={event ? Date.parse(event.time) : undefined} />
         <div className="flex items-center justify-between">
           <div>Station of first arrival</div>
           <div>{firstArrivalStation}</div>

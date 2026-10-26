@@ -99,6 +99,34 @@ export interface Amplitude {
   label: string;
 }
 
+export interface AutoclassPrediction {
+  jenis: string;
+  prob_jenis?: number | null;
+  kelas?: string;
+  kelas_10?: string;
+  arah?: string | null;
+  arah_model?: string | null;
+  arah_sumber?: string | null;
+  prob_arah?: number | null;
+  top3?: { kelas: string; p: number }[];
+  model?: string;
+  versi?: string;
+  saran?: string[];
+  catatan?: string;
+  cek_tektonik?: { saran?: string; tanda?: string };
+  tanda_awan_panas?: string;
+}
+
+export interface AutoclassData {
+  state: string;
+  input_time?: string;
+  source?: string;
+  applied?: boolean;
+  result?: AutoclassPrediction | null;
+  error?: string | null;
+  sync?: { state: string; error?: string | null };
+}
+
 export interface SeismicEvent {
   id: string;
   catalog_id: string;
@@ -108,6 +136,7 @@ export interface SeismicEvent {
   type: EventType;
   type_certainty: string;
   note: string;
+  autoclass?: AutoclassData | null;
   method: string;
   evaluation_mode: string;
   evaluation_status: string;

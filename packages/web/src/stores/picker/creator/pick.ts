@@ -34,6 +34,20 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
     attachments: [],
     amplitudes: [],
     editedEvent: null,
+    includeObservation: true,
+    remoteUpdate: false,
+    setIncludeObservation: (includeObservation) => set({ includeObservation }),
+    applyEventUpdate: (event) => {
+      const state = get();
+      const previous = state.editedEvent;
+      if (!previous || previous.id !== event.id) return;
+      const clean = state.eventTypeId === previous.type.id && state.note === previous.note
+        && state.time === Date.parse(previous.time) && state.duration === previous.duration
+        && state.stationOfFirstArrivalId === previous.station_of_first_arrival_id;
+      set({ editedEvent: { ...previous, ...event }, remoteUpdate: !clean,
+        ...(clean ? { eventTypeId: event.type.id, note: event.note, time: Date.parse(event.time),
+          duration: event.duration, stationOfFirstArrivalId: event.station_of_first_arrival_id } : {}) });
+    },
     isCalculatingAmplitudes: false,
     useOutlierFilter: false,
     manualAmplitudes: [],
@@ -91,6 +105,8 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
         amplitudes: [],
         pickRange: [0, 0],
         editedEvent: null,
+        includeObservation: true,
+        remoteUpdate: false,
         manualAmplitudes: [],
         useOutlierFilter: false,
         isCalculatingAmplitudes: false,
@@ -163,7 +179,8 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
         }
       });
 
-      set({ pickRange, eventId, time, duration, eventTypeId, stationOfFirstArrivalId, note, attachments, amplitudes, editedEvent, manualAmplitudes });
+      set({ pickRange, eventId, time, duration, eventTypeId, stationOfFirstArrivalId, note, attachments, amplitudes, editedEvent, manualAmplitudes,
+        includeObservation: !editedEvent.autoclass || !!editedEvent.observation, remoteUpdate: false });
 
       const { observation } = editedEvent;
       if (observation) {
@@ -259,7 +276,7 @@ export const createPickSlice: StateCreator<PickerStore, [], [], PickSlice> = (se
       const { eventTypes } = useEventTypeStore.getState();
       const observationType = eventTypes.find((et) => et.id === eventTypeId)?.observation_type;
       let observation: ObservationPayload | null = null;
-      switch (observationType) {
+      switch (get().includeObservation ? observationType : undefined) {
         case 'explosion':
           observation = explosionEventStore.getPayload();
           break;
