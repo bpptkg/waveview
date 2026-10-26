@@ -111,6 +111,7 @@ export interface AutoclassPrediction {
   top3?: { kelas: string; p: number }[];
   model?: string;
   versi?: string;
+  diproses_utc?: string | null;
   saran?: string[];
   catatan?: string;
   cek_tektonik?: { saran?: string; tanda?: string };

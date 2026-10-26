@@ -33,6 +33,8 @@ export default function AutoclassResult({ value, time }: { value?: AutoclassData
         <details><summary>Model and processing details</summary>
           <div>Model: {result.model} · Package: {result.versi}</div>
           <div>Input time: {value.input_time} · Detector: {value.source}</div>
+          {['RF', 'APG'].includes(result.jenis) && <div>Model direction: {result.arah_model || 'Not available'}</div>}
+          <div>Processed at (UTC): {result.diproses_utc || 'Not available'}</div>
           {value.applied === false && <div>Kept for comparison; the operator decision is unchanged.</div>}
         </details>
       </>}

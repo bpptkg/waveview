@@ -27,4 +27,19 @@ describe('AutoclassResult', () => {
     expect(screen.getByText(/different event time/i)).toBeInTheDocument();
     expect(screen.getByText(/Model score: Not available/)).toBeInTheDocument();
   });
+
+  test('shows original model direction separately from final direction and the UTC processing time', () => {
+    const result = { jenis: 'RF', arah: 'kanan', arah_model: 'kiri',
+      diproses_utc: '2026-10-26 03:02:35' };
+    render(<AutoclassResult value={{ state: 'succeeded', result }} />);
+    expect(screen.getByText(/Direction: kanan/)).toBeInTheDocument();
+    expect(screen.getByText('Model direction: kiri')).toBeInTheDocument();
+    expect(screen.getByText('Processed at (UTC): 2026-10-26 03:02:35')).toBeInTheDocument();
+  });
+
+  test('marks missing model direction and processing time as unavailable', () => {
+    render(<AutoclassResult value={{ state: 'succeeded', result: { jenis: 'RF', arah: 'kanan' } }} />);
+    expect(screen.getByText('Model direction: Not available')).toBeInTheDocument();
+    expect(screen.getByText('Processed at (UTC): Not available')).toBeInTheDocument();
+  });
 });
