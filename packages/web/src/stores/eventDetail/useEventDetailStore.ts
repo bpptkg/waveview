@@ -20,6 +20,12 @@ const eventDetailStore = create<EventDetailStore>((set, get) => ({
 
   setEvent: (event) => set({ event, eventId: event.id }),
 
+  applyEventUpdate: (event) => {
+    cache.delete(event.id);
+    const current = get().event;
+    if (current?.id === event.id) set({ event: { ...current, ...event } });
+  },
+
   setEventId: (eventId) => set({ eventId }),
 
   hasEventId: (eventId) => get().eventId === eventId,

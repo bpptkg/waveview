@@ -23,6 +23,7 @@ import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { formatTimezonedDate } from '../../shared/time';
 import { useAppStore } from '../../stores/app';
 import { usePickerStore } from '../../stores/picker';
+import { useEventDetailStore } from '../../stores/eventDetail';
 import {
   EventDeleteNotificationData,
   EventUpdateNotificationData,
@@ -121,7 +122,9 @@ const NotificationPanel = () => {
         if (notification.dirty) {
           handleUpdateEventMarkers();
           if (notification.type === 'event_update') {
-            usePickerStore.getState().applyEventUpdate((notification.data as EventUpdateNotificationData).event);
+            const updated = (notification.data as EventUpdateNotificationData).event;
+            usePickerStore.getState().applyEventUpdate(updated);
+            useEventDetailStore.getState().applyEventUpdate(updated);
           }
         }
       }
@@ -138,6 +141,8 @@ const NotificationPanel = () => {
         if (store.editedEvent) {
           store.fetchEditedEvent(store.editedEvent.id).then(store.applyEventUpdate).catch(() => undefined);
         }
+        const detail = useEventDetailStore.getState();
+        if (detail.eventId) detail.fetchEvent(detail.eventId, { clearCache: true });
       };
       socket.addEventListener('open', refresh);
       return () => {
