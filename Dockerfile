@@ -4,7 +4,7 @@ WORKDIR /app
 
 RUN apk add --no-cache git
 
-RUN wget -qO- https://get.pnpm.io/install.sh | ENV="$HOME/.shrc" SHELL="$(which sh)" sh -
+RUN wget -qO- https://get.pnpm.io/install.sh | ENV="$HOME/.shrc" SHELL="$(which sh)" PNPM_VERSION=9 sh -
 
 COPY package.json pnpm-lock.yaml ./
 
