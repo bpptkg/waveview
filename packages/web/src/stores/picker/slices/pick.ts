@@ -1,5 +1,5 @@
 import { SignalAmplitude } from '../../../types/amplitude';
-import { Attachment, ManualAmplitude, SeismicEventDetail } from '../../../types/event';
+import { Attachment, ManualAmplitude, SeismicEvent, SeismicEventDetail } from '../../../types/event';
 import { PickAssistant } from '../../../types/pickAssistant';
 
 export interface PickSlice {
@@ -14,6 +14,10 @@ export interface PickSlice {
   attachments: Attachment[];
   amplitudes: SignalAmplitude[];
   editedEvent: SeismicEventDetail | null;
+  includeObservation: boolean;
+  remoteUpdate: boolean;
+  setIncludeObservation: (value: boolean) => void;
+  applyEventUpdate: (event: SeismicEvent) => void;
   isCalculatingAmplitudes: boolean;
   useOutlierFilter: boolean;
   manualAmplitudes: ManualAmplitude[];

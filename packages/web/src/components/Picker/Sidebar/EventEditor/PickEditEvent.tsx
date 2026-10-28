@@ -7,6 +7,7 @@ import { useEventTypeStore } from '../../../../stores/eventType';
 import { usePickerStore } from '../../../../stores/picker';
 import Author from '../../../Common/Author';
 import Collaborators from '../../../Common/Collaborators';
+import AutoclassResult from '../../../Catalog/AutoclassResult';
 import { usePickerContext } from '../../PickerContext';
 
 const useStyles = makeStyles({
@@ -26,6 +27,7 @@ const PickEditEvent: React.FC = () => {
     amplitudes,
     duration,
     editedEvent,
+    remoteUpdate,
     eventId,
     eventTypeId,
     isCalculatingAmplitudes,
@@ -220,6 +222,9 @@ const PickEditEvent: React.FC = () => {
           onChange={(_, data) => handleNoteChange(data.value)}
         />
       </Field>
+      {remoteUpdate && <div role="status">Updated on the server; your unsaved form has been kept. Review before saving.</div>}
+      {editedEvent?.evaluation_mode === 'automatic' && editedEvent.evaluation_status === 'preliminary' && <div>Automatic event · awaiting operator validation</div>}
+      <AutoclassResult value={editedEvent?.autoclass} time={time} />
 
       {editedEvent && (
         <>

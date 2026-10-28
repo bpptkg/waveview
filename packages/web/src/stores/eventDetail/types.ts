@@ -1,4 +1,4 @@
-import { SeismicEventDetail } from '../../types/event';
+import { SeismicEvent, SeismicEventDetail } from '../../types/event';
 
 export interface RefreshOptions {
   clearCache?: boolean;
@@ -13,6 +13,7 @@ export interface EventDetailStore {
    * Sets the event details.
    */
   setEvent(event: SeismicEventDetail): void;
+  applyEventUpdate(event: SeismicEvent): void;
   /**
    * Sets the event ID.
    */

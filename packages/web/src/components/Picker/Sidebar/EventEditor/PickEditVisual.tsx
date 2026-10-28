@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { Switch } from '@fluentui/react-components';
 import { useEventTypeStore } from '../../../../stores/eventType';
 import { usePickerStore } from '../../../../stores/picker';
 import VisualExplosionEvent from './VisualExplosionEvent';
@@ -8,7 +9,7 @@ import VisualTectonicEvent from './VisualTectonicEvent';
 import VisualVolcanicEmissionEvent from './VisualVolcanicEmissionEvent';
 
 const PickEditVisual = () => {
-  const { eventTypeId } = usePickerStore();
+  const { eventTypeId, editedEvent, includeObservation, setIncludeObservation } = usePickerStore();
   const { eventTypes } = useEventTypeStore();
 
   const observationType = useMemo(() => {
@@ -34,7 +35,9 @@ const PickEditVisual = () => {
   return (
     <div className="p-2">
       <div className="h-[32px] font-semibold">Visual</div>
-      {component}
+      {editedEvent?.autoclass && <Switch label="Include visual observation" checked={includeObservation}
+        onChange={(_, data) => setIncludeObservation(data.checked)} />}
+      {includeObservation ? component : <div>Seismic classification can be validated without a visual observation. Existing observations are preserved.</div>}
     </div>
   );
 };

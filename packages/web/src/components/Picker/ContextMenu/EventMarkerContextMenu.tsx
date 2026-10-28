@@ -280,6 +280,7 @@ const EventMarkerContextMenu: React.ForwardRefExoticComponent<React.RefAttribute
         <div className="flex items-center gap-1 p-1">
           <CircleFilled fontSize={20} color={selectedEvent ? getEventTypeColor(selectedEvent.type, darkMode) : undefined} />
           <span>{selectedEvent?.type.code}</span>
+          {selectedEvent?.evaluation_status === 'preliminary' && <span>· awaiting validation</span>}
         </div>
         <Divider />
         <MenuList hasIcons>
