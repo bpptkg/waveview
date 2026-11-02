@@ -13,19 +13,20 @@ const MAX_POLLS = 60;
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Returns the server's preview for `time` once it answers, or null while it is still unknown.
-// The event is never written: the preview is only a suggestion for the draft time.
-export default function useAutoclassPreview(eventId: string | undefined, time: number, active: boolean): AutoclassPreview | null {
+// Works for new picks and edits alike; nothing is written, the result is only a suggestion.
+export default function useAutoclassPreview(time: number, active: boolean): AutoclassPreview | null {
   const [answer, setAnswer] = useState<{ time: number; preview: AutoclassPreview } | null>(null);
 
   useEffect(() => {
-    if (!eventId || !active) return;
+    if (!active) return;
     const organization = useOrganizationStore.getState().currentOrganization;
     const volcano = useVolcanoStore.getState().currentVolcano;
     const catalog = useCatalogStore.getState().currentCatalog;
     if (!organization || !volcano || !catalog) return;
 
-    const url = apiVersion.autoclassPreviewEvent.v1(organization.id, volcano.id, catalog.id, eventId);
-    const iso = new Date(time).toISOString();
+    const url = apiVersion.autoclassPreviewCatalog.v1(organization.id, volcano.id, catalog.id);
+    // The model works in whole seconds; rounding keeps repeated drags on the same cache entry.
+    const iso = new Date(Math.floor(time / 1000) * 1000).toISOString();
     let cancelled = false;
 
     const run = async () => {
@@ -53,7 +54,7 @@ export default function useAutoclassPreview(eventId: string | undefined, time: n
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [eventId, time, active]);
+  }, [time, active]);
 
   return answer?.time === time ? answer.preview : null;
 }

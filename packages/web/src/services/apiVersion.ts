@@ -125,9 +125,9 @@ export default {
     v1: (organizationId: string, volcanoId: string, catalogId: string, id: string) =>
       `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/${catalogId}/events/${id}/bookmark/`,
   },
-  autoclassPreviewEvent: {
-    v1: (organizationId: string, volcanoId: string, catalogId: string, id: string) =>
-      `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/${catalogId}/events/${id}/autoclass-preview/`,
+  autoclassPreviewCatalog: {
+    v1: (organizationId: string, volcanoId: string, catalogId: string) =>
+      `/api/v1/organizations/${organizationId}/volcanoes/${volcanoId}/catalogs/${catalogId}/autoclass-preview/`,
   },
   getSeismicity: {
     v1: (organizationId: string, volcanoId: string, catalogId: string) =>

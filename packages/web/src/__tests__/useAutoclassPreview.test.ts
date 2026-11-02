@@ -24,27 +24,27 @@ describe('useAutoclassPreview', () => {
   });
   afterEach(() => jest.useRealTimers());
 
-  test('posts the draft time once, then polls until the result is ready', async () => {
+  test('posts the draft time to the catalog once, then polls until ready', async () => {
     mockApi
       .mockResolvedValueOnce(respond(202, { state: 'pending' }))
       .mockResolvedValueOnce(respond(200, { state: 'ok', result: { type_code: 'VTB', top3: [] } }));
-    const time = Date.parse('2026-10-27T01:00:00Z');
-    const { result } = renderHook(() => useAutoclassPreview('ev', time, true));
+    const time = Date.parse('2026-10-27T01:00:00.400Z');
+    const { result } = renderHook(() => useAutoclassPreview(time, true));
 
     expect(result.current).toBeNull();
     await act(async () => { jest.advanceTimersByTime(1000); });
-    expect(mockApi).toHaveBeenNthCalledWith(1, expect.stringContaining('/events/ev/autoclass-preview/'),
+    expect(mockApi).toHaveBeenNthCalledWith(1, expect.stringMatching(/\/catalogs\/cat\/autoclass-preview\/$/),
       { method: 'POST', body: { time: '2026-10-27T01:00:00.000Z' } });
 
     await act(async () => { jest.advanceTimersByTime(2000); });
-    expect(mockApi).toHaveBeenNthCalledWith(2, expect.stringContaining('/events/ev/autoclass-preview/'),
+    expect(mockApi).toHaveBeenNthCalledWith(2, expect.stringMatching(/\/catalogs\/cat\/autoclass-preview\/$/),
       { params: { time: '2026-10-27T01:00:00.000Z' } });
     expect(result.current).toEqual({ state: 'ok', result: { type_code: 'VTB', top3: [] } });
   });
 
-  test('does not call the server while the time equals the saved time', async () => {
+  test('does not call the server while inactive', async () => {
     const time = Date.parse('2026-10-27T01:00:00Z');
-    renderHook(() => useAutoclassPreview('ev', time, false));
+    renderHook(() => useAutoclassPreview(time, false));
     await act(async () => { jest.advanceTimersByTime(5000); });
     expect(mockApi).not.toHaveBeenCalled();
   });
@@ -52,7 +52,7 @@ describe('useAutoclassPreview', () => {
   test('reports unavailable when the server never finishes', async () => {
     mockApi.mockResolvedValue(respond(202, { state: 'pending' }));
     const time = Date.parse('2026-10-27T01:00:00Z');
-    const { result } = renderHook(() => useAutoclassPreview('ev', time, true));
+    const { result } = renderHook(() => useAutoclassPreview(time, true));
 
     await act(async () => { jest.advanceTimersByTime(1000); });
     for (let i = 0; i < 60; i++) {

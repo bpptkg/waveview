@@ -56,8 +56,9 @@ const PickEditEvent: React.FC = () => {
   const appearance = useMemo(() => {
     return darkMode ? 'filled-lighter' : 'filled-darker';
   }, [darkMode]);
-  const timeChanged = editedEvent != null && time !== Date.parse(editedEvent.time);
-  const preview = useAutoclassPreview(eventId, time, timeChanged);
+  // Preview runs for new picks and for edits whose time differs from the saved time.
+  const previewActive = time > 0 && time !== (editedEvent ? Date.parse(editedEvent.time) : undefined);
+  const preview = useAutoclassPreview(time, previewActive);
 
   useEffect(() => {
     seisChartRef?.current?.setPickRange(pickRange);
@@ -229,7 +230,7 @@ const PickEditEvent: React.FC = () => {
       {remoteUpdate && <div role="status">Updated on the server; your unsaved form has been kept. Review before saving.</div>}
       {editedEvent?.evaluation_mode === 'automatic' && editedEvent.evaluation_status === 'preliminary' && <div>Automatic event · awaiting operator validation</div>}
       <AutoclassResult value={editedEvent?.autoclass} time={time} />
-      {timeChanged && <AutoclassPreview preview={preview ?? { state: 'pending' }} />}
+      {previewActive && <AutoclassPreview preview={preview ?? { state: 'pending' }} />}
 
       {editedEvent && (
         <>
