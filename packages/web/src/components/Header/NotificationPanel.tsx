@@ -23,6 +23,7 @@ import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { formatTimezonedDate } from '../../shared/time';
 import { useAppStore } from '../../stores/app';
 import { usePickerStore } from '../../stores/picker';
+import { useCatalogStore } from '../../stores/catalog';
 import { useEventDetailStore } from '../../stores/eventDetail';
 import {
   EventDeleteNotificationData,
@@ -119,13 +120,16 @@ const NotificationPanel = () => {
         setNotifications((prev) => [notification, ...prev]);
         setUnreadCount((prev) => prev + 1);
 
-        if (notification.dirty) {
-          handleUpdateEventMarkers();
-          if (notification.type === 'event_update') {
-            const updated = (notification.data as EventUpdateNotificationData).event;
-            usePickerStore.getState().applyEventUpdate(updated);
-            useEventDetailStore.getState().applyEventUpdate(updated);
+        if (notification.dirty && notification.type === 'event_update') {
+          // The pushed event already carries the change; refetching the whole list on every update overloads the server.
+          const updated = (notification.data as EventUpdateNotificationData).event;
+          if (updated.catalog_id === useCatalogStore.getState().currentCatalog?.id) {
+            usePickerStore.getState().addEventMarker(updated);
           }
+          usePickerStore.getState().applyEventUpdate(updated);
+          useEventDetailStore.getState().applyEventUpdate(updated);
+        } else if (notification.dirty) {
+          handleUpdateEventMarkers();
         }
       }
     },
