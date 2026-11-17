@@ -128,6 +128,18 @@ export interface AutoclassData {
   sync?: { state: string; error?: string | null };
 }
 
+export interface AutoclassPreview {
+  state: 'pending' | 'ok' | 'missing' | 'disabled' | 'unavailable' | 'data_unavailable' | 'invalid_result' | 'configuration';
+  result?: {
+    type_code: string;
+    prob_jenis?: number | null;
+    arah?: string | null;
+    prob_arah?: number | null;
+    top3: { type_code: string; p: number }[];
+    cek_tektonik?: string | null;
+  };
+}
+
 export interface SeismicEvent {
   id: string;
   catalog_id: string;

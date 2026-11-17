@@ -75,3 +75,33 @@ test('reconnect refetches the active catalog detail without using its old cache'
     fetchEdited.mockRestore();
   }
 });
+
+const pushEventUpdate = (socket: EventTarget, pushed: SeismicEventDetail) =>
+  act(() => socket.dispatchEvent(new MessageEvent('message', { data: JSON.stringify({
+    type: 'notify', data: { type: 'event_update', title: 'Updated', body: '', dirty: true,
+      data: { event: pushed, actor: event.author, catalog_name: 'Merapi' } },
+  }) })));
+
+test('event update in the open catalog upserts the marker without refetching the list', () => {
+  const socket = new EventTarget();
+  useCatalogStore.setState({ currentCatalog: { id: 'catalog' } as Catalog });
+  usePickerStore.setState({ eventMarkers: [] });
+  render(<WebSocketContext.Provider value={socket as unknown as ReconnectingWebSocket}>
+    <NotificationPanel />
+  </WebSocketContext.Provider>);
+  pushEventUpdate(socket, event);
+  expect(usePickerStore.getState().eventMarkers.map((e) => e.id)).toEqual(['event']);
+  expect(usePickerStore.getState().fetchEventMarkers).not.toHaveBeenCalled();
+});
+
+test('event update from another catalog does not change the open markers', () => {
+  const socket = new EventTarget();
+  useCatalogStore.setState({ currentCatalog: { id: 'catalog' } as Catalog });
+  usePickerStore.setState({ eventMarkers: [] });
+  render(<WebSocketContext.Provider value={socket as unknown as ReconnectingWebSocket}>
+    <NotificationPanel />
+  </WebSocketContext.Provider>);
+  pushEventUpdate(socket, { ...event, catalog_id: 'other' });
+  expect(usePickerStore.getState().eventMarkers).toEqual([]);
+  expect(usePickerStore.getState().fetchEventMarkers).not.toHaveBeenCalled();
+});

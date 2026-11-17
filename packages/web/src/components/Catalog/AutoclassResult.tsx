@@ -1,5 +1,6 @@
 import { Badge } from '@fluentui/react-components';
 import { AutoclassData } from '../../types/event';
+import { score } from './autoclassScore';
 
 const states: Record<string, string> = {
   pending: 'Waiting for waveform data', running: 'Classifying waveform',
@@ -7,8 +8,6 @@ const states: Record<string, string> = {
   skipped: 'Automatic classification skipped', stale: 'Prediction is for a different event time or model revision',
   succeeded: 'Prediction available',
 };
-
-const score = (value?: number | null) => value == null ? 'Not available' : `${Math.round(value * 100)}%`;
 
 export default function AutoclassResult({ value, time }: { value?: AutoclassData | null; time?: number }) {
   if (!value) return null;

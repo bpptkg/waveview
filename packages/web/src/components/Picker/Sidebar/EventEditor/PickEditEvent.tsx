@@ -7,8 +7,10 @@ import { useEventTypeStore } from '../../../../stores/eventType';
 import { usePickerStore } from '../../../../stores/picker';
 import Author from '../../../Common/Author';
 import Collaborators from '../../../Common/Collaborators';
+import AutoclassPreview from '../../../Catalog/AutoclassPreview';
 import AutoclassResult from '../../../Catalog/AutoclassResult';
 import { usePickerContext } from '../../PickerContext';
+import useAutoclassPreview from './useAutoclassPreview';
 
 const useStyles = makeStyles({
   dropdown: {
@@ -54,6 +56,9 @@ const PickEditEvent: React.FC = () => {
   const appearance = useMemo(() => {
     return darkMode ? 'filled-lighter' : 'filled-darker';
   }, [darkMode]);
+  // Preview runs for new picks and for edits whose time differs from the saved time.
+  const previewActive = time > 0 && time !== (editedEvent ? Date.parse(editedEvent.time) : undefined);
+  const preview = useAutoclassPreview(time, previewActive);
 
   useEffect(() => {
     seisChartRef?.current?.setPickRange(pickRange);
@@ -225,6 +230,7 @@ const PickEditEvent: React.FC = () => {
       {remoteUpdate && <div role="status">Updated on the server; your unsaved form has been kept. Review before saving.</div>}
       {editedEvent?.evaluation_mode === 'automatic' && editedEvent.evaluation_status === 'preliminary' && <div>Automatic event · awaiting operator validation</div>}
       <AutoclassResult value={editedEvent?.autoclass} time={time} />
+      {previewActive && <AutoclassPreview preview={preview ?? { state: 'pending' }} />}
 
       {editedEvent && (
         <>
